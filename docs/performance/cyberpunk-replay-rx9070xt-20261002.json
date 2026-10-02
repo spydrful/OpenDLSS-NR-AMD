@@ -252,7 +252,7 @@
     }
   },
   "binaries": {
-    "diagnostic_sha256": "1c5f969fb3474d53956b959cafea423ebebb64b26c6a7b72374f889fc96efa4",
+    "diagnostic_sha256": "1c5f969fb3474d53956b959cfafea423ebebb64b26c6a7b72374f889fc96efa4",
     "captured_runtime_sha256": "0c5c05c57ff7faa6c96c4d84dd84c15ba6d299e969985fbddf5093f68cdd91cf"
   },
   "limitations": [

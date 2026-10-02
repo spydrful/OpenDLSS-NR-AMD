@@ -21,25 +21,35 @@ limit; the current runtime rejects that path. The alpha 1 median was 217.949 ms.
 See the [performance implementation record](amd-performance-implementation.md)
 for the current configuration, hashes and measurement scope.
 
-Three alpha 2 NR-off Cyberpunk built-in benchmarks report 99.58, 99.32 and
-101.74 average FPS. The first ordinary NR-on pass reports **7.51 FPS**, with
-972 frames over 129.51 seconds; two additional passes and ten minutes of active
-gameplay remain pending. In-game frame generation and driver AFMF were observed
-off for these runs. Conservative PresentMon subsets are reported separately
-from full built-in benchmark results in the performance record.
-The game runs and eight-frame genuine replay used earlier application binaries;
-the current legal network measurement and final package identities are recorded
-separately. The shader aggregates are unchanged, but these are not fresh game
-benchmarks of the final binaries.
+The final alpha 2 binaries have three warmed NR-off and three NR-on complete
+Cyberpunk built-in benchmark passes. Equal-pass means are **97.66045 FPS off /
+7.54553 FPS on**. Complete exported NR-on frame times have pooled median
+**132.55 ms**, P95 **133.89 ms** and P99 **134.637 ms**. In-game FG and driver
+AFMF were observed off. See the [final alpha 2 validation record](cyberpunk-alpha2-validation.md)
+for identities, per-pass results, settings and exclusions. Closed timing analysis
+finds NR-plus-bridge medians **124.953 / 124.964 / 124.952 ms** in three asynchronous
+completed-job brackets. Five world-only PresentMon subsets are separately
+qualified; off-pass2 is excluded. Eight final-alpha2 fixed-camera SDR frames pass
+identical/evolved numerical replay. Ten minutes of active gameplay were not run
+and require manual input; broad scene/temporal review remains incomplete. Final
+test cleanup is complete.
+
+Earlier optimized application binaries reported 99.58, 99.32 and 101.74 NR-off
+average FPS and one **7.51 FPS** NR-on pass, with 972 frames over 129.51 seconds.
+Those historical runs and the eight-frame genuine alley replay retain their
+original identities in the performance record. Shader aggregates are unchanged,
+but those results are not relabeled as final release-binary benchmarks.
 
 The older alpha 1 NR-on passes reported 4.56, 4.56 and 4.57 FPS, with about
 213 ms NR-plus-bridge time. Driver AFMF was unverified in that historical test,
 so those older presentation FPS values do not assert real-rendered FPS.
 The [validation record](rx9070xt-validation.md) includes the actual settings,
 frame-time percentiles, VRAM samples, numerical comparisons and remaining
-game-quality checks. The temporary alpha 2 test installation was removed and
-the original user settings restored byte for byte; imported models and local
-captures were preserved.
+game-quality checks. The earlier temporary test installation was removed and
+its original user settings restored byte for byte; imported models and local
+captures were preserved. The separate final alpha 2 test session has also been
+removed and its original settings restored exactly; models and captures remain
+local for diagnostic replay.
 
 ## Validation status
 
@@ -70,11 +80,14 @@ fork. No model weights or reference captures are distributed here.
 
 The legal Q64/Q32 preserving comparison passes 657 operators / 858 strict byte
 checks, all 75 model checkpoints and the F32 head at 320×320, and complete
-target-resolution output. Eight genuine target-resolution game frames pass
-the composed RGB thresholds against the portable exact reference with both
-identical and independently evolved histories. Their short alley sequence and
-limited spatial inspection leave broader scene coverage and temporal review
-pending; they do not resolve the synthetic HDR-highlight failures below.
+target-resolution output. Eight genuine frames from the earlier application
+binaries pass composed RGB thresholds against the portable exact reference in
+both history modes. A separate final-alpha2 eight-frame fixed-camera city replay
+also passes every frame: minimum identical/evolved results are **51.32959 dB /
+0.999792** and **50.52491 dB / 0.999676**. Its 40 production-reproduction checks
+match exactly; accelerated-to-reference output is not byte-exact and localized
+highlight errors remain. Both short sequences leave broad scene coverage and
+temporal review incomplete; neither resolves the synthetic HDR failures below.
 
 The initial game release evaluation targets an SDR display. HDR display
 validation is deferred by the user; the separate HDR synthetic diagnostics
@@ -461,8 +474,10 @@ repeatable replay alone does not establish NVIDIA parity or visual quality.
 Local images/history may contain game content and should remain outside source
 archives and distributable packages.
 
-The current machine, game settings, captures and measured results are recorded
-in [rx9070xt-validation.md](rx9070xt-validation.md). Keep that record with the
+Final alpha 2 settings and measured results are recorded in
+[cyberpunk-alpha2-validation.md](cyberpunk-alpha2-validation.md); historical
+measurements remain in [rx9070xt-validation.md](rx9070xt-validation.md).
+Keep each record with its
 matching source and binaries. Use the following fields for additional runs;
 this is a reporting template, rather than a claim that existing measurements
 are absent. Do not substitute upstream NVIDIA numbers.

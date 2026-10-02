@@ -366,15 +366,53 @@ Identical-history replay uses the same recorded prior history for reference/cand
 
 Eight genuine Cyberpunk frames (1155-1162) at 1707x960 were subsequently replayed against the portable exact reference. Every matched scene-linear RGB frame passes PSNR >=40 dB and SSIM >=0.99 with fixed data range 1.0: minimum identical-history results are **49.536 dB / 0.998920**, and minimum independently evolved-history results are **48.519 dB / 0.998642**. The selected Q32/K16 replay matches captured preprocessing, F32 head and composed production buffers byte for byte on all eight frames. [Scalar replay evidence](performance/cyberpunk-replay-rx9070xt-20261002.json) excludes source buffers and imagery. The sequence shows camera movement and steam in an alley. It does not demonstrate faces, moving objects, cuts, exposure transitions or broader disocclusion coverage. Four spatial contact-sheet pairs received limited inspection; temporal flicker/ghosting acceptance remains pending. These passes do not override the synthetic HDR-highlight failures.
 
-## Game status and remaining work
+## Final alpha 2 game status
+
+The published alpha 2 binaries (source `7f1cd3108133d8aee9bae505cb31542e236d13e0`, runtime `638de5aee97b65d5e091c5eb6af63df96cf38d729985cadff2b8cb79fe5c3e6c`) now have three warmed NR-off and three warmed NR-on complete Cyberpunk benchmark passes. Equal-pass averages are **97.66045 FPS off / 7.54553 FPS on**; the 2,916 complete exported NR-on frame times have median **132.55 ms**, P95 **133.89 ms** and P99 **134.637 ms**. These complete game-exported statistics are separate from PresentMon subsets and runtime-stage spans. [The final alpha 2 validation record](cyberpunk-alpha2-validation.md) and [its scalar evidence](performance/cyberpunk-alpha2-rx9070xt-20261002.json) retain the actual identities, repeat variation, settings and exclusions.
+
+Closed final-alpha2 evidence qualifies five bounded world PresentMon subsets with the matching TimeInQPC present clock and three asynchronous completed-job brackets; off-pass2 is excluded because its end marker followed the results screen. Network medians are **123.699 / 123.694 / 123.655 ms**, and NR-plus-bridge medians are **124.953 / 124.964 / 124.952 ms**. Maximum observed sampled DXGI process-local usage is **9,607.879 MiB**; refresh occurs every 60 completed jobs, so this is not a true peak. Runtime jobs remain separate from game presents and complete engine-exported frames.
+
+Eight final-alpha2 genuine fixed-camera SDR city frames (7085–7092) pass every composed-image threshold against the unchanged portable exact reference: minimum identical/evolved values are **51.32959 dB / 0.999792** and **50.52491 dB / 0.999676**. All 32 reference/candidate runs succeed; the 16 AMD candidates use Q32/K16, while reference runs retain the exact software schedule. Forty independently streamed buffer checks reproduce captured production exactly. This is not exact-reference byte parity: maximum RGB errors are **1.87991 / 1.90947**, requiring localized highlight and visual review. Exposure is unavailable with fallback1 throughout; no exposure-change or broad motion/face/cut/disocclusion coverage is established.
+
+Ten minutes of active gameplay were not run and still require manual input; automated control did not establish sustained movement. Broad image/temporal review remains incomplete. Diagnostic capture readback is excluded from ordinary timing. Final cleanup is complete: 35 managed files were removed, processes/ledger/owned flags are absent, original settings were restored exactly, and models/captures were retained. The 8 ms NR-plus-bridge and 60 FPS targets and existing synthetic HDR-highlight quality gate remain unmet; NR stays disabled by default.
+
+The later timing-helper correction pairs hybrid-trace `MsBetweenPresents` with
+`TimeInQPC`, instead of the distinct `CPUStartQPC` clock. Eleven CPU tests pass;
+newly named reports replace world-bound qualification while preserving raw and
+original reports. Missing Dropped/FrameType fields remain unknown observations,
+not zero drops/generation. This source-only analysis fix does not alter the
+published binaries or any complete engine benchmark result.
+
+## Source-only JSON hardening after alpha 2
+
+A later CPU-only parser fix rejects malformed literals, duplicate decoded keys,
+invalid strings/escapes/UTF-8 and invalid or unrepresentable numbers, with bounded
+nesting. The reproducible regression script runs **167 checks** by default and
+**168** with the local model manifest. The native tuning selector passes **75**
+valid-cache checks; a malformed `trux` cache fails visibly. Baseline/new parsed
+output matches exactly for **36 actual JSON files / 208,437 typed nodes**.
+
+```powershell
+./tests/test_json_parser.ps1
+```
+
+The script builds only its CPU test executable in a unique ignored directory and
+generates its malformed-cache witness there. This fix is later source work; the
+published alpha 2 assets and the binaries used for the game/replay measurements
+above retain their recorded identities and original parser. New runtime/core
+builds and native GPU/bridge validation are required before shipping the fix.
+
+## Historical game evaluation before the final alpha 2 tests
+
+The measurements and checkpoint statuses below belong to earlier application binaries. They remain unchanged evidence and must not be substituted into the final alpha 2 benchmark record above.
 
 The **older implementation** completed three Cyberpunk benchmark passes at 4.56, 4.56 and 4.57 average application FPS, plus a 600-second limited live-world session. In-game frame generation was off; driver AFMF was not verified, so those records do not assert real-rendered FPS. They used a different runtime/shader configuration and must not be reused as optimized-kernel results. See [the validation record](rx9070xt-validation.md) for exact settings, hashes, selected PresentMon intervals and scope.
 
 An initial optimized-package launch crashed with NR disabled in the unchanged OptiScaler host's cached NVIDIA Streamline capability-spoofing path, before the neural runtime loaded. The AMD/FSR package default now sets `[Spoofing] StreamlineSpoofing=false`; subsequent runs reached gameplay and completed the measurements below.
 
-At 2560x1440 output, FSR Quality, ray tracing off and target High graphics fields (the game labels the edited preset Custom), three NR-off built-in benchmarks report **99.58 / 99.32 / 101.74 average FPS**. The first ordinary NR-on built-in benchmark reports **7.51 average FPS**, 7.44 minimum and 7.59 maximum, with 972 frames over 129.51 seconds. In-game frame generation and the Cyberpunk driver profile's AFMF were observed off; CSV rows alone do not prove those settings. The remaining two NR-on passes and ten-minute active gameplay test remain pending.
+At 2560x1440 output, FSR Quality, ray tracing off and target High graphics fields (the game labels the edited preset Custom), three earlier NR-off built-in benchmarks reported **99.58 / 99.32 / 101.74 average FPS**. The first ordinary NR-on built-in benchmark reported **7.51 average FPS**, 7.44 minimum and 7.59 maximum, with 972 frames over 129.51 seconds. In-game frame generation and the Cyberpunk driver profile's AFMF were observed off; CSV rows alone do not prove those settings. At that checkpoint, two additional NR-on passes and the ten-minute active gameplay test had not been completed.
 
-These game runs and the complete genuine eight-frame replay used CLI `1c5f969fb3474d53956b959cafea423ebebb64b26c6a7b72374f889fc96efa4` and runtime `0c5c05c57ff7faa6c96c4d84dd84c15ba6d299e969985fbddf5093f68cdd91cf`, with the prior Q32 tuning. The current legal network benchmark uses its separately identified CLI. Final package identity updates do not turn these earlier game runs into fresh release-binary benchmarks, although the selected shader aggregates are unchanged.
+These game runs and the complete genuine eight-frame replay used CLI `1c5f969fb3474d53956b959cfafea423ebebb64b26c6a7b72374f889fc96efa4` and runtime `0c5c05c57ff7faa6c96c4d84dd84c15ba6d299e969985fbddf5093f68cdd91cf`, with the prior Q32 tuning. The current legal network benchmark uses its separately identified CLI. Final package identity updates do not turn these earlier game runs into fresh release-binary benchmarks, although the selected shader aggregates are unchanged.
 
 PresentMon analysis uses explicit process/swap-chain selection and independently observed QPC boundaries. These conservative world subsets are separate from the full built-in benchmark results:
 
@@ -387,23 +425,25 @@ The NR-on end boundary is conservatively qualified one second before the last co
 
 [Published scalar game evidence](performance/cyberpunk-rx9070xt-20261002.json) also records an asynchronous completed-job bracket after the observed world-start anchor through the delayed original end anchor: 840 completed NR jobs, median inference **124.429 ms**, median GPU NR-plus-bridge span **125.711 ms** and P95 **126.274 ms**, with sampled DXGI process-local VRAM peak **9,645.352 MiB**. This bracket can include a menu transition at its end and is not the conservative QPC-aligned world interval above; completion rows are never joined to presents. The ending session counters show 3,070 submitted and zero bypassed. VRAM refreshes every 60 jobs, and the neural allocation counter excludes weights, game resources and shared buffers. The existing user driver FSR upscaling override remained enabled in both conditions, so the selected game setting does not independently establish the exact effective upscaler version.
 
-Further UI-driven test runs are currently blocked by a Windows Security prompt from the profiling service. This leaves the two additional NR-on runs, active gameplay and broad motion review incomplete; it does not change the measured first-pass result or close any release gate. The temporary test package was subsequently removed and original user settings restored byte for byte. Imported models and local captures were preserved; the restored settings SHA-256 is `d1b2419f1da1a308f13b594b222d77144f5b42f0836b2ae92beefb0da18607c6`.
+Further UI-driven runs in that earlier evaluation were blocked by a Windows Security prompt from the profiling service. The user subsequently dismissed it before the final alpha 2 tests. The earlier checkpoint had two additional NR-on runs, active gameplay and broad motion review incomplete; that limitation did not change its measured first-pass result or close any release gate. Its temporary test package was removed and original user settings restored byte for byte. Imported models and local captures were preserved; the earlier restored settings SHA-256 is `d1b2419f1da1a308f13b594b222d77144f5b42f0836b2ae92beefb0da18607c6`. Cleanup for the separate final alpha 2 test session is also complete and is independently recorded in its validation record.
 
-Current optimized-build evidence and remaining gates:
+Status at the end of that earlier-binary evaluation:
 
-| Optimized game evidence | Status |
+| Earlier optimized game evidence | Historical checkpoint status |
 | --- | --- |
-| Exact packaged runtime/host/SPIR-V/tuning hashes | Pending final package snapshot |
+| Exact packaged runtime/host/SPIR-V/tuning hashes | Snapshot was pending at this checkpoint; the separate final identity record is now available |
 | Final offline/RGP pipeline delivery analysis | Partial RGP Q32 wave32/resources/native FP8 WMMA confirmed; truncated SQTT and no analyzed wavefronts leave dynamic/full-graph analysis unqualified; final Q32 offline specializations recorded |
 | NR-off startup with the safe packaged INI | Pass through three built-in benchmark runs |
 | NR-off baseline, matching 1440p/FSR settings | 99.58 / 99.32 / 101.74 average FPS; bounded pass-2 PresentMon subset reported separately |
-| NR-on warmup plus three measured passes | First ordinary measured pass 7.51 FPS; two additional passes pending |
+| NR-on warmup plus three measured passes | Earlier first ordinary pass 7.51 FPS; two additional passes were pending at this checkpoint |
 | Full frame median/P95/P99 and stage timing/VRAM | Bounded PresentMon subsets above; completed-job bracket has 125.711 ms median NR-plus-bridge and 9,645.352 MiB sampled peak; full-pass distributions pending |
 | Bypass counts, resize/cancel/drain and host continuation regressions | Eight-frame native harness passes; target-to-192 resize selects Q32 then Q64; observed NR-on completion bracket ends at 3,070 submitted / 0 bypassed |
-| Ten-minute updated live-world session | Pending |
+| Ten-minute updated live-world session | Pending at this checkpoint; final active gameplay still needs manual input |
 | Genuine bounded scene captures, identical/evolved replay | Eight genuine 1707x960 frames pass every numerical threshold in both modes; captured production head/composition reproduce byte for byte |
 | Faces, motion, exposure, cuts, disocclusion and human artifact review | Pending |
 
 The next kernel work should prioritize the now-dominant FP8 GEMM family: distinguish operand supply and software half-publication cost from occupancy, probe a correctly rounded hardware conversion against the existing witnesses, and redesign the slower fusion paths before further promotion. Remaining attention work follows its current measured 20.854 ms family span. The exact F24 adapter/head and software reference remain useful anchors. A different model, skipped NR updates, frame generation, old-result reuse or a translated game backend would require their own behavior and quality decision; they are not the speedup reported here.
+
+[The remaining-work record](amd-performance-next-steps.md) identifies source gaps separately from acceptance evidence. AMD FFN and QKV use separate kernels but still share enablement; independent per-route selection and qualification remain work. Pooling/upsampling variants and C512 split-FFN fusion are partial. The measured FP8 GEMM family remains the first priority at 89.324 ms, about 74% of the instrumented candidate frame. These partial routes and pending evidence prevent describing the entire performance plan as complete; slower fusion remains disabled by default.
 
 The implemented experiments provide a measurable reduction and stricter reproducibility. They have not reached the requested performance budget or completed the game release gates.

@@ -1,0 +1,1820 @@
+{
+  "format": "OpenNR-cyberpunk-final-alpha2-evidence-v1",
+  "recorded_date_utc": "2026-10-02",
+  "status": "six_benchmarks_timing_cleanup_and_bounded_numeric_replay_complete_remaining_acceptance_unmet",
+  "release_gates_met": false,
+  "proprietary_artifacts_included": false,
+  "release": {
+    "tag": "v0.1.0-alpha.2",
+    "source_commit": "7f1cd3108133d8aee9bae505cb31542e236d13e0",
+    "package_assets_unchanged": true,
+    "nr_enabled_in_release_by_default": false
+  },
+  "binaries": {
+    "runtime_sha256": "638de5aee97b65d5e091c5eb6af63df96cf38d729985cadff2b8cb79fe5c3e6c",
+    "diagnostic_sha256": "ac87f20bf8483688388abcf94d82724b591e95874449bc194d90934d36b236f8",
+    "host_sha256": "3c43bb1d4a5843b68b0537b8703c4a0c12bf4e47f17c53e225df57cad276dee7",
+    "tuning_sha256": "6f2298c945eaa54527d9642a31a9d47d29ebd1d768a128442f9f9f4374c6017d",
+    "final_identity_record": "final-rx9070xt-binary-identities.json",
+    "identity_scope": "Installed package identities verified by root; benchmark report alone does not encode NR condition or DLL hash."
+  },
+  "software": {
+    "game": "Cyberpunk 2077 2.31",
+    "game_executable_product_version": "3.0.5294808",
+    "driver": "AMD Software Adrenalin 26.9.1 (LLPC)",
+    "gpu": "Radeon RX 9070 XT (1002:7550), 16 GiB",
+    "windows": "Windows 11 Pro 10.0.26200",
+    "vulkan": "1.4.349"
+  },
+  "settings": {
+    "output": [
+      2560,
+      1440
+    ],
+    "target_nr_render": [
+      1707,
+      960
+    ],
+    "target_nr_padded": [
+      1728,
+      960
+    ],
+    "geometry_scope": "Root observed 1707x960 valid / 1728x960 padded geometry in the final-runtime warmup; runtime logs retain the same geometry and policy during all three completed NR-on passes.",
+    "preset": "Custom with target High fields; texture High",
+    "game_upscaler": "AMD FidelityFX Super Resolution 3.0 Quality",
+    "effective_upscaler_version": "not independently established",
+    "driver_fsr_upscaling_override": "Enabled; unchanged between conditions",
+    "ray_tracing": false,
+    "path_tracing": false,
+    "game_frame_generation": false,
+    "driver_afmf": false,
+    "driver_fsr_frame_generation_override": false,
+    "dynamic_resolution": false,
+    "hdr_display": "None / SDR",
+    "window_mode": "Windowed",
+    "v_sync": false,
+    "maximum_fps_limit": false,
+    "verification_method": "Direct AMD profile accessibility and Cyberpunk settings UI observation; complete builtin reports independently record game FG/RT/DRS settings."
+  },
+  "complete_builtin_benchmarks": {
+    "nr_off": {
+      "status": "complete_three_warmed_passes",
+      "warmup_excluded": true,
+      "warmup_source": "off-warmup-builtin.json",
+      "passes": [
+        {
+          "pass": 1,
+          "average_fps": 96.09036254882812,
+          "minimum_fps": 72.82949829101562,
+          "maximum_fps": 120.1850814819336,
+          "duration_seconds": 64.2624282836914,
+          "frame_count": 6175,
+          "complete_exported_frame_time_ms": {
+            "mean": 10.406621862348178,
+            "median": 10.1,
+            "p95": 13.73,
+            "p99": 15.7,
+            "min": 7.14,
+            "max": 20.58
+          },
+          "exported_frame_rows": 6175
+        },
+        {
+          "pass": 2,
+          "average_fps": 96.61504364013672,
+          "minimum_fps": 73.34066772460938,
+          "maximum_fps": 116.83198547363281,
+          "duration_seconds": 64.2446517944336,
+          "frame_count": 6207,
+          "complete_exported_frame_time_ms": {
+            "mean": 10.349985500241663,
+            "median": 9.95,
+            "p95": 13.636999999999999,
+            "p99": 15.187599999999984,
+            "min": 7.53,
+            "max": 20.52
+          },
+          "exported_frame_rows": 6207
+        },
+        {
+          "pass": 3,
+          "average_fps": 100.27593994140625,
+          "minimum_fps": 74.87608337402344,
+          "maximum_fps": 123.50711059570312,
+          "duration_seconds": 64.2626724243164,
+          "frame_count": 6444,
+          "complete_exported_frame_time_ms": {
+            "mean": 9.972082557417753,
+            "median": 9.6,
+            "p95": 13.358499999999994,
+            "p99": 14.955699999999997,
+            "min": 7.13,
+            "max": 22.5
+          },
+          "exported_frame_rows": 6444
+        }
+      ],
+      "average_fps_repeat_statistics": {
+        "values": [
+          96.09036254882812,
+          96.61504364013672,
+          100.27593994140625
+        ],
+        "mean_equal_pass_weight": 97.6604487101237,
+        "median": 96.61504364013672,
+        "min": 96.09036254882812,
+        "max": 100.27593994140625,
+        "range": 4.185577392578125,
+        "sample_standard_deviation_n_minus_1": 2.280223310902056,
+        "coefficient_of_variation_percent": 2.3348482840481593
+      },
+      "pooled_complete_exported_frame_time_ms": {
+        "mean": 10.239209072559227,
+        "median": 9.88,
+        "p95": 13.54,
+        "p99": 15.34,
+        "min": 7.13,
+        "max": 22.5
+      },
+      "pooled_exported_frame_rows": 18826,
+      "percentile_scope": "Complete game-exported rounded frame times, frame-count weighted; not PresentMon subsets. Per-pass FPS mean uses equal pass weighting."
+    },
+    "nr_on": {
+      "status": "complete_three_warmed_passes",
+      "warmup_excluded": true,
+      "passes": [
+        {
+          "pass": 1,
+          "average_fps": 7.546237468719482,
+          "minimum_fps": 7.468321323394775,
+          "maximum_fps": 7.638719081878662,
+          "duration_seconds": 128.805908203125,
+          "frame_count": 972,
+          "complete_exported_frame_time_ms": {
+            "mean": 132.51725308641977,
+            "median": 132.52,
+            "p95": 133.8945,
+            "p99": 134.79579999999999,
+            "min": 128.7,
+            "max": 135.83
+          },
+          "exported_frame_rows": 972
+        },
+        {
+          "pass": 2,
+          "average_fps": 7.544679164886475,
+          "minimum_fps": 7.465299606323242,
+          "maximum_fps": 7.627206325531006,
+          "duration_seconds": 128.83251953125,
+          "frame_count": 972,
+          "complete_exported_frame_time_ms": {
+            "mean": 132.54493827160493,
+            "median": 132.58,
+            "p95": 133.9445,
+            "p99": 134.43,
+            "min": 130.12,
+            "max": 135.62
+          },
+          "exported_frame_rows": 972
+        },
+        {
+          "pass": 3,
+          "average_fps": 7.545670032501221,
+          "minimum_fps": 7.471574306488037,
+          "maximum_fps": 7.6265549659729,
+          "duration_seconds": 128.8155975341797,
+          "frame_count": 972,
+          "complete_exported_frame_time_ms": {
+            "mean": 132.5252366255144,
+            "median": 132.54,
+            "p95": 133.84,
+            "p99": 134.5348,
+            "min": 129.61,
+            "max": 136.95
+          },
+          "exported_frame_rows": 972
+        }
+      ],
+      "average_fps_repeat_statistics": {
+        "values": [
+          7.546237468719482,
+          7.544679164886475,
+          7.545670032501221
+        ],
+        "mean_equal_pass_weight": 7.545528888702393,
+        "median": 7.545670032501221,
+        "min": 7.544679164886475,
+        "max": 7.546237468719482,
+        "range": 0.0015583038330078125,
+        "sample_standard_deviation_n_minus_1": 0.0007886817405978382,
+        "coefficient_of_variation_percent": 0.010452305626696343
+      },
+      "pooled_complete_exported_frame_time_ms": {
+        "mean": 132.5291426611797,
+        "median": 132.55,
+        "p95": 133.89,
+        "p99": 134.637,
+        "min": 128.7,
+        "max": 136.95
+      },
+      "pooled_exported_frame_rows": 2916,
+      "warmup_source": "on-warmup-builtin.json",
+      "percentile_scope": "Complete game-exported rounded frame times, frame-count weighted; not PresentMon subsets. Per-pass FPS mean uses equal pass weighting."
+    }
+  },
+  "presentmon": {
+    "status": "complete_five_matching_present_clock_world_subsets_one_excluded",
+    "world_subsets": [
+      {
+        "pass": "off-1",
+        "application": "Cyberpunk2077.exe",
+        "process_id": 25172,
+        "swap_chain": "0x1fdf5350e50",
+        "qpc_start": 385312274408,
+        "qpc_end": 385615188706,
+        "qpc_frequency": 10000000,
+        "observed_bound_seconds": 30.2914298,
+        "measured_present_intervals": 3161,
+        "application_present_fps": 104.3578587264913,
+        "frame_ms": {
+          "mean": 9.58241202151218,
+          "median": 9.5968,
+          "p95": 11.3,
+          "p99": 12.436940000000002,
+          "min": 6.7476,
+          "max": 21.1971
+        },
+        "zero_intervals_retained": 0,
+        "explicit_generated_rows_removed": 0,
+        "warmup_intervals_removed": 0,
+        "limitations": [
+          "FG-off is an external capture-setting assertion; CSV cannot prove no uninstrumented generation.",
+          "Absent FrameType/Dropped columns mean observations are unavailable; zero filtering/count defaults do not prove zero generation/drops.",
+          "Unknown frame types, dropped/unshown presents and timing outliers are retained.",
+          "Range selection requires both interval endpoints inside the inclusive range; no FPS is inferred from runtime jobs.",
+          "No alignment with OpenNR runtime trace frame IDs is attempted."
+        ],
+        "analyzer_dropped_marked_rows": 0,
+        "observed_dropped_present_count": null,
+        "observed_explicit_generated_frame_count": null,
+        "column_scope": "Dropped/FrameType columns absent; generated_rows_removed=0 is an absence-of-filtering count, not an observed zero generation count.",
+        "qpc_clock_column": "TimeInQPC",
+        "interval_method": "MsBetweenPresents",
+        "analysis_report": "off-1-presentmon-clock-corrected.json"
+      },
+      {
+        "pass": "off-3",
+        "application": "Cyberpunk2077.exe",
+        "process_id": 25172,
+        "swap_chain": "0x1fdf5350e50",
+        "qpc_start": 390960708586,
+        "qpc_end": 391245416727,
+        "qpc_frequency": 10000000,
+        "observed_bound_seconds": 28.4708141,
+        "measured_present_intervals": 3008,
+        "application_present_fps": 105.67064662791476,
+        "frame_ms": {
+          "mean": 9.46336595744681,
+          "median": 9.078,
+          "p95": 12.69097,
+          "p99": 14.503565,
+          "min": 6.8393,
+          "max": 19.1643
+        },
+        "zero_intervals_retained": 0,
+        "explicit_generated_rows_removed": 0,
+        "warmup_intervals_removed": 0,
+        "limitations": [
+          "FG-off is an external capture-setting assertion; CSV cannot prove no uninstrumented generation.",
+          "Absent FrameType/Dropped columns mean observations are unavailable; zero filtering/count defaults do not prove zero generation/drops.",
+          "Unknown frame types, dropped/unshown presents and timing outliers are retained.",
+          "Range selection requires both interval endpoints inside the inclusive range; no FPS is inferred from runtime jobs.",
+          "No alignment with OpenNR runtime trace frame IDs is attempted."
+        ],
+        "analyzer_dropped_marked_rows": 0,
+        "observed_dropped_present_count": null,
+        "observed_explicit_generated_frame_count": null,
+        "column_scope": "Dropped/FrameType columns absent; generated_rows_removed=0 is an absence-of-filtering count, not an observed zero generation count.",
+        "qpc_clock_column": "TimeInQPC",
+        "interval_method": "MsBetweenPresents",
+        "analysis_report": "off-3-presentmon-clock-corrected.json"
+      },
+      {
+        "pass": "on-1",
+        "application": "Cyberpunk2077.exe",
+        "process_id": 25172,
+        "swap_chain": "0x1fdf5350e50",
+        "qpc_start": 399338957298,
+        "qpc_end": 400028550525,
+        "qpc_frequency": 10000000,
+        "observed_bound_seconds": 68.9593227,
+        "measured_present_intervals": 521,
+        "application_present_fps": 7.566140901973627,
+        "frame_ms": {
+          "mean": 132.16777389635317,
+          "median": 132.2211,
+          "p95": 134.46,
+          "p99": 135.59002,
+          "min": 127.4587,
+          "max": 136.6509
+        },
+        "zero_intervals_retained": 0,
+        "explicit_generated_rows_removed": 0,
+        "warmup_intervals_removed": 0,
+        "limitations": [
+          "FG-off is an external capture-setting assertion; CSV cannot prove no uninstrumented generation.",
+          "Absent FrameType/Dropped columns mean observations are unavailable; zero filtering/count defaults do not prove zero generation/drops.",
+          "Unknown frame types, dropped/unshown presents and timing outliers are retained.",
+          "Range selection requires both interval endpoints inside the inclusive range; no FPS is inferred from runtime jobs.",
+          "No alignment with OpenNR runtime trace frame IDs is attempted."
+        ],
+        "analyzer_dropped_marked_rows": 0,
+        "observed_dropped_present_count": null,
+        "observed_explicit_generated_frame_count": null,
+        "column_scope": "Dropped/FrameType columns absent; generated_rows_removed=0 is an absence-of-filtering count, not an observed zero generation count.",
+        "qpc_clock_column": "TimeInQPC",
+        "interval_method": "MsBetweenPresents",
+        "analysis_report": "on-1-presentmon-clock-corrected.json"
+      },
+      {
+        "pass": "on-2",
+        "application": "Cyberpunk2077.exe",
+        "process_id": 25172,
+        "swap_chain": "0x1fdf5350e50",
+        "qpc_start": 402361149129,
+        "qpc_end": 403057036622,
+        "qpc_frequency": 10000000,
+        "observed_bound_seconds": 69.5887493,
+        "measured_present_intervals": 525,
+        "application_present_fps": 7.5636079220607,
+        "frame_ms": {
+          "mean": 132.2120356190476,
+          "median": 132.1614,
+          "p95": 134.39218,
+          "p99": 134.90276,
+          "min": 127.1901,
+          "max": 137.7849
+        },
+        "zero_intervals_retained": 0,
+        "explicit_generated_rows_removed": 0,
+        "warmup_intervals_removed": 0,
+        "limitations": [
+          "FG-off is an external capture-setting assertion; CSV cannot prove no uninstrumented generation.",
+          "Absent FrameType/Dropped columns mean observations are unavailable; zero filtering/count defaults do not prove zero generation/drops.",
+          "Unknown frame types, dropped/unshown presents and timing outliers are retained.",
+          "Range selection requires both interval endpoints inside the inclusive range; no FPS is inferred from runtime jobs.",
+          "No alignment with OpenNR runtime trace frame IDs is attempted."
+        ],
+        "analyzer_dropped_marked_rows": 0,
+        "observed_dropped_present_count": null,
+        "observed_explicit_generated_frame_count": null,
+        "column_scope": "Dropped/FrameType columns absent; generated_rows_removed=0 is an absence-of-filtering count, not an observed zero generation count.",
+        "qpc_clock_column": "TimeInQPC",
+        "interval_method": "MsBetweenPresents",
+        "analysis_report": "on-2-presentmon-clock-corrected.json"
+      },
+      {
+        "pass": "on-3",
+        "application": "Cyberpunk2077.exe",
+        "process_id": 25172,
+        "swap_chain": "0x1fdf5350e50",
+        "qpc_start": 405500735555,
+        "qpc_end": 406195835512,
+        "qpc_frequency": 10000000,
+        "observed_bound_seconds": 69.5099957,
+        "measured_present_intervals": 524,
+        "application_present_fps": 7.562374399099718,
+        "frame_ms": {
+          "mean": 132.2336011450382,
+          "median": 132.2004,
+          "p95": 134.339995,
+          "p99": 135.489791,
+          "min": 128.7317,
+          "max": 137.0074
+        },
+        "zero_intervals_retained": 0,
+        "explicit_generated_rows_removed": 0,
+        "warmup_intervals_removed": 0,
+        "limitations": [
+          "FG-off is an external capture-setting assertion; CSV cannot prove no uninstrumented generation.",
+          "Absent FrameType/Dropped columns mean observations are unavailable; zero filtering/count defaults do not prove zero generation/drops.",
+          "Unknown frame types, dropped/unshown presents and timing outliers are retained.",
+          "Range selection requires both interval endpoints inside the inclusive range; no FPS is inferred from runtime jobs.",
+          "No alignment with OpenNR runtime trace frame IDs is attempted."
+        ],
+        "analyzer_dropped_marked_rows": 0,
+        "observed_dropped_present_count": null,
+        "observed_explicit_generated_frame_count": null,
+        "column_scope": "Dropped/FrameType columns absent; generated_rows_removed=0 is an absence-of-filtering count, not an observed zero generation count.",
+        "qpc_clock_column": "TimeInQPC",
+        "interval_method": "MsBetweenPresents",
+        "analysis_report": "on-3-presentmon-clock-corrected.json"
+      }
+    ],
+    "excluded_intervals": [
+      {
+        "pass": "nr_off_2",
+        "reason": "Observed end marker was after the results screen; cannot assert a world-only interval.",
+        "originals_preserved": true,
+        "corrected_cutoff_inferred": false
+      }
+    ],
+    "limitations": [
+      "Complete builtin exports remain valid independently of PresentMon interval exclusions.",
+      "World subsets require observed QPC boundaries, explicit PID/swapchain selection and both endpoints inside bounds.",
+      "No outlier removal, runtime-frame join or generated-frame substitution.",
+      "Dropped and FrameType columns are absent; dropped/generated observations are unavailable, not zero. No rows are filtered on those fields; FG-off is externally verified.",
+      "Only newly named clock-corrected reports qualify world subsets; original CPUStartQPC-bound reports are preserved but superseded. Raw source bytes are unchanged."
+    ],
+    "source": {
+      "local_relative_path": "final-alpha2-presentmon.csv",
+      "bytes": 141992629,
+      "sha256": "4215e3f9ada913acd90c721fa04387d41b5126c65ad7699cb1b7ddc2d6488b3e",
+      "rows": 643728
+    },
+    "column_availability": {
+      "dropped_flag_column": false,
+      "frame_type_column": false,
+      "observed_dropped_count": null,
+      "observed_explicit_generated_count": null,
+      "note": "Raw CSV has neither Dropped nor FrameType. Analyzer-reported zero counts mean no rows were marked/filtered by those absent columns, not proof of zero dropped/generated presents. FG off remains externally verified."
+    },
+    "clock_correction": {
+      "status": "applied_to_new_reports_originals_preserved",
+      "clock_column": "TimeInQPC",
+      "interval_column": "MsBetweenPresents",
+      "reason": "Direct intervals measure consecutive present starts. The raw hybrid CSV also contains distinct CPUStartQPC values; using that different clock for interval boundaries was incorrect. Corrected reports pair TimeInQPC with MsBetweenPresents.",
+      "primary_source": "https://github.com/GameTechDev/PresentMon/blob/v2.3.1/PresentMon/OutputThread.cpp#L373-L386",
+      "original_cpu_start_clock_reports_preserved": true,
+      "original_reports_qualified_for_world_intervals": false,
+      "regression_tests_passed": 11,
+      "on_3_original_intervals": 525,
+      "on_3_corrected_intervals": 524,
+      "full_builtin_runtime_and_memory_evidence_unchanged": true
+    }
+  },
+  "runtime_completed_jobs": {
+    "status": "complete_three_asynchronously_bounded_published_job_brackets",
+    "ordinary_brackets": [
+      {
+        "pass": "on-1",
+        "observed_world_scope_seconds": 68.9593227,
+        "published_completed_rows": 526,
+        "detected_segments": 1,
+        "first_runtime_frame_id": 1861,
+        "last_runtime_frame_id": 2386,
+        "timings_ms": {
+          "pack_ms": {
+            "mean": 0.05292828897338403,
+            "median": 0.05128,
+            "p95": 0.058789999999999995,
+            "p99": 0.07498,
+            "min": 0.0466,
+            "max": 0.314
+          },
+          "preprocess_ms": {
+            "mean": 0.465901825095057,
+            "median": 0.45086000000000004,
+            "p95": 0.58038,
+            "p99": 0.70017,
+            "min": 0.42104,
+            "max": 0.75048
+          },
+          "inference_ms": {
+            "mean": 123.79271300380229,
+            "median": 123.69896,
+            "p95": 125.08367000000001,
+            "p99": 125.86839,
+            "min": 122.5582,
+            "max": 126.70708
+          },
+          "composite_ms": {
+            "mean": 0.3295603041825095,
+            "median": 0.30488,
+            "p95": 0.49239,
+            "p99": 0.5672600000000001,
+            "min": 0.28036,
+            "max": 0.58192
+          },
+          "unpack_ms": {
+            "mean": 0.0688054752851711,
+            "median": 0.06322,
+            "p95": 0.08610999999999999,
+            "p99": 0.19104000000000002,
+            "min": 0.05916,
+            "max": 0.30764
+          },
+          "neural_ms": {
+            "mean": 125.04610347908745,
+            "median": 124.95318499999999,
+            "p95": 126.26469999999999,
+            "p99": 127.1943575,
+            "min": 123.78474,
+            "max": 127.89494
+          }
+        },
+        "dxgi_vram_mib_sampled": {
+          "mean": 9521.438970413497,
+          "peak": 9530.875
+        },
+        "vram_unknown_jobs": 0,
+        "allocated_neural_bytes_partial_peak": 2383296512,
+        "ending_session_counters": {
+          "submitted_frames": 2388,
+          "bypassed_frames": 0
+        },
+        "asynchronous_snapshot_counter_increases": {
+          "submitted_frames": 526,
+          "bypassed_frames": 0
+        },
+        "completed_row_counter_increases": {
+          "submitted_frames": 525,
+          "bypassed_frames": 0
+        },
+        "first_job_counter_interval_unobserved": true,
+        "limitations": [
+          "Selects rows published after the start complete-row snapshot and through the end snapshot.",
+          "Jobs may have been submitted before the world boundary or published after it; this is not producer/present alignment.",
+          "Counter snapshots are asynchronous session totals; no FPS, exact world-time job count, or per-frame bypass association is inferred.",
+          "Rows are completed NR jobs, not all game frames; no FPS or PresentMon per-frame join is inferred.",
+          "Frame-ID/counter regressions split segments; append-only traces may contain multiple runs.",
+          "Cumulative counters are snapshots, not per-row events; activity before/after trace coverage is unknown.",
+          "VRAM is sampled DXGI process-local usage, refreshed every 60 completed jobs; repeated values are not independent samples.",
+          "allocated_neural_bytes excludes weights, game resources and shared buffers; it is not total VRAM.",
+          "neural_ms spans the GPU bridge and may include waits; it is not network-only time."
+        ]
+      },
+      {
+        "pass": "on-2",
+        "observed_world_scope_seconds": 69.5887493,
+        "published_completed_rows": 540,
+        "detected_segments": 1,
+        "first_runtime_frame_id": 3241,
+        "last_runtime_frame_id": 3780,
+        "timings_ms": {
+          "pack_ms": {
+            "mean": 0.0561997037037037,
+            "median": 0.05136,
+            "p95": 0.06232,
+            "p99": 0.2931752,
+            "min": 0.04676,
+            "max": 0.32392
+          },
+          "preprocess_ms": {
+            "mean": 0.46981562962962964,
+            "median": 0.45246,
+            "p95": 0.64671,
+            "p99": 0.7176256,
+            "min": 0.42824,
+            "max": 0.744
+          },
+          "inference_ms": {
+            "mean": 123.75820911111113,
+            "median": 123.69422,
+            "p95": 124.624534,
+            "p99": 125.0021012,
+            "min": 122.70656,
+            "max": 128.02948
+          },
+          "composite_ms": {
+            "mean": 0.3315305185185185,
+            "median": 0.30554000000000003,
+            "p95": 0.4883599999999999,
+            "p99": 0.5580508000000001,
+            "min": 0.28424,
+            "max": 0.91936
+          },
+          "unpack_ms": {
+            "mean": 0.07018111111111111,
+            "median": 0.06326000000000001,
+            "p95": 0.08787199999999991,
+            "p99": 0.23916720000000002,
+            "min": 0.059,
+            "max": 0.25196
+          },
+          "neural_ms": {
+            "mean": 125.04772405555556,
+            "median": 124.964045,
+            "p95": 125.91348,
+            "p99": 126.2660659,
+            "min": 123.95188,
+            "max": 129.22228
+          }
+        },
+        "dxgi_vram_mib_sampled": {
+          "mean": 9586.190538194445,
+          "peak": 9607.87890625
+        },
+        "vram_unknown_jobs": 0,
+        "allocated_neural_bytes_partial_peak": 2383296512,
+        "ending_session_counters": {
+          "submitted_frames": 3782,
+          "bypassed_frames": 0
+        },
+        "asynchronous_snapshot_counter_increases": {
+          "submitted_frames": 540,
+          "bypassed_frames": 0
+        },
+        "completed_row_counter_increases": {
+          "submitted_frames": 539,
+          "bypassed_frames": 0
+        },
+        "first_job_counter_interval_unobserved": true,
+        "limitations": [
+          "Selects rows published after the start complete-row snapshot and through the end snapshot.",
+          "Jobs may have been submitted before the world boundary or published after it; this is not producer/present alignment.",
+          "Counter snapshots are asynchronous session totals; no FPS, exact world-time job count, or per-frame bypass association is inferred.",
+          "Rows are completed NR jobs, not all game frames; no FPS or PresentMon per-frame join is inferred.",
+          "Frame-ID/counter regressions split segments; append-only traces may contain multiple runs.",
+          "Cumulative counters are snapshots, not per-row events; activity before/after trace coverage is unknown.",
+          "VRAM is sampled DXGI process-local usage, refreshed every 60 completed jobs; repeated values are not independent samples.",
+          "allocated_neural_bytes excludes weights, game resources and shared buffers; it is not total VRAM.",
+          "neural_ms spans the GPU bridge and may include waits; it is not network-only time."
+        ]
+      },
+      {
+        "pass": "on-3",
+        "observed_world_scope_seconds": 69.5099957,
+        "published_completed_rows": 494,
+        "detected_segments": 1,
+        "first_runtime_frame_id": 4727,
+        "last_runtime_frame_id": 5220,
+        "timings_ms": {
+          "pack_ms": {
+            "mean": 0.055015060728744944,
+            "median": 0.0508,
+            "p95": 0.05905599999999999,
+            "p99": 0.1638179999999999,
+            "min": 0.04636,
+            "max": 0.35388
+          },
+          "preprocess_ms": {
+            "mean": 0.46636032388663967,
+            "median": 0.45094,
+            "p95": 0.5882659999999998,
+            "p99": 0.7104467999999999,
+            "min": 0.427,
+            "max": 0.8374
+          },
+          "inference_ms": {
+            "mean": 123.74456817813765,
+            "median": 123.65546,
+            "p95": 124.640208,
+            "p99": 125.1123376,
+            "min": 122.5172,
+            "max": 127.56156
+          },
+          "composite_ms": {
+            "mean": 0.33055222672064777,
+            "median": 0.30552,
+            "p95": 0.489522,
+            "p99": 0.5585408000000001,
+            "min": 0.28292,
+            "max": 0.57456
+          },
+          "unpack_ms": {
+            "mean": 0.06953060728744939,
+            "median": 0.0632,
+            "p95": 0.086308,
+            "p99": 0.2420484,
+            "min": 0.05976,
+            "max": 0.31388
+          },
+          "neural_ms": {
+            "mean": 125.03146955465587,
+            "median": 124.95221000000001,
+            "p95": 125.8813225,
+            "p99": 126.3173588,
+            "min": 124.02187,
+            "max": 128.88524
+          }
+        },
+        "dxgi_vram_mib_sampled": {
+          "mean": 9513.800338436235,
+          "peak": 9524.87109375
+        },
+        "vram_unknown_jobs": 0,
+        "allocated_neural_bytes_partial_peak": 2383296512,
+        "ending_session_counters": {
+          "submitted_frames": 5222,
+          "bypassed_frames": 0
+        },
+        "asynchronous_snapshot_counter_increases": {
+          "submitted_frames": 494,
+          "bypassed_frames": 0
+        },
+        "completed_row_counter_increases": {
+          "submitted_frames": 493,
+          "bypassed_frames": 0
+        },
+        "first_job_counter_interval_unobserved": true,
+        "limitations": [
+          "Selects rows published after the start complete-row snapshot and through the end snapshot.",
+          "Jobs may have been submitted before the world boundary or published after it; this is not producer/present alignment.",
+          "Counter snapshots are asynchronous session totals; no FPS, exact world-time job count, or per-frame bypass association is inferred.",
+          "Rows are completed NR jobs, not all game frames; no FPS or PresentMon per-frame join is inferred.",
+          "Frame-ID/counter regressions split segments; append-only traces may contain multiple runs.",
+          "Cumulative counters are snapshots, not per-row events; activity before/after trace coverage is unknown.",
+          "VRAM is sampled DXGI process-local usage, refreshed every 60 completed jobs; repeated values are not independent samples.",
+          "allocated_neural_bytes excludes weights, game resources and shared buffers; it is not total VRAM.",
+          "neural_ms spans the GPU bridge and may include waits; it is not network-only time."
+        ]
+      }
+    ],
+    "nr_off_job_absence_is_not_zero_inference_time": true,
+    "limitations": [
+      "Completed runtime jobs are distinct from game presents; no per-present join.",
+      "GPU NR-plus-bridge span can include queue/fence waits.",
+      "Counter coverage before/after trace observations remains unknown unless separately bounded."
+    ],
+    "source": {
+      "local_relative_path": "final-alpha2-gpu-timings.csv",
+      "bytes": 661843,
+      "sha256": "136f65448fabe42dc8d142c20c7b93416502031b0412fc9ed0ab2df5d439b67f"
+    },
+    "same_selected_policy_runtime_log": {
+      "local_relative_path": "final-alpha2-runtime.log",
+      "sha256": "e97b2ae87d2dc2d31b2d98326c8f3e805da8c80891f757d766df72698cb5e856"
+    }
+  },
+  "memory": {
+    "status": "complete_sparse_os_and_runtime_dxgi_samples",
+    "runtime_dxgi_sampled": {
+      "scope": "DXGI process-local usage, refreshed every 60 completed jobs; repeated values are not independent samples and observed maxima are not true peaks.",
+      "maximum_observed_mib": 9607.87890625,
+      "per_nr_on_bracket": [
+        {
+          "pass": "on-1",
+          "mean": 9521.438970413497,
+          "peak": 9530.875
+        },
+        {
+          "pass": "on-2",
+          "mean": 9586.190538194445,
+          "peak": 9607.87890625
+        },
+        {
+          "pass": "on-3",
+          "mean": 9513.800338436235,
+          "peak": 9524.87109375
+        }
+      ]
+    },
+    "os_pdh_point_samples": [
+      {
+        "pass": "off-1",
+        "sample_scope": "Point-in-time Windows PDH GPU Process Memory; sparse OS samples, separate from DXGI.",
+        "dedicated_mib": 6444.37109375,
+        "local_mib": 6444.37109375,
+        "shared_mib": 86.96875,
+        "sample_utc": "2026-10-02T16:49:26.0951362Z",
+        "corrected_original_helper_totals": true,
+        "sample_position": "start_of_pass"
+      },
+      {
+        "pass": "off-2",
+        "sample_scope": "Point-in-time Windows PDH GPU Process Memory; sparse OS samples, separate from DXGI.",
+        "dedicated_mib": 6405.97265625,
+        "local_mib": 6405.97265625,
+        "shared_mib": 85.96875,
+        "sample_utc": "2026-10-02T16:55:04.4591462Z",
+        "corrected_original_helper_totals": false,
+        "sample_position": "start_of_pass"
+      },
+      {
+        "pass": "off-3",
+        "sample_scope": "Point-in-time Windows PDH GPU Process Memory; sparse OS samples, separate from DXGI.",
+        "dedicated_mib": 6473.45703125,
+        "local_mib": 6473.45703125,
+        "shared_mib": 77.96875,
+        "sample_utc": "2026-10-02T16:58:50.5341426Z",
+        "corrected_original_helper_totals": false,
+        "sample_position": "start_of_pass"
+      },
+      {
+        "pass": "on-1",
+        "sample_scope": "Point-in-time Windows PDH GPU Process Memory; sparse OS samples, separate from DXGI.",
+        "dedicated_mib": 9625.8828125,
+        "local_mib": 9625.8828125,
+        "shared_mib": 431.44140625,
+        "sample_utc": "2026-10-02T17:12:46.2093591Z",
+        "corrected_original_helper_totals": false,
+        "sample_position": "start_of_pass"
+      },
+      {
+        "pass": "on-2",
+        "sample_scope": "Point-in-time Windows PDH GPU Process Memory; sparse OS samples, separate from DXGI.",
+        "dedicated_mib": 9689.7734375,
+        "local_mib": 9689.7734375,
+        "shared_mib": 421.44140625,
+        "sample_utc": "2026-10-02T17:17:48.4043373Z",
+        "corrected_original_helper_totals": false,
+        "sample_position": "start_of_pass"
+      },
+      {
+        "pass": "on-3",
+        "sample_scope": "Point-in-time Windows PDH GPU Process Memory; sparse OS samples, separate from DXGI.",
+        "dedicated_mib": 9627.84375,
+        "local_mib": 9627.84375,
+        "shared_mib": 427.44140625,
+        "sample_utc": "2026-10-02T17:23:02.3878481Z",
+        "corrected_original_helper_totals": false,
+        "sample_position": "start_of_pass"
+      },
+      {
+        "pass": "off-1",
+        "sample_position": "after_pass",
+        "sample_scope": "Point-in-time Windows PDH GPU Process Memory; sparse OS samples, separate from DXGI.",
+        "dedicated_mib": 6616.75390625,
+        "local_mib": 6616.75390625,
+        "shared_mib": 26.96875,
+        "sample_utc": "2026-10-02T16:50:49.3379675Z",
+        "corrected_original_helper_totals": false
+      }
+    ],
+    "limitations": [
+      "Sparse samples do not establish true peak memory.",
+      "Dedicated, local and shared counters must not be added together.",
+      "Runtime neural allocation excludes weights, game and shared resources."
+    ],
+    "os_sample_correction": "Original off-1 helper-v1 derived totals were invalid; preserved raw counters were recomputed in a separate correction report. Dedicated and local each6444.37109375MiB, shared86.96875MiB; original source unchanged."
+  },
+  "active_gameplay": {
+    "status": "not_run_manual_input_required",
+    "observed_active_world_seconds": null,
+    "performance_capture": null,
+    "actions_and_scene_coverage": [],
+    "crashes_or_failures": null,
+    "pending_reason": "Requires manual game input; automated control has not established sustained movement. Stationary world observation is not counted as active gameplay."
+  },
+  "quality": {
+    "fresh_final_alpha2_captures": "eight_fixed_camera_city_frames_replayed_against_portable_exact_reference",
+    "scene_linear_numeric_replay": "pass_every_frame_identical_and_independently_evolved_histories",
+    "temporal_visual_review": "pending",
+    "existing_genuine_replay_record": "cyberpunk-replay-rx9070xt-20261002.json",
+    "existing_genuine_replay_scope": "Eight earlier-binary alley frames pass every numerical threshold in identical/evolved histories; selected shaders unchanged. Broader coverage and temporal acceptance remain incomplete.",
+    "synthetic_hdr_highlight_gate": "unmet",
+    "required_per_frame": {
+      "psnr_db": 40.0,
+      "ssim": 0.99,
+      "data_range": 1.0,
+      "color_domain": "unclamped scene-linear pre-FSR composed RGB"
+    },
+    "required_scene_coverage": [
+      "sdr",
+      "hdr-highlights",
+      "motion",
+      "faces",
+      "moving-objects",
+      "disocclusion",
+      "exposure-changes",
+      "camera-cuts"
+    ],
+    "hdr_display_validation": "deferred",
+    "fresh_capture_request": {
+      "requested_frames": 8,
+      "published_frames": 8,
+      "status": "complete_eight_frame_diagnostic_and_numerical_replay",
+      "performance_representative": false,
+      "observed_scene_scope": "Fixed-camera city view; broader event coverage unverified.",
+      "numerical_and_visual_review": "numeric_thresholds_pass_every_frame_temporal_visual_acceptance_pending",
+      "frame_ids": [
+        7085,
+        7086,
+        7087,
+        7088,
+        7089,
+        7090,
+        7091,
+        7092
+      ]
+    },
+    "fresh_capture_metadata": {
+      "status": "cpu_metadata_sizes_hashes_controls_ranges_verified",
+      "complete_frames": 8,
+      "required_files_verified": 56,
+      "genuine_game_capture": true,
+      "performance_representative": false,
+      "observed_scene_scope": "Root-observed fixedcamera staticcityramp; W taps caused no visible displacement; only ambient scene, no broad event coverage established",
+      "frame_ids": [
+        7085,
+        7086,
+        7087,
+        7088,
+        7089,
+        7090,
+        7091,
+        7092
+      ],
+      "first_frame_external_history_frame_id": 7084,
+      "subsequent_declared_ancestry_consecutive": true,
+      "seeds": [
+        1246,
+        1247,
+        1248,
+        1249,
+        1250,
+        1251,
+        1252,
+        1253
+      ],
+      "source_scene_linear_rgb_range": [
+        0.003078460693359375,
+        177.125
+      ],
+      "production_composed_scene_linear_rgb_range": [
+        0.0010819509625434875,
+        153.17037963867188
+      ],
+      "source_and_composed_highlights_above_one_all_frames": true,
+      "source_alpha_bit_exact_all_frames": true,
+      "controls": {
+        "intensity": 1,
+        "style": 0,
+        "blend_scale": 0.739746094,
+        "history_strength": 1,
+        "remaining_model_controls_unchanged": true
+      },
+      "exposure": {
+        "pre_exposure_values": [
+          1
+        ],
+        "gpu_exposure_values": [
+          1
+        ],
+        "exposure_scale_values": [
+          1
+        ],
+        "available_all_frames": false,
+        "scope": "Exposure unavailable, fallback 1 throughout. Does not establish GPU exposure-change coverage."
+      },
+      "manifest_sha256_by_frame": [
+        {
+          "frame_id": 7085,
+          "sha256": "92e7dfe8e56b6e26f9ca6fdedb42062fc76ec7eae2857db739fdfd471a390851"
+        },
+        {
+          "frame_id": 7086,
+          "sha256": "819407da98d561c4f7b0b85ee9889183c8d9676a6e0d9c8449684d67f37b6109"
+        },
+        {
+          "frame_id": 7087,
+          "sha256": "a354bf94bba8df9f4f5ab8eb63a98003a91bc655985c5d7a75817624e98fe8cb"
+        },
+        {
+          "frame_id": 7088,
+          "sha256": "7b00b5f94708d3951bc72b4b74185890597c92c088e610c5fd96e9ee15b400e8"
+        },
+        {
+          "frame_id": 7089,
+          "sha256": "8a3781e3aebb886f94d427e6c98d1e56cbc321e6dc0b12e357cbcaf8edafebc1"
+        },
+        {
+          "frame_id": 7090,
+          "sha256": "a6e716cfb54a2d809e1d500cb7bde5b2ea8cc76c873cd8e01bf12ba60e45fee7"
+        },
+        {
+          "frame_id": 7091,
+          "sha256": "e1345a2de297cbd5ad72560094d79e25c32a5fed65f7a2e166c74dd6a16b2875"
+        },
+        {
+          "frame_id": 7092,
+          "sha256": "7a92fd7d537f051201422bdb6166a5147a64645f220c0a938bec5e6b92691ba3"
+        }
+      ],
+      "limitations": [
+        "CPU metadata audit does not establish reference arithmetic parity or temporal visual acceptance.",
+        "Fixed-camera city captures show no sustained player movement, faces, camera cuts or established disocclusion/exposure-transition coverage.",
+        "Unclamped scene-linear values above 1 do not establish HDR display validation.",
+        "Captured Vulkan F32 output precedes final D3D12 RGBA16F publication."
+      ]
+    },
+    "fresh_numeric_replay": {
+      "status": "complete",
+      "replay_run_count": 32,
+      "amd_candidate_replay_runs": 16,
+      "portable_exact_reference_replay_runs": 16,
+      "all_runs_exit_code": 0,
+      "candidate_policy": {
+        "backend": "amd",
+        "kernels": "optimized",
+        "arithmetic": "k16",
+        "tile_n": 16,
+        "stage_k": 16,
+        "window_queries": 32,
+        "fusion": false,
+        "expert_fusion": false,
+        "block_fusion": false,
+        "hardware_publication": false,
+        "passes": 1,
+        "model_scale": 1
+      },
+      "reference_policy": "Unchanged portable exact software arithmetic schedule; AMD Q32 kernel policy does not apply to reference runs.",
+      "coverage": [
+        "sdr"
+      ],
+      "genuine_game_capture": true,
+      "performance_representative": false,
+      "history_modes": [
+        {
+          "history_mode": "identical",
+          "frames": 8,
+          "minimum_psnr_db": 51.3295936042437,
+          "minimum_ssim": 0.9997919965770828,
+          "maximum_absolute_error": 1.879913330078125,
+          "quality_sha256": "6b684d7026284f1be7dcca083bfa7833a9fa74b3255a6182194bdee275ca61b0",
+          "data_range": 1.0,
+          "unclamped_scene_linear_rgb": true,
+          "thresholds_passed_every_frame": true,
+          "frame_metrics": [
+            {
+              "frame_id": 7085,
+              "psnr_db": 52.22328699659032,
+              "ssim": 0.9998157932969821,
+              "mae": 0.0006299970251576855,
+              "rmse": 0.0024481366194879705,
+              "max_absolute_error": 0.5793838500976562,
+              "different_samples": 4886197,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7086,
+              "psnr_db": 51.3295936042437,
+              "ssim": 0.9998078925008499,
+              "mae": 0.0006573182612713512,
+              "rmse": 0.00271344060574972,
+              "max_absolute_error": 1.1355304718017578,
+              "different_samples": 4884143,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7087,
+              "psnr_db": 52.44668074392739,
+              "ssim": 0.999824484623204,
+              "mae": 0.0006111193035783008,
+              "rmse": 0.0023859754062102332,
+              "max_absolute_error": 0.7659111022949219,
+              "different_samples": 4880689,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7088,
+              "psnr_db": 53.88199969692085,
+              "ssim": 0.9998723707623899,
+              "mae": 0.0005092971443283676,
+              "rmse": 0.002022553485496515,
+              "max_absolute_error": 0.5486927032470703,
+              "different_samples": 4860784,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7089,
+              "psnr_db": 52.09038441325547,
+              "ssim": 0.9998199320638848,
+              "mae": 0.0006226537860245524,
+              "rmse": 0.00248588354351969,
+              "max_absolute_error": 0.67523193359375,
+              "different_samples": 4880267,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7090,
+              "psnr_db": 51.793653692163666,
+              "ssim": 0.9997919965770828,
+              "mae": 0.0006768866683983194,
+              "rmse": 0.0025722745176328314,
+              "max_absolute_error": 0.5937786102294922,
+              "different_samples": 4886623,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7091,
+              "psnr_db": 51.5060879600742,
+              "ssim": 0.9998173513780237,
+              "mae": 0.0006374753660212868,
+              "rmse": 0.002658860804876224,
+              "max_absolute_error": 1.879913330078125,
+              "different_samples": 4884138,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7092,
+              "psnr_db": 52.31797292526431,
+              "ssim": 0.9998127999039134,
+              "mae": 0.0006551479448202754,
+              "rmse": 0.0024215941217857057,
+              "max_absolute_error": 0.6965179443359375,
+              "different_samples": 4884265,
+              "exact": false,
+              "thresholds_passed": true
+            }
+          ]
+        },
+        {
+          "history_mode": "evolved",
+          "frames": 8,
+          "minimum_psnr_db": 50.52490896979673,
+          "minimum_ssim": 0.9996756772778758,
+          "maximum_absolute_error": 1.9094696044921875,
+          "quality_sha256": "008091505da1dba0daa59627ed19ff84f281dc4d64f043ea3acb06bb40e0265c",
+          "data_range": 1.0,
+          "unclamped_scene_linear_rgb": true,
+          "thresholds_passed_every_frame": true,
+          "frame_metrics": [
+            {
+              "frame_id": 7085,
+              "psnr_db": 50.52490896979673,
+              "ssim": 0.9996756772778758,
+              "mae": 0.0009631145978876429,
+              "rmse": 0.0029768335487104793,
+              "max_absolute_error": 0.651214599609375,
+              "different_samples": 4903640,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7086,
+              "psnr_db": 51.411290722824035,
+              "ssim": 0.9997363964671768,
+              "mae": 0.000869982752660314,
+              "rmse": 0.00268803837099903,
+              "max_absolute_error": 0.6634769439697266,
+              "different_samples": 4898567,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7087,
+              "psnr_db": 52.14629206136527,
+              "ssim": 0.9997534030570047,
+              "mae": 0.0008202118169993557,
+              "rmse": 0.0024699342755862526,
+              "max_absolute_error": 0.6882171630859375,
+              "different_samples": 4898628,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7088,
+              "psnr_db": 51.75328652003681,
+              "ssim": 0.9997714671208394,
+              "mae": 0.0007998893089207189,
+              "rmse": 0.002584256837395362,
+              "max_absolute_error": 0.5367507934570312,
+              "different_samples": 4898617,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7089,
+              "psnr_db": 51.49436776625453,
+              "ssim": 0.9997541115550672,
+              "mae": 0.000807442753045286,
+              "rmse": 0.002662450926210905,
+              "max_absolute_error": 0.5044622421264648,
+              "different_samples": 4893216,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7090,
+              "psnr_db": 51.60710574062584,
+              "ssim": 0.9997561859987548,
+              "mae": 0.0008083557531347756,
+              "rmse": 0.002628117105798041,
+              "max_absolute_error": 0.5132732391357422,
+              "different_samples": 4896061,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7091,
+              "psnr_db": 51.61140441134654,
+              "ssim": 0.9997662479602855,
+              "mae": 0.0007914733783378082,
+              "rmse": 0.002626816765196752,
+              "max_absolute_error": 0.4318580627441406,
+              "different_samples": 4894825,
+              "exact": false,
+              "thresholds_passed": true
+            },
+            {
+              "frame_id": 7092,
+              "psnr_db": 50.784403724005315,
+              "ssim": 0.9997674773721451,
+              "mae": 0.0007526874548420395,
+              "rmse": 0.0028892146864571526,
+              "max_absolute_error": 1.9094696044921875,
+              "different_samples": 4894812,
+              "exact": false,
+              "thresholds_passed": true
+            }
+          ]
+        }
+      ],
+      "production_reproduction": {
+        "scope": "Recorded-production buffers versus identical-history AMD replay, not exact-reference byte parity.",
+        "frames": 8,
+        "checks": 40,
+        "bytes_compared": 1690952384,
+        "all_exact": true,
+        "buffers": [
+          "source-packed.f32",
+          "controls.bin",
+          "features.f32",
+          "head.f32",
+          "scene-linear-rgba.f32"
+        ]
+      },
+      "post_replay_cli_sha256": "ac87f20bf8483688388abcf94d82724b591e95874449bc194d90934d36b236f8",
+      "limitations": [
+        "Eight fixed-camera city frames establish SDR numerical comparison, not broad motion, faces, camera cuts, disocclusion, exposure transitions or ten-minute active gameplay.",
+        "PSNR and SSIM are aggregate per-frame metrics; pointwise errors remain and require visual/highlight review. Accelerated output is not byte-identical to the exact reference.",
+        "Exposure unavailable, fallback1 throughout; highlight values above1 do not establish GPU exposure changes or HDR display validation.",
+        "Diagnostic readback is excluded from ordinary performance timing.",
+        "Captured composition is Vulkan F32 before D3D12 RGBA16F output publication."
+      ]
+    }
+  },
+  "acceptance": {
+    "three_nr_off_passes": "complete",
+    "three_nr_on_passes": "complete",
+    "ten_minute_active_gameplay": "not_run",
+    "nr_plus_bridge_at_most_8_ms": "unmet_in_bounded_final_runtime_jobs",
+    "game_frame_at_most_16_67_ms": "unmet_in_complete_nr_on_builtin_benchmark",
+    "scene_and_motion_quality": "unmet",
+    "nr_default_disabled": true,
+    "reversible_cleanup_and_original_settings_restoration": "complete"
+  },
+  "restoration": {
+    "status": "complete",
+    "verified_utc": "2026-10-02T17:39:18.8169652Z",
+    "game_process_absent": true,
+    "presentmon_process_absent": true,
+    "install_ledger_absent": true,
+    "managed_test_files_removed": 35,
+    "original_settings_restored": true,
+    "original_settings_sha256": "d1b2419f1da1a308f13b594b222d77144f5b42f0836b2ae92beefb0da18607c6",
+    "model_manifest_unchanged_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+    "old_individual_capture_retained": true,
+    "old_eight_frame_sequence_retained": true,
+    "final_eight_frame_sequence_retained": true,
+    "owned_timing_capture_trace_flags_absent": true,
+    "unrelated_saves_not_modified_by_cleanup": true
+  },
+  "historical_records": [
+    {
+      "path": "cyberpunk-rx9070xt-20261002.json",
+      "scope": "Earlier optimized application binaries; three NR-off passes and one NR-on7.51FPS pass, not final package measurements."
+    },
+    {
+      "path": "../rx9070xt-validation.md",
+      "scope": "Alpha1 and earlier development measurements, not final package measurements."
+    }
+  ],
+  "local_source_hashes": [
+    {
+      "local_relative_path": "off-three-pass-builtin.json",
+      "bytes": 4453,
+      "sha256": "48d8fe9ca40c3f6f5de8ff825bf3cf8cd7df71688e115d1bc83afd4b160ffb80"
+    },
+    {
+      "local_relative_path": "settings-verification.json",
+      "bytes": 633,
+      "sha256": "973d75028e7fea9bdd5cf301b4717a212a7f39aa94213f85a1864c1ba41272fe"
+    },
+    {
+      "local_relative_path": "setup.json",
+      "bytes": 518,
+      "sha256": "4620597518540e9c3d3e889ff4a21baf610e65c0890e6f3165678f1aae3eea81"
+    },
+    {
+      "local_relative_path": "off-warmup-builtin.json",
+      "bytes": 311,
+      "sha256": "18f6686032011470dfd832d92dec9fd13ead36f1bb0af70f23a0c1af2e0d445f"
+    },
+    {
+      "local_relative_path": "off-2-presentmon-exclusion.json",
+      "bytes": 824,
+      "sha256": "6da799fdedb964ef3a97efeb0dd178b0daed105f6cf9c6a117e6f70f80dda75e"
+    },
+    {
+      "local_relative_path": "off-1-builtin.json",
+      "bytes": 2473,
+      "sha256": "98fd535fc78d3d2d74b99504376b041cf5fd54e7584bad34c45b55b0711a5d82"
+    },
+    {
+      "local_relative_path": "builtin/off-1/summary.json",
+      "bytes": 2259,
+      "sha256": "31a641afec0516d00a747f340cf320087e386dcaa8d84b55cb28218880963077"
+    },
+    {
+      "local_relative_path": "builtin/off-1/frames.csv",
+      "bytes": 191300,
+      "sha256": "999c828b2097a7e7aa4441f3c1741fa3fb65f979b388707cd3b340f00f44affc"
+    },
+    {
+      "local_relative_path": "off-2-builtin.json",
+      "bytes": 2510,
+      "sha256": "dd043b8295093c2afd0ec17f96316497115d44eb3955baf37ad89944aa3fb9ab"
+    },
+    {
+      "local_relative_path": "builtin/off-2/summary.json",
+      "bytes": 2260,
+      "sha256": "87da751543127fa47656d27d38fa6e9edf83894779646470fee647e552599298"
+    },
+    {
+      "local_relative_path": "builtin/off-2/frames.csv",
+      "bytes": 191024,
+      "sha256": "e463937b48350a9588316dd13dcfe7b5c617c10fc78cc15a3ae10c2fa02f5675"
+    },
+    {
+      "local_relative_path": "off-3-builtin.json",
+      "bytes": 2507,
+      "sha256": "5124d474d2a5b311b8d12e3ddde8319eec17388ebcf01eaf1bb69a969b6dd345"
+    },
+    {
+      "local_relative_path": "builtin/off-3/summary.json",
+      "bytes": 2261,
+      "sha256": "85c576d018bafd82f0112205394c58933931a724031e0e26a59168f68b07cc3f"
+    },
+    {
+      "local_relative_path": "builtin/off-3/frames.csv",
+      "bytes": 195657,
+      "sha256": "59358cbd2a6c19c62e477ab24e230741c1d084838f961b4787cbc4d11453269c"
+    },
+    {
+      "local_relative_path": "on-warmup-builtin.json",
+      "bytes": 2515,
+      "sha256": "698751e991513793cd9c3784bba0f1faf1858a28450fadf5c90781392a64e570"
+    },
+    {
+      "local_relative_path": "builtin/on-warmup/summary.json",
+      "bytes": 2258,
+      "sha256": "455588581b7009b286e0570d3f63f60c6de9040c3087f842eec126c025c59fc3"
+    },
+    {
+      "local_relative_path": "builtin/on-warmup/frames.csv",
+      "bytes": 35029,
+      "sha256": "3e23307fda04a3d1378f5d0671088b0388b0ac0f01498b98d508bb8d525a683f"
+    },
+    {
+      "local_relative_path": "on-three-pass-builtin.json",
+      "bytes": 4442,
+      "sha256": "90cefcd07c875bd0657edaa2d6bd693118649827644b7e197b87c9262da3265c"
+    },
+    {
+      "local_relative_path": "builtin-off-on-comparison.json",
+      "bytes": 2679,
+      "sha256": "5a074f559908314acc4c795159a79bdca66ea8ec534f0be2a6f1cd960b82a057"
+    },
+    {
+      "local_relative_path": "on-1-builtin.json",
+      "bytes": 2513,
+      "sha256": "ad4c6b64e294d54d3c6f6847520b6ec1e9659b56accaf8191bebd9d619b015c2"
+    },
+    {
+      "local_relative_path": "on-1-builtin-provenance.json",
+      "bytes": 1310,
+      "sha256": "af1efe1363e4c098b060e975684a7ff42a94631b6756bab6a8bb454d3c49d268"
+    },
+    {
+      "local_relative_path": "builtin/on-1/summary.json",
+      "bytes": 2258,
+      "sha256": "0fae1b53d7669fb723fb2f6495a28b5f2165a789b78d5961f1a2adb5e59b6c0a"
+    },
+    {
+      "local_relative_path": "builtin/on-1/frames.csv",
+      "bytes": 35029,
+      "sha256": "aa7f28f01b7ce55988f3d16ca04ba2c7ed8ab5a0f32e2be3b2a4e6a3c9b80712"
+    },
+    {
+      "local_relative_path": "on-2-builtin.json",
+      "bytes": 2500,
+      "sha256": "72b10a9bf60fc69d202fb9407a0d09ba3c621ffa3e9be94244f36a198496368f"
+    },
+    {
+      "local_relative_path": "on-2-builtin-provenance.json",
+      "bytes": 1307,
+      "sha256": "9c4932f37042cfabed6124c800f43d47d2249f9395bddfbb87527ede0a912fff"
+    },
+    {
+      "local_relative_path": "builtin/on-2/summary.json",
+      "bytes": 2257,
+      "sha256": "ce226ad82dd64a7871221ba68982158b6d5dc63451b65cf115d3c21666d76960"
+    },
+    {
+      "local_relative_path": "builtin/on-2/frames.csv",
+      "bytes": 35029,
+      "sha256": "993caa2f0f3309ca4bf62f4afb1b3f8a8e173b870315cf5c198eaf1293800c89"
+    },
+    {
+      "local_relative_path": "on-3-builtin.json",
+      "bytes": 2499,
+      "sha256": "cd7d1b2a12066b119c7f1258dd06ec4ced4699793c70f3e5272daf1ceb760590"
+    },
+    {
+      "local_relative_path": "on-3-builtin-provenance.json",
+      "bytes": 1319,
+      "sha256": "1a1b1ccbf43a24c4ddbecef19bebd7c237d16bf337eaec496385100dccad948b"
+    },
+    {
+      "local_relative_path": "builtin/on-3/summary.json",
+      "bytes": 2257,
+      "sha256": "d0a0b5e79ba11fbf25904a310dddb2c59e3e12431c6dc0de0f3eaa4c86a78000"
+    },
+    {
+      "local_relative_path": "builtin/on-3/frames.csv",
+      "bytes": 35029,
+      "sha256": "f744f77f7b93dde7bc92c483855124008099cd4478e6a670ec0b839c50a9a97d"
+    },
+    {
+      "local_relative_path": "restoration-proof.json",
+      "bytes": 745,
+      "sha256": "c809938d860da7d309cfa8d797275cfbd174cd0ca897866c4df62ecdc7c6e9ea"
+    },
+    {
+      "local_relative_path": "capture8-cpu-audit.json",
+      "bytes": 25791,
+      "sha256": "57890e99c5fd217715ccb8fa0a136744a298b62939435d598519b2eef1937233"
+    },
+    {
+      "local_relative_path": "off-1-presentmon.json",
+      "bytes": 1782,
+      "sha256": "77915b899cc079326c2391f3f162a58e9ae92329e77790ada36c4fcde1a1b5a7"
+    },
+    {
+      "local_relative_path": "off-1-frame-intervals.csv",
+      "bytes": 98427,
+      "sha256": "206b8b73ef42de6a07bd8ed189e901cdbc1c023384862bd1e492cb4d6cde7e34"
+    },
+    {
+      "local_relative_path": "off-1-bound-start.json",
+      "bytes": 1021,
+      "sha256": "6946f1971df5f5155e9f18d6d631576ed5ed2afef4cbedf1981b46e3beb812ae"
+    },
+    {
+      "local_relative_path": "off-1-bound-end.json",
+      "bytes": 1019,
+      "sha256": "31b4739b7cc8e9cceb74abdb518ce94a8158d409fc459f3b80d103d9570e74fb"
+    },
+    {
+      "local_relative_path": "off-3-presentmon.json",
+      "bytes": 1773,
+      "sha256": "7affa959dd4b1f8c33ee30390bab34cc4a742e560adf6df8136933f45b5c5100"
+    },
+    {
+      "local_relative_path": "off-3-frame-intervals.csv",
+      "bytes": 93474,
+      "sha256": "01e2f175cff324f9666ae728c3cbb2f8a82b53ebe351d0be8192a20686d262a1"
+    },
+    {
+      "local_relative_path": "off-3-bound-start.json",
+      "bytes": 1021,
+      "sha256": "11e5a3ab792fc8d4e5ce9e5a1787a90fd70b55ef5c4e1297e2c024c8314d40e1"
+    },
+    {
+      "local_relative_path": "off-3-bound-end.json",
+      "bytes": 1019,
+      "sha256": "c863752dd555c3795b065bbbb52208efcdfa2350b3b75e2d43af86cae27ffc60"
+    },
+    {
+      "local_relative_path": "on-1-presentmon.json",
+      "bytes": 1775,
+      "sha256": "2ef7de4d9e83788f98aeba7db989e3de3fcab0d45174570bc9ce9aad9134846c"
+    },
+    {
+      "local_relative_path": "on-1-frame-intervals.csv",
+      "bytes": 17127,
+      "sha256": "625191f5b1f1a373f56d3156638cfd82b4b3f0ffc8b37f54927eafec723236fa"
+    },
+    {
+      "local_relative_path": "on-1-bound-start.json",
+      "bytes": 983,
+      "sha256": "f8b3e8665c19a7a446ebdff9f5abcfc301552f39511dd5a672a5df4e324b18c7"
+    },
+    {
+      "local_relative_path": "on-1-bound-end.json",
+      "bytes": 981,
+      "sha256": "c0bed3eae78a06441d341c879dfb33d9bbc81b2660cc3db2d99feb9da3b1d420"
+    },
+    {
+      "local_relative_path": "on-2-presentmon.json",
+      "bytes": 1778,
+      "sha256": "2dfebd1b599d44ac12d70286666a1a47e4eab8a717d35033fe0785131f741e53"
+    },
+    {
+      "local_relative_path": "on-2-frame-intervals.csv",
+      "bytes": 17273,
+      "sha256": "aa3c6231aff30b81776f9018f63650d3803b7c4620a3828de4cdccd747a0f77d"
+    },
+    {
+      "local_relative_path": "on-2-bound-start.json",
+      "bytes": 983,
+      "sha256": "7be2a611e7749722daa458ecc7833568ccb5c92622cb2479e4ab4a170cc1d845"
+    },
+    {
+      "local_relative_path": "on-2-bound-end.json",
+      "bytes": 981,
+      "sha256": "315ff28ece0d9daa4396446aba107897c91801981bd5abd8838c8ef6f74bb764"
+    },
+    {
+      "local_relative_path": "on-3-presentmon.json",
+      "bytes": 1779,
+      "sha256": "c32591bd7312bef6249e8715e90baebd50ddce13ba903d06879cdad56550b8fb"
+    },
+    {
+      "local_relative_path": "on-3-frame-intervals.csv",
+      "bytes": 17250,
+      "sha256": "be194196d649b5463baae4467d52b29a6712bf0dd840b878b9118fa36e1edece"
+    },
+    {
+      "local_relative_path": "on-3-bound-start.json",
+      "bytes": 983,
+      "sha256": "701b73d7d06b2c42325eb0d0847669698a4ef3715e49baa56700fe152bd66f74"
+    },
+    {
+      "local_relative_path": "on-3-bound-end.json",
+      "bytes": 981,
+      "sha256": "cce877061971506a0b5be334ea65f48c02f37024be1056ee489f1b0cc11e8037"
+    },
+    {
+      "local_relative_path": "on-1-runtime.json",
+      "bytes": 2928,
+      "sha256": "2554733d158b317bb0587682b14ae5a0108da3396bca03a271738615b6a68e62"
+    },
+    {
+      "local_relative_path": "on-1-runtime-bracket.json",
+      "bytes": 1743,
+      "sha256": "c11649cbcd5fae22e042a7bc3681d87771db1382549bbf5458ead23b675f4c22"
+    },
+    {
+      "local_relative_path": "on-1-runtime-published.csv",
+      "bytes": 46455,
+      "sha256": "a2469c7c1b1971a868b9f307821c9888f044b5af687dd9c8588e842c4f109a15"
+    },
+    {
+      "local_relative_path": "on-2-runtime.json",
+      "bytes": 2926,
+      "sha256": "c68c22c923ef15d338d800fe9d4485a9ec4b8a88c88d74acce0b7ade2264ba0f"
+    },
+    {
+      "local_relative_path": "on-2-runtime-bracket.json",
+      "bytes": 1743,
+      "sha256": "bab027861bbf589a613f69d3a8812973c4988c3ad98f8db85092b352816c6450"
+    },
+    {
+      "local_relative_path": "on-2-runtime-published.csv",
+      "bytes": 48015,
+      "sha256": "d31396ec7140db67282abb72068f7a06e983aaa69d9604421dd3a0cfec571d53"
+    },
+    {
+      "local_relative_path": "on-3-runtime.json",
+      "bytes": 2923,
+      "sha256": "ab5000118b69d13b75b984777dee93b7349b15317b030771581b2c4d421757ac"
+    },
+    {
+      "local_relative_path": "on-3-runtime-bracket.json",
+      "bytes": 1743,
+      "sha256": "f4c93e0eb81d3761881a718011f6b9c853aa4b1497197b33f1b643e8f19f9af1"
+    },
+    {
+      "local_relative_path": "on-3-runtime-published.csv",
+      "bytes": 43683,
+      "sha256": "905f461b45f037dbe19fcd86076d40088ef99e4f4e07d5d13d3100e77121dbeb"
+    },
+    {
+      "local_relative_path": "off-1-start-vram-corrected.json",
+      "bytes": 1930,
+      "sha256": "74dfccb938c7a3a718507e0a74bf5f2c5f1d533b5b2984362bf221664718e89a"
+    },
+    {
+      "local_relative_path": "off-2-start-vram.json",
+      "bytes": 2245,
+      "sha256": "ad575d073025d87270c1f0fb696ac286502b1151415d54b12bc451c027d121d8"
+    },
+    {
+      "local_relative_path": "off-3-start-vram.json",
+      "bytes": 2245,
+      "sha256": "e7c71b49e554671bbf7435a0b97521f87fa49058e2c876406f1d60f6963834d4"
+    },
+    {
+      "local_relative_path": "on-1-start-vram.json",
+      "bytes": 2254,
+      "sha256": "0958676c0029dfac2b94c64695968dc6b3d4b81e60906a9f1256012c18c5b495"
+    },
+    {
+      "local_relative_path": "on-2-start-vram.json",
+      "bytes": 2254,
+      "sha256": "724e04a31f67b2e6cf6892dff5a8f34dea526b5be00c520578cf6e27d4460516"
+    },
+    {
+      "local_relative_path": "on-3-start-vram.json",
+      "bytes": 2246,
+      "sha256": "e681fd7335d7b3d7d1d53203bdc806b970a61bb53afe16ecdcf5b427546f0033"
+    },
+    {
+      "local_relative_path": "off-1-start-vram.json",
+      "bytes": 2168,
+      "sha256": "1904de189ddccc003807a3deba19496aaf8ca17a89c57e1432c932aa11aaeb88"
+    },
+    {
+      "local_relative_path": "final-alpha2-runtime.log",
+      "bytes": 3988,
+      "sha256": "e97b2ae87d2dc2d31b2d98326c8f3e805da8c80891f757d766df72698cb5e856"
+    },
+    {
+      "local_relative_path": "final-alpha2-presentmon.csv",
+      "bytes": 141992629,
+      "sha256": "4215e3f9ada913acd90c721fa04387d41b5126c65ad7699cb1b7ddc2d6488b3e"
+    },
+    {
+      "local_relative_path": "final-alpha2-gpu-timings.csv",
+      "bytes": 661843,
+      "sha256": "136f65448fabe42dc8d142c20c7b93416502031b0412fc9ed0ab2df5d439b67f"
+    },
+    {
+      "local_relative_path": "final-replay-verification.json",
+      "bytes": 9712,
+      "sha256": "5a7dead93a8b81e59521737590a24a5f2b402d7e376c546808641a0b9362bedc"
+    },
+    {
+      "local_relative_path": "final-capture-replay/replay-report.json",
+      "bytes": 42702,
+      "sha256": "b04e5e1615ed0e510757b418842eb707e2dd92d767a273e6bd55bc715f8bbca1"
+    },
+    {
+      "local_relative_path": "final-capture-replay/identical-quality.json",
+      "bytes": 17923,
+      "sha256": "6b684d7026284f1be7dcca083bfa7833a9fa74b3255a6182194bdee275ca61b0"
+    },
+    {
+      "local_relative_path": "final-capture-replay/evolved-quality.json",
+      "bytes": 17842,
+      "sha256": "008091505da1dba0daa59627ed19ff84f281dc4d64f043ea3acb06bb40e0265c"
+    },
+    {
+      "local_relative_path": "final-capture-replay/identical-sequence.json",
+      "bytes": 23401,
+      "sha256": "70a819d047b0a2f8016b963b71d5b53494e034e642b9fc2122621f67613d8b91"
+    },
+    {
+      "local_relative_path": "final-capture-replay/evolved-sequence.json",
+      "bytes": 23257,
+      "sha256": "bca3a1657b771e9221bd871b0262a56346d0ff3a1bac3b814f6d640899bda11f"
+    },
+    {
+      "local_relative_path": "timing-handoff.json",
+      "bytes": 25887,
+      "sha256": "45f91b0e7dbfcdaf590010141247c8d94e554a59acabf7f5db71343b0ade87f5"
+    },
+    {
+      "local_relative_path": "off-1-after-vram.json",
+      "bytes": 2245,
+      "sha256": "b032d4c5342d4910d8af7bc20aa8abf49aa79ba55038a61ade0294a473cd94c4"
+    },
+    {
+      "local_relative_path": "off-2-bound-start.json",
+      "bytes": 1021,
+      "sha256": "d41dc48c4fef11d759c3c6282ff97e7ef1c5f527d182ddb561341e179244a25e"
+    },
+    {
+      "local_relative_path": "off-2-bound-end.json",
+      "bytes": 1019,
+      "sha256": "9445bb99592e5b8c1d0fa2d293786b1a71c8fdf3b95e1863df0493e3ba52d827"
+    },
+    {
+      "local_relative_path": "extract-runtime-bracket.py",
+      "bytes": 6006,
+      "sha256": "f941575df10ade2590fded63cfa1f0958916e083f1d4f566285d97f2c68b9d42"
+    },
+    {
+      "local_relative_path": "analyze-builtin.py",
+      "bytes": 5354,
+      "sha256": "802b6d4451796da34cad6ee6ed0620fa2a7b8386643af6bf09e4cc788b416221"
+    },
+    {
+      "local_relative_path": "summarize-builtin-series.py",
+      "bytes": 4236,
+      "sha256": "0e20d8525ef24cd58456f4673fe88488260021b42313a9c63366de22a7287a54"
+    },
+    {
+      "local_relative_path": "make-timing-handoff.py",
+      "bytes": 7000,
+      "sha256": "1c5fa0678049b5de213a3ce26f4b060016c3eea7cf6304aae0bd6bd65640104f"
+    },
+    {
+      "local_relative_path": "off-1-presentmon-clock-corrected.json",
+      "bytes": 2099,
+      "sha256": "f93b5fafa309516410f29375cf59fcfd6ce1feb435f40cca83b0415bb583e404"
+    },
+    {
+      "local_relative_path": "off-1-frame-intervals-clock-corrected.csv",
+      "bytes": 98406,
+      "sha256": "6e31268452fbb0803719c5f35ae3130a07a21f147a38317fcaad8fe58c6e2f50"
+    },
+    {
+      "local_relative_path": "off-3-presentmon-clock-corrected.json",
+      "bytes": 2095,
+      "sha256": "4ff18009cda36c1f9de55f1022b6c6785aaed0b0e76a67a086a1685803d9b9bd"
+    },
+    {
+      "local_relative_path": "off-3-frame-intervals-clock-corrected.csv",
+      "bytes": 93488,
+      "sha256": "ade7cd77caff875ba20016434f6d5c232ebbd640b5300d2b543632a0d9e4567b"
+    },
+    {
+      "local_relative_path": "on-1-presentmon-clock-corrected.json",
+      "bytes": 2098,
+      "sha256": "fa2c0a6ef2e050be34668b2498aa8f13f32a9f1d6bf9d70bebc3d35a6e69c596"
+    },
+    {
+      "local_relative_path": "on-1-frame-intervals-clock-corrected.csv",
+      "bytes": 17138,
+      "sha256": "5e8c934a3d68ce688c44d920aac8c1f3736c6c7d32b8954608ed566add756bf3"
+    },
+    {
+      "local_relative_path": "on-2-presentmon-clock-corrected.json",
+      "bytes": 2096,
+      "sha256": "0209e55b2c40ff28fe64d574457c7e5ae8c0833944fd3b80d940dec84d5b2ebe"
+    },
+    {
+      "local_relative_path": "on-2-frame-intervals-clock-corrected.csv",
+      "bytes": 17273,
+      "sha256": "e4e0f78b9271c78d91caee0551794d8a4ecb959f5de77dc86e7e3db8fc98c43a"
+    },
+    {
+      "local_relative_path": "on-3-presentmon-clock-corrected.json",
+      "bytes": 2102,
+      "sha256": "d0e1dbf4ed706c485b0cc9f4f5adec66b5ec601d90c8c3539464de2d2939ee40"
+    },
+    {
+      "local_relative_path": "on-3-frame-intervals-clock-corrected.csv",
+      "bytes": 17218,
+      "sha256": "e349587b9219b7ceed5420adf1517eaca5dcc7db96f48a123fc5f60602f89f63"
+    },
+    {
+      "local_relative_path": "presentmon-clock-correction.json",
+      "bytes": 6610,
+      "sha256": "26057c7da061d2219eefbf0f01ee59962b0ee50e0d1fe20eb2be2ab7e0167567"
+    },
+    {
+      "local_relative_path": "timing-handoff-clock-corrected.json",
+      "bytes": 30026,
+      "sha256": "bd82ae43cf3862d61e3ec1334ad926264edd3da596729d16a4cf71a42a6a79f2"
+    }
+  ],
+  "limitations": [
+    "NR condition and binary identity are root-confirmed external assignment, not encoded/proved by game benchmark files.",
+    "Three-pass SD/CV are descriptive repeat variation, not a confidence interval.",
+    "Pooled frame percentiles are over all complete game-exported rounded frame times, with frame-count weighting; pass percentiles are not averaged.",
+    "Builtin statistics are distinct from QPC-bounded PresentMon world intervals and asynchronous completed-runtime rows.",
+    "NVIDIA DLLs, extracted weights, raw game images/buffers, captures, machine-specific logs and profiler artifacts remain local.",
+    "The published alpha2 assets/tag/notes are unchanged; later documentation does not alter their original contents.",
+    "Confirmed final-alpha2 complete builtin measurements include three NR-off and three NR-on passes. Closed timing/memory analysis and fixed-camera numerical replay are complete; active gameplay and broad visual acceptance remain unmet.",
+    "The fresh fixed-camera eight-frame diagnostic and numeric replay do not establish active gameplay or broad scene/temporal acceptance."
+  ],
+  "selected_policy": {
+    "backend": "amd",
+    "kernels": "optimized",
+    "arithmetic": "k16",
+    "tile_n": 16,
+    "stage_k": 16,
+    "window_queries": 32,
+    "fusion": false,
+    "expert_fusion": false,
+    "block_fusion": false,
+    "hardware_publication": false,
+    "passes": 1,
+    "model_scale": 1,
+    "confirmation_scope": "Root observed final-runtime warmup and runtime logs confirm the same policy during all three completed NR-on passes. Policy and DLL identity are external verification, not embedded in the builtin benchmark reports."
+  },
+  "complete_builtin_comparison": {
+    "scope": "Equal-weight means of three full game-reported builtin benchmark averages per condition; warmups excluded",
+    "nr_on_divided_by_off_mean_fps": 0.07726289391828492,
+    "nr_on_fps_reduction_percent": 92.27371060817151,
+    "limitations": [
+      "Root externally assigns NR conditions and verifies final binary/settings; benchmark files do not encode runtime identity.",
+      "Full builtin game-exported frame-time statistics differ from observed-world PresentMon timestamps; no percentiles are averaged.",
+      "Three repeats describe repeat variation only; no confidence interval or prior-binary improvement claim is made.",
+      "Sparse VRAM observations and completed runtime jobs remain separate measurements; gameplay test is not included here."
+    ]
+  },
+  "analysis_tool_identities": [
+    {
+      "repository_relative_path": "tools/analyze_presentmon.py",
+      "sha256": "0d0e59714bae2dde2303fc3325d10786010cb7bd0a0c826a69573491d768408c"
+    },
+    {
+      "repository_relative_path": "tools/analyze_runtime.py",
+      "sha256": "341c7dbc4ff788993472c1b34f6e7f66f6562752855bafb698881acc47340b83"
+    }
+  ]
+}

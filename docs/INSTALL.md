@@ -4,17 +4,22 @@ This guide installs the prebuilt **v0.1.0-alpha.2** package in Cyberpunk 2077 on
 Windows. This is an experimental development release. The latest idle-GPU
 network benchmark reduces the median from **141.343 ms to 122.331 ms** against
 the legal Q64 compact anchor (**13.45%**) at 1707 x 960 input (1728 x 960 padded);
-that is not game FPS or NR-plus-bridge
-timing. Three NR-off game benchmarks report 99.58 / 99.32 / 101.74 FPS; the first
-ordinary NR-on benchmark reports **7.51 FPS**. Further NR-on passes, ten-minute
-active gameplay and broad image/temporal review remain pending. Performance and
+that is not game FPS or NR-plus-bridge timing. Three warmed game benchmark
+passes per condition with the final alpha 2 binaries average **97.66 FPS with
+NR off / 7.55 FPS with NR on**. Bounded in-game NR-plus-bridge medians are about
+**124.95–124.96 ms**. Eight final-alpha2 SDR frames pass numerical replay, while
+ten-minute active gameplay was not run and broad image/temporal review remains
+incomplete. Performance and
 game-quality gates remain unmet. NR ships **disabled**, using K16 publication arithmetic;
 enable it deliberately for testing.
 
-Game measurements used earlier application binaries with the same selected Q32
-shaders; their identities are retained in the performance record. They are not
-fresh game benchmarks of the final package. The earlier 206.167 → 120.271 ms
-network comparison used over-limit legacy attention and remains historical.
+The [final alpha 2 validation record](cyberpunk-alpha2-validation.md) records
+the current benchmark identities, complete exported frame times, separate
+bounded stage/PresentMon/memory measurements and eight-frame diagnostic replay.
+Earlier binaries reported 99.58 / 99.32 / 101.74 NR-off FPS and one 7.51 FPS
+NR-on pass; those historical measurements keep their own identities. The earlier
+206.167 → 120.271 ms network comparison used over-limit legacy attention and
+remains historical.
 
 ## Requirements
 
@@ -119,8 +124,9 @@ enabled. The initial target input is 1707 x 960, padded to 1728 x 960.
 
 Use **Enable NR** to turn the network off and return to ordinary FSR.
 Setting effect strength to zero still runs inference. The displayed NR timing
-is not game FPS. Eight genuine game frames pass the numerical replay thresholds;
-broad scene coverage and motion/face/ghosting review remain pending. Unresolved
+is not game FPS. Eight final-alpha2 fixed-camera SDR frames pass both numerical
+replay modes; broad scene coverage and motion/face/ghosting review remain
+incomplete. Unresolved
 scene-linear highlight failures are documented in
 the [validation record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.2/docs/rx9070xt-validation.md).
 The [performance implementation record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.2/docs/amd-performance-implementation.md)
@@ -260,7 +266,7 @@ or delete original backups to bypass the check.
 
 | Symptom | Next step |
 | --- | --- |
-| Very low FPS with NR enabled | Clear **Enable NR**. The first ordinary alpha 2 NR-on benchmark measured 7.51 FPS; the gameplay performance budget remains unmet. |
+| Very low FPS with NR enabled | Clear **Enable NR**. Three warmed final alpha 2 NR-on benchmarks average 7.55 FPS; the gameplay performance budget remains unmet. |
 | Missing `MSVCP140` / `VCRUNTIME140` dependency | Install the current Microsoft Visual C++ v14 **x64** Redistributable linked above. |
 | Model import rejected | Check the complete DLL hash above and choose a new destination; unsupported containers are rejected. |
 | No Insert overlay | Confirm installation targeted the folder containing `Cyberpunk2077.exe`; inspect existing proxy/mod conflicts and the host log. |

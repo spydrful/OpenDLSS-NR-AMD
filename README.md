@@ -11,16 +11,17 @@ release gates still unmet.** Native inference and the D3D12 bridge have run in
 Cyberpunk 2077 on an RX 9070 XT. This build is not ready for normal gameplay:
 The latest idle-GPU network benchmark reduces the median from **141.343 ms to
 122.331 ms**, a **13.45%** reduction against the legal 64-query compact anchor
-at the target render resolution. Three NR-off game benchmarks report
-99.58 / 99.32 / 101.74 FPS; the first ordinary NR-on benchmark reports **7.51 FPS**.
-Two further NR-on passes and the ten-minute active gameplay test remain pending.
+at the target render resolution. Three warmed game benchmarks per condition
+with the final alpha 2 binaries average **97.66 FPS with NR off / 7.55 FPS with
+NR on**. The ten-minute active gameplay test requires manual game input;
+broad image/temporal review remains pending.
 The network timing is not game FPS or an NR-plus-bridge timing.
 The goal is 60 real FPS with an initial NR-plus-bridge budget of 8 ms or less.
 
 Download the [RX 9070 XT alpha](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.2)
 and follow the [installation guide](docs/INSTALL.md), or use the
 [AMD build and setup guide](docs/AMD.md) and the
-[measured validation record](docs/rx9070xt-validation.md).
+[final alpha 2 validation record](docs/cyberpunk-alpha2-validation.md).
 **NVIDIA model DLLs and extracted weights are not distributed.** You supply a
 supported DLL locally; the importer reads it without executing it.
 
@@ -69,15 +70,21 @@ See [AMD arithmetic and optimization notes](docs/amd-numerics.md) and the
 
 Measured on Windows 11, RX 9070 XT, Adrenalin 26.9.1 and Cyberpunk 2077 2.31.
 The full record pins model, source, shader, executable and driver identities.
-Alpha 2 has three completed NR-off benchmark passes and one ordinary NR-on
-pass. Its remaining benchmark passes, active gameplay and broad temporal
-quality validation are pending. Historical alpha 1 results are labeled below.
+The final alpha 2 binaries have three completed warmed NR-off and three NR-on
+benchmark passes. Closed stage/PresentMon/memory analysis and eight-frame SDR
+numerical replay are complete. Ten minutes of active gameplay were not run; broad
+temporal/event validation remains incomplete. Earlier results are labeled below.
 
 | Measurement | Result | Scope |
 | --- | ---: | --- |
-| Alpha 2 NR-off built-in benchmark, three passes | 99.58 / 99.32 / 101.74 FPS | 1440p output, FSR Quality, target High fields; frame generation and AFMF off |
-| Alpha 2 first ordinary NR-on built-in benchmark | **7.51 FPS** | 972 frames over 129.51 seconds; two further passes pending |
-| Alpha 2 NR-on bounded PresentMon sample | 133.277 / 135.669 / 136.864 ms | Median / P95 / P99; 737 intervals in a conservative 98.426-second window, distinct from the full built-in result |
+| Final alpha 2 NR-off built-in benchmark, three passes | 96.09036 / 96.61504 / 100.27594 FPS | Mean 97.66045 FPS; 1440p output, FSR Quality, target High fields; frame generation and AFMF off |
+| Final alpha 2 NR-on built-in benchmark, three passes | **7.54624 / 7.54468 / 7.54567 FPS** | Mean **7.54553 FPS**; same settings, 972 frames per pass; one warmup per condition excluded |
+| Final alpha 2 pooled complete NR-off frame times | 9.88 / 13.54 / 15.34 ms | Median / P95 / P99 over 18,826 game-exported frame times; separate from PresentMon |
+| Final alpha 2 pooled complete NR-on frame times | **132.55 / 133.89 / 134.637 ms** | Median / P95 / P99 over 2,916 game-exported frame times; separate from PresentMon |
+| Final alpha 2 bounded runtime inference medians | 123.699 / 123.694 / 123.655 ms | Three asynchronously bounded published-job brackets; 526 / 540 / 494 rows |
+| Final alpha 2 bounded runtime NR plus bridge medians | **124.953 / 124.964 / 124.952 ms** | Same brackets; GPU span may include waits; separate from complete game frames |
+| Final alpha 2 maximum observed DXGI process-local VRAM | 9,607.879 MiB | Sampled every 60 completed jobs; observed maximum, not true peak |
+| Earlier optimized NR-off / first NR-on benchmark | 99.58 / 99.32 / 101.74 off; 7.51 on FPS | Historical application binaries; not final release-binary measurements |
 | Alpha 1 warmed built-in benchmark, three passes | 4.56 / 4.56 / 4.57 FPS | Historical NR-on configuration |
 | Alpha 1 selected 600-second live-world interval | 4.5971 application FPS | Limited, mostly stationary stability session |
 | Alpha 1 in-game inference median | 212.016 ms | Historical completed-job trace segment |
@@ -88,17 +95,23 @@ quality validation are pending. Historical alpha 1 results are labeled below.
 | Current idle-GPU network P95 / P99, legal Q64 → Q32 | 143.036 / 143.603 → 123.263 / 123.534 ms | Same paired runs; 1728 x 960 padded field |
 | Historical legacy → Q32 network median | 206.167 → 120.271 ms | Earlier binary; the legacy attention exceeds this GPU's shared-memory limit and is now rejected |
 
-For the alpha 2 runs, in-game frame generation and driver AFMF were observed
-off; PresentMon relies on that external setting verification. The bounded
-NR-off pass-2 sample has median / P95 / P99 of 9.299 / 10.677 / 11.726 ms over
-3,124 intervals in 28.98585 seconds. It is a subset of the 99.32 FPS built-in
-pass. The NR-on subset has mean 133.231 ms; neither subset supplies full-pass
-percentiles. Alpha 1 AFMF was unverified, so its historical presentation FPS
-does not assert real-rendered FPS. Runtime jobs are not joined to individual
-game presents. Network throughput and generated frames are not used as game FPS.
+For the final alpha 2 runs, in-game frame generation and driver AFMF were
+observed off. Complete built-in percentiles use the game's rounded frame-time
+exports, pooling actual frames rather than averaging pass percentiles; mean
+FPS averages the three complete pass averages equally. Five bounded PresentMon
+world subsets and three completed-runtime brackets are reported separately in
+the final validation record; the second NR-off PresentMon interval is excluded
+because its end was observed after the results screen. The enabled driver upscaling
+override stayed unchanged, so the exact effective FSR version is not independently
+established. Alpha 1 AFMF was unverified, so its historical presentation FPS
+does not assert real-rendered FPS. Runtime jobs are not joined to game presents.
+Network throughput and generated frames are not used as game FPS.
 
-The game runs and genuine eight-frame replay used earlier application binaries,
-recorded in the [scalar game evidence](docs/performance/cyberpunk-rx9070xt-20261002.json).
+The [fresh final-alpha2 scalar record](docs/performance/cyberpunk-alpha2-rx9070xt-20261002.json)
+pins source commit `7f1cd3108133d8aee9bae505cb31542e236d13e0` and runtime hash
+`638de5aee97b65d5e091c5eb6af63df96cf38d729985cadff2b8cb79fe5c3e6c`.
+Earlier game runs and the genuine eight-frame replay retain their original
+identities in the [earlier scalar record](docs/performance/cyberpunk-rx9070xt-20261002.json).
 The current legal network comparison has its own measured binary identity in
 [the legal-anchor record](docs/performance/legal-compact64-rx9070xt-20261002.json).
 Final package identities are recorded separately; earlier timings are not
@@ -122,11 +135,17 @@ Validation completed so far:
   0.999814 SSIM**, but its incorrect capture-provenance flag prevents accepting
   it as genuine game-quality evidence. It compares one frame with identical
   captured AMD history, not independently evolved reference history.
-- Eight subsequently captured genuine game frames pass every numerical threshold
+- Eight genuine frames from the earlier application binaries pass every numerical threshold
   against the portable exact reference in both identical and independently
   evolved histories: minima **49.536 dB / 0.998920** and **48.519 dB / 0.998642**.
   The short alley sequence covers camera movement and steam; broader scene
   coverage and temporal visual review remain pending.
+- Eight final-alpha2 fixed-camera city frames pass every numerical threshold:
+  minima **51.330 dB / 0.999792** with identical history and
+  **50.525 dB / 0.999676** with independently evolved histories. Forty buffer
+  checks reproduce captured production bytes exactly; the accelerated results
+  still differ from the exact reference, with maximum RGB errors about 1.88/1.91.
+  SDR numerical coverage does not complete broad scene or temporal visual review.
 
 The original incorrect capture flag remains unchanged. The corrected genuine
 sequence is recorded separately. Broad motion, face, exposure, cut and
@@ -169,7 +188,7 @@ write permission is required; elevate that PowerShell window if needed.
 4. Launch with **FSR Quality**, ray tracing and frame generation off. NR ships
    **disabled**, with K16 publication arithmetic. Press **Insert → Neural →
    Enable NR** to opt in. Performance remains far outside the gameplay budget;
-   the first ordinary NR-on benchmark measured 7.51 FPS. Use the checkbox to disable it; zero effect
+   final alpha 2 NR-on benchmarks average 7.55 FPS. Use the checkbox to disable it; zero effect
    strength still runs NR.
 5. To remove, close the game and run:
 
@@ -289,14 +308,28 @@ The [AMD setup guide](docs/AMD.md#package-install-and-undo) documents install,
 `-WhatIf`, configuration, controls, diagnostics and removal. The installer backs
 up and hashes existing managed files; removal restores verified originals and
 preserves separately imported models. Changed managed files stop removal until
-preserved or restored. The validation installation has been removed and the
-original user settings restored.
+preserved or restored. The earlier and final alpha 2 temporary test installations
+have been removed and original user settings restored exactly. Imported models
+and local captures were preserved. The final eight-frame diagnostic replay is
+complete. Active gameplay was not run and still requires manual input; broad
+quality review remains incomplete.
+
+The later source-only JSON parser hardening passes 167 CPU checks (168 with the
+local model) and preserves parsed output for 36 actual JSON files. It is not in
+the published alpha 2 binaries. See the
+[implementation record](docs/amd-performance-implementation.md#source-only-json-hardening-after-alpha-2)
+for the CPU regression command and distribution boundary.
 
 ## Current priorities
 
 The [performance research notes](docs/amd-performance-research.md) collect
 external kernel references and ranked experiments. Proposed changes and
 author-reported external timings are separate from this fork's local results.
+The [remaining performance work](docs/amd-performance-next-steps.md) separates
+implementation gaps from evidence gates. FP8 GEMM now accounts for about 74%
+of the instrumented candidate frame (89.324 ms); FFN/QKV enablement remains
+coupled, and pooling/upsampling and C512 split-FFN fusion remain partial.
+The slower experimental fusion routes stay off by default.
 
 1. Improve the now-dominant FP8 matrix family, then remaining window-attention
    cost and fusion. Preserve publication boundaries and compare every change
