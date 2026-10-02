@@ -6,4 +6,4 @@
 
 # Frozen measurement journals and tuning proofs contain byte-specific SHA-256
 # identities. Preserve their recorded bytes across checkout and source archives.
-docs/performance/**/*.json -text
+docs/performance/**/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
