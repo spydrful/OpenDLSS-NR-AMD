@@ -93,15 +93,21 @@ def analyze(path: Path, *, process_name=None, process_id=None, swap_chain=None,
     direct = column("MsBetweenPresents")
     frame_type = column("FrameType")
     dropped = column("Dropped")
+    # PresentMon 2.3.1's default hybrid schema contains both present and CPU
+    # clocks. MsBetweenPresents measures consecutive PresentStartTime values,
+    # whereas CPUStartQPC is the preceding application's present-end. Projecting
+    # a present delta backwards from a CPU timestamp creates false endpoints.
     # QPCTime is ambiguous between --qpc_time and --qpc_time_ms in v1.
-    qclock = column("CPUStartQPC", "TimeInQPC", "CPUStartQPCTime", "CPUStartQPCTimeInMs", "QPCTime")
+    qclock = (column("TimeInQPC", "QPCTime") if direct else
+              column("CPUStartQPC", "CPUStartQPCTime", "CPUStartQPCTimeInMs", "TimeInQPC", "QPCTime"))
     qunit = None
     if qclock:
         folded = qclock.casefold()
         qunit = "milliseconds" if "qpctime" in folded and folded != "qpctime" else "ticks"
         if folded == "qpctime":
             qunit = qpc_unit
-    relative = column("TimeInSeconds", "CPUStartTimeInSeconds", "CPUStartTime", "TimeInMs") if direct else column("CPUStartTimeInSeconds", "CPUStartTime", "TimeInSeconds", "TimeInMs")
+    relative = (column("TimeInSeconds", "TimeInMs") if direct else
+                column("CPUStartTimeInSeconds", "CPUStartTime", "TimeInSeconds", "TimeInMs"))
     relative_unit = "milliseconds" if relative and relative.casefold() == "timeinms" else "seconds"
     if relative and relative.casefold() == "cpustarttime":
         relative_unit = cpu_start_unit
@@ -110,7 +116,8 @@ def analyze(path: Path, *, process_name=None, process_id=None, swap_chain=None,
     clock_unit = qunit if use_qpc else relative_unit
     needs_qpc = use_qpc or qstart is not None or qend is not None
     if needs_qpc and not qclock:
-        raise ValueError("QPC clock required but absent")
+        raise ValueError("matching present QPC clock required for bounded MsBetweenPresents" if direct else
+                         "QPC clock required but absent")
     if needs_qpc and qunit is None:
         raise ValueError("v1 QPCTime requires explicit --qpc-unit ticks or milliseconds")
     if needs_qpc and qunit == "ticks" and frequency is None:
@@ -200,6 +207,9 @@ def analyze(path: Path, *, process_name=None, process_id=None, swap_chain=None,
             "qpc_frequency": int(frequency) if frequency is not None else None},
         "clock_column": clock, "clock_unit": clock_unit,
         "interval_method": "difference between retained application timestamps" if derived else "MsBetweenPresents",
+        "field_availability": {"frame_type_column": frame_type, "dropped_column": dropped},
+        "observed_explicit_generated_rows": generated if frame_type else None,
+        "observed_dropped_presents_retained": sum(x["dropped"] == "1" for x in intervals) if dropped else None,
         "selected_present_rows": len(events), "explicit_generated_rows_removed": generated,
         "retained_application_present_rows": len(retained), "initial_intervals_unavailable": boundary,
         "range_excluded_intervals": out_of_range, "range_intervals_before_warmup": count_before_warmup,
@@ -211,6 +221,7 @@ def analyze(path: Path, *, process_name=None, process_id=None, swap_chain=None,
         "real_rendered_fps": 1000 / timing["mean"] if frame_generation_off else None,
         "p95_frame_budget_met_60fps": timing["p95"] <= 1000 / 60 if frame_generation_off else None,
         "limitations": ["FG-off is an external capture-setting assertion; CSV cannot prove no uninstrumented generation.",
+            "Absent FrameType/Dropped columns mean observations are unavailable; zero filtering/count defaults do not prove zero generation/drops.",
             "Unknown frame types, dropped/unshown presents and timing outliers are retained.",
             "Range selection requires both interval endpoints inside the inclusive range; no FPS is inferred from runtime jobs.",
             "No alignment with OpenNR runtime trace frame IDs is attempted."]}

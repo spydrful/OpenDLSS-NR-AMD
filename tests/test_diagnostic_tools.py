@@ -47,6 +47,9 @@ class DiagnosticTests(unittest.TestCase):
         report, rows = presentmon.analyze(path)
         self.assertEqual([x["frame_ms"] for x in rows], [10, 0, 20])
         self.assertEqual(report["zero_intervals_retained"], 1)
+        self.assertEqual(report["field_availability"], {"frame_type_column": None, "dropped_column": None})
+        self.assertIsNone(report["observed_explicit_generated_rows"])
+        self.assertIsNone(report["observed_dropped_presents_retained"])
         with self.assertRaises(ValueError):
             presentmon.analyze(path, start_seconds=0)
 
@@ -84,6 +87,33 @@ class DiagnosticTests(unittest.TestCase):
             presentmon.analyze(path, qpc_start=123000, qpc_end=123016)
         report, rows = presentmon.analyze(path, qpc_start=123000, qpc_end=123016, qpc_unit="milliseconds")
         self.assertEqual(rows[0]["frame_ms"], 16)
+
+    def test_hybrid_present_delta_uses_matching_present_clock(self):
+        path = self.capture("Application,ProcessID,SwapChainAddress,TimeInQPC,MsBetweenPresents,CPUStartQPC\n"
+            "G,1,A,10000000,0,9700000\nG,1,A,10100000,10,9800000\n"
+            "G,1,A,10300000,20,10000000\nG,1,A,10600000,30,10300000\n")
+        report, rows = presentmon.analyze(path, qpc_frequency=10000000,
+            qpc_start=10000000, qpc_end=10300000)
+        # The old mixed CPU/present clock would exclude 10 and 20, and include
+        # 30, whose actual present endpoint lies outside this observed range.
+        self.assertEqual([x["frame_ms"] for x in rows], [10, 20])
+        self.assertEqual(report["selection"]["qpc_column"], "TimeInQPC")
+        self.assertEqual(report["clock_column"], "TimeInQPC")
+        self.assertEqual(report["range_excluded_intervals"], 1)
+        self.assertEqual(report["explicit_generated_rows_removed"], 0)
+        self.assertIsNone(report["observed_explicit_generated_rows"])
+
+    def test_present_delta_does_not_borrow_cpu_only_clock(self):
+        path = self.capture("Application,ProcessID,SwapChainAddress,MsBetweenPresents,CPUStartQPC,CPUStartTime\n"
+            "G,1,A,10,10000000,1\nG,1,A,20,10200000,1.02\n")
+        # Unbounded direct interval statistics remain valid without endpoints.
+        report, rows = presentmon.analyze(path)
+        self.assertEqual([x["frame_ms"] for x in rows], [10, 20])
+        self.assertIsNone(report["clock_column"])
+        for options in ({"qpc_start": 10000000, "qpc_end": 10200000, "qpc_frequency": 10000000},
+                        {"start_seconds": 1, "end_seconds": 1.02}):
+            with self.assertRaises(ValueError):
+                presentmon.analyze(path, **options)
 
     def test_explicit_fg_bridged_unknown_retained(self):
         path = self.capture("Application,ProcessID,SwapChainAddress,TimeInSeconds,MsBetweenPresents,FrameType,Dropped\n"
