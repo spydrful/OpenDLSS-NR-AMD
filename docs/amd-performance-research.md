@@ -6,7 +6,7 @@ The survey covers official architecture guidance, neural rendering papers, open 
 
 ## Local measurements and constraints
 
-The device was rechecked with `build/dlss5vk.exe info --backend amd`: RX 9070 XT, Adrenalin 26.9.1, LLPC, Vulkan 1.4.349, and E4M3 16x16x16 matrices with FP32 accumulation. The reported default subgroup is 64; the compute pipelines request wave32. See [arithmetic documentation](amd-numerics.md) and the [validation record](rx9070xt-validation.md).
+The device was rechecked with `build/dlss5vk.exe info --backend amd`: RX 9070 XT, Adrenalin 26.9.1, LLPC, Vulkan 1.4.349, and E4M3 16x16x16 matrices with FP32 accumulation. The reported default subgroup is 64; FP8 GEMM and matrix-attention pipelines request wave32. See [arithmetic documentation](amd-numerics.md) and the [validation record](rx9070xt-validation.md).
 
 Existing idle measurements at valid 1707x960, padded to 1728x960:
 
@@ -46,11 +46,11 @@ Its code provides concrete implementation references:
 - [Transposed expert FFN](https://github.com/mochizuki0323/DLSSNR-AMD/blob/82560c4fbfaac347fc5e22c22025191402ae916b/windows/shaders/rdna4/ffwd3_t.comp): chains GEMMs and FP8 publications in registers; includes alternatives for weight reuse across token tiles.
 - [Fused QKV attention](https://github.com/mochizuki0323/DLSSNR-AMD/blob/82560c4fbfaac347fc5e22c22025191402ae916b/windows/shaders/rdna4/attn.comp): explores staging, transposed attention, occupancy, and packed conversions.
 
-Numerical policy is a material difference: the Swin variants select FP32 accumulation, while attention documents optional half publication after two K16 steps. Our accelerated baseline publishes after every K16 and retains a prescribed half reduction tree. A wholesale transplant would require fresh quality validation. Its matrix helper also documents a failed optimization where narrowing then widening a fragment lost intended rounding during compilation. A syntactically present conversion is insufficient proof that a publication survived.
+Numerical policy is a material difference: both implementations use FP32 hardware accumulation, but the external Swin presets set `NR_ACC_F16=0`, omitting intermediate half publication. Its attention documents optional half publication after two K16 steps. Our accelerated baseline publishes after every K16 and retains a prescribed half reduction tree. A wholesale transplant would require fresh quality validation. Its matrix helper also documents a failed optimization where narrowing then widening a fragment lost intended rounding during compilation. A syntactically present conversion is insufficient proof that a publication survived.
 
-The project publishes [NGX comparisons](https://github.com/mochizuki0323/DLSSNR-AMD/blob/82560c4fbfaac347fc5e22c22025191402ae916b/docs/ngx-verification/NGX-VERIFICATION.md) against an RTX 5090 running NVIDIA's DLL. Reported 1080p reset output scores 45.56 dB PSNR and 0.9961 SSIM; moving tests use four constructed ten-frame sequences. Those Linux, 8-bit RGB results support the reference's usefulness, but do not validate our scene-linear HDR composition or Cyberpunk temporal behavior.
+The project publishes [NGX comparisons](https://github.com/mochizuki0323/DLSSNR-AMD/blob/82560c4fbfaac347fc5e22c22025191402ae916b/docs/ngx-verification/NGX-VERIFICATION.md) using its Linux v0.0.2.5 build against an RTX 5090 running NVIDIA's DLL. Reported 1080p reset output scores 45.56 dB PSNR and 0.9961 SSIM; moving tests use four constructed ten-frame sequences. These are 8-bit RGB quality results from a different build and platform than the Windows v0.0.3 timings above. They do not validate our scene-linear HDR composition or Cyberpunk temporal behavior.
 
-The repository code is MIT licensed. Inspect source and retain attribution for any adopted code. Only source files and documentation were inspected during this research; no external runtime, installer or model was executed.
+The repository code is [MIT licensed](https://github.com/mochizuki0323/DLSSNR-AMD/blob/82560c4fbfaac347fc5e22c22025191402ae916b/LICENSE). Inspect source and retain attribution for any adopted code. Only source files and documentation were inspected during this research; no external runtime, installer or model was executed.
 
 ## AMD architecture guidance
 
@@ -60,7 +60,7 @@ AMD published three practical RDNA4 guides on June 2, 2026:
 | --- | --- | --- |
 | [WMMA guide part 1](https://gpuopen.com/learn/wmma-guide-amd-rdna-4-gpus-part-1/) | Keep intermediate GEMM outputs in registers and arrange the next product around fragment layout | Fused FFN and small-channel blocks |
 | [WMMA guide part 2](https://gpuopen.com/learn/wmma-guide-amd-rdna-4-gpus-part-2/) | Supply pairs of FP8 or INT8 K16 operations using wider loads; the example uses INT8 | Stage K32 or K64 while retaining separate K16 arithmetic and rounding |
-| [WMMA guide part 3](https://gpuopen.com/learn/wmma-guide-amd-rdna-4-gpus-part-3/) | Use an identity WMMA product to transpose register data | Compare against shuffle or LDS transpose in a controlled prototype |
+| [WMMA guide part 3](https://gpuopen.com/learn/wmma-guide-amd-rdna-4-gpus-part-3/) | Demonstrates an FP16 identity WMMA product to transpose register data | Compare against shuffle or LDS transpose in a controlled prototype; FP8 equivalence is unqualified |
 
 The [July 2025 matrix-core introduction](https://gpuopen.com/learn/using_matrix_core_amd_rdna4/) explains gfx12 WMMA builtins and how its fragment layout differs from RDNA3. These are HIP examples; use their hardware principles when designing Vulkan kernels.
 
@@ -75,7 +75,7 @@ These sources are kernel references or bounded backend experiments, not dependen
 | Source | Useful evidence | Applicability |
 | --- | --- | --- |
 | [AITER](https://github.com/ROCm/aiter) | README now lists gfx1201 R9700 as experimental, with many Triton, FlyDSL and HIP operators | Same architecture, but individual kernels and Windows need qualification; many CK and assembly variants remain CDNA-specific |
-| [AITER gfx1201 attention](https://github.com/ROCm/aiter/blob/main/aiter/ops/flydsl/kernels/flash_attn_func_gfx1201.py) | Real wave32 WMMA attention with pipelined loads and padded LDS | FP16/BF16; head dimensions start at 64. Our 32-channel window heads and fixed arithmetic need a new specialization |
+| [AITER gfx1201 attention](https://github.com/ROCm/aiter/blob/main/aiter/ops/flydsl/kernels/flash_attn_func_gfx1201.py) | Real wave32 WMMA attention with pipelined loads and padded LDS | FP16/BF16; head dimensions must be at least 64 and divisible by 32. Our 32-channel window heads and fixed arithmetic need a new specialization |
 | [AITER issue 5229](https://github.com/ROCm/aiter/issues/5229) | September 2026 report of one gfx1201 attention tile exceeding LDS and a build missing device objects | Configuration-specific evidence to check tile sizes and compiled targets |
 | [CK release notes](https://rocm.docs.amd.com/en/docs-7.2.0/about/release-notes.html) | CK 1.2 adds gfx12 WMMA FMHA and wave32 | Current CK is broader than older Instinct-only descriptions; particular operations still need device checks |
 | [rocWMMA precision support](https://rocm.docs.amd.com/projects/rocWMMA/en/latest/api-reference/data-type-support.html) | gfx1200/gfx1201 FP8 and FP16 matrix modes | Good controlled HIP reference. Check OCP E4M3 rather than assuming CDNA FNUZ/NANOO encoding |
