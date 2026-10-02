@@ -31,6 +31,8 @@ Download the [RX 9070 XT alpha 3](https://github.com/spydrful/OpenDLSS-NR-AMD/re
 and follow the [installation guide](docs/INSTALL.md), or use the
 [AMD build and setup guide](docs/AMD.md) and the
 [alpha 3 game evidence](docs/performance/cyberpunk-alpha3-20261002.json).
+The [published release identities](docs/performance/alpha3-release-identities.json)
+record the verified download hashes and corresponding source.
 **NVIDIA model DLLs and extracted weights are not distributed.** You supply a
 supported DLL locally; the importer reads it without executing it.
 

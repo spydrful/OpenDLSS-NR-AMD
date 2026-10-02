@@ -1,0 +1,75 @@
+{
+  "format": "OpenNR-alpha3-release-identities-v1",
+  "verifiedUtc": "2026-10-02T22:01:43.8449255Z",
+  "publicationVerified": true,
+  "releaseId": 402182651,
+  "releaseTag": "v0.1.0-alpha.3",
+  "releaseUrl": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.3",
+  "sourceSnapshotCommit": "64a36b3a9511807fc7414cd795fdc56907647526",
+  "buildBaseCommit": "909e309e2cddd2ae1e30a9658bdf7162ec72e82d",
+  "buildHadUncommittedChanges": true,
+  "sourceIdentityScope": "The tag identifies the final corresponding-source snapshot. Compiled sources match the tested frozen build; measured binaries retain independent hashes.",
+  "assets": [
+    {
+      "name": "OpenNR-AMD-v0.1.0-alpha.3-rx9070xt.zip",
+      "url": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/download/v0.1.0-alpha.3/OpenNR-AMD-v0.1.0-alpha.3-rx9070xt.zip",
+      "size": 309226332,
+      "digest": "sha256:e31e7d12dc79a4395a63320204f1a24d5fa6aeca2f692a70aa8adf6a47242536"
+    },
+    {
+      "name": "OpenNR-AMD-v0.1.0-alpha.3-rx9070xt.zip.sha256",
+      "url": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/download/v0.1.0-alpha.3/OpenNR-AMD-v0.1.0-alpha.3-rx9070xt.zip.sha256",
+      "size": 105,
+      "digest": "sha256:1b77cda6730bbd07c15f5096b2102d239b51b530d894d342b07345d428562b90"
+    }
+  ],
+  "archiveAudit": {
+    "sha256": "523c13b7c161bb0a5b7388b30be53a494feb1ed59c8bd0e406881c489a1edde4",
+    "fileCount": 10673,
+    "allEmbeddedFileHashesMatched": true,
+    "proprietaryArtifactsFound": false,
+    "sourceArchives": 5
+  },
+  "packageManifestSha256": "15decbb890e99eed00e491465feb3ecbdf8a2629c1145155b09d1baa1964cf68",
+  "measuredBinaryIdentities": {
+    "tools/dlss5vk.exe": "e93b4ac685666f63a79d2003475ace747aba36dbdce4caddf99ee143f1763c13",
+    "payload/OpenNrRuntime.dll": "41ca13ea3375f30b50ca6006ecf4aa95c591e5db183daa9525640b5d1552a42d",
+    "payload/OptiScaler.dll": "3c43bb1d4a5843b68b0537b8703c4a0c12bf4e47f17c53e225df57cad276dee7",
+    "payload/open-nr/shaders/amd-tuning.json": "058c4dde3ba0e679ec3bf3bdd247295459b14f4bbc9908fb3624e7e9d046692e"
+  },
+  "sourceCorrespondence": {
+    "proofSha256": "315de8b6fa8aa1b62802f0478d083460fd0c5dda6b19b1eb94df9a907bb5e045",
+    "requiredSources": 73,
+    "auxiliarySources": 10,
+    "finalPackageSourcesMatched": 83,
+    "sourceRebuiltSpirvByteMatches": 26,
+    "exeDllByteReproductionClaim": false
+  },
+  "measurementRecords": [
+    {
+      "file": "docs/performance/direct-gemm-rx9070xt-20261002.json",
+      "sha256": "3f6d5a390328989c0f22a7b3efbcf04434296cb7410fcaf8d1199e838d5c3cc7",
+      "scope": "Prepublication measurement record; this release record supplies later publication evidence"
+    },
+    {
+      "file": "docs/performance/cyberpunk-alpha3-20261002.json",
+      "sha256": "c476214bbce4c1796131803fe863ee899403408744c49b49d408d43c7f3ee5fe"
+    }
+  ],
+  "previousReleases": {
+    "alpha1AssetsNotesTagVerifiedUnchanged": true,
+    "alpha1SourceCommit": "1de84bb81c7a819a741b7deb9e22bb0cfc19cc13",
+    "alpha2AssetsNotesTagVerifiedUnchanged": true,
+    "alpha2SourceCommit": "7f1cd3108133d8aee9bae505cb31542e236d13e0"
+  },
+  "nrEnabledByDefault": false,
+  "arithmeticDefault": "k16",
+  "targetBudgetsMet": false,
+  "broadTemporalHighlightAcceptanceMet": false,
+  "tenMinuteActiveGameplayCompleted": false,
+  "proprietaryAssetsExcluded": [
+    "NVIDIA DLLs",
+    "extracted weights",
+    "game captures"
+  ]
+}
