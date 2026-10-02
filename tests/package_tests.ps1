@@ -57,6 +57,9 @@ try {
   & (Join-Path $taskRoot 'scripts\package.ps1') @taskParams
   $taskManifest = Read-NrPackage $taskOutput
   Assert-Nr (@($taskManifest.files).Count -eq 12) 'expected payload files are missing'
+  Assert-Nr ($taskManifest.releaseChannel -eq 'development' -and $null -eq $taskManifest.releaseTag -and $null -eq $taskManifest.sourceCommit) 'unversioned development package metadata changed'
+  Assert-Nr ($taskManifest.nrEnabledByDefault -eq $false -and (Get-Content -LiteralPath (Join-Path $taskOutput 'payload\OptiScaler.ini') -Raw) -match '(?m)^Enabled=false\s*$') 'generated configuration must make NR opt-in'
+  Assert-Nr ((Get-Content -LiteralPath (Join-Path $taskOutput 'PACKAGE-README.txt') -Raw) -match 'Insert\s*\r?\n?-> Neural -> Enable NR') 'package instructions do not explain how to enable NR'
   Assert-Nr (-not (Test-Path -LiteralPath (Join-Path $taskOutput 'payload\open-nr\shaders\experimental.spv'))) 'unselected experimental shader entered payload'
   Assert-Nr (@($taskManifest.releaseGates.PSObject.Properties | Where-Object { $_.Value.status -ne 'unmet' }).Count -eq 0 -and @($taskManifest.releaseGates.PSObject.Properties).Count -eq 4) 'unmet numerical/game release gates missing'
   Assert-Nr ($taskManifest.releaseGates.gameTemporalHdr.displayScope -eq 'initial SDR' -and $taskManifest.releaseGates.gameTemporalHdr.hdrDisplayValidation -like 'deferred*') 'HDR display deferral is missing from the initial game gate'
@@ -76,6 +79,7 @@ try {
   Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\integrations\optiscaler\sources\fsr31-local-symbols.patch')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\scripts\patch_fsr31_static_source.ps1'))) 'FSR31 local source changes missing'
   Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\ports\browser-webgpu\tools\headless.mjs')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\ports\browser-webgpu\shaders\ops.wgsl'))) 'browser reference/diagnostic sources missing'
   Assert-Nr (-not (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\ports\browser-webgpu\web\fixtures'))) 'generated browser fixtures entered source package'
+  Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\ports\browser-webgpu\web\vendor\basis\LICENSE')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\ports\browser-webgpu\web\vendor\basis\ATTRIBUTION.md'))) 'vendored Basis license and attribution missing'
   Assert-Nr (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\third_party\optiscaler-host\mock.cpp')) 'host source has wrong relative layout'
   Assert-Nr (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\third_party\optiscaler-host\OptiScaler\exports\exports.h')) 'authored host export header was pruned'
   Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\third_party\optiscaler-host\dist\streamline\reflex.license.txt')) -and -not (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\third_party\optiscaler-host\dist\streamline\sl.reflex.dll'))) 'host distribution notices were pruned or NVIDIA DLLs were copied'
@@ -86,6 +90,28 @@ try {
   $taskHash = Get-NrHash (Join-Path $taskOutput 'package-manifest.json')
   Assert-NrThrows { & (Join-Path $taskRoot 'scripts\package.ps1') @taskParams } 'existing package was overwritten'
   Assert-Nr ((Get-NrHash (Join-Path $taskOutput 'package-manifest.json')) -eq $taskHash) 'failed repackage changed output'
+  $taskParams.OutputDirectory = Join-Path $taskScratch 'alpha-result'
+  $taskParams.ReleaseTag = 'v0.1.0-alpha.99'
+  Assert-NrThrows { & (Join-Path $taskRoot 'scripts\package.ps1') @taskParams } 'versioned alpha without a source commit was accepted'
+  $taskParams.SourceCommit = 'HEAD'
+  Assert-NrThrows { & (Join-Path $taskRoot 'scripts\package.ps1') @taskParams } 'symbolic source commit was accepted'
+  $taskParams.SourceCommit = ('a' * 40) + "`n"
+  Assert-NrThrows { & (Join-Path $taskRoot 'scripts\package.ps1') @taskParams } 'newline in source commit was accepted'
+  $taskParams.SourceCommit = 'A' * 40
+  $taskParams.ReleaseTag = "v0.1.0-alpha.99`n"
+  Assert-NrThrows { & (Join-Path $taskRoot 'scripts\package.ps1') @taskParams } 'trailing newline in release tag was accepted'
+  $taskParams.ReleaseTag = "v0.1.0-alpha.99`nother"
+  Assert-NrThrows { & (Join-Path $taskRoot 'scripts\package.ps1') @taskParams } 'multiline release tag was accepted'
+  Assert-Nr (-not (Test-Path -LiteralPath $taskParams.OutputDirectory)) 'invalid release metadata published output'
+  $taskParams.ReleaseTag = 'v0.1.0-alpha.99'
+  & (Join-Path $taskRoot 'scripts\package.ps1') @taskParams
+  $taskAlphaManifest = Read-NrPackage $taskParams.OutputDirectory
+  Assert-Nr ($taskAlphaManifest.releaseChannel -eq 'alpha' -and $taskAlphaManifest.releaseTag -eq 'v0.1.0-alpha.99' -and $taskAlphaManifest.sourceCommit -ceq ('a' * 40)) 'versioned alpha metadata missing or source commit not normalized'
+  $taskGuideHash = Get-NrHash (Join-Path $taskRoot 'docs\INSTALL.md')
+  Assert-Nr ($taskAlphaManifest.installationGuide.file -eq 'INSTALL.md' -and $taskAlphaManifest.installationGuide.sha256 -eq $taskGuideHash -and (Get-NrHash (Join-Path $taskParams.OutputDirectory 'INSTALL.md')) -eq $taskGuideHash -and (Get-NrHash (Join-Path $taskParams.OutputDirectory 'source\OpenDLSS-NR-AMD\docs\INSTALL.md')) -eq $taskGuideHash) 'release install guide is missing, unhashed or differs from corresponding source'
+  Assert-Nr ((Get-Content -LiteralPath (Join-Path $taskParams.OutputDirectory 'PACKAGE-README.txt') -Raw).Contains('Source commit: ' + ('a' * 40))) 'versioned package instructions omit the source commit'
+  $null = $taskParams.Remove('ReleaseTag')
+  $null = $taskParams.Remove('SourceCommit')
   $taskParams.OutputDirectory = Join-Path $taskScratch 'duplicate-test'
   Copy-Item -LiteralPath (Join-Path $taskKernels 'kernel.spv') -Destination (Join-Path $taskGameShaders 'kernel.spv')
   Assert-NrThrows { & (Join-Path $taskRoot 'scripts\package.ps1') @taskParams } 'duplicate shader filename accepted'

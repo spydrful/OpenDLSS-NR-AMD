@@ -10,11 +10,19 @@ param(
   [string]$OptiScalerSource = (Join-Path (Split-Path -Parent $PSScriptRoot) 'third_party\optiscaler-host'),
   [string]$FidelityFxDirectory,
   [string]$AgilityDirectory,
-  [string]$Configuration
+  [string]$Configuration,
+  [string]$ReleaseTag,
+  [string]$SourceCommit
 )
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'install_common.ps1')
 $taskRoot = Get-NrRoot (Split-Path -Parent $PSScriptRoot)
+$taskInstallGuide = Join-Path $taskRoot 'docs\INSTALL.md'
+if ($ReleaseTag -and $ReleaseTag -cnotmatch '\Av[0-9]+\.[0-9]+\.[0-9]+-alpha\.[0-9]+\z') { throw 'ReleaseTag must identify an alpha version, for example v0.1.0-alpha.1' }
+if ($SourceCommit -and $SourceCommit -notmatch '\A[a-fA-F0-9]{40}\z') { throw 'SourceCommit must be a full 40-character Git commit hash' }
+if ($ReleaseTag -and -not $SourceCommit) { throw 'A versioned alpha package requires SourceCommit' }
+if ($ReleaseTag -and -not (Test-Path -LiteralPath $taskInstallGuide -PathType Leaf)) { throw 'A versioned alpha package requires docs/INSTALL.md' }
+if ($SourceCommit) { $SourceCommit = $SourceCommit.ToLowerInvariant() }
 $taskStaticSources = @((Get-Content -LiteralPath (Join-Path $taskRoot 'integrations\optiscaler\sources\manifest.json') -Raw | ConvertFrom-Json).archives)
 foreach ($taskDependency in $taskStaticSources) {
   if ($taskDependency.file -notmatch '^[a-z0-9.-]+\.tar\.(?:gz|xz)$') { throw 'Invalid static dependency source archive name' }
@@ -98,7 +106,7 @@ if ($Configuration) {
 Dx12Upscaler=ffx
 
 [DlssNr]
-Enabled=true
+Enabled=false
 NrBackend=mochizuki
 ApplyAfterRR=false
 MochizukiPasses=1
@@ -126,6 +134,7 @@ foreach ($taskTool in @('analyze_performance.py', 'compare_images.py', 'analyze_
 foreach ($taskNotice in @('LICENSE', 'NOTICE', 'tools\MODEL_IMPORTER_NOTICE.txt', 'docs\AMD.md', 'docs\amd-numerics.md', 'docs\rx9070xt-validation.md')) {
   Copy-Item -LiteralPath (Join-Path $taskRoot $taskNotice) -Destination $taskStage
 }
+if (Test-Path -LiteralPath $taskInstallGuide -PathType Leaf) { Copy-Item -LiteralPath $taskInstallGuide -Destination (Join-Path $taskStage 'INSTALL.md') }
 foreach ($taskNotice in @('FreeType-FTL.TXT', 'FreeType-LICENSE.TXT', 'Detours-LICENSE.md', 'FSR2-DX11-LICENSE.txt', 'FSR2-212-LICENSE.txt', 'FSR3-DX11-LICENSE.txt')) {
   Copy-Item -LiteralPath (Join-Path $taskRoot ('integrations\optiscaler\notices\' + $taskNotice)) -Destination $taskStage
 }
@@ -187,7 +196,7 @@ if (Test-Path -LiteralPath $taskHostDistributionNotices -PathType Container) {
   # DLLs. Normal source traversal deliberately prunes binary distribution trees.
   Copy-NrSources $taskHostDistributionNotices 'OpenDLSS-NR-AMD\third_party\optiscaler-host\dist\streamline'
 }
-@'
+$taskReadme = @'
 OpenNR-AMD development validation package
 
 This build has unmet performance and matched-image quality release gates.
@@ -197,6 +206,13 @@ unverified, so real-rendered FPS is not asserted. Completed NR+bridge jobs
 took approximately 213 ms. The 60 FPS target has not been reached. See
 rx9070xt-validation.md for measured settings, scope, runtime hashes and
 remaining temporal/image quality checks. Treat this as a development build.
+
+Start with INSTALL.md for prerequisites, installation, local model import,
+enabling NR and reversible removal. The generated default OptiScaler.ini has
+NR disabled (Enabled=false). To opt in after importing the model, open Insert
+-> Neural -> Enable NR. Setting effect strengths to zero still runs inference.
+Expect approximately 4.6 built-in benchmark FPS while NR is enabled on the
+tested RX 9070 XT configuration. A supplied custom INI can override this default.
 
 The OptiScaler host and its derived integration code are GPL-3.0. Their
 corresponding source and build scripts are included under source/.
@@ -224,9 +240,16 @@ From PowerShell:
 
 Uninstall restores verified originals and leaves separately imported models.
 Changed managed files block uninstall until preserved or restored by the user.
-'@ | Set-Content -LiteralPath (Join-Path $taskStage 'PACKAGE-README.txt') -Encoding utf8
+'@
+if ($ReleaseTag) { $taskReadme = "OpenNR-AMD $ReleaseTag alpha package`r`nSource commit: $SourceCommit`r`nThis commit identifies the packaged application source snapshot.`r`nPayload binary hashes are recorded separately in package-manifest.json.`r`n`r`n" + $taskReadme }
+$taskReadme | Set-Content -LiteralPath (Join-Path $taskStage 'PACKAGE-README.txt') -Encoding utf8
 $taskManifest = [pscustomobject]@{
   format = 'OpenNR-AMD-package-v1'; createdUtc = [DateTime]::UtcNow.ToString('o');
+  releaseChannel = if ($ReleaseTag) { 'alpha' } else { 'development' };
+  releaseTag = if ($ReleaseTag) { $ReleaseTag } else { $null };
+  sourceCommit = if ($SourceCommit) { $SourceCommit } else { $null };
+  nrEnabledByDefault = if ($Configuration) { $null } else { $false };
+  installationGuide = if (Test-Path -LiteralPath (Join-Path $taskStage 'INSTALL.md') -PathType Leaf) { [ordered]@{ file = 'INSTALL.md'; sha256 = Get-NrHash (Join-Path $taskStage 'INSTALL.md') } } else { $null };
   adapterSourcePin = 'MatheusFerreiraS/neural-amd-opti@557bb8553098395f5f138c2e22ed25f256f7a3a2';
   importerSourcePin = 'mochizuki0323/DLSSNR-AMD@82560c4fbfaac347fc5e22c22025191402ae916b';
   sourceDependencies = @($taskStaticSources | ForEach-Object {

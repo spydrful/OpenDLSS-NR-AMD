@@ -2,6 +2,8 @@
 
 Start with these documents for the native AMD implementation:
 
+* [INSTALL.md](INSTALL.md): prebuilt alpha download, prerequisites, local model
+  import, opt-in controls, removal, upgrades and troubleshooting.
 * [AMD.md](AMD.md): Windows build, local model import, patched OptiScaler host,
   packaging, reversible installation and diagnostic commands.
 * [amd-numerics.md](amd-numerics.md): exact arithmetic, RDNA4 accelerated

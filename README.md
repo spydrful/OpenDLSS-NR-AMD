@@ -12,7 +12,9 @@ Cyberpunk 2077 on an RX 9070 XT. This build is not ready for normal gameplay:
 NR plus its bridge currently takes about 213 ms at the target render resolution.
 The goal is 60 real FPS with an initial NR-plus-bridge budget of 8 ms or less.
 
-Start with the [AMD setup guide](docs/AMD.md) and the
+Download the [RX 9070 XT alpha](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.1)
+and follow the [installation guide](docs/INSTALL.md), or use the
+[AMD build and setup guide](docs/AMD.md) and the
 [measured validation record](docs/rx9070xt-validation.md).
 **NVIDIA model DLLs and extracted weights are not distributed.** You supply a
 supported DLL locally; the importer reads it without executing it.
@@ -102,6 +104,46 @@ runtime parity is claimed without independent original forward captures.
 See [validation results and limitations](docs/rx9070xt-validation.md) for
 frame-time percentiles, exact hashes, excluded smoke runs and capture scope.
 Raw weights, images, captures and machine-specific logs stay local.
+
+## Install the alpha
+
+1. Download **OpenNR-AMD-v0.1.0-alpha.1-rx9070xt.zip** and its **.zip.sha256** from
+   the [alpha release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.1).
+   Check the ZIP hash, extract it to a writable folder and open **PowerShell 7**
+   in the folder containing `package-manifest.json`. GitHub's automatic
+   **Source code** archives do not include built DLLs.
+2. Install the [Microsoft Visual C++ v14 Redistributable x64](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist).
+   Use Windows 11, an RX 9070 XT and a compatible AMD Vulkan driver;
+   Adrenalin 26.9.1 and Cyberpunk 2077 2.31 are the tested versions.
+3. Close the game, set its **bin/x64** path and install from the extracted package:
+
+```powershell
+$game = 'C:\Program Files (x86)\GOG Galaxy\Games\Cyberpunk 2077\bin\x64'
+./scripts/install.ps1 -PackageDirectory . -GameDirectory $game -WhatIf
+./scripts/install.ps1 -PackageDirectory . -GameDirectory $game
+./scripts/import_model.ps1 -NvidiaDll 'D:\local\nvngx_dlssnr.dll' -Destination "$game\open-nr\model"
+```
+
+Replace the paths for your installation and your own supported NVIDIA model DLL.
+Use a new model destination, or reuse a previously verified import. Game-folder
+write permission is required; elevate that PowerShell window if needed.
+
+4. Launch with **FSR Quality**, ray tracing and frame generation off. NR ships
+   **disabled**. Press **Insert → Neural → Enable NR** to opt in. Enabled NR
+   currently measured about **4.56 FPS / 213 ms NR plus bridge** at the target
+   settings. Use the checkbox to disable it; zero effect strength still runs NR.
+5. To remove, close the game and run:
+
+```powershell
+./scripts/uninstall.ps1 -GameDirectory $game -WhatIf
+./scripts/uninstall.ps1 -GameDirectory $game
+```
+
+Keep the extracted package and installation backups. Saving overlay settings
+changes the managed INI and can stop removal; the [full installation guide](docs/INSTALL.md)
+explains how to preserve it and restore the packaged file before retrying.
+That guide also covers model hashes, controls, troubleshooting and upgrades.
+NVIDIA DLLs, weights and game assets are excluded from release downloads.
 
 ## Build on Windows
 
