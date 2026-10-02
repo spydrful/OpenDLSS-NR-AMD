@@ -8,10 +8,11 @@ param(
     [ValidateSet('bench', 'profile')][string]$Mode = 'bench',
     [ValidateSet('auto', 'baseline', 'optimized')][string]$Kernels = 'optimized',
     [ValidateSet('k16', 'k32', 'final')][string]$Arithmetic = 'k16',
+    [ValidateSet('shared','packed','direct')][string]$Gemm = 'shared',
     [ValidateSet(16, 32, 64)][int]$TileN = 16,
     [ValidateSet(16, 32, 64)][int]$StageK = 16,
     [ValidateSet(16,32,64)][int]$WindowQueries = 64,
-    [ValidateSet('legacy', 'compact64')][string]$ComparisonAnchor = 'legacy',
+    [ValidateSet('legacy', 'compact64', 'qualified32')][string]$ComparisonAnchor = 'legacy',
     [ValidateRange(1, 32768)][int]$Width = 1707,
     [ValidateRange(1, 32768)][int]$Height = 960,
     [ValidateRange(0, 10000)][int]$Warmup = 5,
@@ -20,6 +21,8 @@ param(
     [ValidateRange(1, 86400)][int]$TimeoutSeconds = 900,
     [switch]$AllowArithmeticChange,
     [switch]$Fusion,
+    [ValidateSet('inherit','0','1')][string]$Ffn32Fusion = 'inherit',
+    [ValidateSet('inherit','0','1')][string]$Qkv32Fusion = 'inherit',
     [switch]$ExpertFusion,
     [switch]$BlockFusion,
     [switch]$HardwarePublication
@@ -29,7 +32,7 @@ $taskTool = Join-Path (Split-Path -Parent $PSScriptRoot) 'tools\tune_amd.py'
 $taskArguments = @(
     $taskTool, 'collect', '--executable', $Executable, '--model', $ModelDirectory,
     '--output', $OutputDirectory, '--mode', $Mode, '--kernels', $Kernels,
-    '--arithmetic', $Arithmetic, '--tile-n', "$TileN", '--stage-k', "$StageK",
+    '--arithmetic', $Arithmetic, '--gemm', $Gemm, '--tile-n', "$TileN", '--stage-k', "$StageK",
     '--window-queries',"$WindowQueries",
     '--comparison-anchor', $ComparisonAnchor,
     '--width', "$Width", '--height', "$Height", '--warmup', "$Warmup",
@@ -38,6 +41,8 @@ $taskArguments = @(
 if ($ShaderDirectory) { $taskArguments += @('--shaders', $ShaderDirectory) }
 if ($AllowArithmeticChange) { $taskArguments += '--allow-arithmetic-change' }
 if ($Fusion) { $taskArguments += '--fusion' }
+if ($Ffn32Fusion -ne 'inherit') { $taskArguments += $(if ($Ffn32Fusion -eq '1') { '--ffn32-fusion' } else { '--no-ffn32-fusion' }) }
+if ($Qkv32Fusion -ne 'inherit') { $taskArguments += $(if ($Qkv32Fusion -eq '1') { '--qkv32-fusion' } else { '--no-qkv32-fusion' }) }
 if ($ExpertFusion) { $taskArguments += '--expert-fusion' }
 if ($BlockFusion) { $taskArguments += '--block-fusion' }
 if ($HardwarePublication) { $taskArguments += '--hardware-publication' }

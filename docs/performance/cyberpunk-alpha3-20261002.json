@@ -1,0 +1,989 @@
+{
+  "format": "OpenNR-AMD-Cyberpunk-alpha3-scalar-evidence-v1",
+  "recorded_date_utc": "2026-10-02",
+  "status": "complete_three_off_three_traced_on_builtin_passes_and_three_asynchronous_runtime_brackets",
+  "proprietary_raw_content_included": false,
+  "source_identity": {
+    "base_commit_at_build": "909e309e2cddd2ae1e30a9658bdf7162ec72e82d",
+    "uncommitted_changes_at_build": true,
+    "frozen_source_identity_sha256": "a118766fc181639373e7db167693ed1de19e0a6577f69ce863379768a26d3ae4",
+    "release_source_commit": null,
+    "scope": "Candidate built from dirty base; frozen source identity and measured binary hashes identify this evidence. A later release commit must not substitute a different measured binary."
+  },
+  "measured_binary_identity": {
+    "runtime_sha256": "41ca13ea3375f30b50ca6006ecf4aa95c591e5db183daa9525640b5d1552a42d",
+    "optiscaler_host_sha256": "3c43bb1d4a5843b68b0537b8703c4a0c12bf4e47f17c53e225df57cad276dee7",
+    "temporary_package_manifest_sha256": "0ecd359a46729893de618df5fb24e3ddd85afd58db731c0376d06d65c859041e",
+    "tuning_sha256": "058c4dde3ba0e679ec3bf3bdd247295459b14f4bbc9908fb3624e7e9d046692e"
+  },
+  "selected_policy": {
+    "backend": "amd",
+    "kernels": "optimized",
+    "arithmetic": "k16",
+    "gemm": "direct",
+    "tile_n": 16,
+    "stage_k": 16,
+    "window_query_rows": 32,
+    "fusion": false,
+    "ffn32_fusion": false,
+    "qkv32_fusion": false,
+    "expert_fusion": false,
+    "block_fusion": false,
+    "experimental_hardware_publication": false,
+    "valid_render_size": [
+      1707,
+      960
+    ],
+    "padded_network_size": [
+      1728,
+      960
+    ],
+    "display_output_size": [
+      2560,
+      1440
+    ],
+    "model_manifest_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+    "selected_shader_sha256": "9497a10fc30264c5325440f90e1925f0251dc571a1676d2d1ae4aa6b810960ba",
+    "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+  },
+  "settings": {
+    "game_exported": {
+      "gameVersion": "2.31",
+      "gpuName": "AMD Radeon RX 9070 XT",
+      "gpuDriverVersion": "Radeon software 26.9.1",
+      "presetName": "Custom",
+      "renderWidth": 2560,
+      "renderHeight": 1440,
+      "verticalSync": false,
+      "fpsClamp": -1,
+      "upscalingType": 3,
+      "frameGenerationType": 0,
+      "FSR3Enabled": true,
+      "FSR3Quality": 2,
+      "FSR3FrameGenEnabled": false,
+      "FSR4Enabled": false,
+      "DRSEnabled": false,
+      "rayTracingEnabled": false
+    },
+    "display_mode_root_observed": "Windowed",
+    "textures_root_observed": "High",
+    "fsr_quality_root_observed": "Quality",
+    "driver_afmf": "Disabled (observed currentprofileUI)",
+    "driver_fsr_frame_generation": "Disabled (observed currentprofileUI)",
+    "driver_fsr_upscaling_override": "Enabled (unchanged)",
+    "effective_fsr_version_independently_established": false
+  },
+  "complete_builtin_benchmarks": {
+    "off": {
+      "nr_condition": "off",
+      "scope": "Three root-assigned complete game-exported builtin benchmark passes; warmups excluded",
+      "builtin_average_fps_three_passes": {
+        "values": [
+          97.32705688476562,
+          97.4880142211914,
+          96.55299377441406
+        ],
+        "mean_equal_pass_weight": 97.12268829345703,
+        "median": 97.32705688476562,
+        "min": 96.55299377441406,
+        "max": 97.4880142211914,
+        "range": 0.9350204467773438,
+        "sample_standard_deviation_n_minus_1": 0.49989068785887597,
+        "coefficient_of_variation_percent": 0.5147002174697347
+      },
+      "pooled_complete_builtin_frame_time_ms": {
+        "mean": 10.29578143360752,
+        "median": 9.98,
+        "p95": 13.54,
+        "p99": 15.29,
+        "min": 6.96,
+        "max": 19.65
+      },
+      "pooled_frame_rows": 18722,
+      "passes": [
+        {
+          "pass": "off-1",
+          "reported": {
+            "averageFps": 97.32705688476562,
+            "minFps": 74.01322174072266,
+            "maxFps": 120.33549499511719,
+            "time": 64.257568359375,
+            "frameNumber": 6254
+          },
+          "frame_time_ms": {
+            "mean": 10.274462743843939,
+            "median": 9.95,
+            "p95": 13.51,
+            "p99": 15.084100000000008,
+            "min": 7.26,
+            "max": 19.65
+          },
+          "frame_rows": 6254
+        },
+        {
+          "pass": "off-2",
+          "reported": {
+            "averageFps": 97.4880142211914,
+            "minFps": 74.10371398925781,
+            "maxFps": 121.5288314819336,
+            "time": 64.2540512084961,
+            "frameNumber": 6264
+          },
+          "frame_time_ms": {
+            "mean": 10.257143997445722,
+            "median": 9.95,
+            "p95": 13.49,
+            "p99": 15.183699999999998,
+            "min": 7.23,
+            "max": 19.19
+          },
+          "frame_rows": 6264
+        },
+        {
+          "pass": "off-3",
+          "reported": {
+            "averageFps": 96.55299377441406,
+            "minFps": 73.49158477783203,
+            "maxFps": 120.04513549804688,
+            "time": 64.25486755371094,
+            "frameNumber": 6204
+          },
+          "frame_time_ms": {
+            "mean": 10.356283043197937,
+            "median": 10.04,
+            "p95": 13.61,
+            "p99": 15.498500000000012,
+            "min": 6.96,
+            "max": 19.55
+          },
+          "frame_rows": 6204
+        }
+      ]
+    },
+    "on": {
+      "nr_condition": "on",
+      "scope": "Three root-assigned complete game-exported builtin benchmark passes; warmups excluded",
+      "builtin_average_fps_three_passes": {
+        "values": [
+          10.701762199401855,
+          10.690256118774414,
+          10.690281867980957
+        ],
+        "mean_equal_pass_weight": 10.694100062052408,
+        "median": 10.690281867980957,
+        "min": 10.690256118774414,
+        "max": 10.701762199401855,
+        "range": 0.011506080627441406,
+        "sample_standard_deviation_n_minus_1": 0.006635618081742498,
+        "coefficient_of_variation_percent": 0.06204933601929467
+      },
+      "pooled_complete_builtin_frame_time_ms": {
+        "mean": 93.50734567901235,
+        "median": 93.495,
+        "p95": 95.0625,
+        "p99": 95.9785,
+        "min": 82.18,
+        "max": 105.21
+      },
+      "pooled_frame_rows": 2916,
+      "passes": [
+        {
+          "pass": "on-1",
+          "reported": {
+            "averageFps": 10.701762199401855,
+            "minFps": 10.52978515625,
+            "maxFps": 10.87432861328125,
+            "time": 90.82616424560547,
+            "frameNumber": 972
+          },
+          "frame_time_ms": {
+            "mean": 93.44125514403292,
+            "median": 93.44,
+            "p95": 94.97,
+            "p99": 95.9858,
+            "min": 90.44,
+            "max": 97.99
+          },
+          "frame_rows": 972
+        },
+        {
+          "pass": "on-2",
+          "reported": {
+            "averageFps": 10.690256118774414,
+            "minFps": 10.514893531799316,
+            "maxFps": 10.875688552856445,
+            "time": 90.92391967773438,
+            "frameNumber": 972
+          },
+          "frame_time_ms": {
+            "mean": 93.54221193415638,
+            "median": 93.53,
+            "p95": 95.1,
+            "p99": 96.08449999999999,
+            "min": 82.18,
+            "max": 105.21
+          },
+          "frame_rows": 972
+        },
+        {
+          "pass": "on-3",
+          "reported": {
+            "averageFps": 10.690281867980957,
+            "minFps": 10.517680168151855,
+            "maxFps": 10.867959022521973,
+            "time": 90.92369842529297,
+            "frameNumber": 972
+          },
+          "frame_time_ms": {
+            "mean": 93.53856995884775,
+            "median": 93.525,
+            "p95": 95.0745,
+            "p99": 95.8603,
+            "min": 90.79,
+            "max": 96.99
+          },
+          "frame_rows": 972
+        }
+      ]
+    }
+  },
+  "complete_builtin_comparison": {
+    "off_mean_fps_equal_pass_weight": 97.12268829345703,
+    "on_mean_fps_equal_pass_weight": 10.694100062052408,
+    "on_over_off_mean_fps": 0.1101091850931895,
+    "on_fps_reduction_percent": 88.98908149068106,
+    "scope": "Same alpha3 session settings; equal weighting of each of three complete builtin pass averages"
+  },
+  "warmups": {
+    "included_in_measured_aggregates": false,
+    "off": {
+      "averageFps": 98.42925262451172,
+      "minFps": 73.37080383300781,
+      "maxFps": 121.71669006347656,
+      "time": 64.25935363769531,
+      "frameNumber": 6325
+    },
+    "traced_on": {
+      "averageFps": 10.67351245880127,
+      "minFps": 10.507932662963867,
+      "maxFps": 10.864310264587402,
+      "time": 91.0665512084961,
+      "frameNumber": 972
+    }
+  },
+  "excluded_measurements": [
+    "Additional untraced NR-on warmup and measured-looking first pass are preserved separately and excluded.",
+    "Initial black-screen start marker is preserved separately and replaced by a root-observed visible-world start marker."
+  ],
+  "presentmon": {
+    "status": "not_collected",
+    "exact_game_present_join": false
+  },
+  "runtime_completed_jobs": {
+    "scope": "Three asynchronous completed-row publication brackets; separate from complete builtin benchmarks",
+    "brackets": [
+      {
+        "pass": "on-1",
+        "scope": "Completed rows published between asynchronous runtime byte-prefix snapshots; no exact producer/present alignment",
+        "qpc_start": 555568679198,
+        "qpc_end": 556038710780,
+        "qpc_frequency": 10000000,
+        "observed_marker_duration_seconds": 47.0031582,
+        "runtime_complete_prefix_byte_range": [
+          235138,
+          276199
+        ],
+        "snapshot_read_qpc_ranges": [
+          [
+            555568790828,
+            555569421113
+          ],
+          [
+            556038743629,
+            556039543861
+          ]
+        ],
+        "asynchronous_snapshot_start_counters": {
+          "submitted_frames": 2762,
+          "bypassed_frames": 0
+        },
+        "asynchronous_snapshot_end_counters": {
+          "submitted_frames": 3242,
+          "bypassed_frames": 0
+        },
+        "asynchronous_snapshot_counter_increases": {
+          "submitted_frames": 480,
+          "bypassed_frames": 0
+        },
+        "detected_segments": 1,
+        "segment": 0,
+        "completed_jobs": 480,
+        "warmup_jobs": 0,
+        "first_frame_id": 2761,
+        "last_frame_id": 3240,
+        "timings_ms": {
+          "pack_ms": {
+            "mean": 0.05249733333333333,
+            "median": 0.05016,
+            "p95": 0.058459999999999984,
+            "p99": 0.08853359999999898,
+            "min": 0.04604,
+            "max": 0.30996
+          },
+          "preprocess_ms": {
+            "mean": 0.47428675,
+            "median": 0.4609,
+            "p95": 0.5786339999999999,
+            "p99": 0.7047216000000001,
+            "min": 0.42956,
+            "max": 0.78404
+          },
+          "inference_ms": {
+            "mean": 84.691843,
+            "median": 84.59299999999999,
+            "p95": 85.90943,
+            "p99": 86.5481336,
+            "min": 84.00296,
+            "max": 87.96004
+          },
+          "composite_ms": {
+            "mean": 0.340206,
+            "median": 0.30916,
+            "p95": 0.50274,
+            "p99": 0.5554379999999998,
+            "min": 0.2858,
+            "max": 0.73392
+          },
+          "unpack_ms": {
+            "mean": 0.06973108333333333,
+            "median": 0.06445999999999999,
+            "p95": 0.08561999999999997,
+            "p99": 0.188442,
+            "min": 0.06028,
+            "max": 0.2924
+          },
+          "neural_ms": {
+            "mean": 85.96155116666667,
+            "median": 85.84388,
+            "p95": 87.10404,
+            "p99": 87.8106172,
+            "min": 85.15236,
+            "max": 88.9858
+          }
+        },
+        "vram_mib_sampled": {
+          "mean": 9371.47265625,
+          "peak": 9400.7421875
+        },
+        "vram_unknown_jobs": 0,
+        "allocated_neural_bytes_partial_peak": 2383296512,
+        "ending_session_counters": {
+          "submitted_frames": 3242,
+          "bypassed_frames": 0
+        },
+        "observed_counter_increases": {
+          "submitted_frames": 479,
+          "bypassed_frames": 0
+        },
+        "counter_baseline_frame_id": 2761,
+        "first_job_counter_interval_unobserved": true
+      },
+      {
+        "pass": "on-2",
+        "scope": "Completed rows published between asynchronous runtime byte-prefix snapshots; no exact producer/present alignment",
+        "qpc_start": 557257927194,
+        "qpc_end": 557840648803,
+        "qpc_frequency": 10000000,
+        "observed_marker_duration_seconds": 58.2721609,
+        "runtime_complete_prefix_byte_range": [
+          331212,
+          383562
+        ],
+        "snapshot_read_qpc_ranges": [
+          [
+            557257962848,
+            557259013072
+          ],
+          [
+            557840695885,
+            557841727015
+          ]
+        ],
+        "asynchronous_snapshot_start_counters": {
+          "submitted_frames": 3890,
+          "bypassed_frames": 0
+        },
+        "asynchronous_snapshot_end_counters": {
+          "submitted_frames": 4502,
+          "bypassed_frames": 0
+        },
+        "asynchronous_snapshot_counter_increases": {
+          "submitted_frames": 612,
+          "bypassed_frames": 0
+        },
+        "detected_segments": 1,
+        "segment": 0,
+        "completed_jobs": 612,
+        "warmup_jobs": 0,
+        "first_frame_id": 3889,
+        "last_frame_id": 4500,
+        "timings_ms": {
+          "pack_ms": {
+            "mean": 0.05374490196078432,
+            "median": 0.05044,
+            "p95": 0.0578,
+            "p99": 0.1473187999999999,
+            "min": 0.0458,
+            "max": 0.30012
+          },
+          "preprocess_ms": {
+            "mean": 0.4760348366013072,
+            "median": 0.46012,
+            "p95": 0.6351939999999999,
+            "p99": 0.7059624,
+            "min": 0.4162,
+            "max": 0.73832
+          },
+          "inference_ms": {
+            "mean": 84.77658183006537,
+            "median": 84.68616,
+            "p95": 85.82629999999999,
+            "p99": 86.7157172,
+            "min": 84.02032,
+            "max": 87.36384
+          },
+          "composite_ms": {
+            "mean": 0.3381179738562092,
+            "median": 0.30944,
+            "p95": 0.5325099999999998,
+            "p99": 0.5572892,
+            "min": 0.2818,
+            "max": 0.58132
+          },
+          "unpack_ms": {
+            "mean": 0.0710870588235294,
+            "median": 0.06464,
+            "p95": 0.08579799999999997,
+            "p99": 0.2523275999999996,
+            "min": 0.05996,
+            "max": 0.44044
+          },
+          "neural_ms": {
+            "mean": 86.05767692810458,
+            "median": 85.94782000000001,
+            "p95": 87.182114,
+            "p99": 88.2062304,
+            "min": 85.31352,
+            "max": 88.67604
+          }
+        },
+        "vram_mib_sampled": {
+          "mean": 9402.111979166666,
+          "peak": 9428.0078125
+        },
+        "vram_unknown_jobs": 0,
+        "allocated_neural_bytes_partial_peak": 2383296512,
+        "ending_session_counters": {
+          "submitted_frames": 4502,
+          "bypassed_frames": 0
+        },
+        "observed_counter_increases": {
+          "submitted_frames": 611,
+          "bypassed_frames": 0
+        },
+        "counter_baseline_frame_id": 3889,
+        "first_job_counter_interval_unobserved": true
+      },
+      {
+        "pass": "on-3",
+        "scope": "Completed rows published between asynchronous runtime byte-prefix snapshots; no exact producer/present alignment",
+        "qpc_start": 559031736039,
+        "qpc_end": 559606805741,
+        "qpc_frequency": 10000000,
+        "observed_marker_duration_seconds": 57.5069702,
+        "runtime_complete_prefix_byte_range": [
+          433509,
+          485839
+        ],
+        "snapshot_read_qpc_ranges": [
+          [
+            559031770008,
+            559032716968
+          ],
+          [
+            559606841180,
+            559607695186
+          ]
+        ],
+        "asynchronous_snapshot_start_counters": {
+          "submitted_frames": 5090,
+          "bypassed_frames": 0
+        },
+        "asynchronous_snapshot_end_counters": {
+          "submitted_frames": 5702,
+          "bypassed_frames": 0
+        },
+        "asynchronous_snapshot_counter_increases": {
+          "submitted_frames": 612,
+          "bypassed_frames": 0
+        },
+        "detected_segments": 1,
+        "segment": 0,
+        "completed_jobs": 612,
+        "warmup_jobs": 0,
+        "first_frame_id": 5089,
+        "last_frame_id": 5700,
+        "timings_ms": {
+          "pack_ms": {
+            "mean": 0.053179934640522876,
+            "median": 0.05016,
+            "p95": 0.05808,
+            "p99": 0.15799039999999978,
+            "min": 0.04628,
+            "max": 0.37016
+          },
+          "preprocess_ms": {
+            "mean": 0.47312470588235295,
+            "median": 0.45948,
+            "p95": 0.57853,
+            "p99": 0.713876,
+            "min": 0.41396,
+            "max": 0.77272
+          },
+          "inference_ms": {
+            "mean": 84.712342875817,
+            "median": 84.61948000000001,
+            "p95": 85.666938,
+            "p99": 86.8742428,
+            "min": 83.9994,
+            "max": 87.58872
+          },
+          "composite_ms": {
+            "mean": 0.3355830065359477,
+            "median": 0.30852,
+            "p95": 0.502544,
+            "p99": 0.5608179999999999,
+            "min": 0.28392,
+            "max": 0.63472
+          },
+          "unpack_ms": {
+            "mean": 0.0700643137254902,
+            "median": 0.0645,
+            "p95": 0.08564999999999999,
+            "p99": 0.23936839999999956,
+            "min": 0.06016,
+            "max": 0.33104
+          },
+          "neural_ms": {
+            "mean": 85.99433522875817,
+            "median": 85.90282,
+            "p95": 87.00870199999999,
+            "p99": 88.0586748,
+            "min": 85.12664,
+            "max": 88.61836
+          }
+        },
+        "vram_mib_sampled": {
+          "mean": 9387.192861519608,
+          "peak": 9400.6171875
+        },
+        "vram_unknown_jobs": 0,
+        "allocated_neural_bytes_partial_peak": 2383296512,
+        "ending_session_counters": {
+          "submitted_frames": 5702,
+          "bypassed_frames": 0
+        },
+        "observed_counter_increases": {
+          "submitted_frames": 611,
+          "bypassed_frames": 0
+        },
+        "counter_baseline_frame_id": 5089,
+        "first_job_counter_interval_unobserved": true
+      }
+    ],
+    "pooled_selected_completed_jobs": 1704,
+    "pooled_timings_ms": {
+      "pack_ms": {
+        "mean": 0.05319056338028169,
+        "median": 0.05024,
+        "p95": 0.05824,
+        "p99": 0.1479672000000001,
+        "min": 0.0458,
+        "max": 0.37016
+      },
+      "preprocess_ms": {
+        "mean": 0.4744972300469483,
+        "median": 0.46014,
+        "p95": 0.6221639999999999,
+        "p99": 0.7077251999999999,
+        "min": 0.41396,
+        "max": 0.78404
+      },
+      "inference_ms": {
+        "mean": 84.72964,
+        "median": 84.63244,
+        "p95": 85.80519,
+        "p99": 86.72767599999999,
+        "min": 83.9994,
+        "max": 87.96004
+      },
+      "composite_ms": {
+        "mean": 0.3377957042253521,
+        "median": 0.30906,
+        "p95": 0.518428,
+        "p99": 0.559066,
+        "min": 0.2818,
+        "max": 0.73392
+      },
+      "unpack_ms": {
+        "mean": 0.07033776995305165,
+        "median": 0.06452,
+        "p95": 0.08573599999999999,
+        "p99": 0.2423012000000005,
+        "min": 0.05996,
+        "max": 0.44044
+      },
+      "neural_ms": {
+        "mean": 86.00784976525821,
+        "median": 85.90128,
+        "p95": 87.10511600000001,
+        "p99": 88.0618204,
+        "min": 85.12664,
+        "max": 88.9858
+      }
+    },
+    "pooled_dxgi_vram_mib_sampled": {
+      "mean": 9388.122909330987,
+      "peak": 9428.0078125
+    },
+    "vram_measurement_scope": "DXGI game-process local memory usage refreshed every60 completed NR jobs; repeated values are not independent samples and sampled maxima are not true interval peaks.",
+    "off_vram_usage": null,
+    "allocated_neural_bytes_scope": "Partial neural allocations only; excludes weights, game resources and shared buffers. Not total VRAM."
+  },
+  "acceptance": {
+    "display_1440p_60fps": "unmet",
+    "native_inference_8ms": "unmet",
+    "quality_acceptance": "not_evaluated_by_this_performance_record",
+    "ten_minute_active_gameplay": "not_run_in_this_record",
+    "hdr_display_validation": "deferred"
+  },
+  "cleanup": {
+    "gameClosedNormally": true,
+    "userSettingsSha256": "d1b2419f1da1a308f13b594b222d77144f5b42f0836b2ae92beefb0da18607c6",
+    "managedIniRestoredBeforeUninstall": true,
+    "temporaryInstallRemoved": true,
+    "privateImportedModelRetained": true,
+    "rootCreatedTraceFlagsRemoved": true
+  },
+  "private_artifact_hashes": [
+    {
+      "private_artifact_label": "source-provenance.json",
+      "bytes": 439,
+      "sha256": "6f2de02f811d38613a03520bbb851d3288c05ff93902e300e3aa0f3ac363c251"
+    },
+    {
+      "private_artifact_label": "setup.json",
+      "bytes": 672,
+      "sha256": "dc6032fbe4f35d269b7d82e786cdb9760959be1291efe8cc23c836edee600c34"
+    },
+    {
+      "private_artifact_label": "runtime.log",
+      "bytes": 4599,
+      "sha256": "445ec57cf2c0bef3c231b9f9c8e958728c1c33f80f3ad63f6075f7252a3cb13e"
+    },
+    {
+      "private_artifact_label": "gpu-timings.csv",
+      "bytes": 510798,
+      "sha256": "10c69434ca2050f5dc77a64cff86436be51cf055322e22aec1c2e05732b6abd4"
+    },
+    {
+      "private_artifact_label": "cleanup.json",
+      "bytes": 293,
+      "sha256": "0175c1a92045b17468dc09ca537091f0655fc54047b2591925b8466e43e303bb"
+    },
+    {
+      "private_artifact_label": "off-warmup-builtin.json",
+      "bytes": 2517,
+      "sha256": "1e8ad0a8e63dc9001df13236ac80d5806d0699b0b141bb82e4323c08a8913a17"
+    },
+    {
+      "private_artifact_label": "off-warmup-builtin-provenance.json",
+      "bytes": 1198,
+      "sha256": "c6ad13e86899a3e14a2b9ebf11f897e9f6f3cdfd87e9644164e5fe7bd7aa0a31"
+    },
+    {
+      "private_artifact_label": "builtin/off-warmup/summary.json",
+      "bytes": 2261,
+      "sha256": "57d454915259e8bb2087f3fc4e4b365d649d67d151623bfa1bcc072e359e03a4"
+    },
+    {
+      "private_artifact_label": "builtin/off-warmup/frames.csv",
+      "bytes": 193062,
+      "sha256": "eb300d1239ac71772cd32a667d69ee1917b603c8b387ca5a771e5a40e131b5bc"
+    },
+    {
+      "private_artifact_label": "off-1-builtin.json",
+      "bytes": 2496,
+      "sha256": "2ce5871ec772590f8fd726b2664247949eb2a79666113b861d238a787b57d4b5"
+    },
+    {
+      "private_artifact_label": "off-1-builtin-provenance.json",
+      "bytes": 1182,
+      "sha256": "adefa2c423ab457b2c28c3cd3620e00c694baa1f3e1d0a59f6565597f2338aa9"
+    },
+    {
+      "private_artifact_label": "builtin/off-1/summary.json",
+      "bytes": 2259,
+      "sha256": "6052a554d661f3060abc0f98bb5880895b9ae3b4b63d334d3cb28f628415764f"
+    },
+    {
+      "private_artifact_label": "builtin/off-1/frames.csv",
+      "bytes": 192555,
+      "sha256": "3e76b5aa574a9744e096b1132f8e632e75f6af5657f37503f8a6edfba0958c41"
+    },
+    {
+      "private_artifact_label": "off-2-builtin.json",
+      "bytes": 2495,
+      "sha256": "062a2bb873c9f02b74ef1e59fadd568cc965491b5aab8a242848ed5dc76d2bc0"
+    },
+    {
+      "private_artifact_label": "off-2-builtin-provenance.json",
+      "bytes": 1177,
+      "sha256": "df8a08514645106e2f5caad9d2bb1608c0436fd315e51d0640c933d7713ae1bc"
+    },
+    {
+      "private_artifact_label": "builtin/off-2/summary.json",
+      "bytes": 2258,
+      "sha256": "5fd0437c68070f9e11b79db185428b47ab4383eac247d30cadf60aef61aea3d3"
+    },
+    {
+      "private_artifact_label": "builtin/off-2/frames.csv",
+      "bytes": 192829,
+      "sha256": "cf91f7bb4b2b34d588630efdc919f2f7710448b34fbd77b7ede555f52eb60dea"
+    },
+    {
+      "private_artifact_label": "off-3-builtin.json",
+      "bytes": 2508,
+      "sha256": "6402fb2cf3ec0404882a57fe3881cc85818f32750104bc7982638f08d0822c10"
+    },
+    {
+      "private_artifact_label": "off-3-builtin-provenance.json",
+      "bytes": 1177,
+      "sha256": "2b1715b1542c69c8f2ab3f4fcf103ce920cd881a7fe99e0ab370eddcaacd41b0"
+    },
+    {
+      "private_artifact_label": "builtin/off-3/summary.json",
+      "bytes": 2261,
+      "sha256": "4292c6d67af98856d675a33115ad10a52586d19fe7069000194334c8201df40d"
+    },
+    {
+      "private_artifact_label": "builtin/off-3/frames.csv",
+      "bytes": 191681,
+      "sha256": "0e0484dab95ebba62d6ef5ab200c0005183ef4aa399bac1a28ed84f0a9b21d3a"
+    },
+    {
+      "private_artifact_label": "on-warmup-builtin.json",
+      "bytes": 2506,
+      "sha256": "4e141993aba6608503b79fd16f9b9d421b8f5180dd0da41db0d7686fde5cd0a7"
+    },
+    {
+      "private_artifact_label": "on-warmup-builtin-provenance.json",
+      "bytes": 1210,
+      "sha256": "4c8ebb5b0adaf3299199a99cb876a7dc7e1584f62390422ab5778b2b1e329c09"
+    },
+    {
+      "private_artifact_label": "builtin/on-warmup/summary.json",
+      "bytes": 2260,
+      "sha256": "7cd7141f9accccc03737a9e72198c9623d8ea406044ba8b7263daf732b6f732e"
+    },
+    {
+      "private_artifact_label": "builtin/on-warmup/frames.csv",
+      "bytes": 31141,
+      "sha256": "3757596b095be9eb2d4574a4abc4b8dd8efb466470527a7eb43f6b20090c5758"
+    },
+    {
+      "private_artifact_label": "on-1-builtin.json",
+      "bytes": 2492,
+      "sha256": "8b5bb2048bbd65981768e54fe87587cf217771dc698225b41942e487f1e1e3b3"
+    },
+    {
+      "private_artifact_label": "on-1-builtin-provenance.json",
+      "bytes": 1181,
+      "sha256": "9135bd21053098e73261b8c0e8ff2908d2b24191a58ccb4aa1a973ce122630fd"
+    },
+    {
+      "private_artifact_label": "builtin/on-1/summary.json",
+      "bytes": 2257,
+      "sha256": "16b80316ee788da41f73ef2d0d2e1bfd8f1a182ca5347e2e0ca8fa0eb77d02b6"
+    },
+    {
+      "private_artifact_label": "builtin/on-1/frames.csv",
+      "bytes": 31141,
+      "sha256": "d001d03a0e993492964d6ce1ce2c2ad448b8d09634c553b5ece0237c4a3acbe3"
+    },
+    {
+      "private_artifact_label": "on-2-builtin.json",
+      "bytes": 2508,
+      "sha256": "aaf473a8ccd940723712768cdfd99f779e62ddd3763505376640e7b34be54867"
+    },
+    {
+      "private_artifact_label": "on-2-builtin-provenance.json",
+      "bytes": 1182,
+      "sha256": "d4e2a9c9cf03f223a2dfdc5c7fe22b06f76c2c2ae3bcf99faa8e6cab9b359f39"
+    },
+    {
+      "private_artifact_label": "builtin/on-2/summary.json",
+      "bytes": 2262,
+      "sha256": "8c5194d508a4dbc01eda0d64e9aae8fbbb9125b0114e563446db673d316a41e7"
+    },
+    {
+      "private_artifact_label": "builtin/on-2/frames.csv",
+      "bytes": 31145,
+      "sha256": "34aec3b26a18103be943538e3995b784ba02f74cdb2e899ba2c8fa6720a29cdd"
+    },
+    {
+      "private_artifact_label": "on-3-builtin.json",
+      "bytes": 2509,
+      "sha256": "86a6f4b5a22b2d1bcfe5cd69a75e1919d7890f735d49fab3de5e9cb8b87d0f3f"
+    },
+    {
+      "private_artifact_label": "on-3-builtin-provenance.json",
+      "bytes": 1184,
+      "sha256": "9046a87a7e4c4cb405d5164faae1c7938d9b8fb86f434c9fe849d621c54b64e6"
+    },
+    {
+      "private_artifact_label": "builtin/on-3/summary.json",
+      "bytes": 2262,
+      "sha256": "fdcdc611b73ca81130ca4f7c7cad25d70a14f32f515673f7016ab998deb10a84"
+    },
+    {
+      "private_artifact_label": "builtin/on-3/frames.csv",
+      "bytes": 31141,
+      "sha256": "e8f848cd213b2f13cf2564ce836fc9e4f11b78d2a9c6cc05fc2a23150873bd2c"
+    },
+    {
+      "private_artifact_label": "off-three-pass-builtin.json",
+      "bytes": 4443,
+      "sha256": "a18d8e7c15c8d2b77d8d06250944eb8c743981e61542a1b200e940851a57ac95"
+    },
+    {
+      "private_artifact_label": "on-three-pass-builtin.json",
+      "bytes": 4441,
+      "sha256": "8462f556e7714b4ecf010742c21ae334f8a1db2d647bc54f1c84db3072b7d0fc"
+    },
+    {
+      "private_artifact_label": "on-1-bound-start.json",
+      "bytes": 992,
+      "sha256": "2f36526eeb82b2065f2ac5c6ea51a050ed8c313dcf7553843a1cd34621d2c855"
+    },
+    {
+      "private_artifact_label": "on-1-bound-end.json",
+      "bytes": 990,
+      "sha256": "7f43535f6f859a2bf73d6bc8f60241433d86dc56a4d6b78b06f4b1c1090fdcd3"
+    },
+    {
+      "private_artifact_label": "on-1-runtime.json",
+      "bytes": 2899,
+      "sha256": "b945d5ba2e75664c1a58464300b6b06f74faa711959c49a63dfaac18ad4bf898"
+    },
+    {
+      "private_artifact_label": "on-1-runtime-bracket.json",
+      "bytes": 1729,
+      "sha256": "665b6c59e75f2166f2d427bc8838d2331f68ccc7682165f85d37f456914ef3c2"
+    },
+    {
+      "private_artifact_label": "on-1-runtime-published.csv",
+      "bytes": 41204,
+      "sha256": "67f7071b9910efc88802994fdbdd2d7443edd0a966ad32e796e789cbcf4e7270"
+    },
+    {
+      "private_artifact_label": "on-2-bound-start.json",
+      "bytes": 992,
+      "sha256": "ac35d63bd2dec83d0ad6bc04dc3fae29ae5b4f04101254588887aaec42ac2a2b"
+    },
+    {
+      "private_artifact_label": "on-2-bound-end.json",
+      "bytes": 990,
+      "sha256": "a308b3ac4ca6b75eaebf4a06f9a6b7fef22e4cf836164d24a5decb01f34cf532"
+    },
+    {
+      "private_artifact_label": "on-2-runtime.json",
+      "bytes": 2915,
+      "sha256": "c25ed4dfb656701bb695329c1a5a241901ec660a86c1f87d63be101fd6d1c588"
+    },
+    {
+      "private_artifact_label": "on-2-runtime-bracket.json",
+      "bytes": 1729,
+      "sha256": "85c04bfeeb24cba6c45d8af6ba7850124338c554c105f9a3c0e1ae099f7104e2"
+    },
+    {
+      "private_artifact_label": "on-2-runtime-published.csv",
+      "bytes": 52493,
+      "sha256": "251a03175c647a3da608c109c3d6de14a6fcd0edea93dce856ec62a93c498d7b"
+    },
+    {
+      "private_artifact_label": "on-3-bound-start.json",
+      "bytes": 992,
+      "sha256": "a2eee0e4dc49c5b2a58c812d97b8e5af3c65d0c391e0bb37a5fe391ebbeadba9"
+    },
+    {
+      "private_artifact_label": "on-3-bound-end.json",
+      "bytes": 990,
+      "sha256": "119a60a814bba7f3378cec32ede89c51c3d50f46b3237625e08504bf54457964"
+    },
+    {
+      "private_artifact_label": "on-3-runtime.json",
+      "bytes": 2906,
+      "sha256": "23bb7fbc0522f8f582012ee38a214374820a66687f3766054a2982c63104cba8"
+    },
+    {
+      "private_artifact_label": "on-3-runtime-bracket.json",
+      "bytes": 1729,
+      "sha256": "0a89dd7b29046179ac03b3469fcb2d291c2a38233444dd1b8f447d32b73589e1"
+    },
+    {
+      "private_artifact_label": "on-3-runtime-published.csv",
+      "bytes": 52473,
+      "sha256": "1b3f6ea70944e2807f9860e32e3b6760e110112882e56779dc854c7b0180723f"
+    },
+    {
+      "private_artifact_label": "timing-handoff.json",
+      "bytes": 57829,
+      "sha256": "dc3391ef3017dd824d607b4f2cf77b8cdcf3a52c409ed8fc7f8a2a3a356cf923"
+    }
+  ],
+  "analysis_tool_identities": [
+    {
+      "tool": "analyze_runtime.py",
+      "sha256": "341c7dbc4ff788993472c1b34f6e7f66f6562752855bafb698881acc47340b83"
+    },
+    {
+      "tool": "analyze-builtin.py",
+      "sha256": "802b6d4451796da34cad6ee6ed0620fa2a7b8386643af6bf09e4cc788b416221"
+    },
+    {
+      "tool": "summarize-builtin-series.py",
+      "sha256": "b30087bc6227ab94997c750c73c8b6c64ed4586c113c06e69db6e565ffd11900"
+    },
+    {
+      "tool": "extract-runtime-bracket.py",
+      "sha256": "f40f0732440294178604d33e50e38dc9320126520cd96548403d43e611e42434"
+    },
+    {
+      "tool": "make-alpha3-scalar-report.py",
+      "sha256": "8ee306e0c5535b4d844fc59bc92164691c0abe4e0ffa58acadb4cf557da8c101"
+    }
+  ],
+  "limitations": [
+    "FPS is the game's complete builtin benchmark result; completed NR jobs never provide game FPS.",
+    "Game frame times are exported rounded to0.01ms; percentiles use linear interpolation, all rows/outliers retained.",
+    "Three-pass SD/CV use sample SD(n-1) and describe repeat variation, not confidence intervals.",
+    "Pooled game frame statistics weight by frame count; pass percentiles are not averaged.",
+    "No PresentMon capture, producer timestamps, per-present runtime join, or inferred whole-world runtime membership.",
+    "Runtime publication prefix snapshots and counters are asynchronous; counter changes are not per-frame bypass attribution.",
+    "Runtime neural_ms includes bridge/waits and is not network-only time or a sum of stage medians.",
+    "Game/driver FG-off controls are external observations; the unchanged Enabled driver upscaling override prevents an independently established effective FSR version.",
+    "Private raw game exports, assets, captures, models, settings files and absolute machine paths are excluded from this public scalar record.",
+    "Earlier alpha2 runtime and shader identities remain separate measurements; this record does not relabel earlier observations or prove NVIDIA runtime parity."
+  ]
+}

@@ -9,19 +9,28 @@ shared GPU buffers and fences. The AMD path requires no CUDA, PTX, DXVK or Proto
 **Status: working development implementation, with performance and game-quality
 release gates still unmet.** Native inference and the D3D12 bridge have run in
 Cyberpunk 2077 on an RX 9070 XT. This build is not ready for normal gameplay:
-The latest idle-GPU network benchmark reduces the median from **141.343 ms to
-122.331 ms**, a **13.45%** reduction against the legal 64-query compact anchor
-at the target render resolution. Three warmed game benchmarks per condition
-with the final alpha 2 binaries average **97.66 FPS with NR off / 7.55 FPS with
-NR on**. The ten-minute active gameplay test requires manual game input;
+The new direct-GEMM network benchmark reduces the median from **119.143 ms to
+81.049 ms**, a **31.97%** reduction against the already-qualified shared-GEMM/Q32
+anchor at the target render resolution. Three warmed game benchmarks per condition
+with the alpha 3 direct-GEMM runtime average **97.12 FPS with NR off / 10.69 FPS
+with NR on**. The ten-minute active gameplay test requires manual game input;
 broad image/temporal review remains pending.
 The network timing is not game FPS or an NR-plus-bridge timing.
 The goal is 60 real FPS with an initial NR-plus-bridge budget of 8 ms or less.
 
-Download the [RX 9070 XT alpha](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.2)
+Current source adds packed/direct FP8 GEMM routes, independent FFN/QKV fusion
+controls and isolated experiment builds. The public direct route passes strict
+operator, 320×320 checkpoint and target-output comparisons and the prescribed
+interleaved network timing, native lifecycle harness, bounded history replay
+and automatic cache selection. Three warmed game benchmark passes per condition
+are complete. See the
+[GEMM continuation record](docs/amd-gemm-delivery.md). Published alpha 2 assets
+and their game measurements remain unchanged.
+
+Download the [RX 9070 XT alpha 3](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.3)
 and follow the [installation guide](docs/INSTALL.md), or use the
 [AMD build and setup guide](docs/AMD.md) and the
-[final alpha 2 validation record](docs/cyberpunk-alpha2-validation.md).
+[alpha 3 game evidence](docs/performance/cyberpunk-alpha3-20261002.json).
 **NVIDIA model DLLs and extracted weights are not distributed.** You supply a
 supported DLL locally; the importer reads it without executing it.
 
@@ -70,13 +79,20 @@ See [AMD arithmetic and optimization notes](docs/amd-numerics.md) and the
 
 Measured on Windows 11, RX 9070 XT, Adrenalin 26.9.1 and Cyberpunk 2077 2.31.
 The full record pins model, source, shader, executable and driver identities.
-The final alpha 2 binaries have three completed warmed NR-off and three NR-on
-benchmark passes. Closed stage/PresentMon/memory analysis and eight-frame SDR
-numerical replay are complete. Ten minutes of active gameplay were not run; broad
+The alpha 3 direct-GEMM runtime has three completed warmed NR-off and three NR-on
+benchmark passes. Complete game exports, separate asynchronous runtime brackets
+and eight-frame SDR numerical replay are recorded. Ten minutes of active gameplay were not run; broad
 temporal/event validation remains incomplete. Earlier results are labeled below.
 
 | Measurement | Result | Scope |
 | --- | ---: | --- |
+| Alpha 3 NR-off built-in benchmark, three passes | 97.32706 / 97.48801 / 96.55299 FPS | Mean 97.12269 FPS; 1440p output, FSR Quality, target High fields; frame generation and AFMF off |
+| Alpha 3 NR-on built-in benchmark, three passes | **10.70176 / 10.69026 / 10.69028 FPS** | Mean **10.69410 FPS**; same settings, 972 frames per pass; one warmup per condition excluded |
+| Alpha 3 pooled complete NR-off frame times | 9.980 / 13.540 / 15.290 ms | Median / P95 / P99 over 18,722 complete game-exported frame times |
+| Alpha 3 pooled complete NR-on frame times | **93.495 / 95.063 / 95.979 ms** | Median / P95 / P99 over 2,916 complete game-exported frame times |
+| Alpha 3 bounded runtime inference medians | 84.593 / 84.686 / 84.619 ms | Three asynchronous published-job brackets; 480 / 612 / 612 completed rows |
+| Alpha 3 bounded runtime NR plus bridge medians | **85.844 / 85.948 / 85.903 ms** | Same brackets; GPU span may include waits; separate from complete game frames |
+| Alpha 3 maximum observed DXGI process-local VRAM | 9,428.008 MiB | Sparse completion samples; observed maximum, not true peak |
 | Final alpha 2 NR-off built-in benchmark, three passes | 96.09036 / 96.61504 / 100.27594 FPS | Mean 97.66045 FPS; 1440p output, FSR Quality, target High fields; frame generation and AFMF off |
 | Final alpha 2 NR-on built-in benchmark, three passes | **7.54624 / 7.54468 / 7.54567 FPS** | Mean **7.54553 FPS**; same settings, 972 frames per pass; one warmup per condition excluded |
 | Final alpha 2 pooled complete NR-off frame times | 9.88 / 13.54 / 15.34 ms | Median / P95 / P99 over 18,826 game-exported frame times; separate from PresentMon |
@@ -91,11 +107,22 @@ temporal/event validation remains incomplete. Earlier results are labeled below.
 | Alpha 1 in-game NR plus bridge median | 213.317 ms | Same historical segment; elapsed GPU span can include handoff waits |
 | Alpha 1 peak sampled process-local VRAM | 9.475 GiB | Historical game-inclusive sample |
 | Historical idle GPU, model-only median | 217.949 ms | Alpha 1, 1707 x 960 valid input; not game FPS |
-| Current idle-GPU network median, legal Q64 → Q32 | **141.343 → 122.331 ms** | Three interleaved pairs, five warmups and 30 measured frames per run; K16 arithmetic |
-| Current idle-GPU network P95 / P99, legal Q64 → Q32 | 143.036 / 143.603 → 123.263 / 123.534 ms | Same paired runs; 1728 x 960 padded field |
+| Direct GEMM idle-GPU network median, qualified Q32/shared → direct | **119.143 → 81.049 ms** | Three interleaved pairs, five warmups and 30 measured frames per run; K16 arithmetic |
+| Direct GEMM network P95 / P99 | 120.737 / 121.066 → 81.907 / 82.602 ms | Same paired runs; 1707 x 960 valid / 1728 x 960 padded field |
+| Earlier legal Q64 → Q32 network median | 141.343 → 122.331 ms | Separate attention comparison and binary identities |
+| Earlier legal Q64 → Q32 network P95 / P99 | 143.036 / 143.603 → 123.263 / 123.534 ms | Same earlier paired runs |
 | Historical legacy → Q32 network median | 206.167 → 120.271 ms | Earlier binary; the legacy attention exceeds this GPU's shared-memory limit and is now rejected |
 
-For the final alpha 2 runs, in-game frame generation and driver AFMF were
+For the alpha 3 runs, in-game frame generation and driver AFMF were
+observed off; the unchanged enabled driver FSR upscaling override leaves the
+effective upscaler version independently unverified. Complete built-in
+percentiles pool the game's rounded frame exports, and mean FPS averages the
+three complete pass averages equally. No PresentMon was collected for alpha 3.
+Its runtime brackets are asynchronously bounded by publication rows and are
+not joined to game presents; each bracket has zero bypass-count increase.
+Warmups, an earlier untraced on-screen pass and a black-screen marker are excluded.
+
+For the historical final alpha 2 runs, in-game frame generation and driver AFMF were
 observed off. Complete built-in percentiles use the game's rounded frame-time
 exports, pooling actual frames rather than averaging pass percentiles; mean
 FPS averages the three complete pass averages equally. Five bounded PresentMon
@@ -112,8 +139,13 @@ pins source commit `7f1cd3108133d8aee9bae505cb31542e236d13e0` and runtime hash
 `638de5aee97b65d5e091c5eb6af63df96cf38d729985cadff2b8cb79fe5c3e6c`.
 Earlier game runs and the genuine eight-frame replay retain their original
 identities in the [earlier scalar record](docs/performance/cyberpunk-rx9070xt-20261002.json).
-The current legal network comparison has its own measured binary identity in
+The earlier legal attention comparison has its own measured binary identity in
 [the legal-anchor record](docs/performance/legal-compact64-rx9070xt-20261002.json).
+The [direct-GEMM record](docs/performance/direct-gemm-rx9070xt-20261002.json)
+binds the new network measurements and clean native harness to their actual binaries.
+The [alpha 3 game record](docs/performance/cyberpunk-alpha3-20261002.json) binds
+the new complete benchmark exports and separate runtime brackets to the actual
+loaded runtime and target geometry.
 Final package identities are recorded separately; earlier timings are not
 relabeled as fresh game benchmarks of the final binaries.
 
@@ -124,7 +156,10 @@ Validation completed so far:
 - The controlled D3D12 harness passes shared-buffer/fence round trips, queued
   frame ownership, cancellation/recovery, resize/reset/drain, exposure and
   continuation-state checks. Eight prefetched outputs match serialized output.
-- The current legal Q64/Q32 comparison passes **657 operators / 858 strict byte
+- The new public direct-GEMM comparison passes **660 operators / 862 strict byte
+  checks**, 75 model checkpoints/head at 320 and target output, alongside the
+  clean native eight-slot lifecycle harness and 46 qualified GEMM shape records.
+- The earlier legal Q64/Q32 comparison passes **657 operators / 858 strict byte
   checks**, all 75 model checkpoints plus the F32 head at 320 x 320, and the
   full target-resolution head and composed output.
 - Importer tests pass **213 checks**; the delivered source rebuilds the native
@@ -157,15 +192,15 @@ frame-time percentiles, exact hashes, excluded smoke runs and capture scope.
 Raw weights, images, captures and machine-specific logs stay local.
 See the [AMD performance implementation record](docs/amd-performance-implementation.md)
 for the compact attention kernels, exact preservation checks, resource reports,
-qualified selection rules and reproducible commands. The current legal-anchor
+qualified selection rules and reproducible commands. The earlier legal-attention
 network median falls 13.45%. The earlier 41.7% reduction used the now-rejected
 over-limit legacy attention and remains historical evidence. The 8 ms
 NR-plus-bridge and 60 rendered FPS targets remain unmet.
 
 ## Install the alpha
 
-1. Download **OpenNR-AMD-v0.1.0-alpha.2-rx9070xt.zip** and its **.zip.sha256** from
-   the [alpha release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.2).
+1. Download **OpenNR-AMD-v0.1.0-alpha.3-rx9070xt.zip** and its **.zip.sha256** from
+   the [alpha 3 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.3).
    Check the ZIP hash, extract it to a writable folder and open **PowerShell 7**
    in the folder containing `package-manifest.json`. GitHub's automatic
    **Source code** archives do not include built DLLs.
@@ -188,7 +223,7 @@ write permission is required; elevate that PowerShell window if needed.
 4. Launch with **FSR Quality**, ray tracing and frame generation off. NR ships
    **disabled**, with K16 publication arithmetic. Press **Insert → Neural →
    Enable NR** to opt in. Performance remains far outside the gameplay budget;
-   final alpha 2 NR-on benchmarks average 7.55 FPS. Use the checkbox to disable it; zero effect
+   alpha 3 NR-on benchmarks average 10.69 FPS. Use the checkbox to disable it; zero effect
    strength still runs NR.
 5. To remove, close the game and run:
 
@@ -243,7 +278,7 @@ For AMD diagnostics, `--amd-kernels baseline` explicitly requests the retained l
 qualified K16 selections matched to the device, driver, model and shader hashes.
 A local `amd-tuning.json` beside the compiled shaders can select a qualified
 session geometry. Records bind the complete measured policy, including tile,
-staging, query count and fusion/publication flags; incomplete or inconsistent
+staging, query count, actual GEMM route and independent fusion/publication flags; incomplete or inconsistent
 policy evidence rejects that cache. If no qualified path fits the GPU's shared-memory limit, auto
 refuses inference and the game host bypasses NR. The resource guard rejects an
 explicit legacy baseline on RX 9070 XT: its attention requires 34,816 bytes,
@@ -253,22 +288,27 @@ AMD selftest uses explicit `optimized` kernels because its synthetic fixtures
 do not match the qualified model identity used by auto selection.
 
 The CLI also accepts `--amd-window-queries 16|32|64`, `--amd-tile-n 16|32|64`,
-`--amd-stage-k 16|32|64`, and `--amd-tuning <path>`. Fusion and hardware
+`--amd-stage-k 16|32|64`, `--amd-gemm shared|packed|direct`, and `--amd-tuning <path>`.
+Direct GEMM requires stage K16. Independent `--amd-ffn32-fusion 0|1` and
+`--amd-qkv32-fusion 0|1` override each C32 route; the older fusion shorthand
+selects both. Fusion and hardware
 publication overrides default to zero. `--amd-arithmetic k32|final` changes
 publication order and remains experimental; alpha auto selections use `k16`.
 These choices also have `DLSS5VK_AMD_*` environment equivalents in
 [amd_config.h](src/amd_config.h).
 
-Use `scripts/benchmark_amd.ps1 -ComparisonAnchor compact64` for interleaved ordinary `bench` runs and separate
+Use `scripts/benchmark_amd.ps1 -ComparisonAnchor qualified32 -Gemm direct -WindowQueries 32`
+for new direct-GEMM interleaved ordinary `bench` runs and separate
 `profile` runs. Profiles report per-dispatch metadata and GPU timestamps and
 measure instrumentation overhead; their timings are not ordinary network or
 game performance. `tools/qualify_amd_model.py` checks actual model artifacts,
 and `tools/tune_amd.py` validates evidence, replays bounded sequences with
 identical and independently evolved histories, and exports qualified tuning.
-For current RX 9070 XT preservation comparisons, pass `--comparison-anchor compact64`
+For direct-GEMM preservation comparisons, pass `--comparison-anchor qualified32`
 to amdcheck and the collection, analysis, qualification and tuning tools. This
-explicitly uses optimized K16/N16/stage16/Q64 kernels with fusion and hardware
-publication off as the baseline role; it does not relabel legacy evidence.
+explicitly uses optimized shared GEMM/K16/N16/stage16/Q32 with all experiments
+off as the baseline. `compact64` remains the earlier legal Q64 attention anchor;
+neither selection relabels historical evidence.
 The optional `scripts/analyze_amd_shaders.ps1 -FetchTool` downloads the pinned
 portable RGA compiler for CPU-only wave32 resource/ISA analysis. Its results
 describe that offline compiler, not the installed driver. Follow the
@@ -308,15 +348,18 @@ The [AMD setup guide](docs/AMD.md#package-install-and-undo) documents install,
 `-WhatIf`, configuration, controls, diagnostics and removal. The installer backs
 up and hashes existing managed files; removal restores verified originals and
 preserves separately imported models. Changed managed files stop removal until
-preserved or restored. The earlier and final alpha 2 temporary test installations
+preserved or restored. The alpha 3 temporary test installation has been removed
+and its original user settings restored byte for byte; models were retained.
+The earlier and final alpha 2 temporary test installations
 have been removed and original user settings restored exactly. Imported models
 and local captures were preserved. The final eight-frame diagnostic replay is
 complete. Active gameplay was not run and still requires manual input; broad
 quality review remains incomplete.
 
-The later source-only JSON parser hardening passes 167 CPU checks (168 with the
+The JSON parser hardening passes 167 CPU checks (168 with the
 local model) and preserves parsed output for 36 actual JSON files. It is not in
-the published alpha 2 binaries. See the
+the published alpha 2 binaries; the new alpha 3 core/runtime and source rebuild
+include the fix and pass native validation. See the
 [implementation record](docs/amd-performance-implementation.md#source-only-json-hardening-after-alpha-2)
 for the CPU regression command and distribution boundary.
 
@@ -326,9 +369,10 @@ The [performance research notes](docs/amd-performance-research.md) collect
 external kernel references and ranked experiments. Proposed changes and
 author-reported external timings are separate from this fork's local results.
 The [remaining performance work](docs/amd-performance-next-steps.md) separates
-implementation gaps from evidence gates. FP8 GEMM now accounts for about 74%
-of the instrumented candidate frame (89.324 ms); FFN/QKV enablement remains
-coupled, and pooling/upsampling and C512 split-FFN fusion remain partial.
+implementation gaps from evidence gates. The new direct instrumented profile
+reports 48.796 ms FP8 GEMM and 21.033 ms window attention in an 80.805 ms
+whole-frame median. Independent FFN/QKV controls are implemented;
+pooling/upsampling and C512 split-FFN fusion remain partial.
 The slower experimental fusion routes stay off by default.
 
 1. Improve the now-dominant FP8 matrix family, then remaining window-attention

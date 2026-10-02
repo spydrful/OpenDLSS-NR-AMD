@@ -1,9 +1,15 @@
 # Build shaders + dlss5vk.exe with the portable toolchain under tools/ and MSVC.
-param([switch]$Debug, [ValidateSet('amd','reference','nvidia','all')][string]$Backend = 'amd', [switch]$SkipShaders)
+param(
+  [switch]$Debug,
+  [ValidateSet('amd','reference','nvidia','all')][string]$Backend = 'amd',
+  [switch]$SkipShaders,
+  [string]$OutputDirectory
+)
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
+$out = if ($OutputDirectory) { [IO.Path]::GetFullPath($OutputDirectory) } else { Join-Path $root 'build' }
 if (-not $SkipShaders) {
-  & (Join-Path $PSScriptRoot "build_shaders.ps1") -Backend $Backend
+  & (Join-Path $PSScriptRoot "build_shaders.ps1") -Backend $Backend -OutputDirectory $out
   if ($LASTEXITCODE -ne 0) { throw "shader compilation failed" }
 }
 
@@ -21,7 +27,6 @@ if (Test-Path $amdPreservationSource) { $sources += ' "' + $amdPreservationSourc
 $volk = '"' + (Join-Path $root "tools\volk\volk.c") + '"'
 $include = '/I"' + (Join-Path $root "tools\Vulkan-Headers\include") + '" /I"' + (Join-Path $root "tools\volk") + '" /I"' + (Join-Path $root "src") + '"'
 $opt = if ($Debug) { "/Od /Zi" } else { "/O2" }
-$out = Join-Path $root "build"
 New-Item -ItemType Directory -Force (Join-Path $out "obj") | Out-Null
 $cmd = "`"$vcvars`" >nul && cl /nologo /std:c++20 /EHsc /W3 $opt /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /DVK_ENABLE_BETA_EXTENSIONS $testDefine $include /Fo`"$out\obj\\`" $sources $volk /Fe:`"$out\dlss5vk.exe`" /link /SUBSYSTEM:CONSOLE"
 cmd /c $cmd

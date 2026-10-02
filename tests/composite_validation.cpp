@@ -173,8 +173,11 @@ int recordedComposite(int argc, char** argv, const std::filesystem::path& captur
       const auto& selected=prior["selected"];const auto& policy=kernels.amdPolicy();
       check(selected["kernels"].str()==kernels.selectedKernelMode() && selected["arithmetic"].str()==(context.isReference()?"reference":policy.arithmeticName()),"prior replay kernel/arithmetic selection differs");
       check(selected["tile_n"].integer()==policy.tileN && selected["stage_k"].integer()==policy.stageK && selected["window_queries"].integer()==policy.windowQueries,"prior replay specialization differs");
+      check(amd::gemmPolicy(selected)==policy.gemm,"prior replay GEMM policy differs");
       for(const auto& [name,value]:std::vector<std::pair<const char*,bool>>{{"fusion",policy.fusion},{"expert_fusion",policy.expertFusion},{"block_fusion",policy.blockFusion},{"hardware_publication",policy.hardwarePublication}})
         check(selected[name].kind==json::Value::Bool && selected[name].boolean==value,"prior replay fusion/publication selection differs");
+      const auto previousFusion=amd::fusion32Policy(selected);
+      check(previousFusion.ffn==policy.ffn32Enabled() && previousFusion.qkv==policy.qkv32Enabled(),"prior replay independent fusion selection differs");
       check(recorded.has("history_frame_ids")&&recorded["history_frame_ids"].size()==1&&recorded["history_frame_ids"][0].integer()==prior["sourceFrameId"].integer(),"recorded history ancestor differs from prior replay");
       previous=read(previousReplay/"recorded-published-history.f32");
       check(previous.size()==pixels*16&&sameDigest(digest(previous),prior["publishedHistorySha256"].str()),"prior replay history bytes/identity differ");
@@ -232,7 +235,9 @@ int recordedComposite(int argc, char** argv, const std::filesystem::path& captur
   const auto& policy=kernels.amdPolicy();std::ostringstream selected;
   selected << ",\"selected\":{\"kernels\":" << quoteText(kernels.selectedKernelMode())
     << ",\"arithmetic\":" << quoteText(context.isReference()?"reference":policy.arithmeticName()) << ",\"tile_n\":" << policy.tileN << ",\"stage_k\":" << policy.stageK
+    << ",\"gemm\":" << quoteText(policy.gemmName())
     << ",\"window_queries\":" << policy.windowQueries << ",\"fusion\":" << (policy.fusion?"true":"false") << ",\"expert_fusion\":" << (policy.expertFusion?"true":"false")
+    << ",\"ffn32_fusion\":" << (policy.ffn32Enabled()?"true":"false") << ",\"qkv32_fusion\":" << (policy.qkv32Enabled()?"true":"false")
     << ",\"block_fusion\":" << (policy.blockFusion?"true":"false") << ",\"hardware_publication\":" << (policy.hardwarePublication?"true":"false") << "}}";
   text+=selected.str();write(destination / "manifest.json", text.data(), text.size());
   context.destroyPipeline(pre); context.destroyPipeline(composite);
@@ -319,7 +324,9 @@ int runCompositeValidation(int argc, char** argv) {
     << ",\"model_sha256\":" << quoteText(model.manifestSha256()) << ",\"shader_sha256\":" << quoteText(kernels.shaderSha256())
     << ",\"baseline_shader_sha256\":" << quoteText(kernels.baselineShaderSha256()) << "},\"selected\":{\"kernels\":" << quoteText(kernels.selectedKernelMode())
     << ",\"arithmetic\":" << quoteText(context.isReference()?"reference":policy.arithmeticName()) << ",\"tile_n\":" << policy.tileN << ",\"stage_k\":" << policy.stageK
+    << ",\"gemm\":" << quoteText(policy.gemmName())
     << ",\"window_queries\":" << policy.windowQueries << ",\"fusion\":" << (policy.fusion?"true":"false") << ",\"expert_fusion\":" << (policy.expertFusion?"true":"false")
+    << ",\"ffn32_fusion\":" << (policy.ffn32Enabled()?"true":"false") << ",\"qkv32_fusion\":" << (policy.qkv32Enabled()?"true":"false")
     << ",\"block_fusion\":" << (policy.blockFusion?"true":"false") << ",\"hardware_publication\":" << (policy.hardwarePublication?"true":"false") << "}}";
   const auto text = manifest.str(); write(destination / "manifest.json", text.data(), text.size());
   printf("COMPOSITE DIAGNOSTIC EXECUTED (%s): shipping game shaders, verified model, six generated scene/history cases; no captured-game or NVIDIA quality acceptance\n", vk::backendName(context.backend())); return 0;

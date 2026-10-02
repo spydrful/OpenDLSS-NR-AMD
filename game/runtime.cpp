@@ -166,6 +166,9 @@ struct Session {
       const auto& captured=*j.capture;const auto& options=kernels->amdPolicy();const auto& capabilities=context->capabilities();
       float gpuExposure=0;memcpy(&gpuExposure,(const uint8_t*)captured.data[0].mapped+uint64_t(width)*height*32,4);if(!std::isfinite(gpuExposure)||gpuExposure<=0)throw std::runtime_error("capture GPU exposure is invalid");
       manifest << std::setprecision(9) << "{\n  \"format\": \"OpenNR-game-capture-v1\",\n  \"gameCapture\": " << (gameCapture?"true":"false") << ",\n  \"performanceRepresentative\": false,\n  \"outputPublication\": \"Vulkan f32 scene result before D3D12 RGBA16F conversion\",\n  \"backend\": \"amd\",\n  \"arithmetic\": \"" << options.arithmeticName() << "\",\n  \"kernelMode\": \"" << kernels->selectedKernelMode() << "\",\n  \"tileN\": " << options.tileN << ",\n  \"stageK\": " << options.stageK << ",\n  \"windowQueries\": " << options.windowQueries
+        << ",\n  \"fusion\": " << (options.fusion?"true":"false") << ",\n  \"ffn32Fusion\": " << (options.ffn32Enabled()?"true":"false") << ",\n  \"qkv32Fusion\": " << (options.qkv32Enabled()?"true":"false")
+        << ",\n  \"gemm\": \"" << options.gemmName() << '"'
+        << ",\n  \"expertFusion\": " << (options.expertFusion?"true":"false") << ",\n  \"blockFusion\": " << (options.blockFusion?"true":"false") << ",\n  \"hardwarePublication\": " << (options.hardwarePublication?"true":"false")
         << ",\n  \"width\": " << width << ",\n  \"height\": " << height << ",\n  \"fullWidth\": " << geometry.fullWidth << ",\n  \"fullHeight\": " << geometry.fullHeight << ",\n  \"frame_id\": " << j.frame.frame_id << ",\n  \"session_id\": " << j.frame.session_id << ",\n  \"submission_id\": " << j.value << ",\n  \"list_generation\": " << j.frame.list_generation
         << ",\n  \"sequence_id\": " << captureQuote(captured.sequenceId) << ",\n  \"capture_ordinal\": " << captured.ordinal << ",\n  \"requested_capture_count\": " << captured.requested << ",\n  \"submitted_tick_ms\": " << captured.submittedTick << ",\n  \"submitted_filetime_100ns\": " << captured.submittedFileTime
         << ",\n  \"seed\": " << j.params.seed << ",\n  \"reset\": " << (j.params.historyValid?"false":"true") << ",\n  \"history_frame_ids\": [" << (j.params.historyValid?std::to_string(captured.historyFrame):"") << "],\n  \"history_submission_id\": " << captured.historySubmission
@@ -216,7 +219,9 @@ struct Session {
     const auto& amdPolicy=kernels->amdPolicy();std::ofstream(root/"runtime.log",std::ios::app)
       << "session geometry " << w << 'x' << h << " padded " << geometry.fullWidth << 'x' << geometry.fullHeight
       << "; AMD kernels " << kernels->selectedKernelMode() << "; arithmetic " << amdPolicy.arithmeticName()
+      << "; GEMM " << amdPolicy.gemmName()
       << "; tile N" << amdPolicy.tileN << "/K" << amdPolicy.stageK << "; fusion " << amdPolicy.fusion
+      << "; FFN32 fusion " << amdPolicy.ffn32Enabled() << "; QKV32 fusion " << amdPolicy.qkv32Enabled()
       << "; window queries " << amdPolicy.windowQueries
       << "; expert fusion " << amdPolicy.expertFusion << "; block fusion " << amdPolicy.blockFusion
       << "; experimental hardware publication " << amdPolicy.hardwarePublication

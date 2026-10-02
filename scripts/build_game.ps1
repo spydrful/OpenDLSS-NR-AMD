@@ -1,8 +1,9 @@
-param([switch]$SkipCore)
+param([switch]$SkipCore, [string]$OutputDirectory)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-if (-not $SkipCore) { & "$PSScriptRoot\build.ps1" -Backend amd; if ($LASTEXITCODE -ne 0) { throw 'Core build failed' } }
-$out = Join-Path $root 'build\game'
+$buildRoot = if ($OutputDirectory) { [IO.Path]::GetFullPath($OutputDirectory) } else { Join-Path $root 'build' }
+if (-not $SkipCore) { & "$PSScriptRoot\build.ps1" -Backend amd -OutputDirectory $buildRoot; if ($LASTEXITCODE -ne 0) { throw 'Core build failed' } }
+$out = Join-Path $buildRoot 'game'
 New-Item -ItemType Directory -Force "$out\obj","$out\shaders" | Out-Null
 $compiler = Join-Path $root 'tools\glslang\bin\glslang.exe'
 foreach ($source in Get-ChildItem "$root\game\shaders\*.comp") {

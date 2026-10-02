@@ -17,6 +17,11 @@ json::Value record(){return json::parse(R"({
 })");}
 json::Value& field(json::Value& doc,const char* name){return doc.object.at("default_selection").object.at(name);}
 void number(json::Value& value,double n){value.kind=json::Value::Number;value.number=n;}
+void boolean(json::Value& value,bool b){value.kind=json::Value::Bool;value.boolean=b;}
+void routes(json::Value& selected,bool ffn,bool qkv){
+  boolean(selected.object["fusion"],ffn&&qkv);
+  boolean(selected.object["ffn32_fusion"],ffn);boolean(selected.object["qkv32_fusion"],qkv);
+}
 }
 int main(int argc,char** argv){
   try{
@@ -131,13 +136,83 @@ int main(int argc,char** argv){
       auto edited=bound;number(edited.object.at("records").array[1].object.at(key),32);
       rejects([&]{validate(edited);},"edited GEMM geometry inherited unchanged session proof");
     }
+    // Legacy evidence remains readable but cannot qualify only one route.
+    for(const auto& [ffn,qkv]:{std::pair{true,false},std::pair{false,true},std::pair{true,true}}){
+      auto independent=bound;routes(independent.object.at("default_selection"),ffn,qkv);
+      rejects([&]{validate(independent);},"independent default inherited legacy neither-route evidence");
+      for(auto& op:independent.object.at("records").array)op.object.at("evidence").object.at("selected")=independent["default_selection"];
+      const auto policy=amd::tuningPolicy(independent,requested,1728,960,true);
+      amd::validateTuningRecordPolicies(independent,policy);
+      expect(policy.ffn32Enabled()==ffn && policy.qkv32Enabled()==qkv && policy.fusion==(ffn&&qkv),"independent qualified selection coupled routes");
+      amd::Selection explicitRoute(policy);expect(explicitRoute.forced(),"enabled independent route became an automatic default");
+      auto mismatched=policy;mismatched.fusion=false;mismatched.ffn32Fusion=!ffn;
+      rejects([&]{(void)amd::tuningPolicy(independent,mismatched,1728,960,false);},"forced independent route was overwritten");
+      auto fused=json::parse(R"({"key":{"family":"ffn"},"variant":"amd_ffn32","tile_n":32,"stage_k":32,"evidence":{"selected":{}}})");
+      fused.object.at("evidence").object.at("selected")=independent["default_selection"];
+      independent.object.at("records").array.push_back(fused);
+      if(ffn){validate(independent);expect(true,"enabled independent FFN rejected");}
+      else rejects([&]{validate(independent);},"QKV capability qualified disabled FFN");
+      independent.object.at("records").array.back().object.at("key").object.at("family").string="qkv_attention";
+      independent.object.at("records").array.back().object.at("variant").string="amd_qkv32";
+      number(independent.object.at("records").array.back().object.at("tile_n"),64);
+      number(independent.object.at("records").array.back().object.at("stage_k"),16);
+      if(qkv){validate(independent);expect(true,"enabled independent QKV rejected");}
+      else rejects([&]{validate(independent);},"FFN capability qualified disabled QKV");
+    }
+    auto independent=bound;routes(independent.object.at("default_selection"),true,false);
+    for(auto& op:independent.object.at("records").array)op.object.at("evidence").object.at("selected")=independent["default_selection"];
+    for(const char* key:{"ffn32_fusion","qkv32_fusion"}){
+      auto missing=independent;missing.object.at("default_selection").object.erase(key);
+      rejects([&]{validate(missing);},"partial independent default accepted");
+      auto badType=independent;number(field(badType,key),1);
+      rejects([&]{validate(badType);},"non-Boolean independent default accepted");
+      auto missingProof=independent;missingProof.object.at("records").array[0].object.at("evidence").object.at("selected").object.erase(key);
+      rejects([&]{validate(missingProof);},"partial independent proof accepted");
+      auto editedProof=independent;auto& proof=editedProof.object.at("records").array[0].object.at("evidence").object.at("selected");
+      routes(proof,false,true);rejects([&]{validate(editedProof);},"another route's proof qualified independent capability");
+    }
+    auto conflicting=independent;field(conflicting,"fusion").boolean=true;
+    rejects([&]{validate(conflicting);},"conflicting shorthand/effective-route summary accepted");
+    auto legacyBoth=record();field(legacyBoth,"fusion").boolean=true;
+    const auto legacyPolicy=amd::tuningPolicy(legacyBoth,requested,1728,960,true);
+    expect(legacyPolicy.ffn32Enabled() && legacyPolicy.qkv32Enabled(),"legacy shorthand no longer selects both routes");
+    for(const char* gemmMode:{"packed","direct"}){
+      auto alternative=bound;
+      alternative.object.at("default_selection").object["gemm"]=json::parse(std::string("\"")+gemmMode+"\"");
+      for(auto& op:alternative.object.at("records").array)op.object.at("evidence").object.at("selected")=alternative["default_selection"];
+      const auto policy=amd::tuningPolicy(alternative,requested,1728,960,true);
+      alternative.object.at("records").array[1].object.at("variant").string=policy.gemmShaderName();
+      validate(alternative);expect(std::string(policy.gemmName())==gemmMode,"qualified GEMM policy was not selected");
+      amd::Selection diagnosticGemm(policy);expect(diagnosticGemm.forced(),"non-shared GEMM became automatic");
+      rejects([&]{(void)amd::tuningPolicy(tuning,policy,1728,960,false);},"legacy shared tuning replaced a forced GEMM variant");
+      auto missingProof=alternative;missingProof.object.at("records").array[0].object.at("evidence").object.at("selected").object.erase("gemm");
+      rejects([&]{validate(missingProof);},"non-shared GEMM inherited missing/legacy shared proof");
+      auto missingDefault=alternative;missingDefault.object.at("default_selection").object.erase("gemm");
+      rejects([&]{validate(missingDefault);},"non-shared proof qualified absent/default shared policy");
+      auto otherProof=alternative;otherProof.object.at("records").array[1].object.at("evidence").object.at("selected").object.at("gemm").string=std::string(gemmMode)=="packed"?"direct":"packed";
+      rejects([&]{validate(otherProof);},"another GEMM variant's proof qualified this policy");
+      auto wrongGemmVariant=alternative;wrongGemmVariant.object.at("records").array[1].object.at("variant").string="amd_gemm_optimized";
+      rejects([&]{validate(wrongGemmVariant);},"shared GEMM dispatch record qualified non-shared policy");
+      selection.current()=policy;selection.restart();expect(selection.current().gemm==amd::Gemm::Shared,"restart inherited prior tuned GEMM");
+      if(std::string(gemmMode)=="direct")for(const auto stage:{32u,64u}){
+        auto invalidStage=alternative;number(field(invalidStage,"stage_k"),stage);
+        rejects([&]{validate(invalidStage);},"direct tuning claimed nonexistent larger staging");
+      }
+    }
+    for(const char* bad:{"DIRECT","optimized",""}){
+      auto invalidGemm=bound;invalidGemm.object.at("default_selection").object["gemm"]=json::parse(std::string("\"")+bad+"\"");
+      rejects([&]{validate(invalidGemm);},"invalid GEMM tuning policy accepted");
+    }
+    auto scalarGemm=bound;number(scalarGemm.object.at("default_selection").object["gemm"],0);
+    rejects([&]{validate(scalarGemm);},"non-string GEMM tuning policy accepted");
     if(argc>1){
       std::ifstream input(argv[1],std::ios::binary);if(!input)throw std::runtime_error("cannot read existing audited tuning fixture");
       const auto audited=json::parse(std::string((std::istreambuf_iterator<char>(input)),{}));
       const auto actual=amd::tuningPolicy(audited,requested,1728,960,true);
       amd::validateTuningRecordPolicies(audited,actual);
-      expect(actual.windowQueries==32 && actual.tileN==16 && actual.stageK==16 && actual.arithmetic==amd::Arithmetic::K16,
-             "existing audited Q32 record policy changed");
+      const auto expectedGemm=argc>2 ? amd::Options::parseGemm(argv[2]) : amd::Gemm::Shared;
+      expect(actual.windowQueries==32 && actual.tileN==16 && actual.stageK==16 && actual.arithmetic==amd::Arithmetic::K16 && actual.gemm==expectedGemm,
+             "audited Q32 record policy differs from the expected GEMM selection");
     }
     printf("AMD selection lifetime: %u CPU checks PASS\n",checks);return 0;
   }catch(const std::exception& error){fprintf(stderr,"AMD selection lifetime FAIL: %s\n",error.what());return 1;}

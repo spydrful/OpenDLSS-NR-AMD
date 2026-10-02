@@ -30,7 +30,7 @@ void retainsFallback(const std::string& source) {
   } catch(const std::exception&) { rejected=true;selected=fallback; }
   expect(rejected,"malformed tuning was accepted");
   expect(selected.windowQueries==64 && selected.tileN==16 && selected.stageK==16 &&
-         selected.arithmetic==amd::Arithmetic::K16 && !selected.fusion && !selected.expertFusion &&
+         selected.arithmetic==amd::Arithmetic::K16 && selected.gemm==amd::Gemm::Shared && !selected.ffn32Enabled() && !selected.qkv32Enabled() && !selected.expertFusion &&
          !selected.blockFusion && !selected.hardwarePublication,"malformed tuning changed preserving fallback");
 }
 }
@@ -102,7 +102,7 @@ int main(int argc,char** argv) {
         const auto selected=amd::tuningPolicy(doc,requested,1728,960,true);
         amd::validateTuningRecordPolicies(doc,selected);
         expect(selected.windowQueries==32 && selected.tileN==16 && selected.stageK==16 &&
-               selected.arithmetic==amd::Arithmetic::K16 && !selected.fusion && !selected.expertFusion &&
+               selected.arithmetic==amd::Arithmetic::K16 && selected.gemm==amd::Gemm::Shared && !selected.ffn32Enabled() && !selected.qkv32Enabled() && !selected.expertFusion &&
                !selected.blockFusion && !selected.hardwarePublication,"valid shipped tuning changed");
         expect(doc["records"].size()==22,"qualified tuning record count changed");
       } else if(option=="--model") {

@@ -1,5 +1,7 @@
 param(
   [switch]$Run, [switch]$SkipCore,
+  [string]$OutputDirectory,
+  [string]$RuntimeDll,
   [string]$RuntimeAssets,
   [ValidateRange(192,3840)][int]$Width = 320,
   [ValidateRange(128,2160)][int]$Height = 320,
@@ -9,7 +11,8 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$out = Join-Path $root 'build\interop'
+$buildRoot = if ($OutputDirectory) { [IO.Path]::GetFullPath($OutputDirectory) } else { Join-Path $root 'build' }
+$out = Join-Path $buildRoot 'interop'
 New-Item -ItemType Directory -Force "$out\obj" | Out-Null
 $vcvars = & "$PSScriptRoot\find_vcvars.ps1"
 $core = @('src\vk_context.cpp','src\kernels.cpp','src\nr_graph.cpp','src\nr_model.cpp','tools\volk\volk.c')
@@ -31,6 +34,10 @@ Write-Host "Built $out\interop_selftest.exe"
 if ($Run) {
   $taskPreviousEnvironment = @{}
   try {
+    $taskRuntimeDll = if ($RuntimeDll) { [IO.Path]::GetFullPath($RuntimeDll) } else { Join-Path $buildRoot 'game\OpenNrRuntime.dll' }
+    if (-not (Test-Path -LiteralPath $taskRuntimeDll -PathType Leaf)) { throw "Missing runtime DLL: $taskRuntimeDll; build_game.ps1 must use the same OutputDirectory" }
+    $taskPreviousEnvironment['OPEN_NR_RUNTIME_DLL'] = [Environment]::GetEnvironmentVariable('OPEN_NR_RUNTIME_DLL', 'Process')
+    [Environment]::SetEnvironmentVariable('OPEN_NR_RUNTIME_DLL', $taskRuntimeDll, 'Process')
     if ($RuntimeAssets) {
       $taskAssets = (Resolve-Path -LiteralPath $RuntimeAssets).Path
       if (-not (Test-Path -LiteralPath (Join-Path $taskAssets 'model\manifest.json'))) { throw 'RuntimeAssets must contain model/manifest.json and shaders/.' }

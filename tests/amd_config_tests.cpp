@@ -4,12 +4,15 @@
 #include <cstdio>
 #include <functional>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace {
 constexpr const char* names[] = {
   "DLSS5VK_AMD_KERNELS", "DLSS5VK_AMD_ARITHMETIC", "DLSS5VK_AMD_TILE_N", "DLSS5VK_AMD_STAGE_K",
   "DLSS5VK_AMD_WINDOW_QUERIES", "DLSS5VK_AMD_FUSION", "DLSS5VK_AMD_EXPERT_FUSION",
+  "DLSS5VK_AMD_FFN32_FUSION", "DLSS5VK_AMD_QKV32_FUSION",
+  "DLSS5VK_AMD_GEMM",
   "DLSS5VK_AMD_BLOCK_FUSION", "DLSS5VK_AMD_HARDWARE_PUBLICATION", "DLSS5VK_AMD_TUNING"
 };
 unsigned checks = 0;
@@ -52,9 +55,11 @@ int main() {
            "default configuration stopped preserving arithmetic");
     expect(defaults.tileN == 16 && defaults.stageK == 16 && defaults.windowQueries == 64,
            "default tile geometry changed");
-    expect(!defaults.fusion && !defaults.expertFusion && !defaults.blockFusion && !defaults.hardwarePublication && defaults.tuningPath.empty(),
+    expect(!defaults.ffn32Enabled() && !defaults.qkv32Enabled() && !defaults.expertFusion && !defaults.blockFusion && !defaults.hardwarePublication && defaults.tuningPath.empty(),
            "default configuration enabled unqualified overrides");
     expect(defaults.publicationInterval() == 16, "default publication cadence changed");
+    expect(defaults.gemm==amd::Gemm::Shared && std::string(defaults.gemmName())=="shared" && std::string(defaults.gemmShaderName())=="amd_gemm_optimized",
+           "default GEMM no longer names the qualified shared shader");
 
     set("DLSS5VK_AMD_KERNELS", "optimized");
     set("DLSS5VK_AMD_ARITHMETIC", "k32");
@@ -69,24 +74,51 @@ int main() {
            "explicit session geometry was not retained");
     expect(configured.fusion && configured.expertFusion && configured.blockFusion && configured.hardwarePublication &&
            configured.tuningPath == "diagnostic tuning file.json", "explicit capabilities/path were not retained");
+    expect(configured.ffn32Enabled() && configured.qkv32Enabled(),"legacy fusion did not enable both routes");
     set("DLSS5VK_AMD_ARITHMETIC", "final");
     expect(amd::Options::fromEnvironment().publicationInterval() == 0, "final accumulation diagnostic policy was not selected");
     expect(configured.publicationInterval() == 32 && defaults.publicationInterval() == 16,
            "an existing session snapshot changed after process environment edits");
 
+    // Independent 0|1 values override the legacy shorthand in every
+    // combination. Empty/unset values inherit it, as other selectors do.
+    for(const char* legacy:{"0","1"})for(const char* ffn:{"","0","1"})for(const char* qkv:{"","0","1"}){
+      clear();set("DLSS5VK_AMD_FUSION",legacy);set("DLSS5VK_AMD_FFN32_FUSION",ffn);set("DLSS5VK_AMD_QKV32_FUSION",qkv);
+      const auto routes=amd::Options::fromEnvironment();
+      const bool expectedFfn=(*ffn ? *ffn : *legacy)=='1',expectedQkv=(*qkv ? *qkv : *legacy)=='1';
+      expect(routes.ffn32Enabled()==expectedFfn && routes.qkv32Enabled()==expectedQkv && routes.fusion==(expectedFfn&&expectedQkv),
+             "independent route did not override shorthand or aggregate summary");
+    }
+    clear();set("DLSS5VK_AMD_FFN32_FUSION","1");const auto independent=amd::Options::fromEnvironment();
+    set("DLSS5VK_AMD_FFN32_FUSION","0");set("DLSS5VK_AMD_QKV32_FUSION","1");
+    expect(independent.ffn32Enabled() && !independent.qkv32Enabled(),"environment changes mutated an independent session snapshot");
+    for(const auto& [name,mode,shader]:std::vector<std::tuple<const char*,amd::Gemm,const char*>>{{"shared",amd::Gemm::Shared,"amd_gemm_optimized"},{"packed",amd::Gemm::Packed,"amd_gemm_packed"},{"direct",amd::Gemm::Direct,"amd_gemm_direct"}}){
+      clear();set("DLSS5VK_AMD_GEMM",name);const auto selected=amd::Options::fromEnvironment();
+      expect(selected.gemm==mode && std::string(selected.gemmName())==name && std::string(selected.gemmShaderName())==shader,
+             "GEMM selector/name/shader identity differed");
+      set("DLSS5VK_AMD_GEMM","shared");expect(selected.gemm==mode,"an existing GEMM selection changed with the environment");
+    }
+    for(const char* stage:{"32","64"}){
+      clear();set("DLSS5VK_AMD_GEMM","direct");set("DLSS5VK_AMD_STAGE_K",stage);
+      rejects([]{(void)amd::Options::fromEnvironment();},"direct GEMM falsely accepted nonexistent staging");
+      set("DLSS5VK_AMD_GEMM","packed");expect(amd::Options::fromEnvironment().stageK==uint32_t(std::stoi(stage)),"packed GEMM staging was restricted");
+    }
+
     struct Invalid { const char* name; const char* value; };
     for (const auto& item : std::vector<Invalid>{{"DLSS5VK_AMD_KERNELS", "AUTO"}, {"DLSS5VK_AMD_ARITHMETIC", "fp16"},
         {"DLSS5VK_AMD_TILE_N", "16.0"}, {"DLSS5VK_AMD_TILE_N", "-16"}, {"DLSS5VK_AMD_TILE_N", "128"},
         {"DLSS5VK_AMD_STAGE_K", "32x"}, {"DLSS5VK_AMD_WINDOW_QUERIES", "48"}, {"DLSS5VK_AMD_WINDOW_QUERIES", " 32"},
-        {"DLSS5VK_AMD_FUSION", "true"}, {"DLSS5VK_AMD_EXPERT_FUSION", "2"},
-        {"DLSS5VK_AMD_BLOCK_FUSION", "-1"}, {"DLSS5VK_AMD_HARDWARE_PUBLICATION", "yes"}}) {
+        {"DLSS5VK_AMD_FUSION", "true"}, {"DLSS5VK_AMD_FFN32_FUSION", "true"}, {"DLSS5VK_AMD_QKV32_FUSION", "2"}, {"DLSS5VK_AMD_EXPERT_FUSION", "2"},
+        {"DLSS5VK_AMD_BLOCK_FUSION", "-1"}, {"DLSS5VK_AMD_HARDWARE_PUBLICATION", "yes"},
+        {"DLSS5VK_AMD_GEMM","DIRECT"},{"DLSS5VK_AMD_GEMM","direct-global"},{"DLSS5VK_AMD_GEMM"," packed"}}) {
       clear(); set(item.name, item.value);
       rejects([] { (void)amd::Options::fromEnvironment(); }, "invalid process selector was silently accepted");
     }
     for (const auto& item : std::vector<Invalid>{{"DLSS5VK_AMD_ARITHMETIC", "k32"}, {"DLSS5VK_AMD_ARITHMETIC", "final"},
         {"DLSS5VK_AMD_TILE_N", "32"}, {"DLSS5VK_AMD_STAGE_K", "64"}, {"DLSS5VK_AMD_WINDOW_QUERIES", "16"},
-        {"DLSS5VK_AMD_WINDOW_QUERIES", "32"}, {"DLSS5VK_AMD_FUSION", "1"}, {"DLSS5VK_AMD_EXPERT_FUSION", "1"},
-        {"DLSS5VK_AMD_BLOCK_FUSION", "1"}, {"DLSS5VK_AMD_HARDWARE_PUBLICATION", "1"}}) {
+        {"DLSS5VK_AMD_WINDOW_QUERIES", "32"}, {"DLSS5VK_AMD_FUSION", "1"}, {"DLSS5VK_AMD_FFN32_FUSION", "1"}, {"DLSS5VK_AMD_QKV32_FUSION", "1"}, {"DLSS5VK_AMD_EXPERT_FUSION", "1"},
+        {"DLSS5VK_AMD_BLOCK_FUSION", "1"}, {"DLSS5VK_AMD_HARDWARE_PUBLICATION", "1"},
+        {"DLSS5VK_AMD_GEMM","packed"},{"DLSS5VK_AMD_GEMM","direct"}}) {
       clear(); set("DLSS5VK_AMD_KERNELS", "baseline"); set(item.name, item.value);
       rejects([] { (void)amd::Options::fromEnvironment(); }, "frozen baseline accepted an arithmetic/kernel override");
     }

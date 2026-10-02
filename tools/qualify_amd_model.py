@@ -28,7 +28,7 @@ _spec.loader.exec_module(_protocol)
 TRANSITIONS = (0, 4, 8, 14, 22)
 CHECKPOINTS = {f"block-{block}" for block in range(70)} | {
     f"transition-{block}-{block + 1}" for block in TRANSITIONS}
-SELECTION_KEYS = ("kernels", "arithmetic", "tile_n", "stage_k", "window_queries", *_protocol.FUSION_KEYS)
+SELECTION_KEYS = _protocol.SELECTION_KEYS
 CHUNK_BYTES = 1024 * 1024
 
 
@@ -51,9 +51,10 @@ def selection(value, label: str) -> dict:
     for key in ("tile_n", "stage_k"):
         require(type(value.get(key)) is int and value[key] in (16, 32, 64), f"{label}: invalid {key}")
     require(type(value.get("window_queries")) is int and value["window_queries"] in (16, 32, 64), f"{label}: invalid window query count")
-    for key in _protocol.FUSION_KEYS:
-        require(type(value.get(key)) is bool, f"{label}: {key} must be explicitly Boolean")
-    return {key: value[key] for key in SELECTION_KEYS}
+    try:
+        return _protocol.selected_policy(value, explicit_flags=True)
+    except ValueError as error:
+        raise ValueError(f"{label}: {error}") from error
 
 
 def identity(value, label: str) -> dict:
@@ -153,13 +154,13 @@ def fixture(path: Path, benchmark_path: Path, role: str, target_only: bool, comp
     require(root.is_dir(), f"{role}: fixture must be a directory")
     manifest_path, report_path = root / "manifest.json", root / "modelcheck-report.json"
     manifest, report = _protocol.read_json(manifest_path), _protocol.read_json(report_path)
-    benchmark = _protocol.benchmark(benchmark_path, explicit_policy=comparison_anchor == "compact64")
+    benchmark = _protocol.benchmark(benchmark_path, explicit_policy=comparison_anchor != "legacy")
     for recorded in (manifest, report, benchmark):
         if "comparison_anchor" in recorded:
             _protocol.require_anchor(recorded, comparison_anchor)
-        if comparison_anchor == "compact64":
+        if comparison_anchor != "legacy":
             require(isinstance(recorded.get("selected"), dict) and "window_queries" in recorded["selected"],
-                    f"{role}: compact64 requires explicitly recorded window_queries")
+                    f"{role}: optimized anchors require explicitly recorded window_queries")
     ident, selected = identity(manifest.get("identity"), role), selection(manifest.get("selected"), role)
     require(ident == benchmark["identity"], f"{role}: fixture execution identity differs from benchmark")
     require(selected == selection(benchmark.get("selected"), f"{role} benchmark"),
@@ -167,8 +168,9 @@ def fixture(path: Path, benchmark_path: Path, role: str, target_only: bool, comp
     require(identity(report.get("identity"), f"{role} report") == ident and selection(report.get("selected"), f"{role} report") == selected,
             f"{role}: manifest/report execution provenance disagrees")
     if role == "baseline":
+        query_count = 32 if comparison_anchor == "qualified32" else 64
         require(_protocol.preserving_baseline(selected, comparison_anchor),
-                f"baseline must use the explicit {comparison_anchor} baseline N16/K16/Q64 policy without overrides")
+                f"baseline must use the explicit {comparison_anchor} baseline N16/K16/Q{query_count} policy without overrides")
     else:
         require(selected["kernels"] == "optimized", "candidate must report optimized kernels")
     require(manifest.get("producer") == "OpenNR Vulkan amd; local validation, not NVIDIA capture"
@@ -313,7 +315,7 @@ def main(argv=None) -> int:
     parser.add_argument("--output", type=Path, required=True, help="new exact-manifest path under ignored build/ (also writes two proof bundles)")
     parser.add_argument("--target-only", action="store_true", help="head/capture-production only at valid 1707x960; default is all 75 boundaries at 320x320")
     parser.add_argument("--comparison-anchor", choices=_protocol.COMPARISON_ANCHORS, default="legacy",
-                        help="explicit baseline role: legacy kernels or optimized preserving N16/K16/Q64 kernels")
+                        help="explicit baseline role: legacy kernels, compact64 optimized Q64, or qualified32 optimized Q32")
     args = parser.parse_args(argv)
     try:
         result = qualify(args.baseline, args.candidate, args.baseline_benchmark, args.candidate_benchmark,

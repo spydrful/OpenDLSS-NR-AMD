@@ -1,8 +1,23 @@
 # RX 9070 XT performance implementation and results
 
-This records the implementation following [the performance research](amd-performance-research.md), checked on October 2, 2026. Compact window attention and configurable FP8 GEMM kernels now run in the native Vulkan graph. The current 32-query configuration reduces target inference median from **141.343 to 122.331 ms**, a **13.45%** reduction against the legal 64-query compact anchor, in three interleaved benchmark pairs. The earlier **206.167 to 120.271 ms / 41.7%** result used legacy attention exceeding this GPU's shared-memory limit and remains historical. This remains far above the **8 ms NR budget** and the **16.67 ms complete-frame/60 FPS goal**. These timestamps exclude the game, Direct3D bridge, FSR and presentation.
+This records the implementation following [the performance research](amd-performance-research.md), checked on October 2, 2026. The new preserving direct-GEMM route reduces target inference median from **119.143 to 81.049 ms**, a **31.97%** reduction against the already-qualified Q32/shared-GEMM anchor, in three interleaved benchmark pairs. The earlier legal compact Q64-to-Q32 change measured **141.343 to 122.331 ms / 13.45%**. The historical **206.167 to 120.271 ms / 41.7%** comparison used legacy attention exceeding this GPU's shared-memory limit. All remain far above the **8 ms NR budget** and the **16.67 ms complete-frame/60 FPS goal**. These timestamps exclude the game, Direct3D bridge, FSR and presentation.
 
 The development device is RX 9070 XT, Vulkan 1.4.349, Adrenalin 26.9.1/LLPC. Evidence is specific to this device/driver/model/shader combination. RX 7000 support, NVIDIA-runtime parity and broad game image/temporal acceptance remain separate work. The existing ABI is version 1; NR remains disabled by default and requires explicit user opt-in.
+
+The [GEMM continuation](amd-gemm-delivery.md) now adds distinct packed and direct
+operand routes against the already-qualified Q32/shared-GEMM anchor. Clean
+public-binary operators, all 75 checkpoints at 320×320 and target output pass
+strict byte comparison. The independent FFN32-only and QKV32-only routes also
+pass the 320 checkpoint/head comparisons. Ordinary timing passes the prescribed
+protocol and improvement gates; native lifecycle, bounded captured-history replay
+and automatic cache GPU selection also pass. Three warmed alpha 3 game benchmarks
+per condition average **97.12269 FPS NR off / 10.69410 FPS NR on**; pooled complete
+NR-on frame times are **93.495 / 95.0625 / 95.9785 ms median/P95/P99**. Separate
+asynchronous runtime brackets have NR-plus-bridge medians **85.84388 / 85.94782 /
+85.90282 ms**, without a per-present join. See the
+[alpha 3 game record](performance/cyberpunk-alpha3-20261002.json). Broad quality
+and active-gameplay gates remain open. These source changes and their
+measurements are separate from the unchanged published alpha 2 assets.
 
 ## Implemented paths
 
@@ -11,7 +26,8 @@ The development device is RX 9070 XT, Vulkan 1.4.349, Adrenalin 26.9.1/LLPC. Evi
 | Compact 64-query window attention | [amd_window_optimized.comp](../shaders/amd_window_optimized.comp), [shared body](../shaders/amd_window_optimized_body.glsl) | Preserving K16 path; strict operators, 320 model and target head pass |
 | Smaller query groups | [amd_window_small.comp](../shaders/amd_window_small.comp), 16 or 32 queries per workgroup, full 64-key K/V | Both operator suites pass; Q32 target head passes and full target benchmark protocol passes |
 | GEMM tile/staging experiments | [amd_gemm_optimized.comp](../shaders/amd_gemm_optimized.comp), N16/N32/N64 and staged K16/K32/K64 | Nine preview configurations measured; N16/stage16 retained; wide N64/stage64 strict regression fails |
-| C32 FFN and QKV/normalization/attention fusion | [amd_ffn32.comp](../shaders/amd_ffn32.comp), [amd_qkv32.comp](../shaders/amd_qkv32.comp) | Opt-in; logical publications preserved, measured combined route slower |
+| Packed/direct GEMM operands | [amd_gemm_packed.comp](../shaders/amd_gemm_packed.comp), [amd_gemm_direct.comp](../shaders/amd_gemm_direct.comp), separate actual route identities | Guarded public direct route passes 660 operators / 862 checks, 320/target output, ordinary interleaved timing, native lifecycle, bounded replay and automatic selection |
+| C32 FFN and QKV/normalization/attention fusion | [amd_ffn32.comp](../shaders/amd_ffn32.comp), [amd_qkv32.comp](../shaders/amd_qkv32.comp), independent route controls | Opt-in; logical publications preserved; independent direct-GEMM 320 model checks pass; measured historical combined route slower |
 | Expert FFN and complete C32 body fusion | [amd_expert_ffn.comp](../shaders/amd_expert_ffn.comp), [amd_block32.comp](../shaders/amd_block32.comp) | Opt-in; 320 model/capture comparisons pass, target preview regresses |
 | Changed accumulation schedules | Publication specialization 10 in GEMM/attention/fusion; [amd_global_matrix_optimized.comp](../shaders/amd_global_matrix_optimized.comp) | K32/final are explicitly experimental; no quality-qualified promotion |
 | Identity-bound selection | [amd_config.h](../src/amd_config.h), [kernels.cpp](../src/kernels.cpp), [qualified fallback](../src/amd_qualified_fallback.h) | Auto can use a pinned compact fallback or qualified session tuning |
@@ -55,15 +71,15 @@ The driver's executable-property field labeled subgroup size returns **128** for
 
 The preserved legacy attention pipeline reports **34,816 bytes LDS** while this device exposes a **32,768-byte compute shared-memory limit**. [The resource guard](../src/amd_window_resources.h) rejects an explicit AMD `baseline` request before shader modules are loaded on this device, and checks every AMD attention allocation before pipeline creation. There is no limit override. The original shader and historical frozen measurements remain retained; driver acceptance of an earlier over-limit pipeline did not establish legality. Compact kernels fit the declared budget, with actual installed-driver statistics used where available.
 
-The distinction matters when interpreting the historical comparisons below: their baseline is the retained legacy accelerated implementation. New RX 9070 XT comparisons use the separately labeled, legal `compact64` anchor, with optimized K16/N16/stage16/Q64 kernels and all fusion/hardware-publication flags off. Historical results are not relabeled.
+The distinction matters when interpreting historical comparisons below: some earlier baselines used retained legacy attention. The legal Q64-to-Q32 experiment uses `compact64`, with optimized shared GEMM/K16/N16/stage16/Q64 and all experiments off. New direct-GEMM comparisons use `qualified32`, retaining Q32 and comparing shared against direct operands. Historical results are not relabeled.
 
 ## Strict numerical evidence
 
 | Check | Result and scope |
 | --- | --- |
-| Current legal Q64/Q32 operator preservation | 657 operators, 858 paired-buffer checks; all pass |
-| Current legal Q64/Q32 model at 320x320 | All 75 E4 boundaries, F32 head and both production/decomposed proofs pass: 77 actual binary checks |
-| Current legal Q64/Q32 target output | Valid 1707x960, padded 1728x960; all 6,635,520 F32 head values and 4,916,160 composed RGB values bit-exact; production/decomposed proofs pass |
+| Earlier legal Q64/Q32 operator preservation | 657 operators, 858 paired-buffer checks; all pass |
+| Earlier legal Q64/Q32 model at 320x320 | All 75 E4 boundaries, F32 head and both production/decomposed proofs pass: 77 actual binary checks |
+| Earlier legal Q64/Q32 target output | Valid 1707x960, padded 1728x960; all 6,635,520 F32 head values and 4,916,160 composed RGB values bit-exact; production/decomposed proofs pass |
 | Historical legacy versus Q64/Q16/Q32 operators | Each compact variant passes the same 657/858 suite; historical legacy anchor |
 | Historical legacy versus compact model/head | All 75 E4 boundaries and complete F32 head at 320; target head and capture/production equality pass |
 | Opt-in fusion at 320 | All 75 boundaries and head agree, including decomposed capture versus production |
@@ -72,7 +88,7 @@ The distinction matters when interpreting the historical comparisons below: thei
 | Wide N64/stage64 | Fails 160 of 858 checks; not preservation-qualified |
 | Optional hardware half publication | Fails 780 of 858 checks; software half publication retained |
 
-The current legal Q64/Q32 target artifact manifest contains two actual binary checks: anchor/candidate head and both production/decomposed-head proofs. These complement the 77 checks at 320. The target scene composition also agrees bit for bit. The operator suite covers N16/N32/N48/N64; K32/K64/K128/K256/K512; 1/63/64/73/129-row shapes; batches/broadcasts; offset and tail canaries; F16/E4 residuals and scales; split-K; SiLU; dual publications; 1/2/4-head windows at 8x8 and 11x13 with 0/4 shifts and nonconstant priors; zero-row normalization; exact adapter/head; and all 65,536 half patterns for E4 conversion. It compares actual anchor/candidate GPU bytes, including padding and signed zeros. A coarse numerical tolerance in the older `selftest` is not this preservation proof.
+The earlier legal Q64/Q32 target artifact manifest contains two actual binary checks: anchor/candidate head and both production/decomposed-head proofs. These complement the 77 checks at 320. The target scene composition also agrees bit for bit. The operator suite covers N16/N32/N48/N64; K32/K64/K128/K256/K512; 1/63/64/73/129-row shapes; batches/broadcasts; offset and tail canaries; F16/E4 residuals and scales; split-K; SiLU; dual publications; 1/2/4-head windows at 8x8 and 11x13 with 0/4 shifts and nonconstant priors; zero-row normalization; exact adapter/head; and all 65,536 half patterns for E4 conversion. It compares actual anchor/candidate GPU bytes, including padding and signed zeros. A coarse numerical tolerance in the older `selftest` is not this preservation proof.
 
 The wide-tile failure includes E4 publication witnesses changing a signed `7f` code to `7e`. These are rejected even when the displayed numerical error seems small. The hardware-publication switch replaces explicit software half rounding with a pack/unpack route; its failures prevent promotion. Existing hardware E4 helpers already present in the baseline are a separate mechanism.
 
@@ -86,14 +102,14 @@ The controlled bridge run forces all three fusion switches on with Q64/K16. Its 
 
 ## Target timing results
 
-The current ordinary benchmark used an otherwise idle RX 9070 XT, actual locally imported weights, valid 1707x960 and padded 1728x960. Three pairs ran in legal Q64-anchor/Q32-candidate order; every child performed five warmup submissions and 30 measured submissions. Each role therefore contributes 90 chronological GPU samples. Image readback and per-dispatch profile instrumentation were disabled. Both use optimized K16/N16/stage16 without fusion or hardware publication; only window query count changes.
+The earlier legal-attention ordinary benchmark used an otherwise idle RX 9070 XT, actual locally imported weights, valid 1707x960 and padded 1728x960. Three pairs ran in legal Q64-anchor/Q32-candidate order; every child performed five warmup submissions and 30 measured submissions. Each role therefore contributes 90 chronological GPU samples. Image readback and per-dispatch profile instrumentation were disabled. Both use optimized K16/N16/stage16 without fusion or hardware publication; only window query count changes.
 
-| Current legal comparison | Median | P95 | P99 | Mean | Coefficient of variation |
+| Earlier legal-attention comparison | Median | P95 | P99 | Mean | Coefficient of variation |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Compact Q64 anchor | 141.343 ms | 143.036 ms | 143.603 ms | 141.491 ms | 0.006464 |
 | Compact Q32 candidate | **122.331 ms** | **123.263 ms** | **123.534 ms** | 122.407 ms | 0.004664 |
 
-The median reduction is **13.45%**, and P95 falls **13.82%**. The complete paired protocol and network regression/promotion gates pass, with strict preservation verified separately. [The current scalar evidence](performance/legal-compact64-rx9070xt-20261002.json) binds these measurements to their actual policies and binary identities. Scene quality, visual review and complete game acceptance remain separate and unmet.
+The median reduction is **13.45%**, and P95 falls **13.82%**. The complete paired protocol and network regression/promotion gates pass, with strict preservation verified separately. [The earlier attention scalar evidence](performance/legal-compact64-rx9070xt-20261002.json) binds these measurements to their actual policies and binary identities. Scene quality, visual review and complete game acceptance remain separate and unmet.
 
 The following earlier comparisons used the original legacy attention as their anchor. That pipeline exceeds the current device's LDS limit and is now rejected. These results remain historical; they are not current legal-anchor measurements.
 
@@ -104,7 +120,7 @@ The following earlier comparisons used the original legacy attention as their an
 
 The historical Q32 record has median reduction **41.66%** and P95 reduction **42.41%** against its matched legacy baseline. Its candidate mean is 120.323 ms, P99 121.548 ms and coefficient of variation 0.00402. Those older sample statistics are not replaced by the newer legal comparison. A combined profile/network assessment has profile times at its top level; use its nested ordinary-network evidence or the ordinary bench report for network timing.
 
-The current separate three-pair legal Q64/Q32 **instrumented profile** records 513 dispatches and whole-frame medians of **140.031 / 121.062 ms**. The table below gives the median of each complete family's per-frame summed spans across its 90 samples. It does not sum minima or reconstruct a frame by adding independent family medians. These instrumented times are separate from the ordinary benchmark above.
+The earlier separate three-pair legal Q64/Q32 **instrumented profile** records 513 dispatches and whole-frame medians of **140.031 / 121.062 ms**. The table below gives the median of each complete family's per-frame summed spans across its 90 samples. It does not sum minima or reconstruct a frame by adding independent family medians. These instrumented times are separate from the ordinary benchmark above.
 
 | Profile family | Legal Q64 anchor median sum | Q32 candidate median sum |
 | --- | ---: | ---: |
@@ -123,7 +139,7 @@ Attention supplies the observed saving. FP8 GEMM accounts for approximately 74% 
 
 A separate 1920x1080 comparison, padded to 1920x1152, used five warmups and 30 Q32/N16/stage16/K16 submissions: median **161.709 ms**, P95 **162.547 ms**, P99 **162.672 ms**. This is one candidate-only network run, not three interleaved pairs, a target-resolution qualification or a 1080p game FPS result.
 
-Current local evidence is under ignored `build/performance/legal-compact64-20261002/`; these private directories are not distributed repository links. Its ordinary interleaved manifest SHA-256 is `fc40642b481aaf3897dbac6495305672af6c2a7236f3a5c5cd24a4de2574dc15` and measured CLI SHA-256 is `5812da825825f0b50df964509e627d9773072709e3838e22c2935dbddb618778`. The Q32 selected shader aggregate is `31a0295666cde46ad5d15d190e3ceaced19421531b06dcb7a5282c04999b9348`; Q64 is `e71855a4554be2cfc62a36faa4de7522b052a04a5148a54c46ab45989b188621`. The legacy aggregate `360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae` identifies retained historical code, not a legal selected attention pipeline. Earlier evidence remains under ignored `build/performance/optimized-n16-k16/bench/` and `build/performance/final-q32/bench/`, whose ordinary Q32 CLI was `e3a46b0d18313e4c183661b657ff709c57acf34510043282a8496f4d84069952`.
+The earlier legal-attention evidence is under ignored `build/performance/legal-compact64-20261002/`; these private directories are not distributed repository links. Its ordinary interleaved manifest SHA-256 is `fc40642b481aaf3897dbac6495305672af6c2a7236f3a5c5cd24a4de2574dc15` and measured CLI SHA-256 is `5812da825825f0b50df964509e627d9773072709e3838e22c2935dbddb618778`. The Q32 selected shader aggregate is `31a0295666cde46ad5d15d190e3ceaced19421531b06dcb7a5282c04999b9348`; Q64 is `e71855a4554be2cfc62a36faa4de7522b052a04a5148a54c46ab45989b188621`. The legacy aggregate `360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae` identifies retained historical code, not a legal selected attention pipeline. Earlier evidence remains under ignored `build/performance/optimized-n16-k16/bench/` and `build/performance/final-q32/bench/`, whose ordinary Q32 CLI was `e3a46b0d18313e4c183661b657ff709c57acf34510043282a8496f4d84069952`.
 
 The identity key is device `1002:7550`, driver `AMD proprietary driver|26.9.1 (LLPC)|8389003`, and model manifest `163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e`. Publishing these hashes does not publish the model.
 
@@ -143,7 +159,7 @@ The following medians are five-frame previews after five warmups. All nine GEMM 
 | 64 | 32 | 237.255 ms |
 | 64 | 64 | 306.634 ms; strict regression also fails |
 
-Q16 and Q32 previews measured 120.623 and 118.229 ms respectively. The older complete Q32 benchmark measured 120.271 ms median; the current legal-anchor paired result is 122.331 ms. A `final` arithmetic preview measured 112.837 ms but is not preservation-qualified or scene-quality-qualified.
+Q16 and Q32 previews measured 120.623 and 118.229 ms respectively. The older complete Q32 benchmark measured 120.271 ms median; the earlier legal-anchor paired result is 122.331 ms. A `final` arithmetic preview measured 112.837 ms but is not preservation-qualified or scene-quality-qualified.
 
 All fusion flags enabled together preserve the tested 320 model outputs, but the 320 production timing is approximately **41 ms versus 19 ms without fusion**, and the target preview is **213.801 ms versus approximately 139 ms** for the unfused Q64 compact route. Fusion remains opt-in. Removing dispatches/intermediate publications does not by itself establish a faster complete network; compiled resources, duplicated loading, serial phases and barriers need further localization.
 
@@ -165,24 +181,32 @@ Changed K32/final arithmetic cannot enter preserving automatic tuning. Its separ
 | --- | --- |
 | `--amd-kernels` | `auto`, `baseline`, `optimized` |
 | `--amd-arithmetic` | `k16` default; `k32`/`final` explicit experiments |
+| `--amd-gemm` | `shared`, `packed`, `direct`; direct requires stage K16 |
 | `--amd-tile-n` / `--amd-stage-k` | `16`, `32`, `64`; defaults 16/16 |
 | `--amd-window-queries` | `64` default compact path, `16` or `32` smaller workgroups |
-| `--amd-fusion` | `0` default; `1` C32 FFN and QKV fusion |
+| `--amd-fusion` | `0` default; `1` shorthand selecting both C32 routes |
+| `--amd-ffn32-fusion` / `--amd-qkv32-fusion` | `0`/`1` independent C32 route overrides |
 | `--amd-expert-fusion` / `--amd-block-fusion` | `0` default; `1` respective experimental paths |
 | `--amd-hardware-publication` | `0` default; `1` rejected optional half-publication experiment |
 | `--amd-tuning` | Path to a generated qualified session tuning file |
 
-The environment equivalents use `DLSS5VK_AMD_` followed by `KERNELS`, `ARITHMETIC`, `TILE_N`, `STAGE_K`, `WINDOW_QUERIES`, `FUSION`, `EXPERT_FUSION`, `BLOCK_FUSION`, `HARDWARE_PUBLICATION`, or `TUNING`. Explicit CLI values are applied before device creation. Baseline refuses non-default arithmetic/tile/query/fusion/publication overrides and fails explicitly when its 34,816-byte attention requirement exceeds the device limit.
+The environment equivalents use `DLSS5VK_AMD_` followed by `KERNELS`, `ARITHMETIC`, `GEMM`, `TILE_N`, `STAGE_K`, `WINDOW_QUERIES`, `FUSION`, `FFN32_FUSION`, `QKV32_FUSION`, `EXPERT_FUSION`, `BLOCK_FUSION`, `HARDWARE_PUBLICATION`, or `TUNING`. Explicit CLI values are applied before device creation. Baseline refuses non-default arithmetic/tile/query/fusion/publication overrides and fails explicitly when its 34,816-byte attention requirement exceeds the device limit.
 
-`amdcheck` and the Python collection, analysis, qualification, tuning and merge tools accept `--comparison-anchor legacy|compact64`; the PowerShell collector uses `-ComparisonAnchor`. The historical default is `legacy`. Current RX 9070 XT recipes explicitly select `compact64`, whose baseline role is optimized K16/N16/stage16/Q64 without fusion or hardware-publication overrides. Collection manifests, exact proofs, assessments and tuning records identify the anchor and bind its actual selected policy and shader identity. Unlabeled historical artifacts denote legacy; a compact64 label or flag never silently remaps those artifacts. This comparison option has no runtime environment equivalent.
+`amdcheck` and the Python collection, analysis, qualification, tuning and merge tools accept `--comparison-anchor legacy|compact64|qualified32`; the PowerShell collector uses `-ComparisonAnchor`. The historical default is `legacy`. New direct-GEMM recipes use `qualified32`: optimized shared GEMM/K16/N16/stage16/Q32 with all experiments off. The earlier attention recipes below retain `compact64`, whose baseline is legal Q64 with the same shared/K16/N16/stage16 policy. Collection manifests, exact proofs, assessments and tuning records identify the anchor and bind its actual selected policy and shader identity. Unlabeled historical artifacts denote legacy; a compact64 label or flag never silently remaps those artifacts. This comparison option has no runtime environment equivalent.
 
 For the pinned development identity, auto has a qualified Q64/N16/stage16/K16 compact fallback with fusion and optional hardware half publication off. A generated `amd-tuning.json` beside the shaders, or explicit tuning path, can select a fully qualified session policy only for matching padded geometry, device, driver, model and shader aggregates. Each graph/resize starts again from the immutable requested policy before resolving the pinned fallback and current tuning; invalid tuning cannot retain a previous geometry's Q32 selection. Explicit diagnostic overrides retain their requested settings and explicit tuning mismatches fail visibly. An unknown identity without a legal qualified fallback refuses initialization; the game host retains its ordinary upscaler continuation instead of running the known over-budget legacy pipeline.
 
-The current legal-anchor Q32 tuning is [rx9070xt-26.9.1-k16.json](performance/rx9070xt-26.9.1-k16.json), SHA-256 `6f2298c945eaa54527d9642a31a9d47d29ebd1d768a128442f9f9f4374c6017d`. Each record binds its complete measured session policy, including GEMM staging, query count and all fusion/publication flags. Missing or inconsistent selected-policy evidence rejects that cache before variant modules are loaded, preserving the legal qualified fallback. The earlier game runs used the prior tuning artifact, recorded with those runs. Updating the packaged tuning does not rewrite their provenance.
+The earlier legal-anchor Q32/shared tuning is [rx9070xt-26.9.1-k16.json](performance/rx9070xt-26.9.1-k16.json), SHA-256 `6f2298c945eaa54527d9642a31a9d47d29ebd1d768a128442f9f9f4374c6017d`. Each record binds its complete measured session policy, including GEMM staging, query count and all fusion/publication flags. Missing or inconsistent selected-policy evidence rejects that cache before variant modules are loaded, preserving the legal qualified fallback. The earlier game runs used the prior tuning artifact, recorded with those runs. Updating the packaged tuning does not rewrite their provenance.
 
 Per-shape records carry operator evidence, but the current runtime applies the fully measured **session policy**. Merging independently winning per-shape configurations does not approve an unmeasured heterogeneous network; the merge tool explicitly leaves automatic default eligibility false. Evidence for the pinned fallback covers the stated 320 and target fixtures, not every game or resolution.
 
+The new target direct tuning is [rx9070xt-26.9.1-direct-k16.json](performance/rx9070xt-26.9.1-direct-k16.json), SHA-256 `058c4dde3ba0e679ec3bf3bdd247295459b14f4bbc9908fb3624e7e9d046692e`, with 46 records. The complete ordinary network and per-operator gates, strict outputs, native lifecycle, bounded history replay and automatic cache GPU selection pass for this policy. See [the direct delivery recipe](amd-gemm-delivery.md#reproducible-isolated-builds). Historical tuning remains unchanged.
+
 ## Reproducing qualification
+
+The following recipe preserves the earlier legal Q64-to-Q32 attention
+comparison. New direct-GEMM work uses the `qualified32` anchor and the isolated
+recipe linked above.
 
 Run from a source checkout using PowerShell 7, the fetched MSVC/glslang toolchain and Python 3.10 or later. NumPy is needed for SSIM image comparisons. Stop other GPU workloads before timed runs. Use a new ignored experiment directory; snapshots, collectors and qualification outputs refuse overwriting evidence. `$model` must be the locally verified imported model directory; no NVIDIA DLL is executed or copied by these commands.
 
@@ -192,7 +216,7 @@ $model = 'models/imported/open-nr'
 $frozen = "$case/frozen"
 $queries = 32
 
-# Build the current core/runtime before freezing all 22 current SPIR-V files.
+# Build the core/runtime before freezing the selected SPIR-V files.
 ./scripts/build.ps1 -Backend amd
 ./scripts/build_game.ps1 -SkipCore
 $cxx = '<absolute path to the MSVC cl.exe used for this build>'
@@ -388,8 +412,8 @@ published binaries or any complete engine benchmark result.
 A later CPU-only parser fix rejects malformed literals, duplicate decoded keys,
 invalid strings/escapes/UTF-8 and invalid or unrepresentable numbers, with bounded
 nesting. The reproducible regression script runs **167 checks** by default and
-**168** with the local model manifest. The native tuning selector passes **75**
-valid-cache checks; a malformed `trux` cache fails visibly. Baseline/new parsed
+**168** with the local model manifest. The earlier parser-stage tuning selector passed **75**
+valid-cache checks; the current selector passes **125**. A malformed `trux` cache fails visibly. Baseline/new parsed
 output matches exactly for **36 actual JSON files / 208,437 typed nodes**.
 
 ```powershell
@@ -397,10 +421,10 @@ output matches exactly for **36 actual JSON files / 208,437 typed nodes**.
 ```
 
 The script builds only its CPU test executable in a unique ignored directory and
-generates its malformed-cache witness there. This fix is later source work; the
-published alpha 2 assets and the binaries used for the game/replay measurements
-above retain their recorded identities and original parser. New runtime/core
-builds and native GPU/bridge validation are required before shipping the fix.
+generates its malformed-cache witness there. The published alpha 2 assets and
+their historical game/replay binaries retain their recorded identities and
+original parser. New alpha 3 core/runtime binaries, native GPU/bridge validation
+and the fresh source rebuild include the fix and pass their recorded checks.
 
 ## Historical game evaluation before the final alpha 2 tests
 
@@ -412,7 +436,7 @@ An initial optimized-package launch crashed with NR disabled in the unchanged Op
 
 At 2560x1440 output, FSR Quality, ray tracing off and target High graphics fields (the game labels the edited preset Custom), three earlier NR-off built-in benchmarks reported **99.58 / 99.32 / 101.74 average FPS**. The first ordinary NR-on built-in benchmark reported **7.51 average FPS**, 7.44 minimum and 7.59 maximum, with 972 frames over 129.51 seconds. In-game frame generation and the Cyberpunk driver profile's AFMF were observed off; CSV rows alone do not prove those settings. At that checkpoint, two additional NR-on passes and the ten-minute active gameplay test had not been completed.
 
-These game runs and the complete genuine eight-frame replay used CLI `1c5f969fb3474d53956b959cfafea423ebebb64b26c6a7b72374f889fc96efa4` and runtime `0c5c05c57ff7faa6c96c4d84dd84c15ba6d299e969985fbddf5093f68cdd91cf`, with the prior Q32 tuning. The current legal network benchmark uses its separately identified CLI. Final package identity updates do not turn these earlier game runs into fresh release-binary benchmarks, although the selected shader aggregates are unchanged.
+These game runs and the complete genuine eight-frame replay used CLI `1c5f969fb3474d53956b959cfafea423ebebb64b26c6a7b72374f889fc96efa4` and runtime `0c5c05c57ff7faa6c96c4d84dd84c15ba6d299e969985fbddf5093f68cdd91cf`, with the prior Q32 tuning. The earlier legal-attention network benchmark uses its separately identified CLI. Final package identity updates do not turn these earlier game runs into fresh release-binary benchmarks, although the selected shader aggregates are unchanged.
 
 PresentMon analysis uses explicit process/swap-chain selection and independently observed QPC boundaries. These conservative world subsets are separate from the full built-in benchmark results:
 
@@ -442,8 +466,8 @@ Status at the end of that earlier-binary evaluation:
 | Genuine bounded scene captures, identical/evolved replay | Eight genuine 1707x960 frames pass every numerical threshold in both modes; captured production head/composition reproduce byte for byte |
 | Faces, motion, exposure, cuts, disocclusion and human artifact review | Pending |
 
-The next kernel work should prioritize the now-dominant FP8 GEMM family: distinguish operand supply and software half-publication cost from occupancy, probe a correctly rounded hardware conversion against the existing witnesses, and redesign the slower fusion paths before further promotion. Remaining attention work follows its current measured 20.854 ms family span. The exact F24 adapter/head and software reference remain useful anchors. A different model, skipped NR updates, frame generation, old-result reuse or a translated game backend would require their own behavior and quality decision; they are not the speedup reported here.
+The next kernel work should use the new direct profile: FP8 GEMM has a 48.796 ms family median and window attention 21.033 ms, with 80.805 ms whole-frame median. These are independently summarized instrumented spans, not ordinary timings or additive family medians. Inspect installed-driver operand supply, publication and occupancy, probe a correctly rounded conversion against the existing witnesses, and measure independent fusion routes before redesigning them. The exact F24 adapter/head and software reference remain useful anchors. A different model, skipped NR updates, frame generation, old-result reuse or a translated game backend would require their own behavior and quality decision; they are not the speedup reported here.
 
-[The remaining-work record](amd-performance-next-steps.md) identifies source gaps separately from acceptance evidence. AMD FFN and QKV use separate kernels but still share enablement; independent per-route selection and qualification remain work. Pooling/upsampling variants and C512 split-FFN fusion are partial. The measured FP8 GEMM family remains the first priority at 89.324 ms, about 74% of the instrumented candidate frame. These partial routes and pending evidence prevent describing the entire performance plan as complete; slower fusion remains disabled by default.
+[The remaining-work record](amd-performance-next-steps.md) identifies source gaps separately from acceptance evidence. Independent AMD FFN/QKV controls are implemented and each passes the 320 model comparison with direct GEMM; separate target performance and lifecycle/replay promotion remain work. Pooling/upsampling variants and C512 split-FFN fusion are partial. The updated GEMM and attention profile remains the optimization priority. Three warmed game benchmarks per condition are complete; broad quality/temporal review, highlight acceptance and active gameplay remain open; slower fusion remains disabled by default.
 
 The implemented experiments provide a measurable reduction and stricter reproducibility. They have not reached the requested performance budget or completed the game release gates.

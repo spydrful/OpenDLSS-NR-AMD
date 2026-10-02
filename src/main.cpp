@@ -91,9 +91,11 @@ void setEnvironment(const char* key, const std::string& value) {
 void configureAmdArguments(int argc, char** argv) {
   const std::pair<const char*,const char*> flags[] = {
       {"--amd-kernels","DLSS5VK_AMD_KERNELS"}, {"--amd-arithmetic","DLSS5VK_AMD_ARITHMETIC"},
+      {"--amd-gemm","DLSS5VK_AMD_GEMM"},
       {"--amd-tile-n","DLSS5VK_AMD_TILE_N"}, {"--amd-stage-k","DLSS5VK_AMD_STAGE_K"},
       {"--amd-window-queries","DLSS5VK_AMD_WINDOW_QUERIES"},
       {"--amd-fusion","DLSS5VK_AMD_FUSION"}, {"--amd-expert-fusion","DLSS5VK_AMD_EXPERT_FUSION"},
+      {"--amd-ffn32-fusion","DLSS5VK_AMD_FFN32_FUSION"}, {"--amd-qkv32-fusion","DLSS5VK_AMD_QKV32_FUSION"},
       {"--amd-block-fusion","DLSS5VK_AMD_BLOCK_FUSION"}, {"--amd-hardware-publication","DLSS5VK_AMD_HARDWARE_PUBLICATION"},
       {"--amd-tuning","DLSS5VK_AMD_TUNING"}};
   bool configured = false;
@@ -176,9 +178,12 @@ void writeBenchmarkJson(const std::string& path, const char* command, const vk::
       << "\"requested\":{\"kernels\":" << jsonQuote(context.amdOptions().kernelName())
       << ",\"arithmetic\":" << jsonQuote(context.amdOptions().arithmeticName()) << "},\n"
       << "\"selected\":{\"kernels\":" << jsonQuote(kernels.selectedKernelMode()) << ",\"arithmetic\":" << jsonQuote(options.arithmeticName())
+      << ",\"gemm\":" << jsonQuote(options.gemmName())
       << ",\"tile_n\":" << (optimized ? options.tileN : 16u) << ",\"stage_k\":" << (optimized ? options.stageK : 16u)
       << ",\"window_queries\":" << (optimized ? options.windowQueries : 64u)
       << ",\"fusion\":" << (optimized && options.fusion ? "true" : "false")
+      << ",\"ffn32_fusion\":" << (optimized && options.ffn32Enabled() ? "true" : "false")
+      << ",\"qkv32_fusion\":" << (optimized && options.qkv32Enabled() ? "true" : "false")
       << ",\"expert_fusion\":" << (optimized && options.expertFusion ? "true" : "false")
       << ",\"block_fusion\":" << (optimized && options.blockFusion ? "true" : "false")
       << ",\"hardware_publication\":" << (optimized && options.hardwarePublication ? "true" : "false") << "},\n\"frame_ms\":";
@@ -960,7 +965,9 @@ int runCommand(int argc, char** argv) {
   if (argc >= 2 && !strcmp(argv[1], "bench")) return runBench(argc, argv);
   fprintf(stderr, "usage: dlss5vk info|selftest|amdcheck|modelcheck|compositecheck|parity|verify|bench|profile|shaderinfo [--backend auto|amd|nvidia|reference] ...\n"
       "AMD: --amd-kernels auto|baseline|optimized --amd-arithmetic k16|k32|final --amd-tile-n 16|32|64 --amd-stage-k 16|32|64\n"
-      "     --amd-fusion 0|1 --amd-expert-fusion 0|1 --amd-block-fusion 0|1 --amd-hardware-publication 0|1 --amd-tuning path\n");
+      "     --amd-gemm shared|packed|direct --amd-fusion 0|1 (both C32 routes)\n"
+      "     --amd-ffn32-fusion 0|1 --amd-qkv32-fusion 0|1\n"
+      "     --amd-expert-fusion 0|1 --amd-block-fusion 0|1 --amd-hardware-publication 0|1 --amd-tuning path\n");
   return 2;
 }
 

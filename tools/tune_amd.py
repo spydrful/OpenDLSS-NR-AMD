@@ -26,11 +26,13 @@ SCENE_COVERAGE = {"sdr", "hdr-highlights", "motion", "faces", "moving-objects",
                   "disocclusion", "exposure-changes", "camera-cuts"}
 MODEL_CHECKPOINTS = {f"block-{i}" for i in range(70)} | {
     "transition-0-1", "transition-4-5", "transition-8-9", "transition-14-15", "transition-22-23"}
-FUSION_KEYS = ("fusion", "expert_fusion", "block_fusion", "hardware_publication")
-SELECTION_KEYS = ("kernels", "arithmetic", "tile_n", "stage_k", "window_queries", *FUSION_KEYS)
-COMPARISON_ANCHORS = ("legacy", "compact64")
+LEGACY_FUSION_KEYS = ("fusion", "expert_fusion", "block_fusion", "hardware_publication")
+FUSION_KEYS = (*LEGACY_FUSION_KEYS, "ffn32_fusion", "qkv32_fusion")
+SELECTION_KEYS = ("kernels", "arithmetic", "gemm", "tile_n", "stage_k", "window_queries", *FUSION_KEYS)
+GEMM_VARIANTS = {"shared": "amd_gemm_optimized", "packed": "amd_gemm_packed", "direct": "amd_gemm_direct"}
+COMPARISON_ANCHORS = ("legacy", "compact64", "qualified32")
 ACCELERATED_VARIANTS = {
-    "fp8_gemm": {"amd_gemm_optimized"},
+    "fp8_gemm": set(GEMM_VARIANTS.values()),
     "window_attention": {"amd_window_optimized", "amd_window_small"},
     "ffn": {"amd_ffn32"}, "qkv_attention": {"amd_qkv32"},
     "expert_ffn": {"amd_expert_ffn"}, "c32_block": {"amd_block32"},
@@ -92,21 +94,46 @@ def selected_policy(value, *, explicit_flags=False) -> dict:
     """Bind SPIR-V specialization constants as well as shader-file hashes."""
     if not isinstance(value, dict) or value.get("kernels") not in ("baseline", "optimized") or value.get("arithmetic") not in ("k16", "k32", "final"):
         raise ValueError("missing actual selected AMD kernel/arithmetic policy")
-    result = {"window_queries": 64, **value}
+    result = {"window_queries": 64, "gemm": "shared", **value}
+    if type(result["gemm"]) is not str or result["gemm"] not in GEMM_VARIANTS:
+        raise ValueError("selected.gemm must be shared, packed or direct")
     for key in ("tile_n", "stage_k", "window_queries"):
         if type(result.get(key)) is not int or result[key] not in (16, 32, 64):
             raise ValueError(f"selected.{key} must be 16, 32 or 64")
-    for key in FUSION_KEYS:
+    if result["gemm"] == "direct" and result["stage_k"] != 16:
+        raise ValueError("direct GEMM requires stage_k=16")
+    for key in LEGACY_FUSION_KEYS:
         if key not in result and not explicit_flags:
             result[key] = False
         if type(result.get(key)) is not bool:
             raise ValueError(f"selected.{key} must be explicitly Boolean")
+    routes = ("ffn32_fusion", "qkv32_fusion")
+    present = [key in result for key in routes]
+    if any(present) != all(present):
+        raise ValueError("selected independent fusion policy requires both routes")
+    if not any(present):
+        result.update({key: result["fusion"] for key in routes})
+    if any(type(result[key]) is not bool for key in routes) or result["fusion"] != all(result[key] for key in routes):
+        raise ValueError("selected independent fusion policy contradicts legacy summary")
     return {key: result[key] for key in SELECTION_KEYS}
+
+
+def requested_fusion_policy(args, candidate=True) -> dict:
+    """Per-route selectors override --fusion; missing values inherit it."""
+    legacy = bool(getattr(args, "fusion", False)) and candidate
+    result = {key: bool(getattr(args, key, False)) and candidate for key in LEGACY_FUSION_KEYS}
+    for key in ("ffn32_fusion", "qkv32_fusion"):
+        override = getattr(args, key, None)
+        if override is not None and type(override) is not bool:
+            raise ValueError(f"{key} override must be Boolean or absent")
+        result[key] = (legacy if override is None else override) and candidate
+    result["fusion"] = result["ffn32_fusion"] and result["qkv32_fusion"]
+    return result
 
 
 def comparison_anchor(value="legacy") -> str:
     if value not in COMPARISON_ANCHORS:
-        raise ValueError("comparison_anchor must be legacy or compact64")
+        raise ValueError("comparison_anchor must be legacy, compact64 or qualified32")
     return value
 
 
@@ -119,9 +146,11 @@ def require_anchor(value: dict, requested: str) -> str:
 
 
 def evidence_equal(first, second) -> bool:
-    """Historical unlabeled evidence denotes legacy, never compact64."""
+    """Historical unlabeled evidence denotes legacy, never an optimized anchor."""
     def canonical(value):
         if isinstance(value, dict):
+            if all(key in value for key in ("kernels", "arithmetic", "tile_n", "stage_k")):
+                value = {**value, **selected_policy(value)}
             return {key: canonical(item) for key, item in value.items()
                     if key != "comparison_anchor" or item != "legacy"}
         if isinstance(value, list):
@@ -131,9 +160,11 @@ def evidence_equal(first, second) -> bool:
 
 
 def preserving_baseline(selected: dict, anchor="legacy") -> bool:
-    mode = "optimized" if comparison_anchor(anchor) == "compact64" else "baseline"
-    return (selected["kernels"] == mode and selected["arithmetic"] == "k16"
-            and selected["tile_n"] == 16 and selected["stage_k"] == 16 and selected["window_queries"] == 64
+    anchor = comparison_anchor(anchor)
+    mode = "baseline" if anchor == "legacy" else "optimized"
+    window_queries = 32 if anchor == "qualified32" else 64
+    return (selected["kernels"] == mode and selected["arithmetic"] == "k16" and selected.get("gemm", "shared") == "shared"
+            and selected["tile_n"] == 16 and selected["stage_k"] == 16 and selected["window_queries"] == window_queries
             and not any(selected[key] for key in FUSION_KEYS))
 
 
@@ -189,7 +220,7 @@ def benchmark(path: Path, *, explicit_policy=False) -> dict:
         raise ValueError("missing actual selected AMD kernel/arithmetic policy")
     if explicit_policy:
         if "window_queries" not in selected:
-            raise ValueError("compact64 requires explicitly recorded window_queries")
+            raise ValueError("optimized anchors require explicitly recorded window_queries")
         selected_policy(selected, explicit_flags=True)
     for name in ("tile_n", "stage_k"):
         if type(selected.get(name)) is not int or selected[name] not in (16, 32, 64):
@@ -197,9 +228,7 @@ def benchmark(path: Path, *, explicit_policy=False) -> dict:
     selected.setdefault("window_queries",64)
     if type(selected["window_queries"]) is not int or selected["window_queries"] not in (16,32,64):
         raise ValueError("selected.window_queries must be 16, 32 or 64")
-    for name in FUSION_KEYS:
-        if name in selected and type(selected[name]) is not bool:
-            raise ValueError(f"selected.{name} must be Boolean")
+    value["selected"] = selected_policy(selected, explicit_flags=explicit_policy)
     value["frame_ms"] = samples(value.get("frame_ms"), value["frames"], "frame_ms")
     if "dispatches" in value:
         if value["command"] != "profile" or not isinstance(value["dispatches"], list) or not value["dispatches"]:
@@ -258,18 +287,17 @@ def analyze(path: Path, allow_arithmetic_change=False, network_manifest: Path | 
         if not isinstance(item, dict) or item.get("role") != role or item.get("pair") != index // 2 or not isinstance(item.get("file"), str):
             raise ValueError("runs must be ordered baseline/candidate pairs with zero-based pair IDs")
         source = path.parent / item["file"]
-        run = benchmark(source, explicit_policy=anchor == "compact64")
+        run = benchmark(source, explicit_policy=anchor != "legacy")
         if "comparison_anchor" in item:
             require_anchor(item, anchor)
         if "comparison_anchor" in run:
             require_anchor(run, anchor)
         if role == "baseline" and not preserving_baseline(
-                selected_policy(run["selected"], explicit_flags=anchor == "compact64"), anchor):
-            raise ValueError(f"baseline must use the explicit {anchor} preserving N16/K16/Q64 policy without overrides")
+                selected_policy(run["selected"], explicit_flags=anchor != "legacy"), anchor):
+            query_count = 32 if anchor == "qualified32" else 64
+            raise ValueError(f"baseline must use the explicit {anchor} preserving N16/K16/Q{query_count} policy without overrides")
         if run["selected"]["arithmetic"] != "k16" and not allow_arithmetic_change:
             raise ValueError("changed arithmetic requires --allow-arithmetic-change")
-        if role=="baseline" and run["selected"]["window_queries"]!=64:
-            raise ValueError("baseline must retain its 64-query attention tile")
         if first is None:
             first = run
         for field in ("command", "width", "height", "padded_width", "padded_height", "frames", "warmup"):
@@ -280,6 +308,7 @@ def analyze(path: Path, allow_arithmetic_change=False, network_manifest: Path | 
         actual_identity = dict(run["identity"])
         actual_identity["executable_sha256"] = item.get("executable_sha256", run["identity"].get("executable_sha256"))
         selection = {k: run["selected"][k] for k in ("kernels", "arithmetic", "tile_n", "stage_k")}
+        selection["gemm"] = run["selected"]["gemm"]
         selection["window_queries"]=run["selected"]["window_queries"]
         selection.update({k: run["selected"].get(k, False) for k in FUSION_KEYS})
         if role == "baseline" and any(selection[k] for k in FUSION_KEYS):
@@ -354,6 +383,9 @@ def collect(args) -> Path:
     anchor = comparison_anchor(getattr(args, "comparison_anchor", "legacy"))
     if args.arithmetic != "k16" and not args.allow_arithmetic_change:
         raise ValueError("changed arithmetic requires --allow-arithmetic-change")
+    requested_gemm = getattr(args, "gemm", "shared")
+    if requested_gemm not in GEMM_VARIANTS or (requested_gemm == "direct" and args.stage_k != 16):
+        raise ValueError("GEMM must be shared|packed|direct; direct requires stage_k=16")
     for name in ("width", "height", "frames", "pairs", "timeout"):
         integer(getattr(args, name), name, 1)
     integer(args.warmup, "warmup")
@@ -370,9 +402,10 @@ def collect(args) -> Path:
     child_base = {key: value for key, value in os.environ.items() if not key.startswith("DLSS5VK_")}
     for pair in range(args.pairs):
         for role in ("baseline", "candidate"):
-            anchor_mode = "optimized" if anchor == "compact64" else "baseline"
+            anchor_mode = "baseline" if anchor == "legacy" else "optimized"
             kernels, arithmetic, tile_n, stage_k = (anchor_mode, "k16", 16, 16) if role == "baseline" else (args.kernels, args.arithmetic, args.tile_n, args.stage_k)
-            window_queries=64 if role=="baseline" else getattr(args,"window_queries",64)
+            window_queries=(32 if anchor == "qualified32" else 64) if role=="baseline" else getattr(args,"window_queries",64)
+            gemm = "shared" if role == "baseline" else requested_gemm
             stem = f"pair-{pair + 1:02d}-{role}"
             json_path, log_path = output / (stem + ".json"), output / (stem + ".log")
             command = [str(executable), args.mode, "--backend", "amd", "--model", str(model),
@@ -380,28 +413,31 @@ def collect(args) -> Path:
                        "--warmup", str(args.warmup), "--amd-kernels", kernels, "--amd-arithmetic", arithmetic,
                        "--amd-tile-n", str(tile_n), "--amd-stage-k", str(stage_k), "--json", str(json_path)]
             command.extend(["--amd-window-queries",str(window_queries)])
+            command.extend(["--amd-gemm",gemm])
             if shaders:
                 command.extend(["--shaders", str(shaders)])
             overrides = {"DLSS5VK_BACKEND": "amd", "DLSS5VK_CHAIN": "0", "DLSS5VK_VALIDATION": "0",
                          "DLSS5VK_DEBUG": "0", "DLSS5VK_AMD_KERNELS": kernels, "DLSS5VK_AMD_ARITHMETIC": arithmetic,
                          "DLSS5VK_AMD_TILE_N": str(tile_n), "DLSS5VK_AMD_STAGE_K": str(stage_k),
                          "DLSS5VK_AMD_WINDOW_QUERIES":str(window_queries),
+                         "DLSS5VK_AMD_GEMM":gemm,
                          "DLSS5VK_PIPELINE_CACHE": str(output / "pipeline-cache")}
-            requested_fusion = {key: bool(getattr(args,key,False)) and role == "candidate" for key in FUSION_KEYS}
+            requested_fusion = requested_fusion_policy(args, role == "candidate")
             overrides.update({"DLSS5VK_AMD_" + key.upper(): "1" if enabled else "0" for key,enabled in requested_fusion.items()})
-            print(f"{stem}: {args.mode} {args.width}x{args.height}, anchor={anchor}, {kernels}/{arithmetic}, N{tile_n}/K{stage_k}/Q{window_queries}", flush=True)
+            print(f"{stem}: {args.mode} {args.width}x{args.height}, anchor={anchor}, {kernels}/{arithmetic}/{gemm}, N{tile_n}/K{stage_k}/Q{window_queries}", flush=True)
             with log_path.open("xb") as log:
                 result = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, cwd=str(executable.parent),
                                         env={**child_base, **overrides}, timeout=args.timeout,
                                         creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
             if result.returncode:
                 raise ValueError(f"{stem} failed with exit {result.returncode}; see {log_path}")
-            run = benchmark(json_path, explicit_policy=anchor == "compact64")
+            run = benchmark(json_path, explicit_policy=anchor != "legacy")
             for field in ("width", "height", "warmup", "frames", "command"):
                 expected = args.mode if field == "command" else getattr(args, field)
                 if run[field] != expected:
                     raise ValueError(f"child ignored requested {field}")
             expected_policy = {"arithmetic": arithmetic, "tile_n": tile_n, "stage_k": stage_k}
+            expected_policy["gemm"] = gemm
             expected_policy["window_queries"]=window_queries
             expected_policy.update(requested_fusion)
             if kernels != "auto":
@@ -428,9 +464,9 @@ def exact_manifest(path: Path, comparison_anchor="legacy") -> dict:
     # embeds the same actual execution fields inside its identity objects.
     selected_value = value.get("selected", value.get("identity") if model_free else None)
     baseline_value = value.get("baseline_selected", value.get("baseline_identity") if model_free else None)
-    if anchor == "compact64" and any(not isinstance(policy, dict) or "window_queries" not in policy
+    if anchor != "legacy" and any(not isinstance(policy, dict) or "window_queries" not in policy
                                      for policy in (selected_value, baseline_value)):
-        raise ValueError("compact64 requires explicitly recorded window_queries")
+        raise ValueError("optimized anchors require explicitly recorded window_queries")
     selected = selected_policy(selected_value, explicit_flags=True)
     baseline_selected = selected_policy(baseline_value, explicit_flags=True)
     if not preserving_baseline(baseline_selected, anchor) or selected["kernels"] != "optimized" or selected["arithmetic"] != "k16":
@@ -589,7 +625,7 @@ def tuning(performance_path: Path, qualification_path: Path, comparison_anchor="
     candidate_identity = identity(report.get("identities", {}).get("candidate"))
     if identity(qualification.get("identity")) != candidate_identity:
         raise ValueError("qualification identity does not match measured candidate")
-    if qualification.get("selections") != report.get("selections"):
+    if not evidence_equal(qualification.get("selections"), report.get("selections")):
         raise ValueError("qualification selected policy does not match measured baseline/candidate")
     baseline_identity = identity(report.get("identities", {}).get("baseline"))
     for exact in qualification.get("exact_suites", []):
@@ -617,6 +653,8 @@ def tuning(performance_path: Path, qualification_path: Path, comparison_anchor="
         variant = variants[0]
         if variant.get("variant") not in ACCELERATED_VARIANTS.get(operator["family"], set()):
             continue
+        if operator["family"] == "fp8_gemm" and variant["variant"] != GEMM_VARIANTS[selected_policy(report["selections"]["candidate"])["gemm"]]:
+            raise ValueError("GEMM dispatch variant does not match its qualified session policy")
         if type(variant.get("tile_n")) is not int or variant["tile_n"] not in (16, 32, 64) or type(variant.get("stage_k")) is not int or variant["stage_k"] not in (16, 32, 64):
             continue
         records.append({"key": {**candidate_identity, "arithmetic": "k16", "family": operator["family"], "shape": actual_shape},
@@ -699,6 +737,9 @@ def captured_sequence(directory: Path, allow_nongame=False) -> list[tuple[Path, 
 def replay_sequence(args) -> dict:
     if args.arithmetic!="k16" and not args.allow_arithmetic_change:
         raise ValueError("experimental replay requires --allow-arithmetic-change")
+    requested_gemm=getattr(args,"gemm","shared")
+    if requested_gemm not in GEMM_VARIANTS or (requested_gemm=="direct" and args.stage_k!=16):
+        raise ValueError("GEMM must be shared|packed|direct; direct requires stage_k=16")
     frames=captured_sequence(args.capture_sequence.resolve(strict=True),args.allow_nongame)
     executable=args.executable.resolve(strict=True);model=args.model.resolve(strict=True)
     args.output.mkdir(parents=True,exist_ok=False);output=args.output.resolve()
@@ -727,11 +768,13 @@ def replay_sequence(args) -> dict:
                 overrides={"DLSS5VK_BACKEND":backend,"DLSS5VK_CHAIN":"0","DLSS5VK_VALIDATION":"0",
                            "DLSS5VK_AMD_KERNELS":args.kernels if candidate else "baseline",
                            "DLSS5VK_AMD_ARITHMETIC":args.arithmetic if candidate else "k16",
+                           "DLSS5VK_AMD_GEMM":getattr(args,"gemm","shared") if candidate else "shared",
                            "DLSS5VK_AMD_TILE_N":str(args.tile_n if candidate else 16),
                            "DLSS5VK_AMD_STAGE_K":str(args.stage_k if candidate else 16),
                            "DLSS5VK_AMD_WINDOW_QUERIES":str(getattr(args,"window_queries",64) if candidate else 64)}
-                for flag in FUSION_KEYS:
-                    overrides["DLSS5VK_AMD_"+flag.upper()]="1" if candidate and getattr(args,flag,False) else "0"
+                requested_fusion = requested_fusion_policy(args, candidate)
+                for flag,enabled in requested_fusion.items():
+                    overrides["DLSS5VK_AMD_"+flag.upper()]="1" if enabled else "0"
                 print(f"replay {history_mode} frame {index+1}/{len(frames)} {role}",flush=True)
                 log_path=destination.parent/(destination.name+".log")
                 with log_path.open("xb") as log:
@@ -758,10 +801,10 @@ def replay_sequence(args) -> dict:
                         raise ValueError("candidate device/driver/model/shader identity changed during replay")
                     if candidate_selection is not None and current_selection!=candidate_selection:
                         raise ValueError("candidate selected policy changed during replay")
-                    if (current_selection["arithmetic"]!=args.arithmetic or current_selection["tile_n"]!=args.tile_n
+                    if (current_selection["arithmetic"]!=args.arithmetic or current_selection["gemm"]!=getattr(args,"gemm","shared") or current_selection["tile_n"]!=args.tile_n
                             or current_selection["stage_k"]!=args.stage_k or current_selection["window_queries"]!=getattr(args,"window_queries",64)
                             or (args.kernels!="auto" and current_selection["kernels"]!=args.kernels)
-                            or any(current_selection[flag]!=getattr(args,flag,False) for flag in FUSION_KEYS)):
+                            or any(current_selection[flag]!=requested_fusion[flag] for flag in FUSION_KEYS)):
                         raise ValueError("forced candidate replay selection was ignored or silently fell back")
                     candidate_identity=current_identity
                     candidate_selection=current_selection
@@ -802,12 +845,15 @@ def main() -> int:
     collect_parser.add_argument("--timeout", type=int, default=900, help="per child timeout in seconds")
     collect_parser.add_argument("--kernels", choices=("auto", "baseline", "optimized"), default="optimized")
     collect_parser.add_argument("--arithmetic", choices=("k16", "k32", "final"), default="k16")
+    collect_parser.add_argument("--gemm", choices=tuple(GEMM_VARIANTS), default="shared")
     collect_parser.add_argument("--tile-n", type=int, choices=(16, 32, 64), default=16)
     collect_parser.add_argument("--stage-k", type=int, choices=(16, 32, 64), default=16)
     collect_parser.add_argument("--window-queries",type=int,choices=(16,32,64),default=64)
     collect_parser.add_argument("--allow-arithmetic-change", action="store_true")
-    for flag in FUSION_KEYS:
+    for flag in LEGACY_FUSION_KEYS:
         collect_parser.add_argument("--" + flag.replace("_","-"),action="store_true")
+    for flag in ("ffn32_fusion", "qkv32_fusion"):
+        collect_parser.add_argument("--" + flag.replace("_","-"),action=argparse.BooleanOptionalAction,default=None)
     analyze_parser = commands.add_parser("analyze", help="validate and assess collected paired records")
     analyze_parser.add_argument("manifest", type=Path)
     analyze_parser.add_argument("--output", type=Path, required=True)
@@ -828,7 +874,7 @@ def main() -> int:
     merge_parser.add_argument("--output", type=Path, required=True)
     for anchor_parser in (collect_parser, analyze_parser, qualify_parser, tuning_parser, merge_parser):
         anchor_parser.add_argument("--comparison-anchor", choices=COMPARISON_ANCHORS, default="legacy",
-                                   help="explicit baseline role: legacy kernels or optimized preserving Q64 kernels")
+                                   help="explicit baseline role: legacy kernels, compact64 optimized Q64, or qualified32 optimized Q32")
     replay_parser=commands.add_parser("replay",help="replay a bounded scene sequence with identical and evolved histories")
     replay_parser.add_argument("--capture-sequence",type=Path,required=True)
     replay_parser.add_argument("--executable",type=Path,required=True)
@@ -840,6 +886,7 @@ def main() -> int:
     replay_parser.add_argument("--history-mode",choices=("both","identical","evolved"),default="both")
     replay_parser.add_argument("--kernels",choices=("baseline","optimized","auto"),default="optimized")
     replay_parser.add_argument("--arithmetic",choices=("k16","k32","final"),default="k16")
+    replay_parser.add_argument("--gemm",choices=tuple(GEMM_VARIANTS),default="shared")
     replay_parser.add_argument("--tile-n",type=int,choices=(16,32,64),default=16)
     replay_parser.add_argument("--stage-k",type=int,choices=(16,32,64),default=16)
     replay_parser.add_argument("--window-queries",type=int,choices=(16,32,64),default=64)
@@ -847,7 +894,9 @@ def main() -> int:
     replay_parser.add_argument("--coverage",choices=sorted(SCENE_COVERAGE),action="append",default=[])
     replay_parser.add_argument("--allow-nongame",action="store_true")
     replay_parser.add_argument("--allow-arithmetic-change",action="store_true")
-    for flag in FUSION_KEYS:replay_parser.add_argument("--"+flag.replace("_","-"),action="store_true")
+    for flag in LEGACY_FUSION_KEYS:replay_parser.add_argument("--"+flag.replace("_","-"),action="store_true")
+    for flag in ("ffn32_fusion", "qkv32_fusion"):
+        replay_parser.add_argument("--"+flag.replace("_","-"),action=argparse.BooleanOptionalAction,default=None)
     args = parser.parse_args()
     try:
         if args.action == "collect":

@@ -12,16 +12,42 @@ FSR Quality, ray tracing and ray reconstruction off, and frame generation off.
 The goal is 60 real rendered frames per second, including the game, NR, and
 FSR. It is a goal, not a measured result. Running NR at native 2560×1440 instead
 processes more pixels and needs a separate performance budget.
-The current idle-GPU model-only comparison measures **141.343 → 122.331 ms
-median**, a **13.45%** reduction from legal Q64 compact attention to Q32,
+The new direct-GEMM model-only comparison measures **119.143 → 81.049 ms
+median**, a **31.97%** reduction from the already-qualified shared-GEMM/Q32 anchor,
 at valid 1707×960, padded to 1728×960, before bridge, game or upscaler work.
 This remains above the 8 ms NR-plus-bridge and 60 FPS budgets. The historical
 206.167 → 120.271 ms comparison used legacy attention exceeding this GPU's LDS
-limit; the current runtime rejects that path. The alpha 1 median was 217.949 ms.
+limit; the current runtime rejects that path. The earlier legal Q64-to-Q32
+comparison measured 141.343 → 122.331 ms / 13.45%. The alpha 1 median was 217.949 ms.
 See the [performance implementation record](amd-performance-implementation.md)
 for the current configuration, hashes and measurement scope.
 
-The final alpha 2 binaries have three warmed NR-off and three NR-on complete
+The current source adds packed/direct GEMM candidates and independent FFN32/QKV32
+controls. The guarded public direct route passes strict operators, all 75 model
+boundaries and the head at 320×320, and target-resolution output comparisons.
+The prescribed ordinary timing protocol and controlled native lifecycle harness
+pass, along with bounded captured-history replay and automatic cache GPU
+selection. Three warmed NR-off and NR-on game benchmark passes also complete. See
+the [GEMM continuation record](amd-gemm-delivery.md). The published alpha 2
+package retains its original binaries and measured game performance.
+
+The alpha 3 direct-GEMM runtime has three warmed NR-off and three NR-on complete
+Cyberpunk built-in benchmark passes. Equal-pass means are **97.12269 FPS off /
+10.69410 FPS on**. Complete exported NR-on frame times have pooled median
+**93.495 ms**, P95 **95.0625 ms** and P99 **95.9785 ms**, over 2,916 frames.
+Separate asynchronous completed-job brackets have NR-plus-bridge medians
+**85.84388 / 85.94782 / 85.90282 ms**; these are not joined to game presents.
+The maximum observed DXGI process-local sample is **9,428.008 MiB**, not a true
+interval peak. No PresentMon was collected for this continuation. See the
+[alpha 3 game evidence](performance/cyberpunk-alpha3-20261002.json) for hashes,
+settings and exclusions. Game frame generation, driver frame generation and
+AFMF were observed off. The driver FSR upscaling override stayed enabled, so
+the exact effective FSR version remains independently unverified. Ten minutes
+of active gameplay were not run; broad scene/temporal and highlight acceptance
+remain incomplete. The temporary alpha 3 test installation has been removed,
+original user settings restored byte for byte, and imported models preserved.
+
+The historical final alpha 2 binaries have three warmed NR-off and three NR-on complete
 Cyberpunk built-in benchmark passes. Equal-pass means are **97.66045 FPS off /
 7.54553 FPS on**. Complete exported NR-on frame times have pooled median
 **132.55 ms**, P95 **133.89 ms** and P99 **134.637 ms**. In-game FG and driver
@@ -168,11 +194,12 @@ is unchanged. `--amd-kernels baseline` still requests the original legacy
 kernel, but the shared-memory guard rejects it on RX 9070 XT because its
 34,816-byte attention allocation exceeds the 32,768-byte device limit. The
 original shader and historical frozen measurements are retained without an
-override. For new strict comparisons and paired timings, use the explicit
-`--comparison-anchor compact64` tool option (or
-`benchmark_amd.ps1 -ComparisonAnchor compact64`). Its baseline role is
-optimized K16/N16/stage16/Q64, with all fusion and hardware-publication flags
-off. See the [reproduction recipe](amd-performance-implementation.md#reproducing-qualification)
+override. For new direct-GEMM comparisons and paired timings, use the explicit
+`--comparison-anchor qualified32` tool option (or
+`benchmark_amd.ps1 -ComparisonAnchor qualified32 -Gemm direct -WindowQueries 32`).
+Its baseline is optimized shared GEMM/K16/N16/stage16/Q32, with every experiment
+off. `compact64` retains the earlier legal Q64 attention comparison.
+See the [isolated build recipe](amd-gemm-delivery.md#reproducible-isolated-builds)
 for the full current-shader snapshot and identity-bound qualification.
 
 The core exposes `--backend reference`, `--backend amd`, and `--backend nvidia`.
@@ -474,7 +501,9 @@ repeatable replay alone does not establish NVIDIA parity or visual quality.
 Local images/history may contain game content and should remain outside source
 archives and distributable packages.
 
-Final alpha 2 settings and measured results are recorded in
+Current alpha 3 measurements are recorded in the
+[alpha 3 scalar record](performance/cyberpunk-alpha3-20261002.json). Final alpha 2
+settings and measured results are recorded in
 [cyberpunk-alpha2-validation.md](cyberpunk-alpha2-validation.md); historical
 measurements remain in [rx9070xt-validation.md](rx9070xt-validation.md).
 Keep each record with its

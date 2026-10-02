@@ -138,6 +138,71 @@ class ModelQualificationTests(unittest.TestCase):
         self.assertEqual(result["mismatchedChecks"], 2)
         self.assertFalse(qualification._protocol.exact_manifest(self.output, "compact64")["passed"])
 
+    def qualified32_anchor(self):
+        self.compact_anchor()
+        for path in (self.baseline / "manifest.json", self.baseline / "modelcheck-report.json", self.baseline_benchmark):
+            self.mutate(path, lambda value: value["selected"].update(window_queries=32))
+
+    def test_qualified32_model_binds_all_checkpoints_and_current_q32_baseline(self):
+        self.fixtures(); self.qualified32_anchor()
+        with self.assertRaisesRegex(ValueError, "compact64 baseline N16/K16/Q64"):
+            self.run_qualification(comparison_anchor="compact64")
+        result = self.run_qualification(comparison_anchor="qualified32")
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["checks"], 77)
+        self.assertEqual(result["baseline_selected"]["window_queries"], 32)
+        self.assertTrue(qualification._protocol.exact_manifest(self.output, "qualified32")["passed"])
+
+    def test_qualified32_target_retains_signed_zero_and_capture_schedule_gate(self):
+        self.fixtures(target=True); self.qualified32_anchor()
+        self.change_byte(self.candidate / "head.f32", offset=3)
+        result = self.run_qualification(target=True, comparison_anchor="qualified32")
+        self.assertFalse(result["passed"])
+        self.assertEqual(result["checks"], 2)
+        self.assertEqual(result["mismatchedChecks"], 2)
+
+    def test_qualified32_cannot_assume_missing_window_geometry(self):
+        self.fixtures(); self.qualified32_anchor()
+        self.mutate(self.baseline_benchmark, lambda value: value["selected"].pop("window_queries"))
+        with self.assertRaisesRegex(ValueError, "explicitly recorded window_queries"):
+            self.run_qualification(comparison_anchor="qualified32")
+        self.assertFalse(self.output.exists())
+
+    def test_direct_gemm_candidate_binds_explicit_route_with_legacy_shared_baseline(self):
+        self.fixtures(); self.qualified32_anchor()
+        for path in (self.candidate / "manifest.json", self.candidate / "modelcheck-report.json", self.candidate_benchmark):
+            self.mutate(path, lambda value: value["selected"].update(gemm="direct"))
+        result = self.run_qualification(comparison_anchor="qualified32")
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["checks"], 77)
+        self.assertEqual(result["baseline_selected"]["gemm"], "shared")
+        self.assertEqual(result["selected"]["gemm"], "direct")
+        self.assertTrue(qualification._protocol.exact_manifest(self.output, "qualified32")["passed"])
+
+    def test_gemm_route_in_fixture_must_match_actual_benchmark_selection(self):
+        self.fixtures(); self.qualified32_anchor()
+        for path in (self.candidate / "manifest.json", self.candidate / "modelcheck-report.json"):
+            self.mutate(path, lambda value: value["selected"].update(gemm="direct"))
+        with self.assertRaisesRegex(ValueError, "selected policy differs from benchmark"):
+            self.run_qualification(comparison_anchor="qualified32")
+        self.assertFalse(self.output.exists())
+
+    def test_qualified_anchor_cannot_use_direct_gemm_as_shared_baseline(self):
+        self.fixtures(); self.qualified32_anchor()
+        for path in (self.baseline / "manifest.json", self.baseline / "modelcheck-report.json", self.baseline_benchmark):
+            self.mutate(path, lambda value: value["selected"].update(gemm="direct"))
+        with self.assertRaisesRegex(ValueError, "qualified32 baseline"):
+            self.run_qualification(comparison_anchor="qualified32")
+        self.assertFalse(self.output.exists())
+
+    def test_direct_gemm_does_not_accept_unused_staging_identity(self):
+        self.fixtures(); self.qualified32_anchor()
+        for path in (self.candidate / "manifest.json", self.candidate / "modelcheck-report.json", self.candidate_benchmark):
+            self.mutate(path, lambda value: value["selected"].update(gemm="direct", stage_k=32))
+        with self.assertRaisesRegex(ValueError, "direct.*stage_k"):
+            self.run_qualification(comparison_anchor="qualified32")
+        self.assertFalse(self.output.exists())
+
     def test_compact_anchor_does_not_relabel_legacy_policy(self):
         self.fixtures()
         for root, benchmark in ((self.baseline, self.baseline_benchmark), (self.candidate, self.candidate_benchmark)):

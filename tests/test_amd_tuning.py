@@ -96,6 +96,153 @@ class AmdTuningTests(unittest.TestCase):
         self.assertAlmostEqual(tune.stats([1, 2, 5])["p95"], 4.7)
         self.assertNotIn("fps", report)
 
+    def test_legacy_and_independent_fusion_policy_binding(self):
+        legacy = {**self.record("candidate")["selected"], "fusion": True}
+        both = tune.selected_policy(legacy)
+        self.assertTrue(both["ffn32_fusion"] and both["qkv32_fusion"])
+        self.assertTrue(tune.evidence_equal(legacy, both))
+        independent = {**both, "fusion": False, "ffn32_fusion": True, "qkv32_fusion": False}
+        selected = tune.selected_policy(independent, explicit_flags=True)
+        self.assertTrue(selected["ffn32_fusion"])
+        self.assertFalse(selected["qkv32_fusion"])
+        self.assertFalse(tune.evidence_equal(legacy, independent))
+        for key in ("ffn32_fusion", "qkv32_fusion"):
+            with self.subTest(missing=key):
+                missing = dict(independent); missing.pop(key)
+                with self.assertRaisesRegex(ValueError, "requires both routes"):
+                    tune.selected_policy(missing)
+            with self.subTest(type=key):
+                wrong = dict(independent); wrong[key] = 1
+                with self.assertRaisesRegex(ValueError, "contradicts legacy summary"):
+                    tune.selected_policy(wrong)
+        with self.assertRaisesRegex(ValueError, "contradicts legacy summary"):
+            tune.selected_policy({**independent, "fusion": True})
+
+    def test_independent_fusion_request_overrides_and_anchor_isolation(self):
+        for legacy in (False, True):
+            for ffn in (None, False, True):
+                for qkv in (None, False, True):
+                    args = argparse.Namespace(fusion=legacy, ffn32_fusion=ffn, qkv32_fusion=qkv)
+                    selected = tune.requested_fusion_policy(args)
+                    expected_ffn = legacy if ffn is None else ffn
+                    expected_qkv = legacy if qkv is None else qkv
+                    self.assertEqual(selected["ffn32_fusion"], expected_ffn)
+                    self.assertEqual(selected["qkv32_fusion"], expected_qkv)
+                    self.assertEqual(selected["fusion"], expected_ffn and expected_qkv)
+                    self.assertFalse(any(tune.requested_fusion_policy(args, False).values()))
+        with self.assertRaisesRegex(ValueError, "Boolean or absent"):
+            tune.requested_fusion_policy(argparse.Namespace(ffn32_fusion=1))
+
+    def test_gemm_policy_preserves_legacy_shared_and_requires_valid_direct_staging(self):
+        legacy = self.record("candidate")["selected"]
+        self.assertEqual(tune.selected_policy(legacy)["gemm"], "shared")
+        self.assertTrue(tune.evidence_equal(legacy, {**legacy, "gemm": "shared"}))
+        for gemm in ("packed", "direct"):
+            selected = tune.selected_policy({**legacy, "gemm": gemm})
+            self.assertEqual(selected["gemm"], gemm)
+            self.assertFalse(tune.evidence_equal(legacy, selected))
+        for gemm in ("DIRECT", "", None, 1, []):
+            with self.subTest(gemm=gemm), self.assertRaisesRegex(ValueError, "selected.gemm"):
+                tune.selected_policy({**legacy, "gemm": gemm})
+        for stage in (32, 64):
+            with self.subTest(stage=stage), self.assertRaisesRegex(ValueError, "direct GEMM requires stage_k=16"):
+                tune.selected_policy({**legacy, "gemm": "direct", "stage_k": stage})
+            self.assertEqual(tune.selected_policy({**legacy, "gemm": "packed", "stage_k": stage})["stage_k"], stage)
+
+    def test_collect_gemm_is_explicit_and_anchor_always_shared(self):
+        model = self.root / "model"; model.mkdir()
+        args = argparse.Namespace(executable=Path(sys.executable), model=model, shaders=None,
+                                  output=self.root / "direct", mode="bench", kernels="optimized", arithmetic="k16", gemm="direct",
+                                  tile_n=16, stage_k=16, width=1707, height=960, warmup=5, frames=30,
+                                  pairs=3, timeout=60, allow_arithmetic_change=False, window_queries=32,
+                                  comparison_anchor="qualified32")
+        calls = []
+        def child(command, **kwargs):
+            candidate = len(calls) % 2 == 1
+            selected = {"kernels": "optimized", "arithmetic": "k16", "tile_n": 16, "stage_k": 16,
+                        "window_queries": 32, "gemm": command[command.index("--amd-gemm") + 1],
+                        **{key: kwargs["env"]["DLSS5VK_AMD_" + key.upper()] == "1" for key in tune.FUSION_KEYS}}
+            self.assertEqual(selected["gemm"], kwargs["env"]["DLSS5VK_AMD_GEMM"])
+            calls.append(selected)
+            value = self.record("candidate" if candidate else "baseline"); value["selected"] = selected
+            Path(command[command.index("--json") + 1]).write_text(json.dumps(value), encoding="utf-8")
+            return subprocess.CompletedProcess(command, 0)
+        with mock.patch.dict(os.environ, {"DLSS5VK_AMD_GEMM": "packed"}), mock.patch.object(tune.subprocess, "run", side_effect=child):
+            manifest = tune.collect(args)
+            self.assertEqual(os.environ["DLSS5VK_AMD_GEMM"], "packed")
+        self.assertTrue(all(value["gemm"] == "shared" for value in calls[::2]))
+        self.assertTrue(all(value["gemm"] == "direct" for value in calls[1::2]))
+        self.assertTrue(all(run["environment"]["DLSS5VK_AMD_GEMM"] == ("direct" if run["role"] == "candidate" else "shared")
+                            for run in tune.read_json(manifest)["runs"]))
+
+    def test_gemm_variant_and_explicit_quality_policy_bind_tuning(self):
+        def direct(value, role, pair):
+            if role == "candidate":
+                value["selected"]["gemm"] = "direct"
+                for entry in value.get("dispatches", []): entry["variant"] = "amd_gemm_direct"
+        network = self.paired(transform=direct)
+        profile = self.paired("profile", transform=direct)
+        report = tune.analyze(profile, network_manifest=network)
+        performance = self.write("direct-performance.json", report)
+        exact = self.exact_suites()
+        for path in exact:
+            value = tune.read_json(path); value["selected"]["gemm"] = "direct"
+            path.write_text(json.dumps(value), encoding="utf-8")
+        qualification = tune.qualify(argparse.Namespace(exact=exact, sequence=[], arithmetic="k16"))
+        proof = self.write("direct-qualification.json", qualification)
+        output = tune.tuning(performance, proof)
+        self.assertEqual(output["default_selection"]["gemm"], "direct")
+        self.assertEqual(output["records"][0]["variant"], "amd_gemm_direct")
+        self.assertEqual(output["records"][0]["evidence"]["selected"]["gemm"], "direct")
+        # Omitting the policy denotes shared and cannot supply direct evidence.
+        value = tune.read_json(exact[0]); value["selected"].pop("gemm")
+        exact[0].write_text(json.dumps(value), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "selected policy mismatch"):
+            tune.qualify(argparse.Namespace(exact=exact, sequence=[], arithmetic="k16"))
+        # Legacy policies normalize to shared. Direct dispatch evidence must
+        # still name direct explicitly rather than inherit the shared default.
+        for manifest in (network, profile):
+            for run in tune.read_json(manifest)["runs"]:
+                if run["role"] == "candidate":
+                    path = manifest.parent / run["file"]
+                    value = tune.read_json(path); value["selected"].pop("gemm")
+                    path.write_text(json.dumps(value), encoding="utf-8")
+        for path in exact:
+            value = tune.read_json(path); value["selected"].pop("gemm", None)
+            path.write_text(json.dumps(value), encoding="utf-8")
+        shared_report = self.write("missing-gemm-performance.json", tune.analyze(profile, network_manifest=network))
+        shared_quality = self.write("missing-gemm-qualification.json", tune.qualify(argparse.Namespace(exact=exact, sequence=[], arithmetic="k16")))
+        with self.assertRaisesRegex(ValueError, "GEMM dispatch variant"):
+            tune.tuning(shared_report, shared_quality)
+
+    def test_collect_independent_route_controls_are_recorded_and_child_only(self):
+        model = self.root / "model"; model.mkdir()
+        args = argparse.Namespace(executable=Path(sys.executable), model=model, shaders=None,
+                                  output=self.root / "independent", mode="bench", kernels="optimized", arithmetic="k16",
+                                  tile_n=16, stage_k=16, width=1707, height=960, warmup=5, frames=30,
+                                  pairs=3, timeout=60, allow_arithmetic_change=False, window_queries=32,
+                                  comparison_anchor="compact64", fusion=True, ffn32_fusion=True, qkv32_fusion=False)
+        calls = []
+        def child(command, **kwargs):
+            candidate = len(calls) % 2 == 1
+            selected = {"kernels": "optimized", "arithmetic": "k16", "tile_n": 16, "stage_k": 16,
+                        "window_queries": 32 if candidate else 64,
+                        **{key: kwargs["env"]["DLSS5VK_AMD_" + key.upper()] == "1" for key in tune.FUSION_KEYS}}
+            calls.append(selected)
+            value = self.record("candidate" if candidate else "baseline"); value["selected"] = selected
+            Path(command[command.index("--json") + 1]).write_text(json.dumps(value), encoding="utf-8")
+            return subprocess.CompletedProcess(command, 0)
+        parent = {"DLSS5VK_AMD_FFN32_FUSION": "0", "DLSS5VK_AMD_QKV32_FUSION": "1"}
+        with mock.patch.dict(os.environ, parent), mock.patch.object(tune.subprocess, "run", side_effect=child):
+            manifest = tune.collect(args)
+            self.assertEqual({key: os.environ[key] for key in parent}, parent)
+        self.assertTrue(all(not value["ffn32_fusion"] and not value["qkv32_fusion"] for value in calls[::2]))
+        self.assertTrue(all(value["ffn32_fusion"] and not value["qkv32_fusion"] and not value["fusion"] for value in calls[1::2]))
+        actual = tune.read_json(manifest)
+        self.assertTrue(all(run["environment"]["DLSS5VK_AMD_FFN32_FUSION"] == "1" and
+                            run["environment"]["DLSS5VK_AMD_QKV32_FUSION"] == "0"
+                            for run in actual["runs"] if run["role"] == "candidate"))
+
     def test_incomplete_protocol_cannot_promote(self):
         report = tune.analyze(self.paired(pairs=2))
         self.assertFalse(report["protocol_complete"])
@@ -207,7 +354,10 @@ class AmdTuningTests(unittest.TestCase):
                                ("stage_k", 32), ("window_queries", 32), ("fusion", True),
                                ("expert_fusion", True), ("block_fusion", True), ("hardware_publication", True)):
             def extra(value, role, pair):
-                if role == "baseline": value["selected"][field] = invalid
+                if role == "baseline":
+                    value["selected"][field] = invalid
+                    if field == "fusion":
+                        value["selected"].update(ffn32_fusion=invalid, qkv32_fusion=invalid)
             with self.subTest(field=field), self.assertRaisesRegex(ValueError, "compact64 preserving"):
                 tune.analyze(self.compact_pairs(extra=extra), comparison_anchor="compact64")
 
@@ -248,6 +398,78 @@ class AmdTuningTests(unittest.TestCase):
         self.assertEqual(result["records"][0]["comparison_anchor"], "compact64")
         self.assertEqual(result["default_selection"]["window_queries"], 32)
         self.assertEqual(result["identity"], self.identity())
+
+    def qualified32_pairs(self, mode="bench", extra=None):
+        def policy(value, role, pair):
+            value["selected"].update(kernels="optimized", window_queries=32,
+                                     **{key: False for key in tune.FUSION_KEYS})
+            if role == "candidate": value["selected"]["tile_n"] = 32
+            if "dispatches" in value:
+                value["dispatches"][0].update(variant="amd_gemm_optimized",
+                                               tile_n=value["selected"]["tile_n"])
+            if extra: extra(value, role, pair)
+        path = self.paired(mode, policy)
+        value = tune.read_json(path); value["comparison_anchor"] = "qualified32"
+        path.write_text(json.dumps(value), encoding="utf-8")
+        return path
+
+    def test_qualified32_measures_incremental_gain_against_explicit_current_policy(self):
+        network = self.qualified32_pairs()
+        report = tune.analyze(network, comparison_anchor="qualified32")
+        self.assertEqual(report["selections"]["baseline"]["window_queries"], 32)
+        self.assertTrue(report["default_performance_eligible"])
+        self.assertEqual(report["network_median_ratio"], .9)
+        with self.assertRaisesRegex(ValueError, "explicit --comparison-anchor"):
+            tune.analyze(network, comparison_anchor="compact64")
+        def previous(value, role, pair):
+            if role == "baseline": value["selected"]["window_queries"] = 64
+        with self.assertRaisesRegex(ValueError, "qualified32 preserving N16/K16/Q32"):
+            tune.analyze(self.qualified32_pairs(extra=previous), comparison_anchor="qualified32")
+        def missing(value, role, pair): value["selected"].pop("window_queries")
+        with self.assertRaisesRegex(ValueError, "explicitly recorded window_queries"):
+            tune.analyze(self.qualified32_pairs(extra=missing), comparison_anchor="qualified32")
+
+    def test_qualified32_anchor_binds_incremental_operator_and_exact_tuning_evidence(self):
+        network = self.qualified32_pairs()
+        profile = self.qualified32_pairs("profile")
+        performance = self.write("qualified32-performance.json", tune.analyze(
+            profile, network_manifest=network, comparison_anchor="qualified32"))
+        paths = self.exact_suites()
+        for path in paths:
+            value = tune.read_json(path); value["comparison_anchor"] = "qualified32"
+            value["baseline_selected"].update(kernels="optimized", window_queries=32)
+            value["selected"].update(window_queries=32, tile_n=32)
+            path.write_text(json.dumps(value), encoding="utf-8")
+        qualification = self.write("qualified32-qualification.json", tune.qualify(argparse.Namespace(
+            exact=paths, sequence=[], arithmetic="k16", comparison_anchor="qualified32")))
+        result = tune.tuning(performance, qualification, "qualified32")
+        self.assertTrue(result["optimized_default_eligible"])
+        self.assertEqual(result["records"][0]["comparison_anchor"], "qualified32")
+        self.assertEqual(tune.read_json(performance)["selections"]["baseline"]["window_queries"], 32)
+
+    def test_collect_qualified32_launches_q32_baseline_with_overrides_disabled(self):
+        model = self.root / "qualified32-model"; model.mkdir()
+        args = argparse.Namespace(executable=Path(sys.executable), model=model, shaders=None,
+                                  output=self.root / "qualified32-out", mode="bench", kernels="optimized", arithmetic="k16",
+                                  tile_n=32, stage_k=16, width=1707, height=960, warmup=5, frames=30,
+                                  pairs=3, timeout=60, allow_arithmetic_change=False, window_queries=32,
+                                  comparison_anchor="qualified32", fusion=True)
+        calls = []
+        def child(command, **kwargs):
+            role = "baseline" if len(calls) % 2 == 0 else "candidate"
+            selected = {"kernels": command[command.index("--amd-kernels") + 1], "arithmetic": "k16",
+                        "tile_n": int(command[command.index("--amd-tile-n") + 1]),
+                        "stage_k": int(command[command.index("--amd-stage-k") + 1]),
+                        "window_queries": int(command[command.index("--amd-window-queries") + 1]),
+                        **{key: kwargs["env"]["DLSS5VK_AMD_" + key.upper()] == "1" for key in tune.FUSION_KEYS}}
+            calls.append(selected)
+            value = self.record(role); value["selected"] = selected
+            Path(command[command.index("--json") + 1]).write_text(json.dumps(value), encoding="utf-8")
+            return subprocess.CompletedProcess(command, 0)
+        with mock.patch.object(tune.subprocess, "run", side_effect=child): manifest = tune.collect(args)
+        self.assertTrue(all(tune.preserving_baseline(value, "qualified32") for value in calls[::2]))
+        self.assertTrue(all(value["window_queries"] == 32 and value["tile_n"] == 32 for value in calls[1::2]))
+        self.assertEqual(tune.read_json(manifest)["comparison_anchor"], "qualified32")
 
     def test_legacy_historical_report_remains_accepted_without_anchor_fields(self):
         report = self.assessed_profile()

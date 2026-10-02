@@ -261,7 +261,9 @@ int runModelValidation(int argc, char** argv) {
     << ",\"baseline_shader_sha256\":" << quote(kernels.baselineShaderSha256()) << '}';
   executedSelection << "{\"kernels\":" << quote(kernels.selectedKernelMode()) << ",\"arithmetic\":" << quote(policy.arithmeticName())
     << ",\"tile_n\":" << policy.tileN << ",\"stage_k\":" << policy.stageK << ",\"window_queries\":" << policy.windowQueries
+    << ",\"gemm\":" << quote(policy.gemmName())
     << ",\"fusion\":" << (policy.fusion?"true":"false") << ",\"expert_fusion\":" << (policy.expertFusion?"true":"false")
+    << ",\"ffn32_fusion\":" << (policy.ffn32Enabled()?"true":"false") << ",\"qkv32_fusion\":" << (policy.qkv32Enabled()?"true":"false")
     << ",\"block_fusion\":" << (policy.blockFusion?"true":"false") << ",\"hardware_publication\":" << (policy.hardwarePublication?"true":"false") << '}';
   std::ostringstream manifest;
   manifest << "{\"producer\":" << quote("OpenNR Vulkan " + backend + "; local validation, not NVIDIA capture")

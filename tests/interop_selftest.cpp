@@ -12,6 +12,10 @@
 #endif
 
 namespace {
+std::filesystem::path runtimeLibraryPath(const std::filesystem::path& repository) {
+  const char* selected = std::getenv("OPEN_NR_RUNTIME_DLL");
+  return selected && *selected ? std::filesystem::absolute(selected) : repository / "build/game/OpenNrRuntime.dll";
+}
 void expect(bool value, const char* message) {
   if (!value) throw std::runtime_error(message);
 }
@@ -332,7 +336,7 @@ void binaryAbiCases(ID3D12Device* device, ID3D12CommandQueue* queue, const std::
     HMODULE module = nullptr;
     ~Library() { if (module) FreeLibrary(module); }
   } library;
-  library.module = LoadLibraryW((repository / "build/game/OpenNrRuntime.dll").c_str());
+  library.module = LoadLibraryW(runtimeLibraryPath(repository).c_str());
   expect(library.module != nullptr, "cannot load built OpenNrRuntime.dll");
   auto getApi = reinterpret_cast<decltype(&OpenNrGetApi)>(GetProcAddress(library.module, "OpenNrGetApi"));
   expect(getApi != nullptr, "OpenNrGetApi DLL export missing");
@@ -436,7 +440,7 @@ void syntheticRuntimeCase(ID3D12Device* device, ID3D12CommandQueue* queue, const
       if (module) FreeLibrary(module);
     }
   } runtime;
-  runtime.module = LoadLibraryW((repository / "build/game/OpenNrRuntime.dll").c_str()); expect(runtime.module != nullptr, "synthetic runtime DLL missing");
+  runtime.module = LoadLibraryW(runtimeLibraryPath(repository).c_str()); expect(runtime.module != nullptr, "synthetic runtime DLL missing");
   auto getApi = reinterpret_cast<decltype(&OpenNrGetApi)>(GetProcAddress(runtime.module, "OpenNrGetApi"));
   expect(getApi && getApi(OPEN_NR_ABI_VERSION, &runtime.api) == LMXXF_NR_OK, "synthetic runtime ABI negotiation failed");
   auto success = [&](int32_t result, const char* step) {
@@ -765,7 +769,7 @@ void recoveryRuntimeCases(ID3D12Device* device, ID3D12CommandQueue* canonicalQue
       HMODULE module = nullptr; OpenNrApi api{sizeof(OpenNrApi)}; void* session = nullptr;
       ~Runtime() { if (session && api.lifecycle.Destroy(session) != LMXXF_NR_OK) return; if (module) FreeLibrary(module); }
     } runtime;
-    runtime.module = LoadLibraryW((repository / "build/game/OpenNrRuntime.dll").c_str()); expect(runtime.module != nullptr, "recovery runtime DLL unavailable");
+    runtime.module = LoadLibraryW(runtimeLibraryPath(repository).c_str()); expect(runtime.module != nullptr, "recovery runtime DLL unavailable");
     auto getApi = reinterpret_cast<decltype(&OpenNrGetApi)>(GetProcAddress(runtime.module, "OpenNrGetApi"));
     auto recover = reinterpret_cast<decltype(&OpenNrRecoverSubmission)>(GetProcAddress(runtime.module, "OpenNrRecoverSubmission"));
     expect(getApi && recover && getApi(OPEN_NR_ABI_VERSION, &runtime.api) == LMXXF_NR_OK, "recovery export/ABI unavailable");
