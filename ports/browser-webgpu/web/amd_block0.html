@@ -1,0 +1,106 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Local AMD block 0 diagnostic</title>
+<pre id="status">Starting independent WebGPU block 0 diagnostic.</pre>
+<script type="module">
+// By default all pipelines are the upstream WebGPU implementations. ?exact=1
+// substitutes the diagnostic scalar F13 GEMM while retaining graph/layout/weights.
+// This page records only block 0 to localize cross-API errors.
+import { Network } from '../src/network.js';
+import { preFusedLayout, windowPhase } from '../src/geometry.js';
+import { f16ToNumber, e4m3ToNumber, f16Bits, mpCubicSilu, e4m3FromF16Bits } from '../src/numerics.js';
+import { readBack } from '../src/gpu.js';
+const query = new URLSearchParams(location.search);
+const fixture = query.get('fixture') ?? '/fixtures/real-model-reference320';
+const lines = [];
+function note(text) { lines.push(text); document.getElementById('status').textContent = lines.join('\n'); }
+function finish(text) {
+  note(text); console.log(text);
+  if (query.has('report')) fetch('/report', {method:'POST',body:lines.join('\n')}).finally(()=>window.close());
+}
+try {
+  const manifest = await (await fetch(`${fixture}/manifest.json`)).json();
+  const [width,height] = manifest.sourceDimensions;
+  const exactGemm = query.has('exact') ? await (await fetch('../shaders/amd_exact_gemm.wgsl')).text() : null;
+  const numericCode = exactGemm ? await (await fetch('../shaders/numerics.wgsl')).text() : null;
+  const network = await Network.create({weights:query.get('weights')??'/weights',width,height,captureBoundaries:true,onProgress:note,
+    extraShaders:query.has('exactWindow')?[{path:'shaders/amd_exact_window.wgsl',entryPoints:['amd_exact_window']}]:[],
+    before(network) {
+      if (exactGemm) {
+        const modules = new Map();
+        network.matmul.module = function(variant) {
+          const key=variant.output;
+          if(!modules.has(key))modules.set(key,this.device.createShaderModule({label:`diagnostic scalar F13 ${key}`,code:numericCode+'\n'+exactGemm
+            .replace('__HALF_OUTPUT__',String(key==='half')).replace('__DUAL_OUTPUT__',String(key==='dual'))}));
+          return modules.get(key);
+        };
+        note('Diagnostic direct WGSL F13 GEMMs selected; window remains upstream optimized.');
+      }
+      if(query.has('exactWindow')) {
+        network.graph.windowAttention = function({qkv,attended,prior,scales,width,height,heads,phase,label}) {
+          const [shiftX,shiftY]=windowPhase(phase);
+          const tasks=Math.ceil((width+shiftX)/8)*Math.ceil((height+shiftY)/8)*16;
+          const params=new Uint32Array([width*height,heads,width,height,heads*32,shiftX,shiftY,1]);
+          this.recorder.pass('amd_exact_window',{1:qkv.buffer,2:scales,3:prior,6:attended.buffer},params,
+            [heads,Math.min(tasks,65535),Math.ceil(tasks/65535)],`${label} diagnostic direct attention`);
+        };
+        note('Diagnostic direct WGSL normalization/F13 window selected.');
+      }
+      network.graph.record = function(recorder, features) {
+        this.recorder = recorder; this.phases.reset();
+        const g = this.geometry, rows = g.fullRows, tensor = this.model.tensor(0), layout = preFusedLayout();
+        const half = this.tensorFor('features f16',rows,16,'f16');
+        this.op('convert_f32_to_f16',{count:rows*16,channels:16,inF32:features,outF16:half,label:'features to half'});
+        const adapterHalf = this.tensorFor('adapter f16',rows,32,'f16'), adapterE4 = this.tensorFor('adapter e4',rows,32,'e4');
+        const weights = this.model.f16Matrix(tensor,layout.inputAdapter,16,32);
+        this.gemmF16({input:half,weights:weights.buffer,paddedN:weights.paddedN,output:adapterE4,outputF16:adapterHalf,rows,k:16,n:32,label:'input adapter'});
+        const output = this.tensorFor('block 0 out',rows,32,'e4'), raw = this.tensorFor('block 0 raw',rows,32,'f16');
+        const temps = this.temporaries('full',rows,32,layout);
+        this.block({block:0,channels:32,width:g.fullWidth,height:g.fullHeight,layout,tensor,temps,state:adapterE4,output,outputF16:raw,ffnSkipOverride:adapterHalf,phase:this.phases.take(6)});
+        this.capture('block-0',output);
+      };
+    }});
+  const featureBytes = await (await fetch(`${fixture}/${manifest.inputFeatures.file}`)).arrayBuffer();
+  network.writeFeatures(new Float32Array(featureBytes)); await network.run();
+  const siluWords = new Uint16Array(await readBack(network.device,network.matmul.siluTable,65536*4));
+  let siluRaw=0,siluE4=0,siluRawZeros=0,siluE4Zeros=0;
+  const siluExamples=[];
+  for(let bits=0;bits<65536;bits++) {
+    if((bits&0x7c00)===0x7c00)continue;
+    const expected = f16Bits(mpCubicSilu(f16ToNumber(bits)));
+    if(siluWords[bits*2]!==expected) {
+      siluRaw++;
+      if(((siluWords[bits*2]|expected)&0x7fff)===0)siluRawZeros++;
+      else if(siluExamples.length<4)siluExamples.push({input:bits,gotHalf:siluWords[bits*2],expectedHalf:expected});
+    }
+    const code=e4m3FromF16Bits(expected);
+    const actualCode=e4m3FromF16Bits(siluWords[bits*2+1]);
+    if(actualCode!==code) {
+      siluE4++;
+      if(((actualCode|code)&127)===0)siluE4Zeros++;
+    }
+  }
+  note(`Production SiLU table vs JavaScript oracle: finite63488 rawHalfDifferences=${siluRaw} (${siluRawZeros} sign-of-zero only), E4Differences=${siluE4} (${siluE4Zeros} sign-of-zero only), nonzeroExamples=${JSON.stringify(siluExamples)}`);
+  const stages = [
+    ['adapter f16','block-0/projectedFp16.f16','f16'],['adapter e4','block-0/projected.u8','e4'],
+    ['full ffn','block-0/ffn.u8','e4'],['full ffn residual','block-0/ffnResidual.f16','f16'],
+    ['full ffn quantized','block-0/ffnQuantized.u8','e4'],['full qkv','block-0/qkv.f16','f16'],
+    ['full attended','block-0/attended.u8','e4'],['block 0 raw','block-0/adapterRaw.f16','f16'],['block 0 out','block-0.u8','e4']
+  ];
+  let failed=0;
+  for (const [label,file,format] of stages) {
+    const actual = await network.readTensorByLabel(label);
+    const response = await fetch(`${fixture}/${file}`); if (!response.ok) throw new Error(`missing ${file}; export --intermediates first`);
+    const expected = new Uint8Array(await response.arrayBuffer());
+    if (expected.length!==actual.bytes.length) throw new Error(`shape differs: ${label}`);
+    const a=format==='f16'?new Uint16Array(actual.bytes.buffer):actual.bytes;
+    const b=format==='f16'?new Uint16Array(expected.buffer):expected;
+    const decode=format==='f16'?f16ToNumber:e4m3ToNumber;
+    let different=0,squared=0,max=0,first=-1;
+    for (let i=0;i<a.length;i++) { if(a[i]!==b[i]) {different++;if(first<0)first=i;}const d=decode(a[i])-decode(b[i]);squared+=d*d;max=Math.max(max,Math.abs(d)); }
+    note(`${label}: ${different}/${a.length} bit differences, maxAbs=${max}, rms=${Math.sqrt(squared/a.length)}, first=${first} got=${a[first]} expected=${b[first]}`);
+    if(different)failed++;
+  }
+  network.destroy(); finish(`BLOCK0 ${failed?'FAIL':'PASS'}: ${failed} stages differ`);
+} catch(error) { finish(`BLOCK0 ERROR: ${error.stack??error}`); }
+</script>

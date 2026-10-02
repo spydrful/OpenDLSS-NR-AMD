@@ -1,174 +1,218 @@
-# OpenDLSS-NR
+# OpenDLSS-NR-AMD
 
-A Vulkan reimplementation of NVIDIA's DLSS 5 Neural Rendering network, bit-exact against the original.
+A native AMD development port of the OpenDLSS-NR neural-rendering network for
+**Windows DirectX 12 games**, initially targeting the **Radeon RX 9070 XT**.
+The existing Vulkan graph and model loader run through an AMD FP8 backend;
+a patched OptiScaler host connects the game's D3D12 resources to Vulkan using
+shared GPU buffers and fences. The AMD path requires no CUDA, PTX, DXVK or Proton.
 
-The same 71-block Swin / ViT network as DLSS-NR build 310.8.0, running FP8 on the tensor cores. The
-intermediates match too, not just the final image: all 75 block boundaries, byte for byte.
+**Status: working development implementation, with performance and game-quality
+release gates still unmet.** Native inference and the D3D12 bridge have run in
+Cyberpunk 2077 on an RX 9070 XT. This build is not ready for normal gameplay:
+NR plus its bridge currently takes about 213 ms at the target render resolution.
+The goal is 60 real FPS with an initial NR-plus-bridge budget of 8 ms or less.
 
-`ports/browser-webgpu/` is a second, independent implementation: the same bytes in a browser, with no
-tensor cores and no FP8.
+Start with the [AMD setup guide](docs/AMD.md) and the
+[measured validation record](docs/rx9070xt-validation.md).
+**NVIDIA model DLLs and extracted weights are not distributed.** You supply a
+supported DLL locally; the importer reads it without executing it.
 
-**You supply the weights**, as a model directory in the layout described below.
+## Initial target
 
-## The network
-
-A U-net of shifted-window transformer blocks with a global ViT at the bottom: 71 blocks over six pooling
-levels, FP8 (E4M3) activations with FP16 accumulation, 141 MiB of weights. It is a generative neural rendering
-network (NVIDIA's term): it re-renders the frame the engine already drew, generating detail from injected noise
-and adjusting tone, structure and skin under a style setting. Input and output are the same resolution; it is not
-an upscaler.
-
-![The same frame with neural rendering off (left) and on (right)](docs/images/cowboy-gramps-nr-on.jpg)
-
-*The WebGPU port at 2048x1152, NR off on the left and on on the right. Scene:
-[Cowboy Gramps](https://www.blendkit.com/asset-gallery-detail/96dce188-9c9c-4699-a45a-48663fbbbcb7/) by
-Muhammed Ismayil, CC0.*
-
-It takes one rendered frame (a low dynamic range proxy of it, three lanes of Gaussian noise, the previous
-frame's output reprojected, and five conditioning scalars) and produces four f32 channels per pixel: an RGB
-residual and one temporal-blend logit. [docs/network.md](docs/network.md) is the graph in full. NVIDIA
-describes the model in its report,
-[DLSS 5: Generative Neural Rendering](https://research.nvidia.com/labs/adlr/DLSS5/files/DLSS5_Report.pdf)
-([project page](https://research.nvidia.com/labs/adlr/DLSS5/)).
-
-## Build and run
-
-```
-powershell -File scripts\fetch_tools.ps1 [-Npm]     # once: tools\ (glslang, Vulkan-Headers, volk, CMake, Ninja)
-powershell -File scripts\build.ps1                  # shaders, PTX, build\dlss5vk.exe
-powershell -File scripts\fetch_filament.ps1         # once, for the demo: third_party\filament (+ the patch)
-powershell -File scripts\build_filament.ps1         # once, for the demo: third_party\filament-install
-powershell -File scripts\build_demo.ps1             # build\demo\dlss5-demo.exe
-```
-
-```
-build\dlss5vk.exe bench   --model <dir> --width 768 --height 768
-build\dlss5vk.exe profile --model <dir> --width 768 --height 768   # per-dispatch timings
-build\dlss5vk.exe parity  --model <dir> --fixture <dir>            # bit-exactness against a fixture
-build\dlss5vk.exe verify  --model <dir> --fixture <dir>            # block-0 kernel-by-kernel bisect
-python scripts\ptx\test_fast_divmod.py                             # the PTX divider, over every n < 2^24 (numpy)
-```
-
-The demo can be double-clicked. It lists every scene under `build\scenes` in the **Demo scene** dropdown and
-starts on the first one, or loads the glTF given on the command line. The model directory is `--model <dir>`,
-else `DLSS5VK_MODEL`, else `models\nr` next to this README. See [demo/README.md](demo/README.md) for the
-renderer, the keys, the scenes and `view.json`.
-
-## Performance
-
-RTX 4070 SUPER, whole network per frame, minimum over 40 frames. 241 dispatches at every resolution.
-
-| resolution | time |
+| Setting | Target |
 | --- | --- |
-| 768x768 | 2.8 ms |
-| 1920x1080 | 7.8 ms |
-| 2560x1440 | 12.6 ms |
-| 3840x2160 | 29.3 ms |
+| GPU | RX 9070 XT; sole initially validated GPU |
+| Game | Cyberpunk 2077, native Windows D3D12 |
+| Output | 2560 x 1440 |
+| Graphics | High settings target, FSR Quality, ray tracing and frame generation off |
+| NR placement | One accelerated pass at the full internal resolution, before FSR |
+| Tested internal resolution | 1707 x 960, padded to 1728 x 960 for the model |
+| Display | SDR; HDR display validation follows later |
 
-The GPU alternates between two clock states under sustained load, so medians run a few percent higher. Compare
-minima.
+The measured game uses High graphics fields but labels the edited configuration
+**Custom**. This is not a claim that an unchanged High preset was verified.
+Linux, additional games, ray tracing, HDR display validation and RX 7000
+acceleration remain later work.
 
-## What is here
+## Implemented
 
-| Part | Files | Notes |
-| --- | --- | --- |
-| Host | `src/` (C++20) | Vulkan context, model loading and weight re-layout, kernel wrappers, the network graph, a CPU reference of the arithmetic, the `dlss5vk` tool |
-| GLSL kernels | `shaders/` | The reference route: cooperative-matrix FP8 GEMMs, fused 32-channel block, fused QKV + window attention, expert MLP, global attention, elementwise ops. Exact and complete on their own. |
-| PTX kernels | `scripts/ptx/` | Python generators emitting PTX for the fast route: `mma.sync` E4M3 with f16 accumulation, cp.async rings, barrier-free chaining through device counters, split-K GEMMs, streamed global attention. Generated into `build/ptx` by the build. |
-| Demo | `demo/`, `third_party/filament.patch` | The network inside a Filament (Apache-2.0) frame: Filament patched for per-object motion vectors and a Vulkan interop hook, glTF scenes through gltfio, ImGui controls. |
-| WebGPU port | `ports/browser-webgpu/` | The same network in a browser, bit-exact against the same captures, with no tensor core, no FP8, no fusion between blocks and no chaining: the exactness is in the specification, not in the hardware. 72 ms at 512x512 against 2.7 ms here. |
-
-Not implemented: DLSS-SR, which is a different network. The temporal path is implemented, but in the demo: the
-network's history input lanes and its per-pixel blend logit drive a reprojected feedback loop
-([docs/frame.md](docs/frame.md)). The `dlss5vk` tool runs single frames with no history, which is what the
-reference captures were made with.
-
-## Requirements
-
-- Windows, an NVIDIA Ada (or newer) GPU and a driver exposing `VK_KHR_cooperative_matrix`,
-  `VK_NV_cooperative_matrix2`, `VK_EXT_shader_float8` and `VK_NV_cuda_kernel_launch`.
-- Visual Studio 2022 or later with the C++ x64 toolset (any edition or the Build Tools; found through vswhere,
-  or set `VCVARS64` to your `vcvars64.bat`), git, Python 3 for the PTX generators, and Node.js + npm and
-  Pillow for the scene converter.
-- The portable toolchain under `tools/` (git-ignored): `scripts\fetch_tools.ps1` downloads glslang 16.6.0,
-  Vulkan-Headers v1.4.363, volk (pinned tags), CMake 3.31 and Ninja 1.13. No Vulkan SDK install is needed.
-  `-Npm` also installs the scene converter's modules into `tools\gltf`.
-- For the demo: Filament v1.77.0, cloned and patched by `scripts\fetch_filament.ps1` and built once by
-  `scripts\build_filament.ps1` (both git-ignored; about 15 minutes and 6 GB of build tree, placed in
-  `%LOCALAPPDATA%\dlss5-vulkan` or `DLSS5_FILAMENT_BUILD_DIR`; `DLSS5_BUILD_JOBS` caps the parallel
-  compiles, default 8, because MSVC takes up to a GB per job on Filament).
-
-## Model directory
-
-`nr::Model` reads `manifest.json`: a `stages` array (each entry: `id`, `file` relative to the directory,
-`packedByteLength`, `sha256`) and a `tensors` array (each entry: `name`, `block`, `layer`, `parameter`,
-`stage`, `stageOffset`, `byteLength`). Stage files hold the E4M3 weights as packed bytes; the host re-lays
-them out into the matrix forms the kernels consume (`src/nr_model.cpp`). Nothing in this repository produces
-such a directory.
-
-The graph is the 71-block network of 310.8.0 and nothing else: a model with a different block count is refused
-at load.
-
-## Fixtures
-
-`parity` compares against recorded captures of the original, which are not part of this repository. A fixture is a
-directory with a `manifest.json`:
-
-| key | |
+| Component | Current implementation |
 | --- | --- |
-| `sourceDimensions`, `fullDimensions` | the valid size and the padded field |
-| `proxy` *or* `inputFeatures` | the input: an RGBA f32 image (with `conditioning`, `seed`, `autoMask`), or the f32 features themselves |
-| `checks` | what the fixture gates, any of `"boundaries"`, `"head"`, `"output"`; required and never empty |
-| `blocks`, `transitions` | `"boundaries"`: E4M3 references (`block` / `id`, `width`, `height`, `channels`, `file`) |
-| `omittedBoundaries` | `"boundaries"`: `{name: reason}` for each comparable boundary the fixture has no reference for |
-| `referenceHead` | `"head"`: the f32 RGBA head |
-| `nativeOutput` | `"output"`: the composed image, `dtype` `"f32"` (RGBA halves, needs `proxy`) or `"u8"` (an 8-bit capture) |
+| AMD backend | RDNA4 E4M3 FP8 cooperative-matrix kernels, wave32 and matrix/tile/memory checks, AMD weight layouts, explicit Vulkan barriers |
+| Exact diagnostics | Portable numerical specification with FP16 publication, E4M3 saturation and signed zeros, fixed reductions and residual placement; independent direct WGSL diagnostics |
+| Graph execution | Retained 71-block network and loader, scratch-buffer reuse, normalization/global-attention optimizations, cached pipelines |
+| Native game bridge | Adapter LUID matching, D3D12-to-Vulkan shared buffers and timeline fences, GPU packing/preprocessing/inference/composition/output conversion |
+| Frame lifecycle | Versioned C API, eight lazy frame slots, preparation/submission ancestry, cancellation, retirement, reset and drain; command-list binding and resource-state preservation |
+| Temporal/color path | Motion reprojection, learned temporal blending, retained history precision, GPU exposure, scene-linear output before FSR |
+| Model importer | Bounded PE/resource parser for explicitly pinned 310.8.0 and 310.8.SF.0 containers with identical model resources; source hash and tensor validation before publication |
+| Tools and delivery | Backend-selectable diagnostics, timing/image comparison tools, Windows build scripts, patched OptiScaler host, corresponding source, hash-checked install/remove scripts |
 
-Everything is validated before the GPU runs, and a fixture that fails any of it is refused: a declared check without
-its reference, a reference that is missing, short or names nothing in the graph, a reference no declared check uses,
-or a comparable boundary (blocks 0-69, the five encoder transitions) with neither a reference nor a reason. Verdicts
-are **bit-exact** (the pass), **equal only up to the sign of zero** (a failure), **within one code** (the 8-bit
-capture only, reported apart) or a mismatch; see [docs/numerics.md](docs/numerics.md). The head and the output are
-compared on the production schedule, resubmitted `--repeat` times (default 3), which must also agree with the same
-graph under barriers; the boundaries come from an instrumented run, whose head must agree with production's. `verify`
-additionally needs `inputFeatures` and a `block-0` reference.
+Normal frames use GPU resources and synchronization without per-frame CPU image
+transfers. Diagnostic image capture is opt-in and excluded from performance
+runs. Unsupported inputs or unsafe boundaries bypass NR and preserve ordinary
+FSR where safe; history resets after skipped NR frames or discontinuities.
 
-## Tuning switches
+The AMD accelerated arithmetic is evaluated separately from the exact reference.
+Ordinary matrix accumulation does not reproduce NVIDIA's accumulator behavior.
+Successful execution is not proof of original NVIDIA parity or visual quality.
+See [AMD arithmetic and optimization notes](docs/amd-numerics.md) and the
+[game runtime API](game/README.md).
 
-All default to the fast, exact route. Every switch keeps the output byte-identical, and `parity` under each of
-them is part of the gate. Any switch that sends a kernel back to GLSL also turns counter chaining off, because
-only the PTX kernels take part in it.
+## Measured progress
 
-- `DLSS5VK_UNFUSED=1` runs the GLSL reference route, up to 2560x1440: it materializes every intermediate.
-- `DLSS5VK_PTX_DIR` is the PTX directory, default `build/ptx`.
-- `DLSS5VK_CHAIN=0` puts barriers between every launch instead of counter chaining.
-- `DLSS5VK_PTX_GEMM`, `GEMMT`, `GEMMV`, `BLOCK32`, `FFN`, `QKV` and `ATTN` set to 0 take one kernel family
-  back to its GLSL spelling.
-- `DLSS5VK_ATTN_STREAM` forces streamed global attention off (0) or on (1).
-- `DLSS5VK_SPLITK=0`, `DLSS5VK_VIT_CHAIN=0` and `DLSS5VK_NO_PTX_MLP=1` disable split-K, the ViT chain and the
-  PTX MLP.
-- `DLSS5VK_NO_FUSE_PRE`, `POOL`, `UPRES` and `POST` set to 1 drop one fusion each.
-- `DLSS5VK_CHAIN_MASK` is a bit mask: 1 expert stages, 2 c32 blocks, 4 split GEMMs. Default 3.
-- `DLSS5VK_DEFER_MAX` is the widest stage whose projection GEMM is fused. Default 128.
-- `DLSS5VK_VALIDATION=1` runs under the Khronos validation layer (refused if it is not installed: a Vulkan SDK, or
-  `VK_LAYER_PATH` at a build of Vulkan-ValidationLayers); an error it reports fails the run. `DLSS5VK_DEBUG=1`
-  only prints the driver's own messages (the PTX compiler's among them). `DLSS5VK_LIST_EXTENSIONS=1` lists
-  extensions.
+Measured on Windows 11, RX 9070 XT, Adrenalin 26.9.1 and Cyberpunk 2077 2.31.
+The full record pins model, source, shader, executable and driver identities.
 
-## Documentation
+| Measurement | Result | Scope |
+| --- | ---: | --- |
+| Three warmed Cyberpunk built-in benchmark passes | 4.56 / 4.56 / 4.57 FPS | One NR pass before FSR at 1440p output |
+| Selected 600-second live-world interval | 4.5971 application FPS | Limited, mostly stationary stability session |
+| In-game inference median | 212.016 ms | Last analyzed completed-job trace segment |
+| In-game NR plus bridge median | 213.317 ms | Same segment; elapsed GPU span can include handoff waits |
+| Peak sampled process-local VRAM | 9.475 GiB | Includes the game; sampled every 60 completed NR jobs |
+| Idle GPU, model-only median | 217.949 ms | 1707 x 960 valid input; not game FPS |
 
-[docs/README.md](docs/README.md) is the index: [network.md](docs/network.md) is the graph,
-[numerics.md](docs/numerics.md) the exactness contract, [weights.md](docs/weights.md) the layouts,
-[execution.md](docs/execution.md) the scheduling, and [frame.md](docs/frame.md) the demo's frame.
+In-game frame generation was off. Driver AFMF could not be verified, so the
+PresentMon results are application-presentation FPS and **real-rendered FPS is
+not asserted**. The preserved completed-job trace reports zero cumulative NR
+bypasses through the measured runs. Runtime jobs are not joined to individual
+game presents. Network throughput and generated frames are not used as game FPS.
 
-## Not affiliated with NVIDIA
+Validation completed so far:
 
-This project is not affiliated with, endorsed by, or supported by NVIDIA. It contains no NVIDIA software,
-weights, headers, or instructions for obtaining them. No rights under any NVIDIA intellectual property are
-granted or implied by this repository or its license, and you are responsible for the licenses that apply to
-whatever model data you use with it.
+- Direct WGSL and the portable Vulkan reference match all 75 recorded model
+  boundaries and the F32 head at 320 x 320: **76 bit-exact checks**.
+- The controlled D3D12 harness passes shared-buffer/fence round trips, queued
+  frame ownership, cancellation/recovery, resize/reset/drain, exposure and
+  continuation-state checks. Eight prefetched outputs match serialized output.
+- Importer tests pass **213 checks**; the delivered source rebuilds the native
+  core, shaders, runtime, importer and patched host in a fresh directory.
+- Synthetic SDR compositions meet PSNR >= 40 dB and SSIM >= 0.99. Synthetic HDR
+  scene-linear cases fail one or both thresholds; highlights remain unclamped.
+- A preserved full-resolution frame numerically compares at **50.944 dB PSNR /
+  0.999814 SSIM**, but its incorrect capture-provenance flag prevents accepting
+  it as genuine game-quality evidence. It compares one frame with identical
+  captured AMD history, not independently evolved reference history.
 
-## License
+The original capture flag remains unchanged. A case-insensitive executable-name
+fix is implemented, but corrected genuine captures and broad motion, face,
+exposure, cut and disocclusion review are still pending. No original NVIDIA
+runtime parity is claimed without independent original forward captures.
 
-MIT for everything in this repository ([LICENSE](LICENSE)). Third-party components are listed in
-[NOTICE](NOTICE).
+See [validation results and limitations](docs/rx9070xt-validation.md) for
+frame-time percentiles, exact hashes, excluded smoke runs and capture scope.
+Raw weights, images, captures and machine-specific logs stay local.
+
+## Build on Windows
+
+Use **PowerShell 7**, Visual Studio 2022 C++ tools, a Windows SDK, Git, and an
+AMD Vulkan driver exposing the required FP8 matrices and wave32 execution.
+Windows 11 is the validated OS. Python 3.10+ is used by measurement tools;
+NumPy is needed for SSIM. Node.js and a Chromium browser are optional for the
+independent WebGPU model diagnostics.
+
+From the repository root:
+
+```powershell
+./scripts/fetch_tools.ps1
+./scripts/build.ps1 -Backend amd
+./scripts/build_game.ps1 -SkipCore
+./scripts/build_importer.ps1 -Test
+./scripts/build_optiscaler.ps1 -Fetch
+
+./build/dlss5vk.exe info --backend amd --interop
+./build/dlss5vk.exe selftest --backend reference
+./build/dlss5vk.exe selftest --backend amd
+```
+
+The capability query is not a substitute for actual shared-resource import
+checks. Run the controlled bridge harness before testing a game:
+
+```powershell
+./scripts/build_interop.ps1 -Run
+./scripts/test_host_safety.ps1 -RunGpu
+```
+
+The CLI accepts `--backend auto`, `amd`, `nvidia` or `reference`; use explicit
+`amd`/`reference` selections for matched diagnostic runs. The original NVIDIA
+backend remains available, with its separate requirements documented in the
+[archived upstream guide](docs/upstream-nvidia.md).
+
+## Import, package and install
+
+Import a supported DLL into a **new local directory**:
+
+```powershell
+./scripts/import_model.ps1 -NvidiaDll 'D:\local\nvngx_dlssnr.dll' -Destination './models/nr'
+./build/dlss5vk.exe bench --backend amd --model './models/nr' --width 1707 --height 960
+```
+
+The DLL is never loaded or executed. The strict importer checks its allowlisted
+hash, resource digest and tensor layout. A matching model does not grant rights
+to redistribute its source DLL or extracted bytes.
+
+Create a local development package with the corresponding dependency source:
+
+```powershell
+./scripts/fetch_static_sources.ps1
+./scripts/package.ps1 -OptiScalerDll './build/optiscaler/OptiScaler.dll' -OutputDirectory './dist/local-development'
+```
+
+Packages contain the built runtime, host, selected compiled shader inputs, diagnostic
+and importer tools, dependency notices, install/remove scripts and corresponding
+source. NVIDIA model DLLs, extracted weights and local game captures are excluded.
+The current host build links its pinned supplied static libraries; their original
+compiler configuration and byte-identical reproduction are not established.
+See [static dependency sources](integrations/optiscaler/sources/README.md).
+
+For game installation, use the folder containing `Cyberpunk2077.exe`, normally
+`bin/x64`, and import the model separately into its `open-nr/model` directory.
+The [AMD setup guide](docs/AMD.md#package-install-and-undo) documents install,
+`-WhatIf`, configuration, controls, diagnostics and removal. The installer backs
+up and hashes existing managed files; removal restores verified originals and
+preserves separately imported models. Changed managed files stop removal until
+preserved or restored. The validation installation has been removed and the
+original user settings restored.
+
+## Current priorities
+
+The [performance research notes](docs/amd-performance-research.md) collect
+external kernel references and ranked experiments. Proposed changes and
+author-reported external timings are separate from this fork's local results.
+
+1. Reduce full-resolution window-attention cost, then improve FP8 matrix tile
+   reuse and fusion. Preserve publication boundaries and compare every change
+   against matched reference inputs. Dispatch-count reduction alone is not the
+   measured bottleneck.
+2. Capture correctly identified game sequences and review motion, faces,
+   exposure, camera cuts, disocclusion, highlights and resize behavior. Keep
+   accelerated-versus-reference comparisons and original NVIDIA parity separate.
+3. Resolve accelerated scene-linear precision failures and repeat full game
+   benchmarks. Publish actual results against the 16.67 ms frame budget and
+   8 ms NR-plus-bridge target.
+4. Extend to RX 7000 and additional platforms/games after the RX 9070 XT path;
+   HDR display validation and ray tracing remain later work.
+
+## Project and licenses
+
+The original graph, numerical specification and model implementation come from
+[maanHimself/OpenDLSS-NR](https://github.com/maanHimself/OpenDLSS-NR), starting
+from inspected commit `9d08f4184bbcb9d858e2fb7a7834ec0837a9d2f1` in this fork.
+The host integration is adapted from the pinned
+[neural-amd-opti source](https://github.com/MatheusFerreiraS/neural-amd-opti/tree/557bb8553098395f5f138c2e22ed25f256f7a3a2),
+and the importer from the pinned MIT-licensed
+[PE/resource extractor](https://github.com/mochizuki0323/DLSSNR-AMD/blob/82560c4fbfaac347fc5e22c22025191402ae916b/windows/package/model-tools/dlssnr_extract_model.cpp).
+
+The neural core retains its [MIT license](LICENSE). The importer retains its
+[MIT extraction notice](tools/MODEL_IMPORTER_NOTICE.txt). The derived game
+runtime and OptiScaler adapter are **GPL-3.0-or-later**, with corresponding source
+and build scripts in binary packages. See [NOTICE](NOTICE) and the
+[adapter license](integrations/optiscaler/LICENSE) for component notices.
+
+This project is not affiliated with AMD or NVIDIA. Model compatibility grants
+no redistribution rights to NVIDIA binaries, model weights or game assets.
+The repository excludes those local assets and generated release/build output;
+its checked-in arithmetic fixture is synthetic test data, not model weights.
+The [documentation index](docs/README.md) links the AMD guides and original design
+notes. The [upstream NVIDIA README](docs/upstream-nvidia.md) preserves the original
+instructions and measurements without presenting them as AMD results.

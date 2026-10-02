@@ -2,21 +2,21 @@
 
 #include <algorithm>
 #include <atomic>
+#include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
+#include <sstream>
 
 namespace vk {
-
 namespace {
-constexpr VkDeviceSize kStagingBytes = 256ull << 20;  // 256 MiB staging window
+constexpr VkDeviceSize kStagingBytes = 256ull << 20;
 constexpr const char* kValidationLayer = "VK_LAYER_KHRONOS_validation";
 std::atomic<uint32_t> g_validationErrors{0};
-
 bool envFlag(const char* name) {
   const char* value = getenv(name);
   return value && *value && strcmp(value, "0") != 0;
 }
-
 VkBool32 VKAPI_PTR onDebugMessage(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type,
                                   const VkDebugUtilsMessengerCallbackDataEXT* data, void*) {
   if ((severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) && (type & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT))
@@ -24,221 +24,310 @@ VkBool32 VKAPI_PTR onDebugMessage(VkDebugUtilsMessageSeverityFlagBitsEXT severit
   fprintf(stderr, "[vk] %s\n", data->pMessage ? data->pMessage : "");
   return VK_FALSE;
 }
-}  // namespace
+Backend requestedBackend(Backend requested) {
+  if (requested == Backend::Auto) {
+    const char* value = getenv("DLSS5VK_BACKEND");
+    if (value && *value) return parseBackend(value);
+  }
+  return requested;
+}
+}
 
+const char* backendName(Backend backend) {
+  switch (backend) {
+    case Backend::Auto: return "auto";
+    case Backend::Nvidia: return "nvidia";
+    case Backend::AmdFast: return "amd";
+    case Backend::Reference: return "reference";
+  }
+  return "unknown";
+}
+Backend parseBackend(const std::string& name) {
+  if (name == "auto") return Backend::Auto;
+  if (name == "amd") return Backend::AmdFast;
+  if (name == "nvidia") return Backend::Nvidia;
+  if (name == "reference") return Backend::Reference;
+  throw std::runtime_error("unknown backend '" + name + "' (auto, amd, nvidia, reference)");
+}
 uint32_t Context::validationErrors() { return g_validationErrors.load(); }
 
-Context::Context() {
-  if (volkInitialize() != VK_SUCCESS) throw std::runtime_error("vulkan-1.dll unavailable");
+DeviceRequirements::DeviceRequirements(VkPhysicalDevice physical, Backend requested, bool externalInterop) {
+  requested = requestedBackend(requested);
+  uint32_t count = 0;
+  VK_CHECK(vkEnumerateDeviceExtensionProperties(physical, nullptr, &count, nullptr));
+  std::vector<VkExtensionProperties> available(count);
+  VK_CHECK(vkEnumerateDeviceExtensionProperties(physical, nullptr, &count, available.data()));
+  auto has = [&](const char* name) {
+    return std::any_of(available.begin(), available.end(), [&](const auto& e) { return !strcmp(e.extensionName, name); });
+  };
+  auto requireExtension = [&](const char* name) {
+    if (!has(name)) throw std::runtime_error(std::string("missing device extension ") + name);
+    extensions.push_back(name);
+  };
+  VkPhysicalDeviceSubgroupProperties subgroup{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES};
+  VkPhysicalDeviceSubgroupSizeControlProperties subgroupControl{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES};
+  VkPhysicalDeviceDriverProperties driver{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES};
+  VkPhysicalDeviceProperties2 properties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
+  properties.pNext = &subgroup; subgroup.pNext = &subgroupControl; subgroupControl.pNext = &driver;
+  vkGetPhysicalDeviceProperties2(physical, &properties);
+  capabilities.properties = properties.properties;
+  capabilities.driverName = driver.driverName; capabilities.driverInfo = driver.driverInfo;
+  capabilities.subgroupSize = subgroup.subgroupSize;
+  capabilities.subgroupOperations = subgroup.supportedOperations;
+  if (properties.properties.apiVersion < VK_API_VERSION_1_3) throw std::runtime_error("Vulkan 1.3 is required");
+  Backend selected = requested;
+  if (selected == Backend::Auto) {
+    if (properties.properties.vendorID == 0x10de) selected = Backend::Nvidia;
+    else if (properties.properties.vendorID == 0x1002) selected = Backend::AmdFast;
+    else throw std::runtime_error("auto backend supports NVIDIA or AMD; use --backend reference for diagnostics");
+  }
+  if (selected == Backend::Nvidia && properties.properties.vendorID != 0x10de)
+    throw std::runtime_error("nvidia backend requires an NVIDIA adapter");
+  if (selected == Backend::AmdFast && properties.properties.vendorID != 0x1002)
+    throw std::runtime_error("amd backend requires an AMD adapter");
+  capabilities.backend = selected;
+  // Query only feature structures whose extensions exist on this adapter.
+  features.pNext = &f13; f13.pNext = &f12; f12.pNext = &f11;
+  if (selected != Backend::Reference) {
+    requireExtension(VK_KHR_COOPERATIVE_MATRIX_EXTENSION_NAME);
+    requireExtension(VK_EXT_SHADER_FLOAT8_EXTENSION_NAME);
+    coop.pNext = features.pNext; features.pNext = &coop;
+    fp8.pNext = features.pNext; features.pNext = &fp8;
+  }
+  if (selected == Backend::Nvidia) {
+    requireExtension(VK_NV_COOPERATIVE_MATRIX_2_EXTENSION_NAME);
+    requireExtension(VK_NV_CUDA_KERNEL_LAUNCH_EXTENSION_NAME);
+    requireExtension(VK_NV_SHADER_SM_BUILTINS_EXTENSION_NAME);
+    requireExtension(VK_KHR_SHADER_CLOCK_EXTENSION_NAME);
+    coop2.pNext = features.pNext; features.pNext = &coop2;
+    sm.pNext = features.pNext; features.pNext = &sm;
+    clock.pNext = features.pNext; features.pNext = &clock;
+    capabilities.cudaLaunch = true;
+  }
+  if (has(VK_KHR_PIPELINE_EXECUTABLE_PROPERTIES_EXTENSION_NAME)) {
+    executable.pNext = features.pNext; features.pNext = &executable;
+  }
+  vkGetPhysicalDeviceFeatures2(physical, &features);
+  auto required = [](VkBool32 flag, const char* name) {
+    if (!flag) throw std::runtime_error(std::string("missing device feature ") + name);
+  };
+  required(f11.storageBuffer16BitAccess, "storageBuffer16BitAccess");
+  required(f12.storageBuffer8BitAccess, "storageBuffer8BitAccess");
+  required(f12.shaderFloat16, "shaderFloat16"); required(f12.shaderInt8, "shaderInt8");
+  required(features.features.shaderInt16, "shaderInt16"); required(features.features.shaderInt64, "shaderInt64");
+  required(f12.hostQueryReset, "hostQueryReset"); required(f12.bufferDeviceAddress, "bufferDeviceAddress");
+  required(f13.synchronization2, "synchronization2"); required(f13.maintenance4, "maintenance4");
+  required(f13.subgroupSizeControl, "subgroupSizeControl"); required(f13.computeFullSubgroups, "computeFullSubgroups");
+  if (subgroupControl.minSubgroupSize > 32 || subgroupControl.maxSubgroupSize < 32 ||
+      !(subgroupControl.requiredSubgroupSizeStages & VK_SHADER_STAGE_COMPUTE_BIT))
+    throw std::runtime_error("compute shaders require controllable 32-wide subgroups");
+  if (selected != Backend::Reference) {
+    required(coop.cooperativeMatrix, "cooperativeMatrix");
+    required(fp8.shaderFloat8, "shaderFloat8"); required(fp8.shaderFloat8CooperativeMatrix, "shaderFloat8CooperativeMatrix");
+    auto getMatrices = reinterpret_cast<PFN_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR>(
+        vkGetInstanceProcAddr(volkGetLoadedInstance(), "vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR"));
+    if (!getMatrices) throw std::runtime_error("vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR unavailable");
+    uint32_t matrixCount = 0;
+    VK_CHECK(getMatrices(physical, &matrixCount, nullptr));
+    capabilities.matrixTypes.resize(matrixCount, {VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_KHR});
+    VK_CHECK(getMatrices(physical, &matrixCount, capabilities.matrixTypes.data()));
+    capabilities.matrixTypes.resize(matrixCount);
+    for (const auto& m : capabilities.matrixTypes) {
+      if (m.MSize == 16 && m.NSize == 16 && m.KSize == 16 && m.scope == VK_SCOPE_SUBGROUP_KHR &&
+          m.AType == VK_COMPONENT_TYPE_FLOAT8_E4M3_EXT && m.BType == VK_COMPONENT_TYPE_FLOAT8_E4M3_EXT &&
+          m.CType == VK_COMPONENT_TYPE_FLOAT32_KHR && m.ResultType == VK_COMPONENT_TYPE_FLOAT32_KHR && !m.saturatingAccumulation)
+        capabilities.fp8Matrix16 = true;
+    }
+    if (selected == Backend::AmdFast && !capabilities.fp8Matrix16)
+      throw std::runtime_error("amd backend requires subgroup FP8 E4M3 16x16x16 matrices with FP32 accumulator/result (RX 9000/RDNA4)");
+    if (selected == Backend::AmdFast && (!(subgroup.supportedOperations & VK_SUBGROUP_FEATURE_SHUFFLE_RELATIVE_BIT) ||
+                                        !(subgroup.supportedStages & VK_SHADER_STAGE_COMPUTE_BIT)))
+      throw std::runtime_error("amd backend requires compute subgroup shuffle-relative operations for half-tree normalization");
+  }
+  if (selected == Backend::Nvidia) {
+    required(coop2.cooperativeMatrixWorkgroupScope, "cooperativeMatrixWorkgroupScope");
+    required(coop2.cooperativeMatrixFlexibleDimensions, "cooperativeMatrixFlexibleDimensions");
+    required(coop2.cooperativeMatrixReductions, "cooperativeMatrixReductions");
+    required(coop2.cooperativeMatrixConversions, "cooperativeMatrixConversions");
+    required(coop2.cooperativeMatrixPerElementOperations, "cooperativeMatrixPerElementOperations");
+    required(coop2.cooperativeMatrixTensorAddressing, "cooperativeMatrixTensorAddressing");
+    required(coop2.cooperativeMatrixBlockLoads, "cooperativeMatrixBlockLoads");
+    required(sm.shaderSMBuiltins, "shaderSMBuiltins");
+    required(clock.shaderSubgroupClock, "shaderSubgroupClock"); required(clock.shaderDeviceClock, "shaderDeviceClock");
+    required(f12.vulkanMemoryModel, "vulkanMemoryModel"); required(f12.vulkanMemoryModelDeviceScope, "vulkanMemoryModelDeviceScope");
+    required(f11.uniformAndStorageBuffer16BitAccess, "uniformAndStorageBuffer16BitAccess");
+    required(f12.uniformAndStorageBuffer8BitAccess, "uniformAndStorageBuffer8BitAccess");
+  }
+  capabilities.pipelineStatistics = executable.pipelineExecutableInfo != VK_FALSE;
+  if (capabilities.pipelineStatistics) extensions.push_back(VK_KHR_PIPELINE_EXECUTABLE_PROPERTIES_EXTENSION_NAME);
+  else if (has(VK_KHR_PIPELINE_EXECUTABLE_PROPERTIES_EXTENSION_NAME)) features.pNext = executable.pNext;
+  if (externalInterop) {
+#if defined(_WIN32)
+    requireExtension("VK_KHR_external_memory_win32");
+    requireExtension("VK_KHR_external_semaphore_win32");
+    required(f12.timelineSemaphore, "timelineSemaphore");
+    capabilities.externalInterop = true;
+#else
+    throw std::runtime_error("D3D12 external interoperability is Windows-only");
+#endif
+  }
+  // Enable only features used by our compute backend (the demo adds renderer core features itself).
+  VkPhysicalDeviceFeatures core{}; core.shaderInt16 = VK_TRUE; core.shaderInt64 = VK_TRUE;
+  features.features = core;
+  coop.cooperativeMatrixRobustBufferAccess = VK_FALSE;
+  void* next11 = f11.pNext; void* next12 = f12.pNext; void* next13 = f13.pNext;
+  f11 = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES}; f11.pNext = next11;
+  f12 = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES}; f12.pNext = next12;
+  f13 = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES}; f13.pNext = next13;
+  f11.storageBuffer16BitAccess = VK_TRUE;
+  f12.storageBuffer8BitAccess = VK_TRUE; f12.shaderFloat16 = VK_TRUE; f12.shaderInt8 = VK_TRUE;
+  f12.hostQueryReset = VK_TRUE; f12.bufferDeviceAddress = VK_TRUE;
+  f12.timelineSemaphore = externalInterop ? VK_TRUE : VK_FALSE;
+  if (selected == Backend::Nvidia) {
+    f11.uniformAndStorageBuffer16BitAccess = VK_TRUE; f12.uniformAndStorageBuffer8BitAccess = VK_TRUE;
+    f12.vulkanMemoryModel = VK_TRUE; f12.vulkanMemoryModelDeviceScope = VK_TRUE;
+  }
+  f13.synchronization2 = VK_TRUE; f13.maintenance4 = VK_TRUE;
+  f13.subgroupSizeControl = VK_TRUE; f13.computeFullSubgroups = VK_TRUE;
+}
 
+Context::Context(Backend requested, const uint8_t* adapterLuid, bool externalInterop) {
+  if (volkInitialize() != VK_SUCCESS) throw std::runtime_error("Vulkan loader unavailable");
   VkApplicationInfo app{VK_STRUCTURE_TYPE_APPLICATION_INFO};
-  app.pApplicationName = "dlss5-vulkan";
-  app.apiVersion = VK_API_VERSION_1_3;
-  VkInstanceCreateInfo instanceInfo{VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
-  instanceInfo.pApplicationInfo = &app;
+  app.pApplicationName = "OpenDLSS-NR-AMD"; app.apiVersion = VK_API_VERSION_1_3;
+  VkInstanceCreateInfo instanceInfo{VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO}; instanceInfo.pApplicationInfo = &app;
   validation_ = envFlag("DLSS5VK_VALIDATION");
   const bool debug = envFlag("DLSS5VK_DEBUG");
   const char* instanceExtensions[] = {VK_EXT_DEBUG_UTILS_EXTENSION_NAME};
   if (validation_ || debug) { instanceInfo.enabledExtensionCount = 1; instanceInfo.ppEnabledExtensionNames = instanceExtensions; }
   if (validation_) {
-    uint32_t count = 0;
-    VK_CHECK(vkEnumerateInstanceLayerProperties(&count, nullptr));
-    std::vector<VkLayerProperties> layers(count);
-    VK_CHECK(vkEnumerateInstanceLayerProperties(&count, layers.data()));
-    auto layer = std::find_if(layers.begin(), layers.end(), [](const VkLayerProperties& l) { return !strcmp(l.layerName, kValidationLayer); });
-    if (layer == layers.end())
-      throw std::runtime_error(std::string("DLSS5VK_VALIDATION=1 but ") + kValidationLayer +
-                               " is not installed (a Vulkan SDK, or VK_LAYER_PATH at a Vulkan-ValidationLayers build)");
-    instanceInfo.enabledLayerCount = 1;
-    instanceInfo.ppEnabledLayerNames = &kValidationLayer;
-    fprintf(stderr, "validation: %s enabled (API %u.%u.%u)\n", kValidationLayer, VK_API_VERSION_MAJOR(layer->specVersion),
-            VK_API_VERSION_MINOR(layer->specVersion), VK_API_VERSION_PATCH(layer->specVersion));
+    uint32_t count = 0; VK_CHECK(vkEnumerateInstanceLayerProperties(&count, nullptr));
+    std::vector<VkLayerProperties> layers(count); VK_CHECK(vkEnumerateInstanceLayerProperties(&count, layers.data()));
+    if (std::none_of(layers.begin(), layers.end(), [](const auto& l) { return !strcmp(l.layerName, kValidationLayer); }))
+      throw std::runtime_error("DLSS5VK_VALIDATION=1 but VK_LAYER_KHRONOS_validation is not installed");
+    instanceInfo.enabledLayerCount = 1; instanceInfo.ppEnabledLayerNames = &kValidationLayer;
   }
-  VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &instance_));
-  volkLoadInstance(instance_);
-  if (validation_ || debug) {
-    VkDebugUtilsMessengerCreateInfoEXT messengerInfo{VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
-    messengerInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    if (debug) messengerInfo.messageSeverity |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
-    messengerInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    messengerInfo.pfnUserCallback = onDebugMessage;
-    VK_CHECK(vkCreateDebugUtilsMessengerEXT(instance_, &messengerInfo, nullptr, &messenger_));
-  }
-
-  uint32_t count = 0;
-  VK_CHECK(vkEnumeratePhysicalDevices(instance_, &count, nullptr));
-  if (!count) throw std::runtime_error("no Vulkan physical devices");
-  std::vector<VkPhysicalDevice> devices(count);
-  VK_CHECK(vkEnumeratePhysicalDevices(instance_, &count, devices.data()));
-  // Prefer a discrete device exposing FP8 cooperative matrices.
-  for (VkPhysicalDevice candidate : devices) {
-    uint32_t extensionCount = 0;
-    vkEnumerateDeviceExtensionProperties(candidate, nullptr, &extensionCount, nullptr);
-    std::vector<VkExtensionProperties> extensions(extensionCount);
-    vkEnumerateDeviceExtensionProperties(candidate, nullptr, &extensionCount, extensions.data());
-    bool coop = false, fp8 = false;
-    for (const auto& extension : extensions) {
-      if (!strcmp(extension.extensionName, VK_KHR_COOPERATIVE_MATRIX_EXTENSION_NAME)) coop = true;
-      if (!strcmp(extension.extensionName, VK_EXT_SHADER_FLOAT8_EXTENSION_NAME)) fp8 = true;
-      if (getenv("DLSS5VK_LIST_EXTENSIONS") && (strstr(extension.extensionName, "cooperative") || strstr(extension.extensionName, "NV_")))
-        printf("  device extension: %s (v%u)\n", extension.extensionName, extension.specVersion);
+  VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &instance_)); volkLoadInstance(instance_);
+  try {
+    if (validation_ || debug) {
+      VkDebugUtilsMessengerCreateInfoEXT info{VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
+      info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+      info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+      info.pfnUserCallback = onDebugMessage;
+      VK_CHECK(vkCreateDebugUtilsMessengerEXT(instance_, &info, nullptr, &messenger_));
     }
-    if (coop && fp8) { physical_ = candidate; break; }
-  }
-  if (!physical_) throw std::runtime_error("no device with VK_KHR_cooperative_matrix + VK_EXT_shader_float8");
-  if (getenv("DLSS5VK_LIST_EXTENSIONS")) {
-    VkPhysicalDeviceCooperativeMatrix2FeaturesNV cm2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_FEATURES_NV};
-    VkPhysicalDeviceFeatures2 f2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
-    f2.pNext = &cm2;
-    vkGetPhysicalDeviceFeatures2(physical_, &f2);
-    printf("coopmat2 features: workgroupScope %u flexibleDimensions %u reductions %u conversions %u perElement %u tensorAddressing %u blockLoads %u\n",
-           cm2.cooperativeMatrixWorkgroupScope, cm2.cooperativeMatrixFlexibleDimensions, cm2.cooperativeMatrixReductions,
-           cm2.cooperativeMatrixConversions, cm2.cooperativeMatrixPerElementOperations, cm2.cooperativeMatrixTensorAddressing,
-           cm2.cooperativeMatrixBlockLoads);
-    VkPhysicalDeviceCooperativeMatrix2PropertiesNV p2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_PROPERTIES_NV};
-    VkPhysicalDeviceProperties2 props2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
-    props2.pNext = &p2;
-    vkGetPhysicalDeviceProperties2(physical_, &props2);
-    printf("coopmat2 properties: maxWorkgroupSize %u maxFlexibleDimension %u reservedShared %u\n",
-           p2.cooperativeMatrixWorkgroupScopeMaxWorkgroupSize, p2.cooperativeMatrixFlexibleDimensionsMaxDimension,
-           p2.cooperativeMatrixWorkgroupScopeReservedSharedMemory);
-    auto getFlex = (PFN_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV)vkGetInstanceProcAddr(
-        instance_, "vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV");
-    if (getFlex) {
-      uint32_t n = 0;
-      getFlex(physical_, &n, nullptr);
-      std::vector<VkCooperativeMatrixFlexibleDimensionsPropertiesNV> flex(n);
-      for (auto& f : flex) f.sType = VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_FLEXIBLE_DIMENSIONS_PROPERTIES_NV;
-      getFlex(physical_, &n, flex.data());
-      for (auto& f : flex)
-        printf("  flexible: gran M%u N%u K%u  A %u B %u C %u R %u  sat %u scope %u wgInvocations %u\n", f.MGranularity, f.NGranularity,
-               f.KGranularity, f.AType, f.BType, f.CType, f.ResultType, f.saturatingAccumulation, f.scope, f.workgroupInvocations);
+    uint32_t count = 0; VK_CHECK(vkEnumeratePhysicalDevices(instance_, &count, nullptr));
+    std::vector<VkPhysicalDevice> devices(count); VK_CHECK(vkEnumeratePhysicalDevices(instance_, &count, devices.data()));
+    std::stable_sort(devices.begin(), devices.end(), [](auto a, auto b) {
+      VkPhysicalDeviceProperties pa{}, pb{}; vkGetPhysicalDeviceProperties(a, &pa); vkGetPhysicalDeviceProperties(b, &pb);
+      return (pa.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) > (pb.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
+    });
+    std::string rejected;
+    for (auto candidate : devices) {
+      VkPhysicalDeviceIDProperties ids{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES};
+      VkPhysicalDeviceProperties2 properties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2}; properties.pNext = &ids;
+      vkGetPhysicalDeviceProperties2(candidate, &properties);
+      if (adapterLuid && (!ids.deviceLUIDValid || memcmp(ids.deviceLUID, adapterLuid, VK_LUID_SIZE))) continue;
+      try { DeviceRequirements req(candidate, requested, externalInterop); physical_ = candidate; capabilities_ = req.capabilities; break; }
+      catch (const std::exception& e) { rejected += std::string(properties.properties.deviceName) + ": " + e.what() + "\n"; }
     }
-  }
-
-  VkPhysicalDeviceProperties2 properties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
-  VkPhysicalDeviceSubgroupProperties subgroup{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES};
-  VkPhysicalDeviceShaderSMBuiltinsPropertiesNV smBuiltins{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_PROPERTIES_NV};
-  properties.pNext = &subgroup;
-  subgroup.pNext = &smBuiltins;
-  vkGetPhysicalDeviceProperties2(physical_, &properties);
-  smCount_ = smBuiltins.shaderSMCount;
-  deviceName_ = properties.properties.deviceName;
-  timestampPeriod_ = properties.properties.limits.timestampPeriod;
-  maxSharedMemory_ = properties.properties.limits.maxComputeSharedMemorySize;
-  if (subgroup.subgroupSize != 32)
-    fprintf(stderr, "warning: subgroup size %u (cooperative kernels assume 32)\n", subgroup.subgroupSize);
-  vkGetPhysicalDeviceMemoryProperties(physical_, &memoryProperties_);
-
-  uint32_t familyCount = 0;
-  vkGetPhysicalDeviceQueueFamilyProperties(physical_, &familyCount, nullptr);
-  std::vector<VkQueueFamilyProperties> families(familyCount);
-  vkGetPhysicalDeviceQueueFamilyProperties(physical_, &familyCount, families.data());
-  queueFamily_ = UINT32_MAX;
-  for (uint32_t index = 0; index < familyCount; ++index) {
-    if ((families[index].queueFlags & VK_QUEUE_COMPUTE_BIT) && families[index].timestampValidBits) {
-      // Prefer a family that also has graphics (the "main" queue) for widest support.
-      if (queueFamily_ == UINT32_MAX || (families[index].queueFlags & VK_QUEUE_GRAPHICS_BIT)) queueFamily_ = index;
+    if (!physical_) throw std::runtime_error("no compatible Vulkan adapter" + std::string(adapterLuid ? " matching the game LUID" : "") + "\n" + rejected);
+    uint32_t familyCount = 0; vkGetPhysicalDeviceQueueFamilyProperties(physical_, &familyCount, nullptr);
+    std::vector<VkQueueFamilyProperties> families(familyCount); vkGetPhysicalDeviceQueueFamilyProperties(physical_, &familyCount, families.data());
+    queueFamily_ = UINT32_MAX;
+    for (uint32_t i = 0; i < familyCount; ++i) {
+      if ((families[i].queueFlags & VK_QUEUE_COMPUTE_BIT) && families[i].timestampValidBits &&
+          (queueFamily_ == UINT32_MAX || (families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT))) queueFamily_ = i;
     }
+    if (queueFamily_ == UINT32_MAX) throw std::runtime_error("no compute queue with timestamps");
+    const float priority = 1.f;
+    VkDeviceQueueCreateInfo queueInfo{VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO}; queueInfo.queueFamilyIndex = queueFamily_; queueInfo.queueCount = 1; queueInfo.pQueuePriorities = &priority;
+    DeviceRequirements req(physical_, requested, externalInterop);
+    VkDeviceCreateInfo deviceInfo{VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO}; deviceInfo.pNext = &req.features;
+    deviceInfo.queueCreateInfoCount = 1; deviceInfo.pQueueCreateInfos = &queueInfo;
+    deviceInfo.enabledExtensionCount = (uint32_t)req.extensions.size(); deviceInfo.ppEnabledExtensionNames = req.extensions.data();
+    VK_CHECK(vkCreateDevice(physical_, &deviceInfo, nullptr, &device_)); volkLoadDevice(device_);
+    initCommon();
+  } catch (...) {
+    releaseResources(false);
+    throw;
   }
-  if (queueFamily_ == UINT32_MAX) throw std::runtime_error("no compute queue with timestamps");
-
-  float priority = 1.0f;
-  VkDeviceQueueCreateInfo queueInfo{VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO};
-  queueInfo.queueFamilyIndex = queueFamily_;
-  queueInfo.queueCount = 1;
-  queueInfo.pQueuePriorities = &priority;
-
-  DeviceRequirements req;
-  VkDeviceCreateInfo deviceInfo{VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO};
-  deviceInfo.pNext = &req.features;
-  deviceInfo.queueCreateInfoCount = 1;
-  deviceInfo.pQueueCreateInfos = &queueInfo;
-  deviceInfo.enabledExtensionCount = (uint32_t)req.extensions.size();
-  deviceInfo.ppEnabledExtensionNames = req.extensions.data();
-  VK_CHECK(vkCreateDevice(physical_, &deviceInfo, nullptr, &device_));
-  volkLoadDevice(device_);
-  initCommon();
 }
 
-Context::Context(VkInstance instance, VkPhysicalDevice physical, VkDevice device, uint32_t queueFamily, uint32_t queueIndex) {
-  if (volkInitialize() != VK_SUCCESS) throw std::runtime_error("vulkan-1.dll unavailable");
+Context::Context(VkInstance instance, VkPhysicalDevice physical, VkDevice device, uint32_t queueFamily, uint32_t queueIndex, Backend requested) {
+  if (volkInitialize() != VK_SUCCESS) throw std::runtime_error("Vulkan loader unavailable");
   instance_ = instance; physical_ = physical; device_ = device; queueFamily_ = queueFamily; queueIndex_ = queueIndex; owned_ = false;
-  volkLoadInstance(instance_);
-  volkLoadDevice(device_);
-  VkPhysicalDeviceProperties2 properties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
-  VkPhysicalDeviceSubgroupProperties subgroup{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES};
-  VkPhysicalDeviceShaderSMBuiltinsPropertiesNV smBuiltins{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_PROPERTIES_NV};
-  properties.pNext = &subgroup;
-  subgroup.pNext = &smBuiltins;
-  vkGetPhysicalDeviceProperties2(physical_, &properties);
-  smCount_ = smBuiltins.shaderSMCount;
-  deviceName_ = properties.properties.deviceName;
-  timestampPeriod_ = properties.properties.limits.timestampPeriod;
-  maxSharedMemory_ = properties.properties.limits.maxComputeSharedMemorySize;
-  vkGetPhysicalDeviceMemoryProperties(physical_, &memoryProperties_);
-  initCommon();
+  volkLoadInstance(instance_); volkLoadDevice(device_);
+  DeviceRequirements req(physical_, requested); capabilities_ = req.capabilities;
+  try { initCommon(); } catch (...) { releaseResources(false); throw; }
 }
 
-DeviceRequirements::DeviceRequirements() {
-  f11.storageBuffer16BitAccess = VK_TRUE;
-  f11.uniformAndStorageBuffer16BitAccess = VK_TRUE;
-  f12.pNext = &f11;
-  f12.storageBuffer8BitAccess = VK_TRUE;
-  f12.uniformAndStorageBuffer8BitAccess = VK_TRUE;
-  f12.shaderFloat16 = VK_TRUE;
-  f12.shaderInt8 = VK_TRUE;
-  f12.vulkanMemoryModel = VK_TRUE;
-  f12.vulkanMemoryModelDeviceScope = VK_TRUE;
-  f12.hostQueryReset = VK_TRUE;
-  f12.bufferDeviceAddress = VK_TRUE;
-  f13.pNext = &f12;
-  f13.subgroupSizeControl = VK_TRUE;
-  f13.computeFullSubgroups = VK_TRUE;
-  f13.synchronization2 = VK_TRUE;
-  f13.maintenance4 = VK_TRUE;   // LocalSizeId: gemm_fp8.comp takes its workgroup size from a specialization constant
-  coop.pNext = &f13;
-  coop.cooperativeMatrix = VK_TRUE;
-  coop2.pNext = &coop;
-  coop2.cooperativeMatrixWorkgroupScope = VK_TRUE;
-  coop2.cooperativeMatrixFlexibleDimensions = VK_TRUE;
-  coop2.cooperativeMatrixReductions = VK_TRUE;
-  coop2.cooperativeMatrixConversions = VK_TRUE;
-  coop2.cooperativeMatrixPerElementOperations = VK_TRUE;
-  coop2.cooperativeMatrixTensorAddressing = VK_TRUE;
-  coop2.cooperativeMatrixBlockLoads = VK_TRUE;
-  fp8.pNext = &coop2;
-  fp8.shaderFloat8 = VK_TRUE;
-  fp8.shaderFloat8CooperativeMatrix = VK_TRUE;
-  features.pNext = &fp8;
-  features.features.shaderInt16 = VK_TRUE;
-  features.features.shaderInt64 = VK_TRUE;
-  // robustBufferAccess stays off (15% cost, masks bugs); experiment shaders must check their own ranges.
-  features.features.robustBufferAccess = VK_FALSE;
-
-  VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR& executableFeatures = executable;
-  executableFeatures.pipelineExecutableInfo = VK_TRUE;
-  executableFeatures.pNext = features.pNext;
-  features.pNext = &executableFeatures;
-  // Shader clocks (clockARB / clockRealtimeEXT).
-  VkPhysicalDeviceShaderClockFeaturesKHR& clockFeatures = clock;
-  clockFeatures.shaderSubgroupClock = VK_TRUE;
-  clockFeatures.shaderDeviceClock = VK_TRUE;
-  clockFeatures.pNext = features.pNext;
-  features.pNext = &clockFeatures;
-  VkPhysicalDeviceShaderSMBuiltinsFeaturesNV& smFeatures = sm;
-  smFeatures.shaderSMBuiltins = VK_TRUE;
-  smFeatures.pNext = features.pNext;
-  features.pNext = &smFeatures;
-  extensions = {VK_KHR_COOPERATIVE_MATRIX_EXTENSION_NAME, VK_EXT_SHADER_FLOAT8_EXTENSION_NAME,
-                              VK_KHR_PIPELINE_EXECUTABLE_PROPERTIES_EXTENSION_NAME, VK_NV_COOPERATIVE_MATRIX_2_EXTENSION_NAME,
-                              VK_NV_CUDA_KERNEL_LAUNCH_EXTENSION_NAME, VK_KHR_SHADER_CLOCK_EXTENSION_NAME,
-                              VK_NV_SHADER_SM_BUILTINS_EXTENSION_NAME};
+const char* Context::arithmeticMode() const {
+  switch (backend()) {
+    case Backend::AmdFast: return "RDNA4 E4M3 K16 FP32 accumulation / FP16 publication";
+    case Backend::Reference: return "NVIDIA fixed-point F13/F24 emulation / FP16 publication";
+    case Backend::Nvidia: return "NVIDIA FP16 cooperative matrices / PTX";
+    default: return "unselected";
+  }
 }
 
+std::string Context::capabilityReport() const {
+  std::ostringstream out;
+  const auto& p = capabilities_.properties;
+  out << "device: " << p.deviceName << "\nbackend: " << backendName(backend())
+      << "\nvendor: 0x" << std::hex << p.vendorID << " device: 0x" << p.deviceID << std::dec
+      << "\nVulkan: " << VK_API_VERSION_MAJOR(p.apiVersion) << "." << VK_API_VERSION_MINOR(p.apiVersion) << "." << VK_API_VERSION_PATCH(p.apiVersion)
+      << " driver: " << p.driverVersion << "\ndriver: " << capabilities_.driverName << " " << capabilities_.driverInfo
+      << "\narithmetic: " << arithmeticMode() << "\nsubgroup: " << capabilities_.subgroupSize << " (compute requests 32)"
+      << "\nsubgroup shuffle-relative: " << (capabilities_.subgroupOperations & VK_SUBGROUP_FEATURE_SHUFFLE_RELATIVE_BIT ? "yes" : "no")
+      << "\nFP8 E4M3 16x16x16 -> FP32: " << (capabilities_.fp8Matrix16 ? "yes" : "no")
+      << "\nNVIDIA PTX: " << (capabilities_.cudaLaunch ? "yes" : "no")
+      << "\nD3D12 external interop: " << (capabilities_.externalInterop ? "enabled" : "disabled") << "\n";
+  for (const auto& m : capabilities_.matrixTypes)
+    out << "matrix: " << m.MSize << "x" << m.NSize << "x" << m.KSize << " A=" << m.AType << " B=" << m.BType
+        << " C=" << m.CType << " result=" << m.ResultType << " scope=" << m.scope << " saturating=" << m.saturatingAccumulation << "\n";
+  return out.str();
+}
 void Context::initCommon() {
+  const auto& properties = capabilities_.properties;
+  deviceName_ = properties.deviceName;
+  timestampPeriod_ = properties.limits.timestampPeriod;
+  maxSharedMemory_ = properties.limits.maxComputeSharedMemorySize;
+  vkGetPhysicalDeviceMemoryProperties(physical_, &memoryProperties_);
+  if (backend() == Backend::Nvidia) {
+    VkPhysicalDeviceShaderSMBuiltinsPropertiesNV sm{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_PROPERTIES_NV};
+    VkPhysicalDeviceProperties2 p{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2}; p.pNext = &sm;
+    vkGetPhysicalDeviceProperties2(physical_, &p); smCount_ = sm.shaderSMCount;
+  }
+  fprintf(stderr, "[vk] %s, backend %s, FP8 K16/FP32 %s, PTX %s\n", deviceName_.c_str(), backendName(backend()),
+          capabilities_.fp8Matrix16 ? "yes" : "no", capabilities_.cudaLaunch ? "yes" : "no");
+  fprintf(stderr, "[vk] driver %s %s; Vulkan %u.%u.%u\n[vk] arithmetic: %s\n",
+          capabilities_.driverName.c_str(), capabilities_.driverInfo.c_str(), VK_API_VERSION_MAJOR(properties.apiVersion),
+          VK_API_VERSION_MINOR(properties.apiVersion), VK_API_VERSION_PATCH(properties.apiVersion), arithmeticMode());
   vkGetDeviceQueue(device_, queueFamily_, queueIndex_, &queue_);
+
+  std::vector<uint8_t> cacheBytes;
+  if (const char* directory = getenv("DLSS5VK_PIPELINE_CACHE"); directory && *directory) {
+    std::ostringstream name;
+    name << backendName(backend()) << "-" << std::hex << properties.vendorID << "-" << properties.deviceID << "-" << properties.driverVersion << ".bin";
+    pipelineCachePath_ = (std::filesystem::path(directory) / name.str()).string();
+    std::ifstream file(pipelineCachePath_, std::ios::binary | std::ios::ate);
+    if (file && file.tellg() >= (std::streamoff)sizeof(VkPipelineCacheHeaderVersionOne) && file.tellg() <= (64 << 20)) {
+      cacheBytes.resize((size_t)file.tellg()); file.seekg(0); file.read(reinterpret_cast<char*>(cacheBytes.data()), cacheBytes.size());
+      VkPipelineCacheHeaderVersionOne header{}; memcpy(&header, cacheBytes.data(), sizeof(header));
+      if (!file || header.headerSize < sizeof(header) || header.headerVersion != VK_PIPELINE_CACHE_HEADER_VERSION_ONE ||
+          header.vendorID != properties.vendorID || header.deviceID != properties.deviceID ||
+          memcmp(header.pipelineCacheUUID, properties.pipelineCacheUUID, VK_UUID_SIZE)) cacheBytes.clear();
+    }
+  }
+  VkPipelineCacheCreateInfo cache{VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO};
+  cache.initialDataSize = cacheBytes.size(); cache.pInitialData = cacheBytes.data();
+  VkResult cacheResult = vkCreatePipelineCache(device_, &cache, nullptr, &pipelineCache_);
+  if (cacheResult != VK_SUCCESS && !cacheBytes.empty()) {
+    cache.initialDataSize = 0; cache.pInitialData = nullptr;
+    cacheResult = vkCreatePipelineCache(device_, &cache, nullptr, &pipelineCache_);
+  }
+  VK_CHECK(cacheResult);
 
   VkCommandPoolCreateInfo poolInfo{VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
   poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
@@ -276,19 +365,41 @@ void Context::initCommon() {
 }
 
 Context::~Context() {
-  if (!device_) return;
-  vkDeviceWaitIdle(device_);
-  for (VkShaderModule module : modules_) vkDestroyShaderModule(device_, module, nullptr);
-  destroyBuffer(dummy_);
-  destroyBuffer(staging_);
-  for (VkDescriptorPool pool : descriptorPools_) vkDestroyDescriptorPool(device_, pool, nullptr);
-  vkDestroyPipelineLayout(device_, pipelineLayout_, nullptr);
-  vkDestroyDescriptorSetLayout(device_, setLayout_, nullptr);
-  vkDestroyCommandPool(device_, commandPool_, nullptr);
-  if (owned_) {
-    vkDestroyDevice(device_, nullptr);
+  releaseResources(true);
+}
+
+void Context::releaseResources(bool persistCache) noexcept {
+  if (device_) {
+    vkDeviceWaitIdle(device_);
+    if (persistCache && pipelineCache_ && !pipelineCachePath_.empty()) {
+      try {
+        size_t size = 0;
+        if (vkGetPipelineCacheData(device_, pipelineCache_, &size, nullptr) == VK_SUCCESS && size <= (64 << 20)) {
+          std::vector<uint8_t> bytes(size);
+          if (vkGetPipelineCacheData(device_, pipelineCache_, &size, bytes.data()) == VK_SUCCESS) {
+            const std::filesystem::path path(pipelineCachePath_);
+            std::filesystem::create_directories(path.parent_path());
+            std::ofstream file(path, std::ios::binary | std::ios::trunc);
+            file.write(reinterpret_cast<const char*>(bytes.data()), size);
+          }
+        }
+      } catch (...) { /* A cache write must never interrupt resource cleanup. */ }
+    }
+    if (pipelineCache_) vkDestroyPipelineCache(device_, pipelineCache_, nullptr);
+    for (VkShaderModule module : modules_) vkDestroyShaderModule(device_, module, nullptr);
+    destroyBuffer(dummy_);
+    destroyBuffer(staging_);
+    for (VkDescriptorPool pool : descriptorPools_) vkDestroyDescriptorPool(device_, pool, nullptr);
+    vkDestroyPipelineLayout(device_, pipelineLayout_, nullptr);
+    vkDestroyDescriptorSetLayout(device_, setLayout_, nullptr);
+    vkDestroyCommandPool(device_, commandPool_, nullptr);
+    if (owned_) vkDestroyDevice(device_, nullptr);
+    device_ = VK_NULL_HANDLE;
+  }
+  if (owned_ && instance_) {
     if (messenger_) vkDestroyDebugUtilsMessengerEXT(instance_, messenger_, nullptr);
     vkDestroyInstance(instance_, nullptr);
+    instance_ = VK_NULL_HANDLE;
   }
 }
 
@@ -413,11 +524,12 @@ Pipeline Context::createComputePipeline(VkShaderModule module, const SpecConstan
     info.flags |= VK_PIPELINE_CREATE_CAPTURE_STATISTICS_BIT_KHR | VK_PIPELINE_CREATE_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR;
   Pipeline result;
   result.label = label;
-  VK_CHECK(vkCreateComputePipelines(device_, VK_NULL_HANDLE, 1, &info, nullptr, &result.pipeline));
+  VK_CHECK(vkCreateComputePipelines(device_, pipelineCache_, 1, &info, nullptr, &result.pipeline));
   return result;
 }
 
 std::string Context::pipelineStatistics(const Pipeline& pipeline, bool includeInternal) {
+  if (!capabilities_.pipelineStatistics || !vkGetPipelineExecutablePropertiesKHR) return "not supported by this device";
   std::string report;
   VkPipelineInfoKHR pipelineInfo{VK_STRUCTURE_TYPE_PIPELINE_INFO_KHR};
   pipelineInfo.pipeline = pipeline.pipeline;
@@ -498,14 +610,28 @@ VkDescriptorSet Context::allocateSet(const Buffer* const bindings[kGenericBindin
   return set;
 }
 
-// Two pools in rotation: a frame's sets stay valid while the next frame is recorded (the caller waits for the
-// frame before the previous one, as the demo's two frames in flight do).
+// Default rotation has two pools. Bridges can grow it before recording deeper
+// queues, keeping each slot's descriptors alive until that slot is reclaimed.
 void Context::resetDescriptorPool() { resetDescriptorPool((uint32_t)((descriptorPoolIndex_ + 1) % descriptorPools_.size())); }
 
 void Context::resetDescriptorPool(uint32_t slot) {
-  descriptorPoolIndex_ = slot % descriptorPools_.size();
+  if (slot >= descriptorPools_.size()) throw std::out_of_range("descriptor pool slot exceeds configured capacity");
+  descriptorPoolIndex_ = slot;
   descriptorPool_ = descriptorPools_[descriptorPoolIndex_];
   VK_CHECK(vkResetDescriptorPool(device_, descriptorPool_, 0));
+}
+
+void Context::ensureDescriptorPoolCount(uint32_t count) {
+  if (count > 32) throw std::out_of_range("descriptor pool capacity exceeds the bounded frame limit");
+  descriptorPools_.reserve(std::max<size_t>(count, descriptorPools_.size()));
+  VkDescriptorPoolSize size{VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 8192 * kGenericBindings};
+  VkDescriptorPoolCreateInfo info{VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
+  info.maxSets = 8192; info.poolSizeCount = 1; info.pPoolSizes = &size;
+  while (descriptorPools_.size() < count) {
+    VkDescriptorPool pool = VK_NULL_HANDLE;
+    VK_CHECK(vkCreateDescriptorPool(device_, &info, nullptr, &pool));
+    descriptorPools_.push_back(pool);
+  }
 }
 
 VkCommandBuffer Context::beginCommands() {
@@ -591,6 +717,7 @@ VkDeviceAddress Context::deviceAddress(const Buffer& buffer) const {
 }
 
 VkCudaModuleNV Context::createCudaModule(const std::string& ptx) {
+  if (!capabilities_.cudaLaunch || !vkCreateCudaModuleNV) throw std::runtime_error("PTX modules require the nvidia backend");
   VkCudaModuleCreateInfoNV info{VK_STRUCTURE_TYPE_CUDA_MODULE_CREATE_INFO_NV};
   info.dataSize = ptx.size() + 1;
   info.pData = ptx.c_str();
@@ -600,6 +727,7 @@ VkCudaModuleNV Context::createCudaModule(const std::string& ptx) {
 }
 
 VkCudaFunctionNV Context::createCudaFunction(VkCudaModuleNV module, const char* name) {
+  if (!capabilities_.cudaLaunch || !vkCreateCudaFunctionNV) throw std::runtime_error("PTX functions require the nvidia backend");
   VkCudaFunctionCreateInfoNV info{VK_STRUCTURE_TYPE_CUDA_FUNCTION_CREATE_INFO_NV};
   info.module = module;
   info.pName = name;
@@ -609,15 +737,16 @@ VkCudaFunctionNV Context::createCudaFunction(VkCudaModuleNV module, const char* 
 }
 
 void Context::destroyCudaFunction(VkCudaFunctionNV function) {
-  if (function) vkDestroyCudaFunctionNV(device_, function, nullptr);
+  if (function && capabilities_.cudaLaunch && vkDestroyCudaFunctionNV) vkDestroyCudaFunctionNV(device_, function, nullptr);
 }
 
 void Context::destroyCudaModule(VkCudaModuleNV module) {
-  if (module) vkDestroyCudaModuleNV(device_, module, nullptr);
+  if (module && capabilities_.cudaLaunch && vkDestroyCudaModuleNV) vkDestroyCudaModuleNV(device_, module, nullptr);
 }
 
 void Context::cudaLaunch(VkCommandBuffer commands, VkCudaFunctionNV function, uint32_t gridX, uint32_t gridY, uint32_t gridZ,
                          uint32_t blockX, uint32_t sharedBytes, const void* const* params, size_t paramCount) {
+  if (!capabilities_.cudaLaunch || !vkCmdCudaLaunchKernelNV) throw std::runtime_error("PTX launch requires the nvidia backend");
   VkCudaLaunchInfoNV info{VK_STRUCTURE_TYPE_CUDA_LAUNCH_INFO_NV};
   info.function = function;
   info.gridDimX = gridX; info.gridDimY = gridY; info.gridDimZ = gridZ;

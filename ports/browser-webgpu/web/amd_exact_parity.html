@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Direct WGSL numerical diagnostic</title>
+<pre id="status">Starting direct WGSL model diagnostic.</pre>
+<script type="module">
+// This diagnostic corroborates the numerical contract on a second graphics
+// API. The fixture producer is declared in its manifest; it is not a substitute
+// for the unavailable original NVIDIA captures.
+import { Network } from '../src/network.js';
+import { exactDiagnostic } from '../src/amd_diagnostic.js';
+import { loadFixture, runParity } from '../src/parity.js';
+const query=new URLSearchParams(location.search), lines=[];
+const note=text=>{lines.push(text);document.getElementById('status').textContent=lines.join('\n');if(query.has('report'))console.log(text);};
+const finish=text=>{
+  note(text);console.log(text);
+  if(query.has('report'))fetch('/report',{method:'POST',body:lines.join('\n')}).finally(()=>window.close());
+};
+try {
+  const fixture=await loadFixture(query.get('fixture')??'/fixtures/real-model-reference320');
+  const [width,height]=fixture.manifest.sourceDimensions;
+  const diagnostic=await exactDiagnostic();
+  note('Test-only direct WGSL F13/half-publication GEMM and window kernels; original graph and model.');
+  const network=await Network.create({weights:query.get('weights')??'/weights',width,height,captureBoundaries:true,
+    onProgress:note,...diagnostic});
+  await runParity(network,fixture,{
+    status:text=>document.getElementById('status').textContent=text,
+    note,
+    timing:(ms,count)=>note(`${count} dispatches in ${ms.toFixed(3)} ms (best diagnostic run)`),
+    row:(name,result,shape)=>note(`${name} ${shape}: ${typeof result==='string'?result:JSON.stringify(result)}`),
+    done:summary=>finish(`DIRECT ${summary.failed?'FAIL':'PASS'}: ${summary['bit-exact']} bit-exact, ${summary['within-tolerance']} within tolerance, ${summary.failed} failed`),
+  },{repeat:Number(query.get('repeat')??1)});
+  network.destroy();
+} catch(error) {finish(`DIRECT ERROR: ${error.stack??error}`);}
+</script>

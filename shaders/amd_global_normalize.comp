@@ -1,0 +1,6 @@
+#version 460
+#extension GL_EXT_float_e4m3 : require
+#extension GL_KHR_shader_subgroup_shuffle : require
+#extension GL_GOOGLE_include_directive : require
+#define NR_GLOBAL_NORMALIZE 1
+#include "amd_normalize_body.glsl"

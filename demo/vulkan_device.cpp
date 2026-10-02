@@ -79,20 +79,14 @@ VulkanDevice::VulkanDevice() {
   VK_CHECK(vkEnumeratePhysicalDevices(instance, &count, nullptr));
   std::vector<VkPhysicalDevice> devices(count);
   VK_CHECK(vkEnumeratePhysicalDevices(instance, &count, devices.data()));
-  vk::DeviceRequirements requirements;
   VkPhysicalDevice physical = VK_NULL_HANDLE;
+  std::string rejected;
   for (VkPhysicalDevice candidate : devices) {
-    uint32_t extensionCount = 0;
-    vkEnumerateDeviceExtensionProperties(candidate, nullptr, &extensionCount, nullptr);
-    std::vector<VkExtensionProperties> extensions(extensionCount);
-    vkEnumerateDeviceExtensionProperties(candidate, nullptr, &extensionCount, extensions.data());
-    size_t found = 0;
-    for (const char* wanted : requirements.extensions)
-      for (const auto& extension : extensions)
-        if (!strcmp(extension.extensionName, wanted)) { found++; break; }
-    if (found == requirements.extensions.size()) { physical = candidate; break; }
+    try { vk::DeviceRequirements candidateRequirements(candidate); physical = candidate; break; }
+    catch (const std::exception& error) { rejected += std::string(error.what()) + "\n"; }
   }
-  if (!physical) throw std::runtime_error("no Vulkan device with the NR kernels' extensions (cooperative matrices, fp8, CUDA kernel launch)");
+  if (!physical) throw std::runtime_error("no compatible Vulkan neural rendering adapter\n" + rejected);
+  vk::DeviceRequirements requirements(physical);
   VkPhysicalDeviceProperties properties;
   vkGetPhysicalDeviceProperties(physical, &properties);
   deviceName_ = properties.deviceName;
@@ -150,7 +144,7 @@ VulkanDevice::VulkanDevice() {
   handles_.rendererQueueIndex = 0;
   handles_.nrQueueIndex = queueCount - 1;
   handles_.debugUtils = validation;
-  fprintf(stderr, "[vk] %s, queue family %u (%u queue%s)\n", deviceName_.c_str(), family, queueCount, queueCount > 1 ? "s" : "");
+  fprintf(stderr, "[vk] %s, backend %s, queue family %u (%u queue%s)\n", deviceName_.c_str(), vk::backendName(requirements.capabilities.backend), family, queueCount, queueCount > 1 ? "s" : "");
 }
 
 VulkanDevice::~VulkanDevice() {

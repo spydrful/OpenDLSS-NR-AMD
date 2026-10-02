@@ -24,6 +24,16 @@
 #include "reference.h"
 #include "vk_context.h"
 
+#if defined(NR_NATIVE_SELFTEST)
+int runNativeSelfTest(vk::Backend backend, const std::string& shaderDir);
+#endif
+#if defined(NR_MODEL_VALIDATION)
+int runModelValidation(int argc, char** argv);
+#endif
+#if defined(NR_COMPOSITE_VALIDATION)
+int runCompositeValidation(int argc, char** argv);
+#endif
+
 namespace {
 
 std::vector<uint8_t> readFile(const std::string& path) {
@@ -573,7 +583,7 @@ int runBench(int argc, char** argv) {
   if (modelDir.empty()) { fprintf(stderr, "usage: dlss5vk bench --model <dir> [--width W --height H --frames N]\n"); return 2; }
   vk::Context context;
   printf("device: %s\n", context.deviceName().c_str());
-  nr::Model model(context, modelDir, false);
+  nr::Model model(context, modelDir, !hasFlag(argc, argv, "--no-verify"));
   nr::Kernels kernels(context, shaderDir);
   kernels.setSiluTable(ref::siluTable());
   nr::Geometry geometry = nr::Geometry::fromValid(width, height);
@@ -625,7 +635,7 @@ int runShaderInfo(int argc, char** argv) {
   if (modelDir.empty()) { fprintf(stderr, "usage: dlss5vk shaderinfo --model <dir> [--filter name] [--sass]\n"); return 2; }
   vk::Context context;
   context.setCaptureStatistics(true);
-  nr::Model model(context, modelDir, false);
+  nr::Model model(context, modelDir, !hasFlag(argc, argv, "--no-verify"));
   nr::Kernels kernels(context, shaderDir);
   kernels.setSiluTable(ref::siluTable());
   nr::Geometry geometry = nr::Geometry::fromValid(768, 768);
@@ -653,7 +663,7 @@ int runProfile(int argc, char** argv) {
   if (!getenv("DLSS5VK_CHAIN")) nr::Kernels::setChainEnabled(false);   // per-dispatch timings need the barriers
   vk::Context context;
   printf("maxComputeSharedMemorySize %u bytes\n", context.maxComputeSharedMemory());
-  nr::Model model(context, modelDir, false);
+  nr::Model model(context, modelDir, !hasFlag(argc, argv, "--no-verify"));
   nr::Kernels kernels(context, shaderDir);
   kernels.setSiluTable(ref::siluTable());
   // Barrier/dispatch overhead: 400 trivial dispatches each followed by a full compute barrier.
@@ -732,18 +742,52 @@ int runProfile(int argc, char** argv) {
 }  // namespace
 
 int runCommand(int argc, char** argv) {
+#if defined(NR_COMPOSITE_VALIDATION)
+  if (argc >= 2 && !strcmp(argv[1], "compositecheck")) return runCompositeValidation(argc, argv);
+#endif
+#if defined(NR_MODEL_VALIDATION)
+  if (argc >= 2 && !strcmp(argv[1], "modelcheck")) return runModelValidation(argc, argv);
+#endif
+  if (argc >= 2 && !strcmp(argv[1], "info")) {
+    vk::Context context(vk::Backend::Auto, nullptr, hasFlag(argc, argv, "--interop"));
+    printf("%s", context.capabilityReport().c_str()); return 0;
+  }
+#if defined(NR_NATIVE_SELFTEST)
+  if (argc >= 2 && !strcmp(argv[1], "selftest")) {
+    const char* configured = getenv("DLSS5VK_BACKEND");
+    return runNativeSelfTest(vk::parseBackend(configured && *configured ? configured : "auto"),
+                            argValue(argc, argv, "--shaders", executableDirectory(argv[0]) + "/shaders"));
+  }
+#endif
   if (argc >= 2 && !strcmp(argv[1], "verify")) return runVerify(argc, argv);
   if (argc >= 2 && !strcmp(argv[1], "shaderinfo")) return runShaderInfo(argc, argv);
   if (argc >= 2 && !strcmp(argv[1], "profile")) return runProfile(argc, argv);
   if (argc >= 2 && !strcmp(argv[1], "parity")) return runParity(argc, argv);
   if (argc >= 2 && !strcmp(argv[1], "bench")) return runBench(argc, argv);
-  fprintf(stderr, "usage: dlss5vk parity|verify|bench|profile|shaderinfo --model <dir> ...\n");
+  fprintf(stderr, "usage: dlss5vk info|selftest|modelcheck|compositecheck|parity|verify|bench|profile|shaderinfo [--backend auto|amd|nvidia|reference] ...\n");
   return 2;
 }
 
 int main(int argc, char** argv) {
   int code = 1;
   try {
+    const std::string backend = argValue(argc, argv, "--backend");
+    if (!backend.empty()) {
+      vk::parseBackend(backend);
+#if defined(_WIN32)
+      _putenv_s("DLSS5VK_BACKEND", backend.c_str());
+#else
+      setenv("DLSS5VK_BACKEND", backend.c_str(), 1);
+#endif
+    }
+    if (!getenv("DLSS5VK_PIPELINE_CACHE")) {
+      const std::string cache = executableDirectory(argv[0]) + "/cache";
+#if defined(_WIN32)
+      _putenv_s("DLSS5VK_PIPELINE_CACHE", cache.c_str());
+#else
+      setenv("DLSS5VK_PIPELINE_CACHE", cache.c_str(), 0);
+#endif
+    }
     code = runCommand(argc, argv);
   } catch (const std::exception& error) {
     fprintf(stderr, "error: %s\n", error.what());

@@ -44,3 +44,8 @@ ktx2Loader.load( 'diffuse.ktx2', function ( texture ) {
 ## License
 
 [Apache License 2.0](https://github.com/BinomialLLC/basis_universal/blob/master/LICENSE)
+
+A full local copy is provided in [LICENSE](LICENSE). The inherited transcoder
+hashes and the pinned official source of that license text are recorded in
+[ATTRIBUTION.md](ATTRIBUTION.md). This fork added these license/provenance
+documents; `basis_transcoder.js` and `basis_transcoder.wasm` are unchanged.

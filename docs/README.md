@@ -1,4 +1,30 @@
-# The NR network on Vulkan: design notes
+# OpenDLSS-NR-AMD documentation
+
+Start with these documents for the native AMD implementation:
+
+* [AMD.md](AMD.md): Windows build, local model import, patched OptiScaler host,
+  packaging, reversible installation and diagnostic commands.
+* [amd-numerics.md](amd-numerics.md): exact arithmetic, RDNA4 accelerated
+  arithmetic, capability requirements and measured optimization priorities.
+* [amd-performance-research.md](amd-performance-research.md): AMD neural rendering
+  research, open kernel references, platform support and ranked RX 9070 XT
+  optimization experiments.
+* [rx9070xt-validation.md](rx9070xt-validation.md): actual model and software
+  versions, numerical comparisons, Cyberpunk frame times, VRAM and limitations.
+* [Game runtime API](../game/README.md): D3D12 resource metadata, shared-buffer
+  and fence ordering, frame ownership, history resets, cancellation and drain.
+* [Static dependency sources](../integrations/optiscaler/sources/README.md):
+  source archive pins, local source patch and library build limitations.
+* [Original NVIDIA README](upstream-nvidia.md): the upstream guide preserved
+  from the inspected starting commit; its measurements describe NVIDIA work.
+
+## Original network design notes
+
+The notes below describe the original graph, numerical specification and NVIDIA
+execution path. Their PTX scheduling, display composition and original parity
+claims are not descriptions of the AMD game runtime. Use the AMD documents
+above for the backend's explicit barriers, scene-linear composition and current
+validation scope.
 
 These notes are the mental model behind `src/`, `shaders/`, `scripts/ptx/` and `demo/`: what the network
 computes, why each mechanism has to be the way it is, and which parts are forced by the network, by Vulkan, or

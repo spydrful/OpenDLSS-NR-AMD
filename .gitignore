@@ -1,8 +1,37 @@
 /tools/
+!/tools/
+/tools/*
+!/tools/model_importer.cpp
+!/tools/model_importer.h
+!/tools/MODEL_IMPORTER_NOTICE.txt
+!/tools/analyze_performance.py
+!/tools/compare_images.py
+!/tools/analyze_runtime.py
+!/tools/analyze_presentmon.py
 /build/
 /fixtures/
 /models/
+/dll/
+# Proprietary DLLs and locally generated model/capture data never enter Git,
+# even when copied outside the usual ignored build/model directories.
+*.[dD][lL][lL]
+dlssnr.bin
+weights.bin
+WEIGHTS_HT
+stage[0-9]*.bin
+*.f32
+*.pfm
+**/captures/
 /tmp/
 __pycache__/
 third_party/filament/
 third_party/filament-install/
+
+/third_party/optiscaler-host/
+/exports/
+/dist/
+/integrations/optiscaler/sources/*.tar.gz
+/integrations/optiscaler/sources/*.tar.xz
+.open-nr-install.json
+.open-nr-install.json.tmp
+.open-nr-backup-*/

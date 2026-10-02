@@ -52,6 +52,17 @@ std::vector<uint8_t> readBinary(const std::string& path) {
   return bytes;
 }
 
+bool sha256Matches(const std::string& actual, const std::string& expected) {
+  if (actual.size() != 64 || expected.size() != 64) return false;
+  for (size_t i = 0; i < 64; ++i) {
+    const char c = expected[i];
+    const char upper = c >= 'a' && c <= 'f' ? char(c - 'a' + 'A') : c;
+    if (!((upper >= '0' && upper <= '9') || (upper >= 'A' && upper <= 'F')) || actual[i] != upper)
+      return false;
+  }
+  return true;
+}
+
 // Half index of an f16 weight inside a packed matrix: 16x16 tiles in (k, n) row-major order, each tile one
 // m16n8k16 B fragment pair - lane (n % 8) * 4 + (k % 8) / 2, four halves per lane per 8-column half.
 // The two f16 matrices of the network (the 16 -> 32 input adapter and the 32 -> 4 head) are the two ways this
@@ -73,7 +84,10 @@ uint32_t tiledToken(uint32_t token) {
 }  // namespace
 
 Model::Model(vk::Context& context, const std::string& directory, bool verifyHashes) : context_(context) {
-  json::Value manifest = json::parse(readText(directory + "/manifest.json"));
+  const std::string manifestBytes = readText(directory + "/manifest.json");
+  const std::string manifestHash = sha256Hex(reinterpret_cast<const uint8_t*>(manifestBytes.data()), manifestBytes.size());
+  printf("model manifest SHA-256: %s (stage hashes %s)\n", manifestHash.c_str(), verifyHashes ? "verified" : "unchecked");
+  json::Value manifest = json::parse(manifestBytes);
   blockCount_ = (uint32_t)manifest["totals"]["blockCount"].integer();
   for (const json::Value& stage : manifest["stages"].array) {
     Stage loaded;
@@ -83,7 +97,7 @@ Model::Model(vk::Context& context, const std::string& directory, bool verifyHash
       throw std::runtime_error("stage size mismatch: " + loaded.id);
     if (verifyHashes) {
       std::string digest = sha256Hex(loaded.bytes.data(), loaded.bytes.size());
-      if (digest != stage["sha256"].str()) throw std::runtime_error("stage SHA-256 mismatch: " + loaded.id);
+      if (!sha256Matches(digest, stage["sha256"].str())) throw std::runtime_error("stage SHA-256 mismatch: " + loaded.id);
     }
     stages_.push_back(std::move(loaded));
   }

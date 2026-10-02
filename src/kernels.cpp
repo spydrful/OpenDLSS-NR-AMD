@@ -41,6 +41,21 @@ void check(bool condition, const char* message) {
 
 Kernels::Kernels(vk::Context& context, const std::string& shaderDirectory) : context_(context) {
   ptxDirectory_ = getenv("DLSS5VK_PTX_DIR") ? getenv("DLSS5VK_PTX_DIR") : shaderDirectory + "/../ptx";
+  if (nativePortable()) {
+    const bool fast = context_.isAmd();
+    const char* scalarGlobal = getenv("DLSS5VK_AMD_GLOBAL_SCALAR");
+    amdGlobalMatrix_ = fast && !(scalarGlobal && !strcmp(scalarGlobal, "1"));
+    const std::pair<const char*, const char*> modules[] = {
+      {"gemm_fp8", fast ? "amd_gemm" : "portable_gemm"}, {"gemm_f16", "portable_f16"},
+      {"window_attend", fast ? "amd_window" : "portable_window"},
+      {"global_attend", fast ? (amdGlobalMatrix_ ? "amd_global_matrix" : "amd_global") : "portable_global"},
+      {"ops", "ops"}, {"preprocess", "preprocess"},
+      {"window_normalize", fast ? "amd_window_normalize" : "window_normalize"},
+      {"global_normalize", fast ? "amd_global_normalize" : "global_normalize"}};
+    for (const auto& entry : modules)
+      modules_[entry.first] = context_.loadShaderModule(shaderDirectory + "/" + entry.second + ".spv");
+    return;
+  }
   for (const char* name : {"gemm_fp8", "gemm_f16", "ops", "window_normalize", "window_attend", "global_normalize",
                            "global_attend", "preprocess", "fused_block32", "qkv_attention", "gemm_mlp", "global_attention", "gemm_reduce"}) {
     modules_[name] = context_.loadShaderModule(shaderDirectory + "/" + name + ".spv");
@@ -67,6 +82,10 @@ void Kernels::setSiluTable(const std::vector<uint16_t>& table) {
 }
 
 VkPipeline Kernels::pipeline(const char* shader, const vk::SpecConstants& constants, uint32_t requiredSubgroupSize) {
+  if (nativePortable()) {
+    const bool matrix = context_.isAmd() && (!strcmp(shader, "gemm_fp8") || !strcmp(shader, "window_attend") || (amdGlobalMatrix_ && !strcmp(shader, "global_attend")));
+    requiredSubgroupSize = matrix ? 32u : 0u;
+  }
   std::string key = shader;
   for (uint32_t value : constants.data) key += ":" + std::to_string(value);
   auto it = pipelines_.find(key);
@@ -133,6 +152,7 @@ VkDeviceAddress Kernels::tileCounters(uint32_t count) {
 
 // Consumers spin on these. A stale count starts one early.
 void Kernels::resetSync(VkCommandBuffer commands) {
+  if (nativePortable()) { chainLaunches_.clear(); return; }
   if (syncBuffer_.buffer == VK_NULL_HANDLE) syncAddress(0, kSyncBands);
   vkCmdFillBuffer(commands, syncBuffer_.buffer, 0, VK_WHOLE_SIZE, 0);
   context_.transferBarrier(commands);
@@ -229,6 +249,7 @@ void Kernels::gemmFp8(VkCommandBuffer commands, const GemmFp8Args& a) {
   check(a.partition == 0 || (a.partition % 32 == 0 && a.K % a.partition == 0), "GEMM partition");
   check(a.input->channels % 16 == 0 && a.inputColumnBase % 16 == 0, "GEMM input rows must be 16-byte aligned");
   check(!a.residual || a.residual->allocRows >= alignRows(a.rows), "GEMM residual rows");
+  if (nativePortable()) { nativeGemmFp8(commands, a); return; }
   // Split-K: independent partition chains in separate workgroups plus a reduce pass, for the
   // small-M partitioned GEMMs (ViT) whose workgroup count would otherwise starve the GPU.
   uint32_t splits = 1;
@@ -457,6 +478,35 @@ void Kernels::gemmFp8(VkCommandBuffer commands, const GemmFp8Args& a) {
     dispatchLinear(commands, pipeline("gemm_reduce", reduceConstants), reduceBindings, &reducePush, sizeof(reducePush),
                    a.rows * a.N / 8);
   }
+}
+
+void Kernels::nativeGemmFp8(VkCommandBuffer commands, const GemmFp8Args& a) {
+  check(a.N % 16 == 0 && a.N > 0 && a.rows > 0 && a.batches > 0, "native GEMM shape");
+  check(!a.scaleResidual || a.auxTensor, "native scaled residual needs its tensor");
+  check(!a.chainWaitRows && !a.chainWaitBands && !a.chainSignal && !a.chained, "native GEMM uses Vulkan barriers");
+  uint32_t flags = (a.residual ? F_RESIDUAL : 0) | (a.scaleResidual ? F_SCALE_RESIDUAL : 0) |
+                   (a.silu ? F_SILU : 0) | (a.quantize ? F_QUANTIZE : 0) | (a.dualOutput ? F_DUAL : 0) |
+                   (a.residual && a.residual->format == Format::E4 ? F_RESIDUAL_E4 : 0) |
+                   (a.broadcastInput ? F_BROADCAST_INPUT : 0);
+  vk::SpecConstants constants;
+  constants.add(0, a.K); constants.add(2, flags); constants.add(3, a.partition);
+  struct Push {
+    uint32_t rows, N, Nmatrix, weightColumnOffset, inputStride, inputColumnBase;
+    uint32_t outputStride, outputColumnOffset, auxHalfOffset, batches, columnGroups, splitStride;
+  } push{a.rows, a.N, a.Nmatrix, a.weightColumnOffset, a.input->channels, a.inputColumnBase,
+         a.output->channels, a.outputColumnOffset, a.auxByteOffset / 2, a.batches, a.N / 16, 0};
+  const vk::Buffer* bindings[vk::kGenericBindings] = {};
+  bindings[0] = &a.input->buffer; bindings[1] = a.weights;
+  if (!a.quantize) bindings[2] = &a.output->buffer;
+  if (a.quantize) bindings[5] = &a.output->buffer;
+  if (a.dualOutput) bindings[5] = &a.dualOutput->buffer;
+  if (a.residual) bindings[a.residual->format == Format::E4 ? 6 : 3] = &a.residual->buffer;
+  if (a.auxTensor) bindings[4] = &a.auxTensor->raw;
+  uint32_t groups = (a.rows + 63) / 64;
+  dispatchLabel_ = std::string(context_.isAmd() ? "amd_fp8 " : "reference_fp8 ") +
+                   std::to_string(a.rows) + "x" + std::to_string(a.K) + "->" + std::to_string(a.N);
+  dispatch(commands, pipeline("gemm_fp8", constants), bindings, &push, sizeof(push), a.batches * (a.N / 16),
+           std::min(groups, 65535u), (groups + 65534) / 65535);
 }
 
 void Kernels::gemmF16(VkCommandBuffer commands, const GemmF16Args& a) {
@@ -886,7 +936,7 @@ void Kernels::windowNormalize(VkCommandBuffer commands, const Activation& qkv, c
   bindings[4] = &tensor.raw;
   bindings[5] = &normalized.buffer;
   dispatchLabel_ = "window_normalize " + std::to_string(tokens) + "x" + std::to_string(heads);
-  dispatchLinear(commands, pipeline("window_normalize", {}), bindings, &push, sizeof(push), tokens * heads);
+  dispatchLinear(commands, pipeline("window_normalize", {}), bindings, &push, sizeof(push), tokens * heads * (context_.isAmd() ? 16u : 1u));
 }
 
 void Kernels::windowAttend(VkCommandBuffer commands, const Activation& normalized, const vk::Buffer& prior,
@@ -914,11 +964,12 @@ bool Kernels::ptxGlobalAttentionEnabled() {
 }
 
 bool Kernels::globalAttentionPtx(uint32_t paddedTokens, const Activation* normalized) const {
-  return ptxGlobalAttentionEnabled() && !normalized && paddedTokens <= 256;
+  return !nativePortable() && ptxGlobalAttentionEnabled() && !normalized && paddedTokens <= 256;
 }
 
 // DLSS5VK_ATTN_STREAM: -1 (default) streamed route for padded > 256 (the resident kernel below), 1 always, 0 never.
 bool Kernels::globalAttentionStreamPtx(uint32_t paddedTokens) const {
+  if (nativePortable()) return false;
   static const int mode = getenv("DLSS5VK_ATTN_STREAM") ? atoi(getenv("DLSS5VK_ATTN_STREAM")) : -1;
   if (!ptxGlobalAttentionEnabled() || mode == 0) return false;
   if (mode < 0 && paddedTokens <= 256) return false;
@@ -1010,7 +1061,7 @@ void Kernels::globalNormalize(VkCommandBuffer commands, const Activation& qkv, c
   bindings[4] = &tensor.raw;
   bindings[5] = &normalized.buffer;
   dispatchLabel_ = "global_normalize";
-  dispatchLinear(commands, pipeline("global_normalize", {}), bindings, &push, sizeof(push), tokens * heads);
+  dispatchLinear(commands, pipeline("global_normalize", {}), bindings, &push, sizeof(push), tokens * heads * (context_.isAmd() ? 16u : 1u));
 }
 
 void Kernels::globalAttend(VkCommandBuffer commands, const Activation& normalized, Activation& attended,
@@ -1024,6 +1075,13 @@ void Kernels::globalAttend(VkCommandBuffer commands, const Activation& normalize
   bindings[0] = &normalized.buffer;
   bindings[5] = &attended.buffer;
   dispatchLabel_ = "global_attend";
+  if (nativePortable()) {
+    if (!amdGlobalMatrix_) check((VkDeviceSize)paddedTokens * 3 + 4 <= context_.maxComputeSharedMemory(), "native global attention shared-memory limit");
+    const uint32_t queries = amdGlobalMatrix_ ? (tokens + 15u) / 16u : tokens;
+    dispatch(commands, pipeline("global_attend", constants), bindings, &push, sizeof(push), heads,
+             std::min(queries, 65535u), (queries + 65534) / 65535);
+    return;
+  }
   dispatch(commands, pipeline("global_attend", constants), bindings, &push, sizeof(push), heads, paddedTokens / 16, 1);
 }
 

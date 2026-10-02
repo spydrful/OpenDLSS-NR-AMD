@@ -1,0 +1,16 @@
+--- a/sdk/include/FidelityFX/host/backends/dx11/ffx_dx11.h
++++ b/sdk/include/FidelityFX/host/backends/dx11/ffx_dx11.h
+@@ -55 +55 @@
+-FFX_API FfxDevice ffxGetDeviceDX11(ID3D11Device* device);
++FFX_API FfxDevice ffxGetDeviceDX11_Fsr31(ID3D11Device* device);
+@@ -100 +100 @@
+-FFX_API FfxResource ffxGetResourceDX11(const ID3D11Resource* dx11Resource,
++FFX_API FfxResource ffxGetResourceDX11_Fsr31(const ID3D11Resource* dx11Resource,
+--- a/sdk/src/backends/dx11/ffx_dx11.cpp
++++ b/sdk/src/backends/dx11/ffx_dx11.cpp
+@@ -110 +110 @@
+-FfxDevice ffxGetDeviceDX11(ID3D11Device* dx11Device)
++FfxDevice ffxGetDeviceDX11_Fsr31(ID3D11Device* dx11Device)
+@@ -180 +180 @@
+-FfxResource ffxGetResourceDX11(ID3D11Resource* dx11Resource,
++FfxResource ffxGetResourceDX11_Fsr31(ID3D11Resource* dx11Resource,

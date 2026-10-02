@@ -43,6 +43,7 @@ class Graph {
     bool captureBoundaries = false;  // copy every block/transition output for parity checks
     bool captureIntermediates = false;  // also copy the intra-block tensors (FFN, QKV, attention)
     bool fusedBlocks = true;            // one fused dispatch per 32-channel block (false: reference kernels)
+    bool reuseScratch = true;          // native, non-capture recordings reuse stage-local operator scratch
   };
   Graph(vk::Context& context, Model& model, Kernels& kernels, const Geometry& geometry, Options options);
   ~Graph();
@@ -53,6 +54,8 @@ class Graph {
   const Activation& head() const { return *head_; }  // f32 [full rows][4]
   const std::map<std::string, Activation*>& boundaries() const { return boundaries_; }
   const Geometry& geometry() const { return geometry_; }
+  uint64_t activationBytes() const;
+  uint32_t activationCount() const { return uint32_t(activations_.size()); }
   // Whether consecutive launches are linked by device counters instead of barriers (docs/execution.md).
   bool chained() const { return routes_.chain || routes_.vitChain; }
   // The stored outputs a boundary fixture can hold references for, in graph order: blocks 0-69 and the five encoder
@@ -100,6 +103,8 @@ class Graph {
   };
   Temporaries createTemporaries(const std::string& label, uint32_t rows, uint32_t channels);
   SplitTemporaries createSplitTemporaries(const std::string& label, uint32_t rows);
+  Activation* allocateTemporary(const std::string& stage, const std::string& role, uint32_t rows,
+                                uint32_t channels, Format format);
 
   void encodeFusedBlock(VkCommandBuffer commands, Temporaries& temps, const Activation& state, Activation* output,
                         int block, uint32_t channels, uint32_t width, uint32_t height, uint32_t phase,
@@ -131,6 +136,7 @@ class Graph {
   Options options_;
   std::vector<std::unique_ptr<Activation>> activations_;
   std::map<std::string, Activation*> allocationsByKey_;
+  std::map<std::string, Activation*> temporaryCache_;
   std::set<std::string> usedThisRecord_;
   std::map<std::string, Activation*> boundaries_;
   Activation* head_ = nullptr;

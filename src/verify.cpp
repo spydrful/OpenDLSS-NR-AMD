@@ -115,7 +115,7 @@ int runVerify(int argc, char** argv) {
   uint32_t validHeight = (uint32_t)manifest["sourceDimensions"][1].integer();
 
   vk::Context context;
-  nr::Model model(context, modelDir, false);
+  nr::Model model(context, modelDir, true);
   nr::Kernels kernels(context, shaderDir);
   kernels.setSiluTable(ref::siluTable());
   nr::Geometry geometry = nr::Geometry::fromValid(validWidth, validHeight);

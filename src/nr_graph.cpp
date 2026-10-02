@@ -143,6 +143,14 @@ Graph::Routes Graph::routesFromEnvironment() {
 Graph::Graph(vk::Context& context, Model& model, Kernels& kernels, const Geometry& geometry, Options options)
     : context_(context), model_(model), kernels_(kernels), geometry_(geometry), options_(options),
       routes_(routesFromEnvironment()) {
+  // Native AMD/reference routes reuse the complete graph with materialized
+  // boundaries. NVIDIA's fused/PTX shaders and counter scheduling are separate
+  // implementations and must never be selected by an AMD environment switch.
+  if (kernels_.nativePortable()) {
+    options_.fusedBlocks = false;
+    routes_.fusePre = routes_.fusePool = routes_.fuseUpres = routes_.fusePost = false;
+    routes_.vitChain = false;
+  }
   // Chaining links consecutive PTX launches through device counters and drops the barrier between them, so every
   // launch in the chain must take its PTX route. Any switch that sends one kernel family (or one fused block)
   // back to GLSL takes the whole graph back to barriers.
@@ -168,6 +176,29 @@ Graph::Graph(vk::Context& context, Model& model, Kernels& kernels, const Geometr
 
 Graph::~Graph() {
   for (auto& activation : activations_) context_.destroyBuffer(activation->buffer);
+}
+
+uint64_t Graph::activationBytes() const {
+  uint64_t bytes=0;
+  for(const auto& activation:activations_) bytes+=activation->buffer.size;
+  return bytes;
+}
+
+Activation* Graph::allocateTemporary(const std::string& stage,const std::string& role,uint32_t rows,
+                                     uint32_t channels,Format format) {
+  // Only these operator-local tensors enter the cache. Stage states, encoder
+  // skips, transitions, the retained full-resolution adapter, and the head use
+  // ordinary allocate() and remain live independently. Every native dispatch
+  // ends with a Vulkan compute barrier before a later stage can overwrite its
+  // scratch. Captures deliberately retain the original separate allocations.
+  if(!kernels_.nativePortable()||!options_.reuseScratch||options_.captureBoundaries||options_.captureIntermediates||
+     getenv("DLSS5VK_NO_SCRATCH_REUSE"))return allocate(stage+" "+role,rows,channels,format);
+  std::string key=role+"/"+std::to_string(rows)+"x"+std::to_string(channels)+"/"+std::to_string(int(format));
+  auto found=temporaryCache_.find(key);
+  if(found!=temporaryCache_.end())return found->second;
+  Activation* result=allocate("native scratch "+role,rows,channels,format);
+  temporaryCache_[key]=result;
+  return result;
 }
 
 Activation* Graph::allocate(const std::string& label, uint32_t rows, uint32_t channels, Format format) {
@@ -223,28 +254,28 @@ Graph::Temporaries Graph::createTemporaries(const std::string& label, uint32_t r
   uint32_t hidden = layout.expertFfn ? layout.expertCount * 128 : layout.hidden;
   const bool fused = options_.fusedBlocks && !options_.captureIntermediates;
   if (fused && channels == 32) return t;   // the fused 32-channel block keeps everything on chip
-  if (!fused) t.ffn = allocate(label + " FFN", rows, hidden, Format::E4);
-  if (layout.expertFfn) t.ffnNarrow = allocate(label + " FFN narrow", rows, channels, Format::E4);
-  if (!fused) t.ffnResidual = allocate(label + " FFN residual", rows, channels, Format::F16);
-  t.ffnQuantized = allocate(label + " FFN quantized", rows, channels, Format::E4);
+  if (!fused) t.ffn = allocateTemporary(label,"FFN",rows,hidden,Format::E4);
+  if (layout.expertFfn) t.ffnNarrow = allocateTemporary(label,"FFN narrow",rows,channels,Format::E4);
+  if (!fused) t.ffnResidual = allocateTemporary(label,"FFN residual",rows,channels,Format::F16);
+  t.ffnQuantized = allocateTemporary(label,"FFN quantized",rows,channels,Format::E4);
   // c256 (one workgroup per SM) is faster with the separate projection GEMM, hence the default width limit.
   if (fused && layout.expertFfn && Kernels::ptxFfnEnabled() && channels <= routes_.deferMax)
     t.ffnQuantized2 = allocate(label + " FFN quantized B", rows, channels, Format::E4);
-  if (!fused) t.qkv = allocate(label + " QKV", rows, channels * 3, Format::F16);
-  if (!fused) t.normalized = allocate(label + " normalized QKV", rows, channels * 3, Format::E4);
-  t.attended = allocate(label + " attended", rows, channels, Format::E4);
+  if (!fused) t.qkv = allocateTemporary(label,"QKV",rows,channels*3,Format::F16);
+  if (!fused) t.normalized = allocateTemporary(label,"normalized QKV",rows,channels*3,Format::E4);
+  t.attended = allocateTemporary(label,"attended",rows,channels,Format::E4);
   return t;
 }
 
 Graph::SplitTemporaries Graph::createSplitTemporaries(const std::string& label, uint32_t rows) {
   SplitTemporaries t;
-  t.branch = allocate(label + " split branch", rows, 512, Format::E4);
-  t.middle = allocate(label + " split middle", rows, 2048, Format::E4);
-  t.layer0 = allocate(label + " split layer0", rows, 512, Format::E4);
-  t.ffnResidual = allocate(label + " split residual", rows, 512, Format::E4);
-  t.qkv = allocate(label + " split QKV", rows, 1536, Format::F16);
-  t.normalized = allocate(label + " split normalized", rows, 1536, Format::E4);
-  t.attended = allocate(label + " split attended", rows, 512, Format::E4);
+  t.branch = allocateTemporary(label,"split branch",rows,512,Format::E4);
+  t.middle = allocateTemporary(label,"split middle",rows,2048,Format::E4);
+  t.layer0 = allocateTemporary(label,"split layer0",rows,512,Format::E4);
+  t.ffnResidual = allocateTemporary(label,"split residual",rows,512,Format::E4);
+  t.qkv = allocateTemporary(label,"split QKV",rows,1536,Format::F16);
+  t.normalized = allocateTemporary(label,"split normalized",rows,1536,Format::E4);
+  t.attended = allocateTemporary(label,"split attended",rows,512,Format::E4);
   return t;
 }
 

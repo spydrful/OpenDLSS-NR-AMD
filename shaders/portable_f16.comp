@@ -1,0 +1,30 @@
+#version 460
+#extension GL_GOOGLE_include_directive : require
+#include "portable_numeric.glsl"
+layout(local_size_x = 128) in;
+layout(constant_id = 0) const uint K = 16;
+layout(constant_id = 1) const uint TILE_N = 32;
+layout(constant_id = 2) const uint FLAGS = 0;
+layout(push_constant) uniform Push { uint rows, N, inputStride, outputStride; } pc;
+layout(std430, binding = 0) readonly buffer A { float16_t a[]; };
+layout(std430, binding = 1) readonly buffer B { float16_t b[]; };
+layout(std430, binding = 2) writeonly buffer O16 { float16_t out16[]; };
+layout(std430, binding = 5) writeonly buffer O8 { uint8_t out8[]; };
+layout(std430, binding = 7) writeonly buffer O32 { float out32[]; };
+void main() {
+  uint rowBase = (gl_WorkGroupID.y + gl_WorkGroupID.z * 65535u) * 64u;
+  for (uint i = gl_LocalInvocationID.x; i < 64u * TILE_N; i += 128u) {
+    uint row = rowBase + i / TILE_N, column = i % TILE_N;
+    if (row >= pc.rows || column >= pc.N) continue;
+    float value = 0.0;
+    for (uint kb = 0u; kb < K; kb += 8u) {
+      float av[8], bv[8];
+      for (uint k = 0u; k < 8u; ++k) { av[k] = float(a[row * pc.inputStride + kb + k]); bv[k] = float(b[(kb + k) * TILE_N + column]); }
+      value = nrFdpa8(av, bv, value);
+    }
+    uint index = row * pc.outputStride + column;
+    if ((FLAGS & 256u) != 0u) out32[index] = value;
+    else if ((FLAGS & 16u) == 0u) out16[index] = float16_t(value);
+    if ((FLAGS & 48u) != 0u) out8[index] = uint8_t(e4m3CodeFromF32(value));
+  }
+}

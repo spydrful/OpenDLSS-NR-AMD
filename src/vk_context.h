@@ -7,6 +7,7 @@
 #include <array>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -20,6 +21,23 @@
   } while (0)
 
 namespace vk {
+
+enum class Backend { Auto, Nvidia, AmdFast, Reference };
+Backend parseBackend(const std::string& name);
+const char* backendName(Backend backend);
+
+struct DeviceCapabilities {
+  Backend backend = Backend::Auto;
+  VkPhysicalDeviceProperties properties{};
+  std::string driverName, driverInfo;
+  uint32_t subgroupSize = 0;
+  VkSubgroupFeatureFlags subgroupOperations = 0;
+  bool fp8Matrix16 = false;
+  bool pipelineStatistics = false;
+  bool cudaLaunch = false;
+  bool externalInterop = false;
+  std::vector<VkCooperativeMatrixPropertiesKHR> matrixTypes;
+};
 
 struct Buffer {
   VkBuffer buffer = VK_NULL_HANDLE;
@@ -66,17 +84,23 @@ struct DeviceRequirements {
   VkPhysicalDeviceShaderSMBuiltinsFeaturesNV sm{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_FEATURES_NV};
   VkPhysicalDeviceFeatures2 features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
   std::vector<const char*> extensions;
-  DeviceRequirements();                       // fills the chain (features.pNext -> ...) and the extension list
+  DeviceCapabilities capabilities;
+  explicit DeviceRequirements(VkPhysicalDevice physical, Backend requested = Backend::Auto, bool externalInterop = false);
+  DeviceRequirements(const DeviceRequirements&) = delete; // pNext pointers belong to this object
+  DeviceRequirements& operator=(const DeviceRequirements&) = delete;
   void* pNextChain() { return features.pNext; }   // for a VkDeviceCreateInfo that carries VkPhysicalDeviceFeatures itself
 };
 
 class Context {
  public:
-  Context();
+  explicit Context(Backend requested = Backend::Auto, const uint8_t* adapterLuid = nullptr, bool externalInterop = false);
   // Adopt a device created elsewhere (the demo renderer) with DeviceRequirements applied; the instance / device
   // are not destroyed by this object.
-  Context(VkInstance instance, VkPhysicalDevice physical, VkDevice device, uint32_t queueFamily, uint32_t queueIndex = 0);
+  Context(VkInstance instance, VkPhysicalDevice physical, VkDevice device, uint32_t queueFamily, uint32_t queueIndex = 0,
+          Backend requested = Backend::Auto);
   ~Context();
+  Context(const Context&) = delete;
+  Context& operator=(const Context&) = delete;
   uint32_t queueFamily() const { return queueFamily_; }
   uint32_t queueIndex() const { return queueIndex_; }
   VkInstance instance() const { return instance_; }
@@ -95,6 +119,12 @@ class Context {
   VkPipelineLayout pipelineLayout() const { return pipelineLayout_; }
   VkDescriptorSetLayout setLayout() const { return setLayout_; }
   const std::string& deviceName() const { return deviceName_; }
+  Backend backend() const { return capabilities_.backend; }
+  bool isAmd() const { return backend() == Backend::AmdFast; }
+  bool isReference() const { return backend() == Backend::Reference; }
+  const DeviceCapabilities& capabilities() const { return capabilities_; }
+  std::string capabilityReport() const;
+  const char* arithmeticMode() const;
 
   // Buffers -----------------------------------------------------------------
   Buffer createBuffer(VkDeviceSize size, bool hostVisible, const char* label,
@@ -113,7 +143,7 @@ class Context {
                                  const char* label, uint32_t requiredSubgroupSize = 32);
   void destroyPipeline(Pipeline& pipeline);
   // VK_KHR_pipeline_executable_properties: register/spill statistics (and SASS when available).
-  void setCaptureStatistics(bool enabled) { captureStatistics_ = enabled; }
+  void setCaptureStatistics(bool enabled) { captureStatistics_ = enabled && capabilities_.pipelineStatistics; }
   std::string pipelineStatistics(const Pipeline& pipeline, bool includeInternal = false);
 
   // Descriptors: one generic layout with kGenericBindings storage buffers.
@@ -122,6 +152,7 @@ class Context {
                               const VkDeviceSize ranges[kGenericBindings] = nullptr);
   void resetDescriptorPool();              // advance to the next pool and reset it
   void resetDescriptorPool(uint32_t slot); // reset and use a specific pool (the caller's frame-in-flight slot)
+  void ensureDescriptorPoolCount(uint32_t count); // grow before submitting additional independent frame slots
 
   // Commands --------------------------------------------------------------------
   VkCommandBuffer beginCommands();
@@ -157,8 +188,9 @@ class Context {
   VkCommandPool commandPool_ = VK_NULL_HANDLE;
   VkDescriptorSetLayout setLayout_ = VK_NULL_HANDLE;
   VkPipelineLayout pipelineLayout_ = VK_NULL_HANDLE;
+  VkPipelineCache pipelineCache_ = VK_NULL_HANDLE;
   VkDescriptorPool descriptorPool_ = VK_NULL_HANDLE;
-  std::array<VkDescriptorPool, 2> descriptorPools_{};
+  std::vector<VkDescriptorPool> descriptorPools_ = std::vector<VkDescriptorPool>(2, VK_NULL_HANDLE);
   size_t descriptorPoolIndex_ = 0;
   VkPhysicalDeviceMemoryProperties memoryProperties_{};
   float timestampPeriod_ = 1.0f;
@@ -167,7 +199,10 @@ class Context {
   bool captureStatistics_ = false;
   bool owned_ = true;
   std::string deviceName_;
+  DeviceCapabilities capabilities_;
+  std::string pipelineCachePath_;
   void initCommon();   // properties, memory types, command pool, layouts, pools, staging
+  void releaseResources(bool persistCache) noexcept;
   Buffer dummy_;
   Buffer staging_;
   std::vector<VkShaderModule> modules_;

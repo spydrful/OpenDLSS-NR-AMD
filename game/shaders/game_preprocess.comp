@@ -1,0 +1,46 @@
+#version 460
+#extension GL_GOOGLE_include_directive : require
+#include "frame_buffers.glsl"
+layout(local_size_x=8,local_size_y=8) in;
+layout(std430,binding=7) writeonly buffer Features {float features[];};
+float hashUniform(uint value) {
+  uint mixed = value;
+  mixed = (mixed >> ((mixed >> 28u) + 4u)) ^ mixed;
+  mixed *= 0x108ef2d9u;
+  uint integer = ((mixed >> 30u) ^ (mixed >> 8u)) + 1u;
+  return float(integer) * uintBitsToFloat(0x33800000u);
+}
+
+// Scalar form of the network's Box-Muller sequence (instruction order preserved:
+// the approximate transcendentals make it order dependent).
+vec3 gaussian3(uint x, uint y, uint seed) {
+  uint base = (x * 0x8da6b343u) ^ (seed * 0x9e3779b9u) ^ (y * 0xd8163841u) ^ 0x243f6a88u;
+  base = (base >> ((base >> 28u) + 4u)) ^ base;
+  base *= 0x108ef2d9u;
+  base = (base >> 22u) ^ base;
+  float u0 = hashUniform(base * 0x2c9277b5u + 0xac564b05u);
+  float u1 = hashUniform(base * 0xfa6dc5f9u + 0x4712a88eu);
+  float u2 = hashUniform(base * 0xcaa5b80du + 0x21dd796bu);
+  float u3 = hashUniform(base * 0x83232c31u + 0x3463e0acu);
+  float radius0 = sqrt(log2(u0) * uintBitsToFloat(0x3f317218u) * -2.0);
+  float radius1 = sqrt(log2(u2) * uintBitsToFloat(0x3f317218u) * -2.0);
+  float angle0 = u1 * uintBitsToFloat(0x40c90fdbu);
+  float angle1 = u3 * uintBitsToFloat(0x40c90fdbu);
+  return vec3(roundF16(radius0 * cos(angle0)), roundF16(radius0 * sin(angle0)), roundF16(radius1 * cos(angle1)));
+}
+
+
+void main(){
+  uvec2 p=gl_GlobalInvocationID.xy;
+  if(p.x>=params.fullWidth||p.y>=params.fullHeight)return;
+  ivec2 r=ivec2(p);if(p.x>=params.width)r.x=2*int(params.width)-r.x-2;if(p.y>=params.height)r.y=2*int(params.height)-r.y-2;
+  uvec2 src=uvec2(clamp(r,ivec2(0),ivec2(params.width,params.height)-1));
+  vec3 proxy=proxyAt(src),h=hasHistory(src)?historySample(src):proxy;
+  vec3 n=gaussian3(p.x,p.y,params.seed);uint i=(p.y*params.fullWidth+p.x)*16u;
+  features[i]=n.x;features[i+1]=n.y;features[i+2]=n.z;features[i+3]=1;
+  for(uint c=0u;c<3u;c++){features[i+4u+c]=roundF16(roundF16(roundF16(proxy[c])-.5)*.125);features[i+7u+c]=roundF16(roundF16(roundF16(h[c])-.5)*.125);}
+  features[i+10u]=float(params.style)/128;features[i+11u]=roundF16(params.tone);
+  features[i+12u]=roundF16(params.autoMask!=0u?1:params.structure);
+  features[i+13u]=roundF16(params.autoMask!=0u?(params.skin<0?params.structure:params.skin):-1);
+  features[i+14u]=roundF16(params.autoMask!=0u?params.structure:-1);features[i+15u]=0;
+}

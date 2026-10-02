@@ -14,11 +14,11 @@ import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve, dirname, basename } from 'node:path';
 
 import { startServer } from '../src/server.js';
 
-const pages = { selftest: 'web/selftest.html', parity: 'web/parity.html', demo: 'demo/index.html' };
+const pages = { selftest: 'web/selftest.html', parity: 'web/parity.html', block0: 'web/amd_block0.html', direct: 'web/amd_exact_parity.html', demo: 'demo/index.html' };
 
 const which = process.argv[2] ?? 'selftest';
 const extraQuery = process.argv[3] ?? '';
@@ -43,7 +43,8 @@ if (!chrome) {
 
 const server = await startServer({ port: 0, onReport: report });
 const port = server.address().port;
-const profile = await mkdtemp(join(tmpdir(), 'nr-headless-'));
+const profileRoot = resolve(tmpdir());
+const profile = await mkdtemp(join(profileRoot, 'nr-headless-'));
 
 let settled = false;
 function report(body) {
@@ -57,7 +58,15 @@ function report(body) {
 async function finish(code) {
   try { browser.kill(); } catch { /* already gone */ }
   server.close();
-  await rm(profile, { recursive: true, force: true }).catch(() => {});
+  const profileTarget = resolve(profile);
+  const parent = dirname(profileTarget);
+  const sameParent = process.platform === 'win32'
+    ? parent.toLowerCase() === profileRoot.toLowerCase() : parent === profileRoot;
+  if (sameParent && basename(profileTarget).startsWith('nr-headless-')) {
+    await rm(profileTarget, { recursive: true, force: true }).catch(() => {});
+  } else {
+    console.error('Refusing to remove a browser profile outside the generated temporary directory.');
+  }
   process.exit(code);
 }
 

@@ -70,6 +70,8 @@ class Kernels {
 
   void gemmFp8(VkCommandBuffer commands, const GemmFp8Args& args);
   void gemmF16(VkCommandBuffer commands, const GemmF16Args& args);
+  vk::Backend backend() const { return context_.backend(); }
+  bool nativePortable() const { return backend() != vk::Backend::Nvidia; }
   static bool ptxGemmEnabled();   // the gemm2 PTX route (DLSS5VK_PTX_GEMM, default on)
   static bool ptxQkvEnabled();    // the fused QKV + window attention PTX route (DLSS5VK_PTX_QKV, default on)
 
@@ -254,6 +256,7 @@ class Kernels {
   void setSiluTable(const std::vector<uint16_t>& table);
 
  private:
+  void nativeGemmFp8(VkCommandBuffer commands, const GemmFp8Args& args);
   // requiredSubgroupSize 0: no subgroup requirement (kernels without subgroup operations and a workgroup that is not a
   // multiple of 32)
   VkPipeline pipeline(const char* shader, const vk::SpecConstants& constants, uint32_t requiredSubgroupSize = 32);
@@ -274,6 +277,7 @@ class Kernels {
                       const vk::Buffer* const bindings[vk::kGenericBindings], const void* push, uint32_t pushBytes,
                       uint32_t count);
   vk::Context& context_;
+  bool amdGlobalMatrix_ = false;
   std::map<std::string, VkShaderModule> modules_;
   std::map<std::string, vk::Pipeline> pipelines_;
   vk::Buffer siluTable_;

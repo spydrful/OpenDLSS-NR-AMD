@@ -1,11 +1,27 @@
-This repository is licensed under the MIT License (see LICENSE). It is not affiliated with, endorsed by, or
+The neural core (src/, shaders/, demo/) is licensed under the MIT License (see LICENSE).
+The Windows game wrapper in game/ and the pinned OptiScaler integration are GPL-3.0-or-later;
+see integrations/optiscaler/LICENSE. The combined runtime DLL is distributed under GPL-3.0-or-later
+with corresponding source; the core retains its MIT notice. It is not affiliated with, endorsed by, or
 supported by NVIDIA Corporation. "DLSS" is a trademark of NVIDIA Corporation; it is used here only to describe
-what the network implemented by this code is compatible with. No NVIDIA software, weights, headers or
-documentation are included, and no rights under any NVIDIA intellectual property are granted.
+what the network implemented by this code is compatible with. No NVIDIA model DLL or weights are
+included. The separately fetched OptiScaler source uses its upstream SDK headers and notices.
+No rights under any NVIDIA intellectual property are granted.
 
-Third-party components used by the build (downloaded or cloned by the scripts, not redistributed here):
+Third-party components used by this repository and its build (distribution scope noted below):
 
-- Filament by Google (Apache-2.0), including the third-party libraries its build brings in (SDL2 (zlib),
+- Basis Universal by Binomial LLC (Apache-2.0): the inherited JS/WASM browser
+  transcoder is redistributed in ports/browser-webgpu/web/vendor/basis/.
+  That directory includes the full LICENSE and ATTRIBUTION.md with artifact
+  hashes and the official source of the license text. Its original binary
+  source/build revision was not recorded; the artifacts are unchanged here.
+
+- OptiScaler native submission integration, MatheusFerreiraS/neural-amd-opti commit
+  557bb8553098395f5f138c2e22ed25f256f7a3a2 (GPL-3.0-or-later). Compatibility headers in game/compat/
+  are retained from that source. Its complete modified source accompanies binary packages.
+- The local PE/resource importer is adapted from mochizuki0323/DLSSNR-AMD commit
+  82560c4fbfaac347fc5e22c22025191402ae916b (MIT); see tools/MODEL_IMPORTER_NOTICE.txt.
+
+- Filament by Google (Apache-2.0), downloaded by the build scripts, including the third-party libraries its build brings in (SDL2 (zlib),
   Dear ImGui (MIT), stb (MIT / public domain), Draco, meshoptimizer, Basis Universal, zstd, Abseil and others,
   see its third_party/ directory): the demo renderer. third_party/filament.patch is a modification of Filament's
   sources and is offered under the same Apache-2.0 license; demo/native_window_cocoa.mm follows Filament's

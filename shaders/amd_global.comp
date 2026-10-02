@@ -1,0 +1,9 @@
+#version 460
+#extension GL_EXT_float_e4m3 : require
+#extension GL_GOOGLE_include_directive : require
+// Global attention is the small, low-resolution bottleneck. A bounded-memory
+// scalar dot route keeps large token counts valid on RDNA without NV matrix2.
+#define NR_FAST_DOT 1
+#define NR_AMD_HARDWARE_NUMERIC 1
+#define DLSS_E4M3_HW 1
+#include "portable_global_body.glsl"

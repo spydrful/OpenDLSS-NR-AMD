@@ -8,6 +8,12 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $tools = Join-Path $root "tools"
 New-Item -ItemType Directory -Force $tools | Out-Null
+function Assert-ToolsChildPath([string]$Path) {
+  $resolved = [IO.Path]::GetFullPath($Path)
+  $allowed = [IO.Path]::GetFullPath($tools).TrimEnd('\') + '\'
+  if (-not $resolved.StartsWith($allowed, [StringComparison]::OrdinalIgnoreCase)) { throw "tool operation outside tools/: $resolved" }
+  return $resolved
+}
 
 $glslangVersion = "16.6.0"
 $vulkanHeadersTag = "v1.4.363"
@@ -24,9 +30,11 @@ if (-not (Test-Path (Join-Path $tools "glslang\bin\glslang.exe"))) {
   $bin = Get-ChildItem -Path $stage -Recurse -Filter glslang.exe | Select-Object -First 1
   if (-not $bin) { throw "glslang.exe not found in $zip" }
   $top = Split-Path -Parent $bin.DirectoryName   # the zip's root (bin/, include/, lib/), possibly nested one level
-  Move-Item -Path $top -Destination (Join-Path $tools "glslang")
-  if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
-  Remove-Item -Force $zip
+  $top = Assert-ToolsChildPath $top
+  $destination = Assert-ToolsChildPath (Join-Path $tools "glslang")
+  Move-Item -LiteralPath $top -Destination $destination
+  if (Test-Path $stage) { Remove-Item -LiteralPath (Assert-ToolsChildPath $stage) -Recurse -Force }
+  Remove-Item -LiteralPath (Assert-ToolsChildPath $zip) -Force
 }
 & (Join-Path $tools "glslang\bin\glslang.exe") --version | Select-Object -First 1
 
@@ -52,9 +60,12 @@ if (-not (Test-Path (Join-Path $tools "cmake\bin\cmake.exe"))) {
   $stage = Join-Path $tools "cmake-unzip"
   Expand-Archive -Path $zip -DestinationPath $stage -Force
   $exe = Get-ChildItem -Path $stage -Recurse -Filter cmake.exe | Select-Object -First 1
-  Move-Item -Path (Split-Path -Parent $exe.DirectoryName) -Destination (Join-Path $tools "cmake")
-  if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
-  Remove-Item -Force $zip
+  if (-not $exe) { throw "cmake.exe not found in $zip" }
+  $source = Assert-ToolsChildPath (Split-Path -Parent $exe.DirectoryName)
+  $destination = Assert-ToolsChildPath (Join-Path $tools "cmake")
+  Move-Item -LiteralPath $source -Destination $destination
+  if (Test-Path $stage) { Remove-Item -LiteralPath (Assert-ToolsChildPath $stage) -Recurse -Force }
+  Remove-Item -LiteralPath (Assert-ToolsChildPath $zip) -Force
 }
 if (-not (Test-Path (Join-Path $tools "ninja\ninja.exe"))) {
   $zip = Join-Path $tools "ninja.zip"
@@ -62,7 +73,7 @@ if (-not (Test-Path (Join-Path $tools "ninja\ninja.exe"))) {
   Write-Host "downloading $url"
   Invoke-WebRequest -Uri $url -OutFile $zip
   Expand-Archive -Path $zip -DestinationPath (Join-Path $tools "ninja") -Force
-  Remove-Item -Force $zip
+  Remove-Item -LiteralPath (Assert-ToolsChildPath $zip) -Force
 }
 & (Join-Path $tools "cmake\bin\cmake.exe") --version | Select-Object -First 1
 Write-Host ("ninja " + (& (Join-Path $tools "ninja\ninja.exe") --version))
