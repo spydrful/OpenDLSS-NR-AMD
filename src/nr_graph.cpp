@@ -1,4 +1,5 @@
 #include "nr_graph.h"
+#include "amd_fusion.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -143,6 +144,7 @@ Graph::Routes Graph::routesFromEnvironment() {
 Graph::Graph(vk::Context& context, Model& model, Kernels& kernels, const Geometry& geometry, Options options)
     : context_(context), model_(model), kernels_(kernels), geometry_(geometry), options_(options),
       routes_(routesFromEnvironment()) {
+  kernels_.setModelIdentity(model_.manifestSha256(), geometry_.fullWidth, geometry_.fullHeight);
   // Native AMD/reference routes reuse the complete graph with materialized
   // boundaries. NVIDIA's fused/PTX shaders and counter scheduling are separate
   // implementations and must never be selected by an AMD environment switch.
@@ -307,6 +309,23 @@ void Graph::encodeFusedBlock(VkCommandBuffer commands, Temporaries& temps, const
   Activation* ffnOut = (temps.ffnQuantized2 && (block & 1)) ? temps.ffnQuantized2 : temps.ffnQuantized;
   kernels_.setStageLabel("block " + std::to_string(block) + " c" + std::to_string(channels));
   const Activation* residual = ffnSkipOverride ? ffnSkipOverride : &state;
+  if (channels == 32 && !options_.captureIntermediates && kernels_.amdBlock32Enabled()) {
+    // Native body fusion keeps adapters, raw transitions, pooling and the head
+    // outside. This route never enables NVIDIA PTX or its counter chains.
+    if (pooledOutput || deferProjection) throw std::runtime_error("AMD C32 body does not fuse pooling/deferred projection");
+    AmdBlock32Args f;
+    f.state = &state; f.residual = residual;
+    f.expandWeights = &model_.fp8Matrix(tensor, layout.expand, 32, layout.hidden);
+    f.contractWeights = &model_.fp8Matrix(tensor, layout.contractWeights, layout.hidden, 32);
+    f.qkvWeights = &model_.fp8Matrix(tensor, layout.qkv, 32, 96);
+    f.projectionWeights = &model_.fp8Matrix(tensor, layout.projection, 32, 32);
+    f.prior = &model_.relativeBias(tensor, layout.relative, 1); f.auxTensor = &tensor;
+    f.ffnScaleByteOffset = layout.ffnCosSkip; f.attentionScaleByteOffset = layout.attnCosSkip; f.qScaleByteOffset = layout.scale;
+    f.output = output; f.rawOutput = rawOutput;
+    f.width = width; f.height = height; windowPhase(phase, f.shiftX, f.shiftY);
+    kernels_.amdBlock32(commands, f);
+    return;
+  }
   if (options_.fusedBlocks && !options_.captureIntermediates && channels == 32) {
     uint32_t shiftX, shiftY;
     windowPhase(phase, shiftX, shiftY);
@@ -345,7 +364,18 @@ void Graph::encodeFusedBlock(VkCommandBuffer commands, Temporaries& temps, const
     const uint32_t w2Base = layout.expand + experts * channels * 128;
     const uint32_t w3Base = w2Base + experts * 128 * 32;
     const vk::Buffer& w1Weights = model_.fp8Matrix(tensor, layout.expand, experts * channels, 128, true, channels);
-    if (options_.fusedBlocks && !options_.captureIntermediates && Kernels::ptxFfnEnabled() && channels <= 256) {
+    if (!options_.captureIntermediates && kernels_.amdExpertFfnEnabled()) {
+      // Independent native fusion; preserve W1 SiLU/E4, W2 E4, and the W3
+      // residual-seeded raw-half/E4 outputs. Partitioned split/ViT paths stay separate.
+      AmdExpertFfnArgs ffn;
+      ffn.input = &state; ffn.residual = residual; ffn.rows = rows; ffn.channels = channels;
+      ffn.expandWeights = &w1Weights;
+      ffn.narrowWeights = &model_.fp8Matrix(tensor, w2Base, experts * 128, 32, true, 128);
+      ffn.projectWeights = &model_.fp8Matrix(tensor, w3Base, channels, channels);
+      ffn.auxTensor = &tensor; ffn.scaleByteOffset = layout.ffnCosSkip;
+      ffn.rawOutput = temps.ffnResidual; ffn.quantizedOutput = temps.ffnQuantized;
+      kernels_.amdExpertFfn(commands, ffn);
+    } else if (options_.fusedBlocks && !options_.captureIntermediates && Kernels::ptxFfnEnabled() && channels <= 256) {
       // PTX expert FFN + W3 in one kernel (ffn_e4m3.py): every expert of a row group in one workgroup.
       if (ffnSkipOverride) throw std::runtime_error("PTX expert FFN assumes the block state is the FFN skip");
       static const std::vector<uint32_t> hiddenPerm = Kernels::mlpHiddenPermutation();
@@ -419,6 +449,16 @@ void Graph::encodeFusedBlock(VkCommandBuffer commands, Temporaries& temps, const
       w3.residual = residual; w3.scaleResidual = true; w3.auxTensor = &tensor; w3.auxByteOffset = layout.ffnCosSkip;
       kernels_.gemmFp8(commands, w3);
     }
+  } else if (channels == 32 && !options_.captureIntermediates && kernels_.amdFfn32Enabled()) {
+    // Native AMD fusion is independent of NVIDIA's fused/PTX graph option.
+    // Keep the raw half residual and its E4 twin, including block0/post skips.
+    AmdFfn32Args ffn;
+    ffn.input = &state; ffn.residual = residual; ffn.rows = rows;
+    ffn.expandWeights = &model_.fp8Matrix(tensor, layout.expand, 32, layout.hidden);
+    ffn.contractWeights = &model_.fp8Matrix(tensor, layout.contractWeights, layout.hidden, 32);
+    ffn.auxTensor = &tensor; ffn.scaleByteOffset = layout.ffnCosSkip;
+    ffn.rawOutput = temps.ffnResidual; ffn.quantizedOutput = temps.ffnQuantized;
+    kernels_.amdFfn32(commands, ffn);
   } else {
     GemmFp8Args expand;
     expand.input = &state; expand.rows = rows; expand.K = channels; expand.N = layout.hidden;
@@ -444,7 +484,15 @@ void Graph::encodeFusedBlock(VkCommandBuffer commands, Temporaries& temps, const
   uint32_t shiftX, shiftY;
   windowPhase(phase, shiftX, shiftY);
   const vk::Buffer& qkvWeights = model_.fp8Matrix(tensor, layout.qkv, channels, channels * 3);
-  if (options_.fusedBlocks && !options_.captureIntermediates) {
+  if (channels == 32 && !options_.captureIntermediates && kernels_.amdQkv32Enabled()) {
+    AmdQkv32Args qkv;
+    qkv.input = temps.ffnQuantized; qkv.weights = &qkvWeights;
+    qkv.prior = &model_.relativeBias(tensor, layout.relative, 1);
+    qkv.auxTensor = &tensor; qkv.scaleByteOffset = layout.scale;
+    qkv.attended = temps.attended; qkv.width = width; qkv.height = height;
+    qkv.shiftX = shiftX; qkv.shiftY = shiftY;
+    kernels_.amdQkv32(commands, qkv);
+  } else if (options_.fusedBlocks && !options_.captureIntermediates) {
     // The raw half QKV never leaves the SM: projection + normalize + attention per (window, head).
     Kernels::Chain qc;
     if (chain) {

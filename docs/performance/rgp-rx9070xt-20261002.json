@@ -1,0 +1,138 @@
+{
+  "format": "OpenNR-rgp-scalar-evidence-v1",
+  "observed_date": "2026-10-02",
+  "observation_source": "Local Radeon GPU Profiler UI inspected by the development operator; capture-file and tool identities independently hashed from local bytes",
+  "scope": {
+    "genuine_rgp_capture": true,
+    "genuine_game_capture": false,
+    "api": "Vulkan",
+    "process_id": 5324,
+    "partial": true,
+    "warning": "TRUNCATED SQTT",
+    "command_buffer_event_count_approximate": 101,
+    "complete_graph_dispatch_count": 513,
+    "complete_graph_observed": false,
+    "reported_pipeline_count": 17,
+    "profile_duration_us": 31793.473,
+    "profile_duration_scope": "Limited partial trace; not complete inference time",
+    "ordinary_benchmark_evidence": false,
+    "game_fps_evidence": false,
+    "dynamic_instruction_timing_qualified": false,
+    "dynamic_occupancy_qualified": false
+  },
+  "identity": {
+    "device_id": "1002:7550",
+    "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+    "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+    "shader_sha256": "31a0295666cde46ad5d15d190e3ceaced19421531b06dcb7a5282c04999b9348",
+    "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+  },
+  "selected": {
+    "kernels": "optimized",
+    "arithmetic": "k16",
+    "tile_n": 16,
+    "stage_k": 16,
+    "window_queries": 32,
+    "fusion": false,
+    "expert_fusion": false,
+    "block_fusion": false,
+    "hardware_publication": false
+  },
+  "selected_event": {
+    "event_id": 15,
+    "description": "First C32 Q32 attention dispatch",
+    "dispatch_grid": [1, 51840, 1],
+    "workgroup_size": [128, 1, 1],
+    "wavefront_size": 32,
+    "lds_bytes": 15360,
+    "vgpr_used": 31,
+    "vgpr_allocated": 48,
+    "sgpr_used": 30,
+    "sgpr_allocated": 128,
+    "scratch_spill": false,
+    "api_shader_hash": "0x6949DEA917C615C44C8122D41D3236A",
+    "api_pipeline_hash": "0xE07CEFA166AA2928",
+    "static_isa": {
+      "opcode": "v_wmma_f32_16x16x16_fp8_fp8",
+      "matches": 6,
+      "first_displayed_line": 348,
+      "executed_instruction_count": false
+    },
+    "theoretical_occupancy": {
+      "waves_per_simd": 8,
+      "maximum_waves_per_simd": 16,
+      "limiting_resource": "LDS",
+      "ui_lds_reduction_suggestion_bytes": 2560,
+      "measured_dynamic_occupancy": false
+    },
+    "instruction_timing_status": "No wavefronts analyzed"
+  },
+  "capture_environment": {
+    "rdp_cli_without_separate_prestarted_rds": "Succeeded",
+    "separately_prestarted_rds_attempt": "FailedToCreateRouter",
+    "capture_clocks": "Tool log reports set to peak and restored after capture",
+    "application_per_dispatch_instrumentation": false,
+    "external_profiler_instrumentation": true,
+    "exclude_all_capture_run_timings_from_ordinary_performance": true
+  },
+  "files": [
+    {
+      "role": "raw_capture",
+      "local_path": "build/performance/rgp-q32-20261002/q32-window.rgp",
+      "bytes": 476120628,
+      "sha256": "b8bab8d41ac4e96ce5742946725d79de2ace62bb25f8be8022db294db93bbd5c",
+      "distributed": false
+    },
+    {
+      "role": "profiler_tool",
+      "local_path": "tools/rgp/portable/RadeonDeveloperToolSuite-2026-05-28-1806/RadeonGPUProfiler.exe",
+      "bytes": 20201232,
+      "sha256": "afc53b6f27f5538542c4beef12a7b82f6dd8bd9312049d035de712f63b699670",
+      "file_version": "2.7.0.32",
+      "distributed": false
+    },
+    {
+      "role": "capture_tool",
+      "local_path": "tools/rgp/portable/RadeonDeveloperToolSuite-2026-05-28-1806/RadeonDeveloperPanelCLI.exe",
+      "bytes": 385800,
+      "sha256": "668474802964bc9d9ab22ce0eb2733db18a7a5951208ba3401b65494a5ef5a67",
+      "file_version": "v3.5.0.18",
+      "distributed": false
+    },
+    {
+      "role": "frozen_captured_process_executable",
+      "local_path": "build/performance/final-q32/dlss5vk-measured.exe",
+      "bytes": 1095680,
+      "sha256": "e3a46b0d18313e4c183661b657ff709c57acf34510043282a8496f4d84069952",
+      "distributed": false
+    },
+    {
+      "role": "corresponding_local_window_spirv",
+      "local_path": "build/shaders/amd_window_small.spv",
+      "bytes": 25628,
+      "sha256": "8406622ac4c6162646d3cc3185eaa0a60bbb03443efeca614fa9f644a80faab2",
+      "distributed": false
+    },
+    {
+      "role": "capture_tool_log",
+      "local_path": "build/performance/rgp-q32-20261002/panel-final.out.log",
+      "bytes": 516557,
+      "sha256": "126d31cfd393a9b41f8a9347ae0fa2b592013472f10d422bf64782d64aef2cee",
+      "distributed": false
+    },
+    {
+      "role": "application_identity_record_excluded_from_performance",
+      "local_path": "build/performance/rgp-q32-20261002/instrumented-bench.json",
+      "bytes": 1524,
+      "sha256": "1d289f9da87b94d0abe4b53e817e03f3b499cef32cb95bf549ad9bad2816b032",
+      "distributed": false
+    }
+  ],
+  "limitations": [
+    "UI scalar transcription is evidence for the selected event, not a machine-parsed reconstruction of the complete trace.",
+    "Partial SQTT and no analyzed wavefronts prevent reliable dynamic instruction timing or full-graph occupancy conclusions.",
+    "Static native ISA confirms matrix instructions exist in the selected installed-driver pipeline; its match count is not an execution count.",
+    "Local SPIR-V file hash records corresponding input bytes, not a source-to-binary reproducibility proof.",
+    "Raw capture, proprietary model inputs, tool binaries and local executable are not included in this scalar record."
+  ]
+}

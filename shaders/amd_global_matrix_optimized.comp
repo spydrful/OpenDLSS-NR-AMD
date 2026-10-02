@@ -1,0 +1,101 @@
+#version 460
+#extension GL_EXT_float_e4m3 : require
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_KHR_shader_subgroup_basic : require
+#extension GL_GOOGLE_include_directive : require
+#include "portable_numeric.glsl"
+layout(local_size_x = 128) in;
+layout(constant_id = 0) const uint PADDED_TOKENS = 64;
+layout(constant_id = 10) const uint PUBLICATION_INTERVAL = 16;
+layout(push_constant) uniform Push { uint tokens, heads, channels; } pc;
+layout(std430, binding = 0) readonly buffer Qkv { uint8_t qkv[]; };
+layout(std430, binding = 5) writeonly buffer Output { uint8_t attended[]; };
+// One 16-query tile walks 64-key tiles. The denominator and PV accumulator
+// retain the scalar route's order; all storage is bounded independently of
+// image size. Keeping FP8 operands in shared memory exposes native RDNA WMMA.
+shared uint8_t queries[16 * 32], keys[64 * 32], values[64 * 32], weights[16 * 64];
+shared float matrix[4 * 256];
+shared float16_t scores[16 * 64];
+shared float denominator[16];
+#define ACC coopmat<float, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>
+#define MA coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseA>
+#define MB coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseB>
+float pairSum(uint row, uint pair, uint parity) {
+  uint k = row * 64u + pair * 2u + parity;
+  float a = roundF16(float(scores[k]) + float(scores[k + 8u]));
+  float b = roundF16(float(scores[k + 16u]) + float(scores[k + 24u]));
+  float c = roundF16(float(scores[k + 32u]) + float(scores[k + 40u]));
+  float d = roundF16(float(scores[k + 48u]) + float(scores[k + 56u]));
+  return roundF16(roundF16(roundF16(a + b) + c) + d);
+}
+float softmax64(uint row) {
+  float e = roundF16(pairSum(row, 0u, 0u) + pairSum(row, 1u, 0u));
+  e = roundF16(roundF16(e + pairSum(row, 2u, 0u)) + pairSum(row, 3u, 0u));
+  float o = roundF16(pairSum(row, 0u, 1u) + pairSum(row, 1u, 1u));
+  o = roundF16(roundF16(o + pairSum(row, 2u, 1u)) + pairSum(row, 3u, 1u));
+  return roundF16(e + o);
+}
+void main() {
+  uint thread = gl_LocalInvocationID.x, subgroup = gl_SubgroupID, head = gl_WorkGroupID.x;
+  uint queryBase = (gl_WorkGroupID.y + gl_WorkGroupID.z * 65535u) * 16u;
+  if (queryBase >= pc.tokens) return;
+  uint stride = pc.channels * 3u, headBase = head * 96u;
+  for (uint i = thread; i < 512u; i += 128u) {
+    uint token = queryBase + i / 32u;
+    queries[i] = token < pc.tokens ? qkv[token * stride + headBase + i % 32u] : uint8_t(0);
+  }
+  if (thread < 16u) denominator[thread] = 0.0;
+  ACC pv = ACC(0.0);
+  barrier();
+  for (uint keyBase = 0u; keyBase < PADDED_TOKENS; keyBase += 64u) {
+    for (uint i = thread; i < 2048u; i += 128u) {
+      uint token = keyBase + i / 32u;
+      keys[i] = token < pc.tokens ? qkv[token * stride + headBase + 32u + i % 32u] : uint8_t(0);
+      values[i] = token < pc.tokens ? qkv[token * stride + headBase + 64u + i % 32u] : uint8_t(0);
+    }
+    barrier();
+    ACC score = ACC(0.0);
+    for (uint kb = 0u; kb < 32u; kb += 16u) {
+      MA a; MB b;
+      coopMatLoad(a, queries, kb, 32u, gl_CooperativeMatrixLayoutRowMajor);
+      coopMatLoad(b, keys, subgroup * 512u + kb, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+      score = coopMatMulAdd(a, b, score);
+      if (kb + 16u == 32u || (PUBLICATION_INTERVAL != 0u && (kb + 16u) % PUBLICATION_INTERVAL == 0u))
+        for (uint i = 0u; i < score.length(); ++i) score[i] = roundF16(score[i]);
+    }
+    coopMatStore(score, matrix, subgroup * 256u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+    barrier();
+    for (uint i = thread; i < 1024u; i += 128u) {
+      uint row = i / 64u, key = i % 64u;
+      float value = nrVitExp(matrix[(key / 16u) * 256u + row * 16u + key % 16u]);
+      scores[i] = float16_t(value);
+      weights[i] = uint8_t(e4m3CodeFromF32(value));
+    }
+    barrier();
+    if (thread < 16u) denominator[thread] = roundF16(denominator[thread] + softmax64(thread));
+    if (subgroup < 2u) for (uint kb = 0u; kb < 64u; kb += 16u) {
+      MA a; MB b;
+      coopMatLoad(a, weights, kb, 64u, gl_CooperativeMatrixLayoutRowMajor);
+      coopMatLoad(b, values, kb * 32u + subgroup * 16u, 32u, gl_CooperativeMatrixLayoutRowMajor);
+      pv = coopMatMulAdd(a, b, pv);
+      if (keyBase + kb + 16u == PADDED_TOKENS || (PUBLICATION_INTERVAL != 0u && (keyBase + kb + 16u) % PUBLICATION_INTERVAL == 0u))
+        for (uint i = 0u; i < pv.length(); ++i) pv[i] = roundF16(pv[i]);
+    }
+    barrier();
+  }
+  if (thread < 16u) {
+    float total = denominator[thread];
+    if (PADDED_TOKENS > pc.tokens) total = roundF16(total - roundF16(nrVitExp(0.0) * float(PADDED_TOKENS - pc.tokens)));
+    denominator[thread] = roundF16(1.0 / total);
+  }
+  if (subgroup < 2u) coopMatStore(pv, matrix, subgroup * 256u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+  barrier();
+  for (uint i = thread; i < 512u; i += 128u) {
+    uint row = i / 32u, column = i % 32u, token = queryBase + row;
+    if (token < pc.tokens) {
+      float value = matrix[(column / 16u) * 256u + row * 16u + column % 16u];
+      attended[token * pc.channels + head * 32u + column] = uint8_t(e4m3CodeFromF32(roundF16(value * denominator[row])));
+    }
+  }
+}

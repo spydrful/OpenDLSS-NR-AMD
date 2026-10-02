@@ -84,6 +84,12 @@ if ($ShaderFileNames) {
 }
 if ($taskSpvs.Count -eq 0) { throw 'No compiled SPIR-V shaders were supplied' }
 foreach ($taskShader in $taskSpvs) { Add-NrPayload $taskShader.FullName ('open-nr\shaders\' + $taskShader.Name) 'shader' }
+$taskTuning = Join-Path $taskShaders 'amd-tuning.json'
+if (Test-Path -LiteralPath $taskTuning -PathType Leaf) {
+  # Tuning is optional, identity/geometry bound at runtime and managed by the
+  # same hash-checked installer as the selected compiled shaders.
+  Add-NrPayload $taskTuning 'open-nr\shaders\amd-tuning.json' 'amd-tuning'
+}
 if (Test-Path -LiteralPath $GameShaderDirectory -PathType Container) {
   $taskGameShaderRoot = Get-NrRoot $GameShaderDirectory
   foreach ($taskShader in (Get-ChildItem -LiteralPath $taskGameShaderRoot -File -Filter '*.spv')) {
@@ -105,6 +111,9 @@ if ($Configuration) {
 [Upscalers]
 Dx12Upscaler=ffx
 
+[Spoofing]
+StreamlineSpoofing=false
+
 [DlssNr]
 Enabled=false
 NrBackend=mochizuki
@@ -123,18 +132,26 @@ MochizukiStabilizerStrength=0
   Remove-Item -LiteralPath $taskIni
 }
 New-Item -ItemType Directory -Path (Join-Path $taskStage 'scripts'), (Join-Path $taskStage 'tools'), (Join-Path $taskStage 'source') | Out-Null
-foreach ($taskScript in @('install.ps1', 'uninstall.ps1', 'install_common.ps1', 'import_model.ps1', 'fetch_presentmon.ps1')) {
+foreach ($taskScript in @('install.ps1', 'uninstall.ps1', 'install_common.ps1', 'import_model.ps1', 'fetch_presentmon.ps1', 'benchmark_amd.ps1', 'freeze_amd_baseline.ps1', 'analyze_amd_shaders.ps1', 'rga_tool_manifest.json')) {
   Copy-Item -LiteralPath (Join-Path $PSScriptRoot $taskScript) -Destination (Join-Path $taskStage 'scripts')
 }
 Copy-Item -LiteralPath (Join-Path $taskRoot 'build\importer\model_importer.exe') -Destination (Join-Path $taskStage 'tools')
 Copy-Item -LiteralPath ([IO.Path]::GetFullPath($DiagnosticExe)) -Destination (Join-Path $taskStage 'tools\dlss5vk.exe')
-foreach ($taskTool in @('analyze_performance.py', 'compare_images.py', 'analyze_runtime.py', 'analyze_presentmon.py')) {
+foreach ($taskTool in @('analyze_performance.py', 'compare_images.py', 'analyze_runtime.py', 'analyze_presentmon.py', 'tune_amd.py', 'qualify_amd_model.py', 'compare_amd_scenes.py')) {
   Copy-Item -LiteralPath (Join-Path $taskRoot ('tools\' + $taskTool)) -Destination (Join-Path $taskStage 'tools')
 }
 foreach ($taskNotice in @('LICENSE', 'NOTICE', 'tools\MODEL_IMPORTER_NOTICE.txt', 'docs\AMD.md', 'docs\amd-numerics.md', 'docs\rx9070xt-validation.md')) {
   Copy-Item -LiteralPath (Join-Path $taskRoot $taskNotice) -Destination $taskStage
 }
 if (Test-Path -LiteralPath $taskInstallGuide -PathType Leaf) { Copy-Item -LiteralPath $taskInstallGuide -Destination (Join-Path $taskStage 'INSTALL.md') }
+foreach ($taskGuide in @('amd-performance-implementation.md', 'amd-performance-research.md')) {
+  $taskGuideSource = Join-Path $taskRoot ('docs\' + $taskGuide)
+  if (Test-Path -LiteralPath $taskGuideSource -PathType Leaf) { Copy-Item -LiteralPath $taskGuideSource -Destination $taskStage }
+}
+if ($ReleaseTag) {
+  $taskReleaseNotes = Join-Path $taskRoot ('docs\releases\' + $ReleaseTag + '.md')
+  if (Test-Path -LiteralPath $taskReleaseNotes -PathType Leaf) { Copy-Item -LiteralPath $taskReleaseNotes -Destination (Join-Path $taskStage 'RELEASE-NOTES.md') }
+}
 foreach ($taskNotice in @('FreeType-FTL.TXT', 'FreeType-LICENSE.TXT', 'Detours-LICENSE.md', 'FSR2-DX11-LICENSE.txt', 'FSR2-212-LICENSE.txt', 'FSR3-DX11-LICENSE.txt')) {
   Copy-Item -LiteralPath (Join-Path $taskRoot ('integrations\optiscaler\notices\' + $taskNotice)) -Destination $taskStage
 }
@@ -154,6 +171,10 @@ function Copy-NrSources([string]$SourceRoot, [string]$Prefix) {
   while ($taskPending.Count -gt 0) {
     foreach ($taskItem in (Get-ChildItem -LiteralPath $taskPending.Pop() -Force)) {
       if ($taskItem.PSIsContainer -and $taskItem.Name -in @('.git','build','__pycache__','node_modules','obj','fixtures','captures','models','model','dist','.cache')) { continue }
+      # The optional portable analyzer is downloaded separately. Its binaries,
+      # libraries and extracted files are not application corresponding source.
+      if ($taskItem.PSIsContainer -and $taskItem.Name -in @('rga', 'rgp') -and
+          $SourceRoot.Equals((Join-Path $taskRoot 'tools'), [StringComparison]::OrdinalIgnoreCase)) { continue }
       if ($taskItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Source package contains a reparse point' }
       if ($taskItem.PSIsContainer) { $taskPending.Push($taskItem.FullName); continue }
       $taskRelative = $taskItem.FullName.Substring($SourceRoot.Length).TrimStart('\', '/')
@@ -200,21 +221,47 @@ $taskReadme = @'
 OpenNR-AMD development validation package
 
 This build has unmet performance and matched-image quality release gates.
-Three Cyberpunk 2077 runs reported 4.56 / 4.56 / 4.57 built-in benchmark FPS
-at 1440p display output with in-game frame generation off. Driver AFMF remains
-unverified, so real-rendered FPS is not asserted. Completed NR+bridge jobs
-took approximately 213 ms. The 60 FPS target has not been reached. See
-rx9070xt-validation.md for measured settings, scope, runtime hashes and
-remaining temporal/image quality checks. Treat this as a development build.
+The current idle-GPU network comparison measured 141.343 -> 122.331 ms median
+(13.45%) from legal compact Q64 to Q32 at 1707x960 input (1728x960 padded),
+using three interleaved pairs with five warmups and 30 measured frames per run.
+This is network-only GPU time, not game FPS or NR+bridge time. The historical
+206.167 -> 120.271 ms comparison used the now-rejected over-limit legacy path.
+Three NR-off game benchmarks measured 99.58 / 99.32 / 101.74 FPS; the first
+ordinary NR-on benchmark measured 7.51 FPS. These game runs used earlier
+application binaries whose identities are recorded separately. Two further
+NR-on passes and ten minutes of active gameplay remain pending. The 8 ms
+NR+bridge and 60 rendered FPS targets have not been reached. See
+amd-performance-implementation.md for current kernel evidence and
+rx9070xt-validation.md for historical alpha 1 game settings, hashes and limits.
+Broad temporal/image quality validation remains pending.
 
 Start with INSTALL.md for prerequisites, installation, local model import,
 enabling NR and reversible removal. The generated default OptiScaler.ini has
-NR disabled (Enabled=false). To opt in after importing the model, open Insert
+NR disabled (Enabled=false), with K16 publication arithmetic. To opt in after importing the model, open Insert
 -> Neural -> Enable NR. Setting effect strengths to zero still runs inference.
-Expect approximately 4.6 built-in benchmark FPS while NR is enabled on the
-tested RX 9070 XT configuration. A supplied custom INI can override this default.
+Auto kernel selection requires matched device/driver/model/shader identities.
+An optional shaders/amd-tuning.json also binds qualified session geometry.
+Each record binds the full measured session policy; missing or inconsistent
+policy evidence rejects old caches and auto keeps the qualified legal fallback.
+If no qualified path fits GPU resource limits,
+inference is refused and the game host bypasses NR. A custom INI or explicit
+environment overrides can change packaged defaults.
 
-The OptiScaler host and its derived integration code are GPL-3.0. Their
+Diagnostic selectors expose baseline/optimized/auto kernels, Q16/Q32/Q64 window
+queries, GEMM tile/staging choices, experimental fusion/publication overrides
+and qualified tuning. K32/final arithmetic is experimental and is not an alpha
+auto default. scripts/benchmark_amd.ps1 and tools/tune_amd.py save paired ordinary
+network measurements separately from per-dispatch profile runs. Profile
+instrumentation and captures do not qualify ordinary game performance.
+tools/qualify_amd_model.py verifies real model artifacts. Bounded capture.flag
+requests (1 through 120 submissions; empty means one) and sequence replay are
+documented in INSTALL.md; captures remain local and are not included here.
+scripts/analyze_amd_shaders.ps1 optionally fetches the pinned portable RGA tool
+using scripts/rga_tool_manifest.json. Its CPU-only wave32 resource/ISA reports
+are offline compiler evidence, not installed-driver evidence. RGA binaries are
+not included. See INSTALL.md for explicit package-root diagnostic paths.
+
+The OptiScaler host and its derived integration code are GPL-3.0-or-later. Their
 corresponding source and build scripts are included under source/.
 The original neural core and the model importer retain their MIT notices.
 The AMD FidelityFX and Microsoft DirectX dependencies retain their separate
@@ -249,7 +296,11 @@ $taskManifest = [pscustomobject]@{
   releaseTag = if ($ReleaseTag) { $ReleaseTag } else { $null };
   sourceCommit = if ($SourceCommit) { $SourceCommit } else { $null };
   nrEnabledByDefault = if ($Configuration) { $null } else { $false };
+  amdArithmeticDefault = 'k16';
+  amdTuning = if (Test-Path -LiteralPath (Join-Path $taskStage 'payload\open-nr\shaders\amd-tuning.json') -PathType Leaf) { [ordered]@{ file = 'payload/open-nr/shaders/amd-tuning.json'; sha256 = Get-NrHash (Join-Path $taskStage 'payload\open-nr\shaders\amd-tuning.json'); installedInGame = $true; identityAndGeometryCheckedAtRuntime = $true } } else { $null };
   installationGuide = if (Test-Path -LiteralPath (Join-Path $taskStage 'INSTALL.md') -PathType Leaf) { [ordered]@{ file = 'INSTALL.md'; sha256 = Get-NrHash (Join-Path $taskStage 'INSTALL.md') } } else { $null };
+  performanceGuide = if (Test-Path -LiteralPath (Join-Path $taskStage 'amd-performance-implementation.md') -PathType Leaf) { [ordered]@{ file = 'amd-performance-implementation.md'; sha256 = Get-NrHash (Join-Path $taskStage 'amd-performance-implementation.md') } } else { $null };
+  releaseNotes = if (Test-Path -LiteralPath (Join-Path $taskStage 'RELEASE-NOTES.md') -PathType Leaf) { [ordered]@{ file = 'RELEASE-NOTES.md'; sha256 = Get-NrHash (Join-Path $taskStage 'RELEASE-NOTES.md') } } else { $null };
   adapterSourcePin = 'MatheusFerreiraS/neural-amd-opti@557bb8553098395f5f138c2e22ed25f256f7a3a2';
   importerSourcePin = 'mochizuki0323/DLSSNR-AMD@82560c4fbfaac347fc5e22c22025191402ae916b';
   sourceDependencies = @($taskStaticSources | ForEach-Object {
@@ -258,6 +309,11 @@ $taskManifest = [pscustomobject]@{
   diagnosticTools = @(
     [ordered]@{ file = 'tools/dlss5vk.exe'; sha256 = Get-NrHash (Join-Path $taskStage 'tools\dlss5vk.exe'); installedInGame = $false; purpose = 'Model, operator and recorded-frame replay diagnostics; not an end-to-end game benchmark' },
     [ordered]@{ file = 'tools/model_importer.exe'; sha256 = Get-NrHash (Join-Path $taskStage 'tools\model_importer.exe'); installedInGame = $false; purpose = 'Static bounded model inspection/import with strict DLL/resource hashes' }
+  );
+  diagnosticSources = @(
+    foreach ($taskDiagnostic in @('tools/analyze_performance.py', 'tools/compare_images.py', 'tools/analyze_runtime.py', 'tools/analyze_presentmon.py', 'tools/tune_amd.py', 'tools/qualify_amd_model.py', 'tools/compare_amd_scenes.py', 'scripts/benchmark_amd.ps1', 'scripts/freeze_amd_baseline.ps1', 'scripts/analyze_amd_shaders.ps1', 'scripts/rga_tool_manifest.json')) {
+      [ordered]@{ file = $taskDiagnostic; sha256 = Get-NrHash (Join-Path $taskStage $taskDiagnostic); installedInGame = $false }
+    }
   );
   validationStatus = 'development; weights excluded; game quality/performance release gate not established';
   releaseGates = [ordered]@{

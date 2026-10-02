@@ -1,0 +1,929 @@
+{
+  "files": [
+    {
+      "length": 1112064,
+      "sha256": "ac87f20bf8483688388abcf94d82724b591e95874449bc194d90934d36b236f8",
+      "path": "dlss5vk.exe"
+    },
+    {
+      "length": 551936,
+      "sha256": "638de5aee97b65d5e091c5eb6af63df96cf38d729985cadff2b8cb79fe5c3e6c",
+      "path": "OpenNrRuntime.dll"
+    },
+    {
+      "length": 48572,
+      "sha256": "e9638615189dfd1dd5cc9620fed839dcb1d0de9daf031e92cd8ac580ed13af5e",
+      "path": "shaders/amd_block32.spv"
+    },
+    {
+      "length": 23500,
+      "sha256": "e0e8e15e636cafd2b32d1f3a6237a4134bd46658757ad7886863a111927dbac1",
+      "path": "shaders/amd_expert_ffn.spv"
+    },
+    {
+      "length": 18352,
+      "sha256": "1b4aa577e62bf3ff67b61b6da972b95d91058d7259488d82e1a75dfcf4e14ccc",
+      "path": "shaders/amd_ffn32.spv"
+    },
+    {
+      "length": 21060,
+      "sha256": "8673dfb3bb0f30d987c44e4d77df3850bcf44818c5b095e0065a1378e6d6fc23",
+      "path": "shaders/amd_gemm_optimized.spv"
+    },
+    {
+      "length": 17116,
+      "sha256": "848a6b21bcf5470ad083d64680cba6dc25c11a6b6b3a286982698eea088c3305",
+      "path": "shaders/amd_gemm.spv"
+    },
+    {
+      "length": 23848,
+      "sha256": "f5d52ffd0e14da7136bb17b71ee37ced4a029efd8a6d4aa0e68d896b0fcb7626",
+      "path": "shaders/amd_global_matrix_optimized.spv"
+    },
+    {
+      "length": 22944,
+      "sha256": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+      "path": "shaders/amd_global_matrix.spv"
+    },
+    {
+      "length": 7984,
+      "sha256": "caeb9fbaf68519e06219ee7455a2521f28f5bf9fda6b17bc8e5631763541a8aa",
+      "path": "shaders/amd_global_normalize.spv"
+    },
+    {
+      "length": 16216,
+      "sha256": "733d41fa9b48317e863dfa35a039418f4e950155cff67ecfb6e30a002289901d",
+      "path": "shaders/amd_global.spv"
+    },
+    {
+      "length": 31512,
+      "sha256": "2dbdfd7e725e2cfd09e8c09e0aa60ce09a487272bc93d47bd328818d5824224b",
+      "path": "shaders/amd_qkv32.spv"
+    },
+    {
+      "length": 7408,
+      "sha256": "c5c8161b72282e283b5ab108f732a328731da39fb5d02c2500a9230b754fe008",
+      "path": "shaders/amd_window_normalize.spv"
+    },
+    {
+      "length": 24108,
+      "sha256": "02bd200ba23be279bc1b3f6a4fc998d9648f576c7c940db09db21cfeb9ff7f75",
+      "path": "shaders/amd_window_optimized.spv"
+    },
+    {
+      "length": 25628,
+      "sha256": "8406622ac4c6162646d3cc3185eaa0a60bbb03443efeca614fa9f644a80faab2",
+      "path": "shaders/amd_window_small.spv"
+    },
+    {
+      "length": 22568,
+      "sha256": "76307130e55cb4281ab14c671e1afea404e9df2f83f1c3ade391a7111e0ebf78",
+      "path": "shaders/amd_window.spv"
+    },
+    {
+      "length": 12872,
+      "sha256": "a8d7ca16a8020fb8f033c11119540869e2daf680b102d7c1d08771f87aaaa8cd",
+      "path": "shaders/global_normalize.spv"
+    },
+    {
+      "length": 19376,
+      "sha256": "6fc879c4d5563225548dd40f2050d81dbbda8e61bf0e77408e743bfba712c7f2",
+      "path": "shaders/ops.spv"
+    },
+    {
+      "length": 16044,
+      "sha256": "843388324a4c1211dca82b2711cc22b4db144e3404b79ab4bb74170ac04fba6b",
+      "path": "shaders/portable_f16.spv"
+    },
+    {
+      "length": 25088,
+      "sha256": "c64d7598632790ca581211581994a60ff24b04e3d904cfae0eadf930ea8f7d85",
+      "path": "shaders/portable_gemm.spv"
+    },
+    {
+      "length": 23688,
+      "sha256": "b76b366a52de8de92a27a92072ae4e1c3902fee84f9ca649c0ac9f97c3bbb06f",
+      "path": "shaders/portable_global.spv"
+    },
+    {
+      "length": 28356,
+      "sha256": "4953c2c4f53921b92da407df604cefb44789d00de08ec60d3d0fa736de1ac675",
+      "path": "shaders/portable_window.spv"
+    },
+    {
+      "length": 12804,
+      "sha256": "3674eed6b58a4c6a3fa868a1628b704b93ebd693d5c81981eddf3f66ee65adba",
+      "path": "shaders/preprocess.spv"
+    },
+    {
+      "length": 12376,
+      "sha256": "c9218555db0fb623a049b984ec04e82313efeecd89745c020152e82dac18b6ac",
+      "path": "shaders/window_normalize.spv"
+    },
+    {
+      "length": 35833,
+      "sha256": "6f2298c945eaa54527d9642a31a9d47d29ebd1d768a128442f9f9f4374c6017d",
+      "path": "shaders/amd-tuning.json"
+    }
+  ],
+  "createdUtc": "2026-10-02T11:43:46.3386402Z",
+  "deviceReport": "[vk] AMD Radeon RX 9070 XT, backend amd, FP8 K16/FP32 yes, PTX no\r\n[vk] driver AMD proprietary driver 26.9.1 (LLPC); Vulkan 1.4.349\r\n[vk] arithmetic: RDNA4 E4M3 K16 FP32 accumulation / FP16 publication\r\ndevice: AMD Radeon RX 9070 XT\r\nbackend: amd\r\nvendor: 0x1002 device: 0x7550\r\nVulkan: 1.4.349 driver: 8389003\r\ndriver: AMD proprietary driver 26.9.1 (LLPC)\r\narithmetic: RDNA4 E4M3 K16 FP32 accumulation / FP16 publication\r\nsubgroup: 64 (compute requests 32)\r\nsubgroup shuffle: yes\r\nshared-memory limit: 32768 bytes\r\nFP8 E4M3 16x16x16 -> FP32: yes\r\nNVIDIA PTX: no\r\nD3D12 external interop: disabled\r\nmatrix: 16x16x16 A=0 B=0 C=1 result=1 scope=3 saturating=0\r\nmatrix: 16x16x16 A=0 B=0 C=0 result=0 scope=3 saturating=0\r\nmatrix: 16x16x16 A=0 B=0 C=0 result=0 scope=3 saturating=1\r\nmatrix: 16x16x16 A=7 B=7 C=5 result=5 scope=3 saturating=0\r\nmatrix: 16x16x16 A=7 B=7 C=5 result=5 scope=3 saturating=1\r\nmatrix: 16x16x16 A=7 B=3 C=5 result=5 scope=3 saturating=0\r\nmatrix: 16x16x16 A=7 B=3 C=5 result=5 scope=3 saturating=1\r\nmatrix: 16x16x16 A=3 B=7 C=5 result=5 scope=3 saturating=0\r\nmatrix: 16x16x16 A=3 B=7 C=5 result=5 scope=3 saturating=1\r\nmatrix: 16x16x16 A=3 B=3 C=5 result=5 scope=3 saturating=0\r\nmatrix: 16x16x16 A=3 B=3 C=5 result=5 scope=3 saturating=1\r\nmatrix: 16x16x16 A=1000491002 B=1000491002 C=1 result=1 scope=3 saturating=0\r\nmatrix: 16x16x16 A=1000491002 B=1000491003 C=1 result=1 scope=3 saturating=0\r\nmatrix: 16x16x16 A=1000491003 B=1000491002 C=1 result=1 scope=3 saturating=0\r\nmatrix: 16x16x16 A=1000491003 B=1000491003 C=1 result=1 scope=3 saturating=0\r\nmatrix: 16x16x16 A=1000141000 B=1000141000 C=1000141000 result=1000141000 scope=3 saturating=0\r\nmatrix: 16x16x16 A=1000141000 B=1000141000 C=1000141000 result=1000141000 scope=3 saturating=1\r\nmatrix: 16x16x16 A=1000141000 B=1000141000 C=1 result=1 scope=3 saturating=0\r\n",
+  "sourceCommit": "1de84bb81c7a819a741b7deb9e22bb0cfc19cc13",
+  "performanceCapturedSeparately": true,
+  "weightsIncluded": false,
+  "format": "OpenNR-frozen-baseline-v1",
+  "sourceDirty": true,
+  "cxxCompiler": {
+    "path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\cl.exe",
+    "sha256": "88c8344236a27a6e727e0a8edc49aaa2690bdc7a9464b9d18cc7abe70a9f1c0d",
+    "version": "19.44.35228.0",
+    "productVersion": "14.44.35228.0",
+    "versionSource": "file version resource"
+  },
+  "modelManifestSha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+  "compiler": {
+    "sha256": "9643709c02c83e26773f96b6a87f197ab2e84f78be0879ad8fb3619418b5d9ad",
+    "version": "Glslang Version: 11:16.6.0\r\nESSL Version: OpenGL ES GLSL 3.20 glslang Khronos. 16.6.0\r\nGLSL Version: 4.60 glslang Khronos. 16.6.0\r\nSPIR-V Version 0x00010600, Revision 1\r\nGLSL.std.450 Version 100, Revision 1\r\nKhronos Tool ID 8\r\nSPIR-V Generator Version 11\r\nGL_KHR_vulkan_glsl version 100\r\nARB_GL_gl_spirv version 100\r\n"
+  },
+  "sourceInputs": {
+    "sha256": "422fc107982c89586e911e38bcc4f39645c67d065e7cf89835c05139c7bbd872",
+    "scopes": [
+      "src",
+      "shaders",
+      "game",
+      "tests",
+      "scripts"
+    ],
+    "extensions": [
+      ".cpp",
+      ".cc",
+      ".c",
+      ".h",
+      ".hpp",
+      ".inl",
+      ".inc",
+      ".comp",
+      ".glsl",
+      ".hlsl",
+      ".vert",
+      ".frag",
+      ".wgsl",
+      ".ps1",
+      ".py",
+      ".json",
+      ".cmake"
+    ],
+    "files": [
+      {
+        "path": "scripts/analyze_amd_shaders.ps1",
+        "sha256": "1f5e0d2cf0ed0cfaac74f383d99499c25d6f6d76527c42529d99058f9e2a58ed",
+        "length": 15432
+      },
+      {
+        "path": "shaders/global_attention.comp",
+        "sha256": "54b5c8d9bc6a1de9527bf9d75c881135d134166554e4b1b57083e8d4780db704",
+        "length": 13735
+      },
+      {
+        "path": "shaders/global_attend.comp",
+        "sha256": "b5621e3b3b2fefb368533b77d99ae634ccd65cb2e95c19fb122bcf9f93fce433",
+        "length": 5647
+      },
+      {
+        "path": "shaders/gemm_reduce.comp",
+        "sha256": "5d2d0ce5d0e0b9c407d7b45068aa817e26e3e2fe15be425b5a222da939fe6696",
+        "length": 2443
+      },
+      {
+        "path": "shaders/gemm_mlp.comp",
+        "sha256": "bd04ff3b09935cef29fd753c3bfea13b1387be1e54e70e4cdcf1949130be1493",
+        "length": 8646
+      },
+      {
+        "path": "shaders/gemm_fp8.comp",
+        "sha256": "b4d07f0b792855d6120c184960ceec144a9d7754067def566b8743288cfc7b4c",
+        "length": 19114
+      },
+      {
+        "path": "shaders/gemm_f16.comp",
+        "sha256": "88e9019a9d4d1f9cf24c6e8fd1552a6b9576f2aa85d830c94e360137eaf418ea",
+        "length": 3259
+      },
+      {
+        "path": "shaders/fused_block32.comp",
+        "sha256": "2f14b992b61ef7e884344032bf7ac601eb175abfaa0e0f2b8a3e70e9a1abf64c",
+        "length": 33704
+      },
+      {
+        "path": "shaders/common.glsl",
+        "sha256": "e8b0928a841d31983b0e0a57fa183c77578a8e45a9e83ed4391aad18f515b842",
+        "length": 6030
+      },
+      {
+        "path": "shaders/attention_common.glsl",
+        "sha256": "41fb2921967eda0ea12172aaae93020ab5d178f0711660b0dea59a14828ea24d",
+        "length": 10166
+      },
+      {
+        "path": "shaders/amd_window.comp",
+        "sha256": "fbe2b3f9cb0887874a87725019a833c798a8ebcb34e37feddd77121d83873dee",
+        "length": 367
+      },
+      {
+        "path": "shaders/amd_window_small.comp",
+        "sha256": "50f01f5e7bbd08ca91bee861ae00cfa146d86e0098031e6a0e1b411b385a3c0e",
+        "length": 8321
+      },
+      {
+        "path": "shaders/amd_window_optimized.comp",
+        "sha256": "1733b0cf4ec699a0c005b78d26cde23167d8015bfa705880fdd3cfe19204de14",
+        "length": 400
+      },
+      {
+        "path": "shaders/amd_window_optimized_body.glsl",
+        "sha256": "9890d03b0df9dd169b75cf958c06335fd47d936d7c06d2a71e5cc4e2331c5ce2",
+        "length": 7441
+      },
+      {
+        "path": "shaders/amd_window_normalize.comp",
+        "sha256": "0b19d724ceae561627f14f76e54a8179ad794bb958d0c25641c008d430c165b5",
+        "length": 188
+      },
+      {
+        "path": "shaders/amd_qkv32.comp",
+        "sha256": "fdacac60c5c88dbaf8a83b96a7a8808e2e007feb6ff2caaa4cbc9b5c7b8fcbd4",
+        "length": 5580
+      },
+      {
+        "path": "shaders/amd_normalize_body.glsl",
+        "sha256": "f1a90117d07a277bc589c234782fd830902be2e36f14f061256cfcaf70c4edba",
+        "length": 2565
+      },
+      {
+        "path": "shaders/amd_global.comp",
+        "sha256": "2b6ca5a1b4c581ce508bd94dae3a77b58b395327e052196a55705facf7dc5437",
+        "length": 374
+      },
+      {
+        "path": "game/shaders/bridge.hlsl",
+        "sha256": "e5ea7086b4a15654179ede2e3ac7716ca04d339922846d11e3fd186126ed0814",
+        "length": 2036
+      },
+      {
+        "path": "game/shaders/frame_buffers.glsl",
+        "sha256": "66e3a82825990d7ba00c24c7c51f4b8ee1e16d2ac752aa2db6265f2d53a6905d",
+        "length": 3112
+      },
+      {
+        "path": "game/shaders/game_composite.comp",
+        "sha256": "a6f5c010dc37cb01775d6c2c99918eecfe301d3b02730800277fc13c96384337",
+        "length": 7883
+      },
+      {
+        "path": "game/shaders/game_preprocess.comp",
+        "sha256": "70f9ee88688fc5f70b02a966ff88f3a5cba9a8d84bf3042fbba76e05231d8431",
+        "length": 2450
+      },
+      {
+        "path": "game/compat/LmxxfNrApi.h",
+        "sha256": "2bce53fa8d320a24ce310c1786a093e368bdf477bc16464cf990600a6bc2fedc",
+        "length": 7635
+      },
+      {
+        "path": "game/compat/MochizukiNrControls.h",
+        "sha256": "835c4cf8b3776b547ac7d2daa2ce462236e9a8f6ad30f63bc710257ccd3b9a3e",
+        "length": 8843
+      },
+      {
+        "path": "shaders/global_normalize.comp",
+        "sha256": "734f35616250ad2f6fcd97546e176c7393c876c9533bbd22fb67482be8186f0e",
+        "length": 2753
+      },
+      {
+        "path": "shaders/amd_block32.comp",
+        "sha256": "a8a53e325036267d58340fb3830c92e3ea7f43c1817ac38329a6540565a73de1",
+        "length": 10842
+      },
+      {
+        "path": "shaders/amd_ffn32.comp",
+        "sha256": "06b901a6f7e90f099a66711920bdb9b8ddb21b34555e31fed7379b3919f1a916",
+        "length": 5560
+      },
+      {
+        "path": "shaders/amd_gemm_optimized.comp",
+        "sha256": "9aa2b6ac0c2568e23ffbd92e49534f6425e10900a25fa548570969109fdf4e5e",
+        "length": 5297
+      },
+      {
+        "path": "shaders/amd_gemm.comp",
+        "sha256": "6fae131bb1e76593e38c0c0ae30634771fa63582edbde3f1106fa97049e63b96",
+        "length": 365
+      },
+      {
+        "path": "shaders/amd_global_matrix_optimized.comp",
+        "sha256": "83dbd0ceac8411eb39c05b7299fd32efbf70063c1e2f378be83ebd696c454486",
+        "length": 5165
+      },
+      {
+        "path": "shaders/amd_global_matrix.comp",
+        "sha256": "531f31340825b313c8987f8e1929e7627abc380c2b234385c3deee1fa7394879",
+        "length": 4861
+      },
+      {
+        "path": "shaders/amd_global_normalize.comp",
+        "sha256": "df88db7c35e6bb3ae8970de7c7b0deabdc9f84556470fa91849c11fa4ca79211",
+        "length": 218
+      },
+      {
+        "path": "shaders/amd_expert_ffn.comp",
+        "sha256": "eb471cab241803b95bb08801ebf60caccbc435c1bd050ae09263efb00830cee7",
+        "length": 7647
+      },
+      {
+        "path": "game/runtime.cpp",
+        "sha256": "61b9aa709479d45bbdff31bb9386beb6268e102023ed39ed14b3b0e06c951d76",
+        "length": 64384
+      },
+      {
+        "path": "shaders/ops.comp",
+        "sha256": "313f04eddf5e3071efe9a1d7725a2281fb74bc2b811a6458983bb475cdab6d20",
+        "length": 6373
+      },
+      {
+        "path": "shaders/portable_gemm_body.glsl",
+        "sha256": "50e7499f5baf273a69b0899ab762d2c4d40f752ab0dc81c46f69dc7c8c25de81",
+        "length": 4890
+      },
+      {
+        "path": "src/verify.cpp",
+        "sha256": "d9f756ea24f801d47543b63833c3aab29d95457aeb4fd8cd952b706c935d21d4",
+        "length": 11538
+      },
+      {
+        "path": "src/shader_identity.h",
+        "sha256": "5b11267047476acc5ce0ecad027ae39e5ab854e0b6c63ae9c36b93d01ee5e049",
+        "length": 2107
+      },
+      {
+        "path": "src/sha256.h",
+        "sha256": "7bc612aa8e483a8946e3a8fb911e3e16048e99175374b87a37c9aa45291b025b",
+        "length": 2994
+      },
+      {
+        "path": "src/reference.h",
+        "sha256": "140a34b50c37958712b0a810fcdb12586225ba6e5b219158ee53957d1452716c",
+        "length": 2352
+      },
+      {
+        "path": "src/reference.cpp",
+        "sha256": "48f8cabfc108001e97a0b4eee087098d986dc07366fd264a058d60b665d851a6",
+        "length": 12628
+      },
+      {
+        "path": "src/numeric.h",
+        "sha256": "097f704525ac9b548645c8168de75e95758fab5c6395e422c7f7aea7545be5e1",
+        "length": 4311
+      },
+      {
+        "path": "src/nr_model.h",
+        "sha256": "c489334d83befd6f7b8771839cfc77aa22582c0d10f6ed6302d9d1c12e9fc70b",
+        "length": 3923
+      },
+      {
+        "path": "src/nr_model.cpp",
+        "sha256": "2fa2e2302f326ffc845f025625b3aad61abca5aa13144c31caf26711e9ff4ff6",
+        "length": 12677
+      },
+      {
+        "path": "src/nr_graph.h",
+        "sha256": "d2a28efba1dbc97b903a8f6a0f074c22a59ea45da035afa265a4f2a3979a6418",
+        "length": 8391
+      },
+      {
+        "path": "src/nr_graph.cpp",
+        "sha256": "9cefbdf08b195d7be1c2bfbe6937f2504a0ead82bec37be59a69d83d050265ec",
+        "length": 66341
+      },
+      {
+        "path": "src/main.cpp",
+        "sha256": "f76fa1dfd03ead17a5a5be97e043f051b0ad52f4d710f65727e63efd8d8eb422",
+        "length": 53950
+      },
+      {
+        "path": "src/kernels.h",
+        "sha256": "a148e93c7f7403168e920fc6e967fd0d8c502ee2975b1a9af1519a8a1b66ba6d",
+        "length": 21391
+      },
+      {
+        "path": "src/kernels.cpp",
+        "sha256": "a3d600f07f4eddce17506175bb25a5b8e5895a38ff33b76924ef4c5aff5e82ed",
+        "length": 93718
+      },
+      {
+        "path": "src/json.h",
+        "sha256": "1118aa6afd3867f9992e4a7fac4ec5a610188a0e9e61d86c38f4e2edcb91afc9",
+        "length": 4380
+      },
+      {
+        "path": "src/amd_window_resources.h",
+        "sha256": "eeb678087ef230b48c5294b2b4ed4ac328ecfd193d0b447197aec6fb65ea5038",
+        "length": 1380
+      },
+      {
+        "path": "src/amd_selection.h",
+        "sha256": "934bdb374621edf24c74d2de839de09d8e975f377d94f4be7fb6e2e9daf7ac81",
+        "length": 8328
+      },
+      {
+        "path": "src/amd_qualified_fallback.h",
+        "sha256": "d4d9fdc135f086e6e0f770a76ddc0b6b39296c84522a780c88bcfe3b09acbc85",
+        "length": 719
+      },
+      {
+        "path": "shaders/portable_gemm.comp",
+        "sha256": "0a09480eaa0c2ff1ad53f4c067f8cd761181c53c90a9b76dc88567998e3b026f",
+        "length": 97
+      },
+      {
+        "path": "shaders/portable_global_body.glsl",
+        "sha256": "61b94991ba3c05e3caf62178f9bd653ad8943e0c7884019c556b2d60061b48e6",
+        "length": 2932
+      },
+      {
+        "path": "shaders/portable_global.comp",
+        "sha256": "766191457f04b638bb06c03036584b2f6141ec14ad42e63d8f91e614b4d76ecd",
+        "length": 99
+      },
+      {
+        "path": "shaders/portable_numeric.glsl",
+        "sha256": "e38876828aa7a942ea60db4e684b61ff52cfa85d708388eba381f4bb4d61449c",
+        "length": 2964
+      },
+      {
+        "path": "shaders/portable_window_body.glsl",
+        "sha256": "421fe345748632438ededead286f07a2c87af193ceddb6002e6b735a1e73a6bf",
+        "length": 5560
+      },
+      {
+        "path": "shaders/portable_window.comp",
+        "sha256": "79f620b33dd2ab2c0cfa43dd3a5b5acd70d3b922e06a5e805cc52dd496d08dc0",
+        "length": 99
+      },
+      {
+        "path": "shaders/portable_f16.comp",
+        "sha256": "418aca0e546939f540373adfc055a6d8bbfb7d1329d4eb69a319fbb40354c248",
+        "length": 1478
+      },
+      {
+        "path": "shaders/preprocess.comp",
+        "sha256": "5531b5d8ccf648e045ed7475896f3edba19c923797ffae1154de957a45f6b654",
+        "length": 3910
+      },
+      {
+        "path": "shaders/qkv_attention.comp",
+        "sha256": "6f3c90fe958b0f4508c200db95a2281f830bddbc445a58a50524c4f3b6675a3a",
+        "length": 12956
+      },
+      {
+        "path": "shaders/window_attend.comp",
+        "sha256": "83e85d5fb24e622214b1ce9574e2e1911775dc65bccc57f45956b3b342dab94d",
+        "length": 8019
+      },
+      {
+        "path": "shaders/window_normalize.comp",
+        "sha256": "b841938652926d6bc08989ef1e192808c30ccb1d18a30fa03204ef2d7a81c1be",
+        "length": 2816
+      },
+      {
+        "path": "src/amd_config.h",
+        "sha256": "d3553b19e78500b52b8d6236b67d444332b2e04190b736f9cc30376b811d1850",
+        "length": 3243
+      },
+      {
+        "path": "src/amd_fusion_validation.h",
+        "sha256": "8360043da39ea5ec396ded3bd4068b120ba23b0d3461a3f07f2618719b253a0c",
+        "length": 9598
+      },
+      {
+        "path": "src/amd_fusion.h",
+        "sha256": "eb746524607edbc8fe634d8ff1f5f3bca7b49978c6848e4e5e06911e285f697e",
+        "length": 2798
+      },
+      {
+        "path": "shaders/publish.glsl",
+        "sha256": "5c46cdcd9e7a962cfbc64e4bcb45e661adc265a6f38c84e0aca86ebc310fed97",
+        "length": 3612
+      },
+      {
+        "path": "game/open_nr_api.h",
+        "sha256": "55961e2a09529a7059852d1758180a85c2b108c5ee147087a6269f9e238b5e71",
+        "length": 2474
+      },
+      {
+        "path": "game/capture_request.h",
+        "sha256": "e38254490d27d10d067cc466768d8e6365fba9cfaf87b3dbcf7a10c0c3f26ca3",
+        "length": 1353
+      },
+      {
+        "path": "tests/test_measurement_tools.py",
+        "sha256": "8253d5262ae14f806ac710548232ed97ae3a995fa09ce7e02cb78e6da8d94a1c",
+        "length": 8406
+      },
+      {
+        "path": "scripts/ptx/block32_e4m3.py",
+        "sha256": "19ba0c29cd87f32a56b6f47c8d0b296d05b2eece28e6315b13bf1803cc235858",
+        "length": 26262
+      },
+      {
+        "path": "scripts/validate_model.ps1",
+        "sha256": "ebb8c56fad1476b7e573935a377e249048c0e9be3b80e242bf66b47d8a82f234",
+        "length": 3113
+      },
+      {
+        "path": "scripts/uninstall.ps1",
+        "sha256": "bcb28c387e9ced3c6c1245a691531438024f13319f3ce7ea8d85da877fc3db31",
+        "length": 4033
+      },
+      {
+        "path": "scripts/test_host_safety.ps1",
+        "sha256": "c8317f513347b9b261f67cbae39283cb0d6763b58ebc7cee2f616ae9653d69c3",
+        "length": 963
+      },
+      {
+        "path": "scripts/run_demo.ps1",
+        "sha256": "3251358f6c8608977ca6ebbe902262b48155389ba2015578674962b990c7dfb2",
+        "length": 647
+      },
+      {
+        "path": "scripts/rga_tool_manifest.json",
+        "sha256": "50d6428e3c997068424b664493bad8be73338e5d459a55123758747c5dc1c265",
+        "length": 1571
+      },
+      {
+        "path": "scripts/patch_optiscaler.ps1",
+        "sha256": "3908362bc39bac7b03cc35c8a3935bb30ef375485b4bcd3f378f8c3230ab256e",
+        "length": 14308
+      },
+      {
+        "path": "scripts/patch_fsr31_static_source.ps1",
+        "sha256": "9789d0c38000b4ce08b3cef5210cd242c6e2f34ab45f23efc27602ad67bd615f",
+        "length": 2417
+      },
+      {
+        "path": "scripts/package.ps1",
+        "sha256": "dd8aac39c0fcc345a583b11558459dd61da1f29d9d259b1b9b8c80cf1528d2cb",
+        "length": 25627
+      },
+      {
+        "path": "scripts/install.ps1",
+        "sha256": "de8765aa70dd1baf12c64f07735823dbe3f6cefabf275eef958f91c998a8e4ed",
+        "length": 4130
+      },
+      {
+        "path": "scripts/install_common.ps1",
+        "sha256": "2ff862181fb7a5a3d2520794b67b0bb5ac414e90ea06dbbbcdfecbff8e2b09af",
+        "length": 3781
+      },
+      {
+        "path": "scripts/import_scene.py",
+        "sha256": "a8aee756ee358c2c475950a45292e1f4e52fbc7eced9e25f74bf87e80a18816f",
+        "length": 4432
+      },
+      {
+        "path": "scripts/import_model.ps1",
+        "sha256": "0c999d55ac6f09fc3a02742af6dbdb08c5c5fdf33b959421ecb683605e1339d6",
+        "length": 979
+      },
+      {
+        "path": "scripts/freeze_amd_baseline.ps1",
+        "sha256": "c8197b4bcbf2ef3f9b67a1b629bf5296b969225c112720068ccb184a5c75e8bf",
+        "length": 6892
+      },
+      {
+        "path": "scripts/find_vcvars.ps1",
+        "sha256": "ffa5d1bd5b176abc58c1a4900833e5d838124e9a02b13e8ce18f5d049eafe03a",
+        "length": 1098
+      },
+      {
+        "path": "scripts/fetch_tools.ps1",
+        "sha256": "6f10132982a86d1041a82d6d571fdc848af9cf22bd8123cb57192bacf89771ff",
+        "length": 5079
+      },
+      {
+        "path": "scripts/fetch_static_sources.ps1",
+        "sha256": "97b27818ea9f8e823dbc9e429633f632093872d67b4067dadfb8fa2596bde17a",
+        "length": 2306
+      },
+      {
+        "path": "scripts/benchmark_amd.ps1",
+        "sha256": "9746b252cb324f8b325bda30c6ad4e8fbf743cb3c8624a4a613eb17a1ebcf64a",
+        "length": 2369
+      },
+      {
+        "path": "scripts/build_demo.ps1",
+        "sha256": "b0a4347b7a52849b888776f6e2040a381478e0a94217a850259d2e5f047264ce",
+        "length": 2895
+      },
+      {
+        "path": "scripts/build_filament.ps1",
+        "sha256": "7723b5fd0397f6256bee519cdcfc7c4cdbca42ba601cdbaf2af9020ac0ef3571",
+        "length": 2332
+      },
+      {
+        "path": "scripts/build_game.ps1",
+        "sha256": "0e116d215bfa50ff7e1c7c1192ba56ce0b66af21e301ba267b859aaee6856ba7",
+        "length": 1532
+      },
+      {
+        "path": "scripts/build_importer.ps1",
+        "sha256": "d271f1e902c8484168d4c08702ff88851eb8ec4762ea023a0847c86d6474c23d",
+        "length": 1415
+      },
+      {
+        "path": "scripts/build_interop.ps1",
+        "sha256": "5b71ce175a1dc2ae87ead1b2664b010d0a83cda23884c886846f80cf5701ddc4",
+        "length": 3255
+      },
+      {
+        "path": "scripts/ptx/ffn_e4m3.py",
+        "sha256": "53883acfa9d0b5e9b24eaa4e1418f234642c1cefd4ea2a18296ae57651e25102",
+        "length": 20113
+      },
+      {
+        "path": "scripts/build_optiscaler.ps1",
+        "sha256": "e74a75f8ca1aa50323f5d4b74b3ab1b0f6d3afc13a48a472b2ae9ae2736bf456",
+        "length": 3067
+      },
+      {
+        "path": "scripts/build.ps1",
+        "sha256": "b7998de25a5baf214194417cf6c4f2e27b1f61386b12e72c5b367eeaeb4cecca",
+        "length": 2139
+      },
+      {
+        "path": "scripts/compare_composite.py",
+        "sha256": "0d0ffc8faa38ffce20dc38fe480a36b5b7df7d7dfc580f6abad41b245cd70c05",
+        "length": 9033
+      },
+      {
+        "path": "scripts/convert_scene_textures.py",
+        "sha256": "bbdd688de58a1fb3fed3559c9cd02b422a81a5d337525f5e31b7f6f4035ac618",
+        "length": 4442
+      },
+      {
+        "path": "scripts/fetch_filament.ps1",
+        "sha256": "61c05cb76952bd0ab7ce69cafc2677d86f58403f90d6313259316796a4a1a65f",
+        "length": 1465
+      },
+      {
+        "path": "scripts/fetch_optiscaler.ps1",
+        "sha256": "faa696cefed298f9a28ec63fa832c673a9fdc32203bfa8a435e438d3d2a79b78",
+        "length": 1131
+      },
+      {
+        "path": "scripts/fetch_presentmon.ps1",
+        "sha256": "24285a80f3595583398f241525a3fa0e59b8a96c8fdc44f376df313dcc8b1f44",
+        "length": 1749
+      },
+      {
+        "path": "scripts/build_shaders.ps1",
+        "sha256": "2a5def71ec4014886143618f3a881676bc279efe63684cbeb86e798d5da788e7",
+        "length": 5701
+      },
+      {
+        "path": "scripts/ptx/gemm2_e4m3.py",
+        "sha256": "6602861b2eaac990757fc379fa260c101440b065c78c81665b2a985d1ffc50b7",
+        "length": 15890
+      },
+      {
+        "path": "scripts/ptx/gemmt_e4m3.py",
+        "sha256": "4d9984c95a825b5135c67d716c8fbda986a5e8d9e26e03b9477675cc368b3c4e",
+        "length": 12037
+      },
+      {
+        "path": "scripts/ptx/gemmv_e4m3.py",
+        "sha256": "d59fa72f18bfe7a7435ffcf4b7551906ea06d1b4d85223bd4165416b3b14bdc3",
+        "length": 20096
+      },
+      {
+        "path": "tests/install_tests.ps1",
+        "sha256": "a85c53e5da183c9872b6da4574e6cce8557ebcf5777d991c3bc242d16e92a52c",
+        "length": 7001
+      },
+      {
+        "path": "tests/interop_selftest.cpp",
+        "sha256": "2805c89d2eda2ef50c54c5abe5dc8f4ca60797a70b45f29f0fb70f19e208c2d5",
+        "length": 93812
+      },
+      {
+        "path": "tests/model_importer_tests.cpp",
+        "sha256": "14d79ae522503ca1d2ce2fe6b09abece20f2e513b6985d304a43f13a488cd456",
+        "length": 10781
+      },
+      {
+        "path": "tests/model_validation.cpp",
+        "sha256": "ae85f322e106389c03695f78e62f039f74579cf1d7f3c537f030cc0ba157152b",
+        "length": 21121
+      },
+      {
+        "path": "tests/native_selftest.cpp",
+        "sha256": "aff379bd5a3c3fe8742ae40e84d43a393fcf926b65f181f03db6a2b79ba66c42",
+        "length": 35288
+      },
+      {
+        "path": "tests/package_tests.ps1",
+        "sha256": "43895c2f59ddc24ccff030cf607adbf77c1af0d95d8b0ae3a70375ac3bc66d7e",
+        "length": 17361
+      },
+      {
+        "path": "tests/host_job_lifetime_tests.cpp",
+        "sha256": "f56243c7408803335f1902175d399cde0883d90296229870c2cd526b5078a9e5",
+        "length": 2510
+      },
+      {
+        "path": "tests/shader_identity_tests.cpp",
+        "sha256": "b7e963e77f14062cc9400f1b1c096abb7d45a15bf2d1da8afd5c70a879c1057e",
+        "length": 5711
+      },
+      {
+        "path": "tests/static_source_tests.ps1",
+        "sha256": "ccc6fe1ee19868880ecbc995ac07bea4469421b1f0fca01719b52dc7b0e4799d",
+        "length": 3145
+      },
+      {
+        "path": "tests/test_amd_model_qualification.py",
+        "sha256": "4cdab49ce256f0992ba9475c61edb71bca693a873334878ccb5dc307944f9b23",
+        "length": 19998
+      },
+      {
+        "path": "tests/test_amd_scene_comparison.py",
+        "sha256": "4b2cf6f23b13426f5abe435051c4ecb18ad112bbcc4943e02341c2d4c9ee652a",
+        "length": 7238
+      },
+      {
+        "path": "tests/test_amd_shader_analysis.ps1",
+        "sha256": "2cd415a464151c93b102df99be5e07da8e4511871a41503966014236ece3e6d3",
+        "length": 4495
+      },
+      {
+        "path": "tests/test_amd_tuning.py",
+        "sha256": "5597f616e9233a2ffd87e883a67f89dc7b6845861d3a59084b2a732ca3ad4326",
+        "length": 41512
+      },
+      {
+        "path": "tests/test_diagnostic_tools.py",
+        "sha256": "e6821ca31f6bfc94c523a8dc36962f1e2fa34a2b1b359df0b3a12e85f0dd3b7f",
+        "length": 8717
+      },
+      {
+        "path": "tests/source_package_build.ps1",
+        "sha256": "093c67c49391d9a98eac30b01e7bb45b9710adff25e12efd0543186c49f832af",
+        "length": 4987
+      },
+      {
+        "path": "src/vk_context.cpp",
+        "sha256": "f859e8d8c868cbe47f505023c6e7bd7394b394a3e4a73b42cd071d361e24fcbe",
+        "length": 43330
+      },
+      {
+        "path": "tests/freeze_amd_baseline_tests.ps1",
+        "sha256": "6310f8bf26a5ffbc4dc7450468ecb39a51c64575d340ff426986a2e3c4758603",
+        "length": 3936
+      },
+      {
+        "path": "tests/check_amd_window_optimized.py",
+        "sha256": "af136dbc3e7e45bae37150fd5a6b105193eb67c74cfa63ff9e3cf715ca0417cb",
+        "length": 6742
+      },
+      {
+        "path": "scripts/ptx/global_attention_e4m3.py",
+        "sha256": "7859070b58457aea4a27a0f37f16d08a0753c11b224fdf41bce0c954edaa35e4",
+        "length": 10819
+      },
+      {
+        "path": "scripts/ptx/global_attention_stream_e4m3.py",
+        "sha256": "09baf1cf3f765f8a3c3dae0ac4684bf6ec2bbd464ca961eb83723306e18643e2",
+        "length": 14057
+      },
+      {
+        "path": "scripts/ptx/mlp_e4m3.py",
+        "sha256": "70fa047d3d7c6601b3bb6ba758e1d4f373f881a07fc1d261263c2fcaefa6f259",
+        "length": 14429
+      },
+      {
+        "path": "scripts/ptx/ptxgen.py",
+        "sha256": "5460f480ad6120933a1be3b12454677a1ca0f96f575ee5421c2aa603289c2c61",
+        "length": 5011
+      },
+      {
+        "path": "scripts/ptx/qkv_e4m3.py",
+        "sha256": "6d25b83bd729043acea1c96a73876a5a217545ee69a15cc573a7eff0b9af1f76",
+        "length": 15164
+      },
+      {
+        "path": "scripts/ptx/reduce_e4m3.py",
+        "sha256": "9ff8345ab4f289ceabc2d26bfc0fa2cb1a80bd78cdc848fe5169e9687fd3eda8",
+        "length": 2697
+      },
+      {
+        "path": "tests/composite_validation.cpp",
+        "sha256": "abce51cb85c2433b443774d8f3e7d9cee0cf79ce0c6ca4e54608a6ef6ce228f3",
+        "length": 31110
+      },
+      {
+        "path": "scripts/ptx/swin.py",
+        "sha256": "a1a365ff473d2bbee6e997b566676001abf908a50c31d73fdc3fc1d57bab4e97",
+        "length": 21188
+      },
+      {
+        "path": "tests/amd_config_tests.cpp",
+        "sha256": "32c8c9ce04c0cf4e1097b8fb992dab668fb6cffc260d5cbcfa27a2ad4edf7d22",
+        "length": 5683
+      },
+      {
+        "path": "tests/amd_fusion_validation_test.cpp",
+        "sha256": "27891435fa6ddcbe73cb426b8d15dccf2dfc7c366d0fc0506b39d2c9acae5c11",
+        "length": 8507
+      },
+      {
+        "path": "tests/amd_kernel_preservation.cpp",
+        "sha256": "22f5240f5a473f5c4f9dd2ac1f3157213da17a095327b51e94a22343c3460bb5",
+        "length": 24252
+      },
+      {
+        "path": "tests/amd_selection_tests.cpp",
+        "sha256": "43f37318a53c3c860c1583dc9e9216dcc76cf557896328aac139b956bb77a8c6",
+        "length": 10407
+      },
+      {
+        "path": "tests/amd_window_resources_tests.cpp",
+        "sha256": "866dadb7cd2365f4db0edd23db13e0dc758ec65ee5e7d84c89518ca1b095a624",
+        "length": 3293
+      },
+      {
+        "path": "tests/capture_request_tests.cpp",
+        "sha256": "e3ccfb104fb05c6c7f1ee95617815f7e755261cd352436b777429c09d9cc8820",
+        "length": 1973
+      },
+      {
+        "path": "scripts/ptx/test_fast_divmod.py",
+        "sha256": "c1ed038d7ad6a721eabe5e642580d94b34e26b6802766dbd247a193de8062439",
+        "length": 2962
+      },
+      {
+        "path": "src/vk_context.h",
+        "sha256": "51ea88a4c88e9ee3b7d1ab0b61017caf14adf5c96992d8c3696cc415ca39d2d6",
+        "length": 10849
+      }
+    ],
+    "sourceBytesCopied": false,
+    "binaryCorrespondenceEstablished": false
+  },
+  "purpose": "Final alpha2 binaries after loaded-byte model/shader provenance, explicit attention LDS limits, and tuning specialization/capability evidence binding. This pre-commit snapshot records sourceCommit plus sourceDirty and the actual input closure; it does not claim a clean build from that earlier commit or bit-for-bit binary reproduction.",
+  "gameShaderFiles": [
+    {
+      "path": "bridge.hlsl",
+      "length": 2036,
+      "sha256": "e5ea7086b4a15654179ede2e3ac7716ca04d339922846d11e3fd186126ed0814"
+    },
+    {
+      "path": "game_composite.spv",
+      "length": 38764,
+      "sha256": "7af79e07a1e56f0916f93038a6068fb5d7bc3ccd2fc28d5e7f7808762c0bb61d"
+    },
+    {
+      "path": "game_preprocess.spv",
+      "length": 21988,
+      "sha256": "ef4acf9c54e25c84bb8898e6a1682d35cedfc3c22cd08d1f35019e915b6f7775"
+    }
+  ],
+  "validation": {
+    "interop_eight_target_frames": {
+      "passed": true,
+      "log_sha256": "330c9c63e8e6da840a64e2a08c61ecb1fb3525b85e22295b96a47dadb86496f8",
+      "scope": "Controlled native D3D12 lifecycle, eight-slot ownership, cancellation/gap/reset, resize/drain/shutdown, state/continuation and bounded synthetic capture; not game FPS."
+    },
+    "target_game_frame_replay": {
+      "frame_id": 1162,
+      "captured_features_bit_exact": true,
+      "captured_head_bit_exact": true,
+      "captured_composition_bit_exact": true,
+      "repeatable": true,
+      "manifest_sha256": "08eb4a653c6004f398f6e5984d1cdedf27a246d341440fb7489542760576b825",
+      "log_sha256": "74126bd51760678d47030a87eaba363265ba3784f507a49dac416dc6a9d04bfa"
+    },
+    "native_selftests": {
+      "amd": true,
+      "reference": true,
+      "amd_log_sha256": "1a789be852ffbfa211702ca21c999a4416186d8de4022ffc1f60ff73952c09a3",
+      "reference_log_sha256": "72a6aa70953583d8b60057cdee8332bf2af4768bbb0ab8279048444de3c0d71a",
+      "scope": "Tolerant operator/bridge regressions; strict preservation is recorded separately."
+    },
+    "full_sequence_reference_comparison": "Eight genuine frames were compared with preceding explicitly hashed binaries; see cyberpunk-replay-rx9070xt-20261002.json. The selected shaders are unchanged and the final CLI reproduces target frame1162 byte for byte.",
+    "legal_ordinary_timing": "legal-compact64-rx9070xt-20261002.json identifies measured CLI5812da independently. The final tuning-binding patch changes session validation and leaves measured shader bytes unchanged; it is not a fresh ordinary game benchmark."
+  },
+  "build_logs": {
+    "build/performance/final-build/core-policy.log": "5f4776e4b3ae6365b8ae392ac550befa5ba1e27e27752dfb96e7d855a3e2b441",
+    "build/performance/final-build/runtime-policy.log": "9c82cf889ffeade319caccd83615ab731a1f73d0af0af4d32d0b6868c0c989ba",
+    "build/performance/final-build/freeze-policy.log": "b09b2659e592cef9409364de44a284f8993a25c11982c0371e23aaebe8154c91"
+  }
+}

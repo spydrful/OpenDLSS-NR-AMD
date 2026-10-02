@@ -4,7 +4,8 @@ param(
   [ValidateRange(192,3840)][int]$Width = 320,
   [ValidateRange(128,2160)][int]$Height = 320,
   [ValidateRange(2,120)][int]$Frames = 2,
-  [switch]$Trace, [switch]$Capture
+  [switch]$Trace, [switch]$Capture,
+  [ValidateRange(1,120)][int]$CaptureFrames=1
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
@@ -38,6 +39,7 @@ if ($Run) {
         OPEN_NR_RUNTIME_WIDTH = [string]$Width; OPEN_NR_RUNTIME_HEIGHT = [string]$Height;
         OPEN_NR_RUNTIME_FRAMES = [string]$Frames; OPEN_NR_RUNTIME_TRACE_SELFTEST = $(if ($Trace) { '1' } else { $null })
         OPEN_NR_RUNTIME_CAPTURE_SELFTEST = $(if ($Capture) { '1' } else { $null })
+        OPEN_NR_RUNTIME_CAPTURE_FRAMES = $(if ($Capture) { [string]$CaptureFrames } else { $null })
       }
       foreach ($taskName in $taskSettings.Keys) {
         $taskPreviousEnvironment[$taskName] = [Environment]::GetEnvironmentVariable($taskName, 'Process')

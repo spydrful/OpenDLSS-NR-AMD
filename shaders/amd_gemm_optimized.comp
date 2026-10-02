@@ -1,0 +1,104 @@
+#version 460
+#extension GL_EXT_float_e4m3 : require
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_KHR_shader_subgroup_basic : require
+#extension GL_GOOGLE_include_directive : require
+#define NR_AMD_MATRIX 1
+#define NR_AMD_HARDWARE_NUMERIC 1
+#define DLSS_E4M3_HW 1
+#include "portable_numeric.glsl"
+layout(local_size_x = 128) in;
+layout(constant_id = 0) const uint K = 32;
+layout(constant_id = 2) const uint FLAGS = 16;
+layout(constant_id = 3) const uint PARTITION = 0;
+layout(constant_id = 10) const uint PUBLICATION_INTERVAL = 16;
+layout(constant_id = 11) const uint TILE_N = 16;
+layout(constant_id = 12) const uint STAGE_K = 16;
+layout(constant_id = 13) const bool HARDWARE_PUBLICATION = false;
+layout(push_constant) uniform Push {
+  uint rows, N, Nmatrix, weightColumnOffset, inputStride, inputColumnBase;
+  uint outputStride, outputColumnOffset, auxHalfOffset, batches, columnGroups, splitStride;
+} pc;
+layout(std430, binding = 0) readonly buffer A { uint8_t a[]; };
+layout(std430, binding = 1) readonly buffer B { uint8_t b[]; };
+layout(std430, binding = 2) writeonly buffer O16 { float16_t out16[]; };
+layout(std430, binding = 3) readonly buffer R16 { float16_t res16[]; };
+layout(std430, binding = 4) readonly buffer Aux { float16_t aux[]; };
+layout(std430, binding = 5) writeonly buffer O8 { uint8_t out8[]; };
+layout(std430, binding = 6) readonly buffer R8 { uint8_t res8[]; };
+shared uint8_t sa[64 * STAGE_K], sb[TILE_N * STAGE_K];
+shared float sc[64 * TILE_N];
+#define ACC coopmat<float, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>
+#define MA coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseA>
+#define MB coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseB>
+float halfPublish(float value) {
+  return HARDWARE_PUBLICATION ? unpackHalf2x16(packHalf2x16(vec2(value, 0.0))).x : roundF16(value);
+}
+float initial(uint row, uint column, uint batch) {
+  if ((FLAGS & 1u) == 0u || row >= pc.rows || column >= pc.N) return 0.0;
+  uint index = row * pc.outputStride + pc.outputColumnOffset + batch * pc.N + column;
+  float value = (FLAGS & 64u) != 0u ? nrDecodeE4(uint(res8[index])) : float(res16[index]);
+  if ((FLAGS & 2u) != 0u) value *= float(aux[pc.auxHalfOffset + column]);
+  return roundF16(value);
+}
+void publish(uint row, uint column, uint batch, float value) {
+  if (row >= pc.rows || column >= pc.N) return;
+  if ((FLAGS & 8u) != 0u) value = mpCubicSilu(value);
+  uint index = row * pc.outputStride + pc.outputColumnOffset + batch * pc.N + column;
+  if ((FLAGS & 16u) == 0u) out16[index] = float16_t(value);
+  if ((FLAGS & 48u) != 0u) out8[index] = uint8_t(nrPublishE4(value));
+}
+void main() {
+  uint thread = gl_LocalInvocationID.x, sg = gl_SubgroupID;
+  uint batch = gl_WorkGroupID.x / pc.columnGroups;
+  uint colBase = (gl_WorkGroupID.x % pc.columnGroups) * TILE_N;
+  uint rowBase = (gl_WorkGroupID.y + gl_WorkGroupID.z * 65535u) * 64u;
+  uint inBase = pc.inputColumnBase + ((FLAGS & 128u) != 0u ? 0u : batch * K);
+  for (uint i = thread; i < 64u * TILE_N; i += 128u)
+    sc[i] = initial(rowBase + i / TILE_N, colBase + i % TILE_N, batch);
+  barrier();
+  ACC acc[TILE_N / 16], total[TILE_N / 16];
+  for (uint n = 0u; n < TILE_N / 16u; ++n) {
+    coopMatLoad(acc[n], sc, sg * 16u * TILE_N + n * 16u, TILE_N, gl_CooperativeMatrixLayoutRowMajor);
+    total[n] = ACC(0.0);
+  }
+  for (uint stage = 0u; stage < K; stage += STAGE_K) {
+    for (uint i = thread; i < 64u * STAGE_K; i += 128u) {
+      uint row = rowBase + i / STAGE_K, k = stage + i % STAGE_K;
+      sa[i] = row < pc.rows && k < K ? a[row * pc.inputStride + inBase + k] : uint8_t(0);
+    }
+    for (uint i = thread; i < TILE_N * STAGE_K; i += 128u) {
+      uint c = colBase + i / STAGE_K, k = stage + i % STAGE_K;
+      if (c < pc.N && k < K) {
+        uint index = ((batch * (K / 32u) + k / 32u) * pc.Nmatrix + pc.weightColumnOffset + c) * 32u + k % 32u;
+        sb[i] = b[index];
+      } else sb[i] = uint8_t(0);
+    }
+    barrier();
+    for (uint step = 0u; step < STAGE_K && stage + step < K; step += 16u) {
+      uint endK = stage + step + 16u;
+      MA ma; coopMatLoad(ma, sa, sg * 16u * STAGE_K + step, STAGE_K, gl_CooperativeMatrixLayoutRowMajor);
+      for (uint n = 0u; n < TILE_N / 16u; ++n) {
+        MB mb; coopMatLoad(mb, sb, n * 16u * STAGE_K + step, STAGE_K, gl_CooperativeMatrixLayoutColumnMajor);
+        acc[n] = coopMatMulAdd(ma, mb, acc[n]);
+        bool partitionEnd = PARTITION != 0u && endK % PARTITION == 0u;
+        if ((PUBLICATION_INTERVAL != 0u && endK % PUBLICATION_INTERVAL == 0u) || endK == K || partitionEnd)
+          for (uint i = 0u; i < acc[n].length(); ++i) acc[n][i] = halfPublish(acc[n][i]);
+        if (partitionEnd) {
+          if (stage + step < PARTITION) total[n] = acc[n];
+          else for (uint i = 0u; i < acc[n].length(); ++i) total[n][i] = roundF16(total[n][i] + acc[n][i]);
+          acc[n] = ACC(0.0);
+        }
+      }
+    }
+    barrier();
+  }
+  for (uint n = 0u; n < TILE_N / 16u; ++n) {
+    if (PARTITION != 0u) acc[n] = total[n];
+    coopMatStore(acc[n], sc, sg * 16u * TILE_N + n * 16u, TILE_N, gl_CooperativeMatrixLayoutRowMajor);
+  }
+  barrier();
+  for (uint i = thread; i < 64u * TILE_N; i += 128u)
+    publish(rowBase + i / TILE_N, colBase + i % TILE_N, batch, sc[i]);
+}

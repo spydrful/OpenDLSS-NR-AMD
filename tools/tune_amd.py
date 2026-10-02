@@ -1,0 +1,871 @@
+"""Collect and assess interleaved AMD network benchmarks without claiming game FPS.
+
+The runner gives each child its own environment and saves raw timestamp samples.
+Performance eligibility is separate from numerical/scene quality qualification.
+Only qualified preserving-arithmetic records enter the generated tuning file.
+"""
+from __future__ import annotations
+
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import importlib.util
+import json
+import math
+import os
+from pathlib import Path
+import statistics
+import subprocess
+
+
+IDENTITY_KEYS = ("device_id", "driver_id", "model_sha256", "shader_sha256", "baseline_shader_sha256")
+COMMON_KEYS = ("device_id", "driver_id", "model_sha256", "baseline_shader_sha256")
+EXACT_COVERAGE = {"tails", "shifted-windows", "channel-families", "broadcasts", "split-k",
+                  "residuals", "activation", "padding", "conversion-edge-cases"}
+SCENE_COVERAGE = {"sdr", "hdr-highlights", "motion", "faces", "moving-objects",
+                  "disocclusion", "exposure-changes", "camera-cuts"}
+MODEL_CHECKPOINTS = {f"block-{i}" for i in range(70)} | {
+    "transition-0-1", "transition-4-5", "transition-8-9", "transition-14-15", "transition-22-23"}
+FUSION_KEYS = ("fusion", "expert_fusion", "block_fusion", "hardware_publication")
+SELECTION_KEYS = ("kernels", "arithmetic", "tile_n", "stage_k", "window_queries", *FUSION_KEYS)
+COMPARISON_ANCHORS = ("legacy", "compact64")
+ACCELERATED_VARIANTS = {
+    "fp8_gemm": {"amd_gemm_optimized"},
+    "window_attention": {"amd_window_optimized", "amd_window_small"},
+    "ffn": {"amd_ffn32"}, "qkv_attention": {"amd_qkv32"},
+    "expert_ffn": {"amd_expert_ffn"}, "c32_block": {"amd_block32"},
+}
+
+
+def read_json(path: Path) -> dict:
+    if path.stat().st_size > 64 * 1024 * 1024:
+        raise ValueError(f"JSON exceeds 64 MiB: {path}")
+    def unique(pairs):
+        value = {}
+        for key, item in pairs:
+            if key in value:
+                raise ValueError(f"duplicate JSON key: {key}")
+            value[key] = item
+        return value
+    result = json.loads(path.read_text(encoding="utf-8-sig"), object_pairs_hook=unique,
+                        parse_constant=lambda value: (_ for _ in ()).throw(ValueError(f"nonfinite JSON: {value}")))
+    if not isinstance(result, dict):
+        raise ValueError(f"JSON must be an object: {path}")
+    return result
+
+
+def write_json(path: Path, value: dict) -> None:
+    with path.open("x", encoding="utf-8") as destination:
+        json.dump(value, destination, indent=2, allow_nan=False)
+        destination.write("\n")
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def integer(value, label: str, minimum: int = 0) -> int:
+    if type(value) is not int or value < minimum:
+        raise ValueError(f"{label} must be an integer >= {minimum}")
+    return value
+
+
+def identity(value, model_required=True) -> dict:
+    if not isinstance(value, dict):
+        raise ValueError("identity must be an object")
+    for key in IDENTITY_KEYS:
+        if key == "model_sha256" and not model_required and key not in value:
+            continue
+        item = value.get(key)
+        if not isinstance(item, str) or not item.strip():
+            raise ValueError(f"identity lacks {key}")
+        if key.endswith("sha256") and (len(item) != 64 or any(c not in "0123456789abcdef" for c in item)):
+            raise ValueError(f"invalid lowercase SHA-256: {key}")
+    return {key: value[key] for key in IDENTITY_KEYS if key in value}
+
+
+def selected_policy(value, *, explicit_flags=False) -> dict:
+    """Bind SPIR-V specialization constants as well as shader-file hashes."""
+    if not isinstance(value, dict) or value.get("kernels") not in ("baseline", "optimized") or value.get("arithmetic") not in ("k16", "k32", "final"):
+        raise ValueError("missing actual selected AMD kernel/arithmetic policy")
+    result = {"window_queries": 64, **value}
+    for key in ("tile_n", "stage_k", "window_queries"):
+        if type(result.get(key)) is not int or result[key] not in (16, 32, 64):
+            raise ValueError(f"selected.{key} must be 16, 32 or 64")
+    for key in FUSION_KEYS:
+        if key not in result and not explicit_flags:
+            result[key] = False
+        if type(result.get(key)) is not bool:
+            raise ValueError(f"selected.{key} must be explicitly Boolean")
+    return {key: result[key] for key in SELECTION_KEYS}
+
+
+def comparison_anchor(value="legacy") -> str:
+    if value not in COMPARISON_ANCHORS:
+        raise ValueError("comparison_anchor must be legacy or compact64")
+    return value
+
+
+def require_anchor(value: dict, requested: str) -> str:
+    requested = comparison_anchor(requested)
+    recorded = comparison_anchor(value.get("comparison_anchor", "legacy"))
+    if recorded != requested:
+        raise ValueError("recorded comparison_anchor differs from explicit --comparison-anchor")
+    return recorded
+
+
+def evidence_equal(first, second) -> bool:
+    """Historical unlabeled evidence denotes legacy, never compact64."""
+    def canonical(value):
+        if isinstance(value, dict):
+            return {key: canonical(item) for key, item in value.items()
+                    if key != "comparison_anchor" or item != "legacy"}
+        if isinstance(value, list):
+            return [canonical(item) for item in value]
+        return value
+    return canonical(first) == canonical(second)
+
+
+def preserving_baseline(selected: dict, anchor="legacy") -> bool:
+    mode = "optimized" if comparison_anchor(anchor) == "compact64" else "baseline"
+    return (selected["kernels"] == mode and selected["arithmetic"] == "k16"
+            and selected["tile_n"] == 16 and selected["stage_k"] == 16 and selected["window_queries"] == 64
+            and not any(selected[key] for key in FUSION_KEYS))
+
+
+def samples(value, count: int, label: str, *, allow_zero=False) -> list[float]:
+    if not isinstance(value, list) or len(value) != count:
+        raise ValueError(f"{label} must contain exactly {count} measured samples")
+    if any(type(x) not in (int, float) or not math.isfinite(x) or x < 0 or (x == 0 and not allow_zero) for x in value):
+        raise ValueError(f"{label} must contain finite {'nonnegative' if allow_zero else 'positive'} GPU milliseconds")
+    return [float(x) for x in value]
+
+
+def stats(values: list[float]) -> dict:
+    ordered = sorted(values)
+    if not ordered:
+        raise ValueError("empty timing series")
+    def percentile(fraction):
+        at = (len(ordered) - 1) * fraction
+        lo = int(at)
+        return ordered[lo] + (ordered[min(lo + 1, len(ordered) - 1)] - ordered[lo]) * (at - lo)
+    mean = statistics.fmean(ordered)
+    deviation = statistics.pstdev(ordered)
+    return {"samples": len(ordered), "mean": mean, "median": statistics.median(ordered),
+            "p95": percentile(.95), "p99": percentile(.99), "min": ordered[0], "max": ordered[-1],
+            "standard_deviation": deviation, "coefficient_of_variation": deviation / mean if mean else 0}
+
+
+def shape(value) -> dict:
+    if not isinstance(value, dict):
+        raise ValueError("dispatch shape must be an object")
+    for key in ("rows", "N", "K", "flags"):
+        integer(value.get(key), f"shape.{key}")
+    integer(value.get("batches"), "shape.batches", 1)
+    partition = value.get("partition")
+    if not ((type(partition) is int and partition >= 0) or (isinstance(partition, str) and partition.strip())):
+        raise ValueError("shape.partition must be a nonnegative integer or nonempty string")
+    return {key: value[key] for key in ("rows", "N", "K", "batches", "flags", "partition")}
+
+
+def benchmark(path: Path, *, explicit_policy=False) -> dict:
+    value = read_json(path)
+    if value.get("format") != "OpenNR-amd-benchmark-v1" or value.get("command") not in ("bench", "profile"):
+        raise ValueError("expected OpenNR-amd-benchmark-v1 bench/profile JSON")
+    if value.get("readback") is not False or value.get("instrumented") is not (value["command"] == "profile"):
+        raise ValueError("timing record must explicitly exclude image readback and identify profile instrumentation")
+    value["identity"] = identity(value.get("identity"))
+    for name in ("width", "height", "padded_width", "padded_height", "frames"):
+        integer(value.get(name), name, 1)
+    integer(value.get("warmup"), "warmup")
+    if value["padded_width"] < value["width"] or value["padded_height"] < value["height"]:
+        raise ValueError("padded geometry cannot be smaller than valid geometry")
+    selected = value.get("selected")
+    if not isinstance(selected, dict) or selected.get("kernels") not in ("baseline", "optimized") or selected.get("arithmetic") not in ("k16", "k32", "final"):
+        raise ValueError("missing actual selected AMD kernel/arithmetic policy")
+    if explicit_policy:
+        if "window_queries" not in selected:
+            raise ValueError("compact64 requires explicitly recorded window_queries")
+        selected_policy(selected, explicit_flags=True)
+    for name in ("tile_n", "stage_k"):
+        if type(selected.get(name)) is not int or selected[name] not in (16, 32, 64):
+            raise ValueError(f"selected.{name} must be 16, 32 or 64")
+    selected.setdefault("window_queries",64)
+    if type(selected["window_queries"]) is not int or selected["window_queries"] not in (16,32,64):
+        raise ValueError("selected.window_queries must be 16, 32 or 64")
+    for name in FUSION_KEYS:
+        if name in selected and type(selected[name]) is not bool:
+            raise ValueError(f"selected.{name} must be Boolean")
+    value["frame_ms"] = samples(value.get("frame_ms"), value["frames"], "frame_ms")
+    if "dispatches" in value:
+        if value["command"] != "profile" or not isinstance(value["dispatches"], list) or not value["dispatches"]:
+            raise ValueError("dispatch samples require a nonempty profile dispatches array")
+        for entry in value["dispatches"]:
+            if not isinstance(entry, dict) or not isinstance(entry.get("family"), str) or not entry["family"].strip():
+                raise ValueError("invalid dispatch family")
+            entry["shape"] = shape(entry.get("shape"))
+            if not isinstance(entry.get("variant"), str) or not entry["variant"].strip():
+                raise ValueError("dispatch must name actual variant")
+            for name in ("tile_n", "stage_k"):
+                integer(entry.get(name), "dispatch." + name)
+            if entry["family"]=="window_attention" or entry["variant"].startswith("amd_window_small"):
+                geometry=entry.get("geometry",{})
+                if not isinstance(geometry,dict):raise ValueError("window attention geometry must be an object")
+                if entry["variant"].startswith("amd_window_small") and "tile_m" not in geometry:
+                    raise ValueError("small-window profile must record actual geometry.tile_m")
+                queries=geometry.get("tile_m",64)
+                if type(queries) is not int or queries not in (16,32,64):
+                    raise ValueError("window attention geometry.tile_m must be 16, 32 or 64")
+            entry["frame_ms"] = samples(entry.get("frame_ms"), value["frames"], "dispatch.frame_ms", allow_zero=True)
+    return value
+
+
+def key_for(entry: dict) -> str:
+    return json.dumps({"family": entry["family"], "shape": entry["shape"]}, sort_keys=True, separators=(",", ":"))
+
+
+def operators(run: dict) -> dict:
+    result = {}
+    for entry in run.get("dispatches", []):
+        key = key_for(entry)
+        if key not in result:
+            result[key] = {"family": entry["family"], "shape": entry["shape"],
+                           "variants": set(), "frame_ms": [0.0] * run["frames"]}
+        window=entry["family"]=="window_attention" or entry["variant"].startswith("amd_window_small")
+        queries=entry.get("geometry",{}).get("tile_m",64) if window else 0
+        result[key]["variants"].add((entry["variant"], entry["tile_n"], entry["stage_k"],queries))
+        result[key]["frame_ms"] = [a + b for a, b in zip(result[key]["frame_ms"], entry["frame_ms"])]
+    return result
+
+
+def analyze(path: Path, allow_arithmetic_change=False, network_manifest: Path | None = None,
+            comparison_anchor="legacy") -> dict:
+    manifest = read_json(path)
+    anchor = require_anchor(manifest, comparison_anchor)
+    if manifest.get("format") != "OpenNR-amd-interleaved-v1" or not isinstance(manifest.get("runs"), list) or not manifest["runs"] or len(manifest["runs"]) % 2:
+        raise ValueError("expected nonempty paired OpenNR-amd-interleaved-v1 runs")
+    runs = []
+    first = None
+    role_identities = {}
+    role_selections = {}
+    source_hashes = []
+    for index, item in enumerate(manifest["runs"]):
+        role = "baseline" if index % 2 == 0 else "candidate"
+        if not isinstance(item, dict) or item.get("role") != role or item.get("pair") != index // 2 or not isinstance(item.get("file"), str):
+            raise ValueError("runs must be ordered baseline/candidate pairs with zero-based pair IDs")
+        source = path.parent / item["file"]
+        run = benchmark(source, explicit_policy=anchor == "compact64")
+        if "comparison_anchor" in item:
+            require_anchor(item, anchor)
+        if "comparison_anchor" in run:
+            require_anchor(run, anchor)
+        if role == "baseline" and not preserving_baseline(
+                selected_policy(run["selected"], explicit_flags=anchor == "compact64"), anchor):
+            raise ValueError(f"baseline must use the explicit {anchor} preserving N16/K16/Q64 policy without overrides")
+        if run["selected"]["arithmetic"] != "k16" and not allow_arithmetic_change:
+            raise ValueError("changed arithmetic requires --allow-arithmetic-change")
+        if role=="baseline" and run["selected"]["window_queries"]!=64:
+            raise ValueError("baseline must retain its 64-query attention tile")
+        if first is None:
+            first = run
+        for field in ("command", "width", "height", "padded_width", "padded_height", "frames", "warmup"):
+            if run[field] != first[field]:
+                raise ValueError(f"benchmark pair mismatch: {field}")
+        if any(run["identity"][key] != first["identity"][key] for key in COMMON_KEYS):
+            raise ValueError("device, driver, model or frozen baseline shader identity mismatch")
+        actual_identity = dict(run["identity"])
+        actual_identity["executable_sha256"] = item.get("executable_sha256", run["identity"].get("executable_sha256"))
+        selection = {k: run["selected"][k] for k in ("kernels", "arithmetic", "tile_n", "stage_k")}
+        selection["window_queries"]=run["selected"]["window_queries"]
+        selection.update({k: run["selected"].get(k, False) for k in FUSION_KEYS})
+        if role == "baseline" and any(selection[k] for k in FUSION_KEYS):
+            raise ValueError("baseline cannot enable fusion or hardware publication overrides")
+        if role in role_identities and (actual_identity != role_identities[role] or selection != role_selections[role]):
+            raise ValueError("identity or actual selection changed between repetitions")
+        role_identities[role] = actual_identity
+        role_selections[role] = selection
+        source_hashes.append({"path": item["file"], "sha256": sha256(source)})
+        runs.append(run)
+    pairs = len(runs) // 2
+    sufficient = pairs >= 3 and first["frames"] >= 30 and first["warmup"] >= 5
+    baseline = stats([x for run in runs[::2] for x in run["frame_ms"]])
+    candidate = stats([x for run in runs[1::2] for x in run["frame_ms"]])
+    median_ratio, p95_ratio = candidate["median"] / baseline["median"], candidate["p95"] / baseline["p95"]
+    per_pair = [{"pair": number, "baseline": stats(runs[2 * number]["frame_ms"]),
+                 "candidate": stats(runs[2 * number + 1]["frame_ms"])} for number in range(pairs)]
+    # Reject a pooled win concealing a >2% regression in any interleaved pair.
+    network_safe = sufficient and not first["instrumented"] and median_ratio <= 1.02 and p95_ratio <= 1.02 and all(
+        pair["candidate"]["median"] / pair["baseline"]["median"] <= 1.02 and
+        pair["candidate"]["p95"] / pair["baseline"]["p95"] <= 1.02 for pair in per_pair)
+    network_evidence = None
+    if network_manifest is not None:
+        if first["command"] != "profile":
+            raise ValueError("--network-manifest supplies ordinary bench evidence for profile records only")
+        network_evidence = analyze(network_manifest, allow_arithmetic_change, comparison_anchor=anchor)
+        if network_evidence["command"] != "bench":
+            raise ValueError("network evidence must use uninstrumented bench records")
+        geometry = {k: first[k] for k in ("width", "height", "padded_width", "padded_height")}
+        if network_evidence["geometry"] != geometry or network_evidence["identities"] != role_identities or network_evidence["selections"] != role_selections:
+            raise ValueError("ordinary network evidence does not match profile identities, geometry and policy")
+        median_ratio = network_evidence["network_median_ratio"]
+        p95_ratio = network_evidence["network_p95_ratio"]
+        network_safe = sufficient and network_evidence["network_regression_gate_passed"]
+    grouped = [operators(run) for run in runs]
+    all_keys = set().union(*(set(group) for group in grouped))
+    operator_reports = []
+    for key in sorted(all_keys):
+        present = all(key in group for group in grouped)
+        template = next(group[key] for group in grouped if key in group)
+        entry = {"family": template["family"], "shape": template["shape"], "matched_all_runs": present,
+                 "performance_eligible": False}
+        if present:
+            base_stats = stats([x for group in grouped[::2] for x in group[key]["frame_ms"]])
+            cand_stats = stats([x for group in grouped[1::2] for x in group[key]["frame_ms"]])
+            baseline_variants = set().union(*(group[key]["variants"] for group in grouped[::2]))
+            variants = set().union(*(group[key]["variants"] for group in grouped[1::2]))
+            improvement = 1 - cand_stats["median"] / base_stats["median"] if base_stats["median"] else 0
+            entry.update(baseline_ms=base_stats, candidate_ms=cand_stats, improvement_fraction=improvement,
+                         baseline_variants=[{"variant":v,"tile_n":n,"stage_k":k,**({"window_queries":q} if q else {})} for v,n,k,q in sorted(baseline_variants)],
+                         candidate_variants=[{"variant":v,"tile_n":n,"stage_k":k,**({"window_queries":q} if q else {})} for v,n,k,q in sorted(variants)],
+                         performance_eligible=network_safe and improvement >= .05 and len(variants) == 1 and variants != baseline_variants)
+        operator_reports.append(entry)
+    return {"format": "OpenNR-amd-performance-v1", "comparison_anchor": anchor, "source_manifest": str(path.resolve()),
+            "source_sha256": sha256(path), "source_records": source_hashes,
+            "command": first["command"], "instrumented": first["instrumented"], "pairs": pairs,
+            "geometry": {k: first[k] for k in ("width", "height", "padded_width", "padded_height")},
+            "identities": role_identities, "selections": role_selections, "baseline_ms": baseline,
+            "candidate_ms": candidate, "interleaved_pairs": per_pair,
+            "network_source_manifest": str(network_manifest.resolve()) if network_manifest is not None else None,
+            "network_evidence": network_evidence,
+            "network_median_ratio": median_ratio, "network_p95_ratio": p95_ratio,
+            "protocol_complete": sufficient, "network_regression_gate_passed": network_safe,
+            "default_performance_eligible": network_safe and median_ratio <= .95,
+            "operators": operator_reports,
+            "limitations": ["Network timestamps exclude D3D12 bridge, FSR and presentation; no game FPS is inferred.",
+                            "Profile instrumentation timings are kept separate from ordinary benchmark timings.",
+                            "Performance eligibility alone does not qualify arithmetic, temporal behavior or release readiness."]}
+
+
+def collect(args) -> Path:
+    anchor = comparison_anchor(getattr(args, "comparison_anchor", "legacy"))
+    if args.arithmetic != "k16" and not args.allow_arithmetic_change:
+        raise ValueError("changed arithmetic requires --allow-arithmetic-change")
+    for name in ("width", "height", "frames", "pairs", "timeout"):
+        integer(getattr(args, name), name, 1)
+    integer(args.warmup, "warmup")
+    executable = args.executable.resolve(strict=True)
+    model = args.model.resolve(strict=True)
+    if not executable.is_file() or not model.is_dir():
+        raise ValueError("executable must be a file and model must be a directory")
+    shaders = args.shaders.resolve(strict=True) if args.shaders else None
+    args.output.mkdir(parents=True, exist_ok=False)
+    output = args.output.resolve()
+    executable_hash = sha256(executable)
+    manifest = {"format": "OpenNR-amd-interleaved-v1", "comparison_anchor": anchor, "created_utc": datetime.now(timezone.utc).isoformat(),
+                "model_directory": str(model), "command": args.mode, "runs": []}
+    child_base = {key: value for key, value in os.environ.items() if not key.startswith("DLSS5VK_")}
+    for pair in range(args.pairs):
+        for role in ("baseline", "candidate"):
+            anchor_mode = "optimized" if anchor == "compact64" else "baseline"
+            kernels, arithmetic, tile_n, stage_k = (anchor_mode, "k16", 16, 16) if role == "baseline" else (args.kernels, args.arithmetic, args.tile_n, args.stage_k)
+            window_queries=64 if role=="baseline" else getattr(args,"window_queries",64)
+            stem = f"pair-{pair + 1:02d}-{role}"
+            json_path, log_path = output / (stem + ".json"), output / (stem + ".log")
+            command = [str(executable), args.mode, "--backend", "amd", "--model", str(model),
+                       "--width", str(args.width), "--height", str(args.height), "--frames", str(args.frames),
+                       "--warmup", str(args.warmup), "--amd-kernels", kernels, "--amd-arithmetic", arithmetic,
+                       "--amd-tile-n", str(tile_n), "--amd-stage-k", str(stage_k), "--json", str(json_path)]
+            command.extend(["--amd-window-queries",str(window_queries)])
+            if shaders:
+                command.extend(["--shaders", str(shaders)])
+            overrides = {"DLSS5VK_BACKEND": "amd", "DLSS5VK_CHAIN": "0", "DLSS5VK_VALIDATION": "0",
+                         "DLSS5VK_DEBUG": "0", "DLSS5VK_AMD_KERNELS": kernels, "DLSS5VK_AMD_ARITHMETIC": arithmetic,
+                         "DLSS5VK_AMD_TILE_N": str(tile_n), "DLSS5VK_AMD_STAGE_K": str(stage_k),
+                         "DLSS5VK_AMD_WINDOW_QUERIES":str(window_queries),
+                         "DLSS5VK_PIPELINE_CACHE": str(output / "pipeline-cache")}
+            requested_fusion = {key: bool(getattr(args,key,False)) and role == "candidate" for key in FUSION_KEYS}
+            overrides.update({"DLSS5VK_AMD_" + key.upper(): "1" if enabled else "0" for key,enabled in requested_fusion.items()})
+            print(f"{stem}: {args.mode} {args.width}x{args.height}, anchor={anchor}, {kernels}/{arithmetic}, N{tile_n}/K{stage_k}/Q{window_queries}", flush=True)
+            with log_path.open("xb") as log:
+                result = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, cwd=str(executable.parent),
+                                        env={**child_base, **overrides}, timeout=args.timeout,
+                                        creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
+            if result.returncode:
+                raise ValueError(f"{stem} failed with exit {result.returncode}; see {log_path}")
+            run = benchmark(json_path, explicit_policy=anchor == "compact64")
+            for field in ("width", "height", "warmup", "frames", "command"):
+                expected = args.mode if field == "command" else getattr(args, field)
+                if run[field] != expected:
+                    raise ValueError(f"child ignored requested {field}")
+            expected_policy = {"arithmetic": arithmetic, "tile_n": tile_n, "stage_k": stage_k}
+            expected_policy["window_queries"]=window_queries
+            expected_policy.update(requested_fusion)
+            if kernels != "auto":
+                expected_policy["kernels"] = kernels
+            if any(run["selected"].get(k,False) != v for k, v in expected_policy.items()):
+                raise ValueError("forced candidate selection was ignored or silently fell back")
+            manifest["runs"].append({"role": role, "pair": pair, "comparison_anchor": anchor, "file": json_path.name, "log": log_path.name,
+                                     "executable_sha256": executable_hash, "argv": command, "environment": overrides})
+    path = output / "interleaved.json"
+    write_json(path, manifest)
+    write_json(output / "performance.json", analyze(path, args.allow_arithmetic_change, comparison_anchor=anchor))
+    return path
+
+
+def exact_manifest(path: Path, comparison_anchor="legacy") -> dict:
+    value = read_json(path)
+    anchor = require_anchor(value, comparison_anchor)
+    if value.get("format") != "OpenNR-amd-exact-manifest-v1" or value.get("suite") not in ("operators", "model320", "target"):
+        raise ValueError("expected exact manifest with operators, model320 or target suite")
+    model_free = value["suite"] == "operators" and value.get("model_free") is True
+    ident = identity(value.get("identity"), model_required=not model_free)
+    baseline_identity = identity(value.get("baseline_identity"), model_required=not model_free)
+    # Model manifests export nested policies. The model-free operator runner
+    # embeds the same actual execution fields inside its identity objects.
+    selected_value = value.get("selected", value.get("identity") if model_free else None)
+    baseline_value = value.get("baseline_selected", value.get("baseline_identity") if model_free else None)
+    if anchor == "compact64" and any(not isinstance(policy, dict) or "window_queries" not in policy
+                                     for policy in (selected_value, baseline_value)):
+        raise ValueError("compact64 requires explicitly recorded window_queries")
+    selected = selected_policy(selected_value, explicit_flags=True)
+    baseline_selected = selected_policy(baseline_value, explicit_flags=True)
+    if not preserving_baseline(baseline_selected, anchor) or selected["kernels"] != "optimized" or selected["arithmetic"] != "k16":
+        raise ValueError(f"exact qualification must compare the explicit {anchor} anchor with preserving optimized k16")
+    common_keys = tuple(key for key in COMMON_KEYS if key != "model_sha256" or not model_free)
+    if any(baseline_identity[key] != ident[key] for key in common_keys):
+        raise ValueError("exact baseline/candidate identity differs")
+    fixture_hash = None
+    if model_free:
+        fixture_hash = value.get("fixture_sha256")
+        if not isinstance(fixture_hash, str) or len(fixture_hash) != 64 or any(c not in "0123456789abcdef" for c in fixture_hash):
+            raise ValueError("model-free operator fixtures require a lowercase fixture_sha256")
+        if any(baseline_identity[k] != ident[k] for k in ("device_id", "driver_id", "baseline_shader_sha256")):
+            raise ValueError("operator baseline/candidate device, driver or frozen baseline identity differs")
+    entries = value.get("pairs")
+    if not isinstance(entries, list) or not entries:
+        raise ValueError("exact manifest must list binary pairs")
+    if model_free and (value.get("passed") is not True or value.get("validationErrors") != 0 or
+                       value.get("mismatchedChecks") != 0 or value.get("checks") != len(entries) or
+                       type(value.get("operators")) is not int or value["operators"] < 1):
+        raise ValueError("model-free operator execution or Vulkan validation did not pass completely")
+    fixture_root = Path(value["fixtureRoot"]) if isinstance(value.get("fixtureRoot"), str) else path.parent
+    if isinstance(value.get("fixtureRoot"), str) and not fixture_root.is_absolute():
+        fixture_root = path.parent / fixture_root
+    names, reports = set(), []
+    for entry in entries:
+        if not isinstance(entry, dict) or not isinstance(entry.get("name"), str) or not entry["name"] or entry["name"] in names:
+            raise ValueError("exact pairs require unique nonempty names")
+        names.add(entry["name"])
+        if not all(isinstance(entry.get(key), str) and entry[key] for key in ("baseline", "candidate")):
+            raise ValueError("exact pair requires baseline and candidate binary paths")
+        baseline, candidate = fixture_root / entry["baseline"], fixture_root / entry["candidate"]
+        size_a, size_b = baseline.stat().st_size, candidate.stat().st_size
+        if not size_a or not size_b:
+            raise ValueError("empty exact-capture buffers cannot qualify")
+        hash_a, hash_b = sha256(baseline), sha256(candidate)
+        reports.append({"name": entry["name"], "baseline_sha256": hash_a, "candidate_sha256": hash_b,
+                        "baseline_bytes": size_a, "candidate_bytes": size_b,
+                        "exact": size_a == size_b and hash_a == hash_b})
+    coverage = value.get("coverage", [])
+    if not isinstance(coverage, list) or any(not isinstance(x, str) for x in coverage):
+        raise ValueError("coverage must be an array of strings")
+    if value["suite"] == "operators" and not EXACT_COVERAGE.issubset(coverage):
+        raise ValueError("operator suite lacks prescribed mode/edge-case coverage")
+    if value["suite"] == "model320" and (value.get("resolution") != [320, 320] or names != MODEL_CHECKPOINTS | {"head", "capture-production"}):
+        raise ValueError("model320 suite requires 75 checkpoints plus head at 320x320")
+    if value["suite"] == "target" and (value.get("resolution") != [1707, 960] or not {"head", "capture-production"}.issubset(names)):
+        raise ValueError("target suite requires head and capture/production equality at valid resolution 1707x960")
+    return {"suite": value["suite"], "comparison_anchor": anchor, "source_manifest": str(path.resolve()), "source_sha256": sha256(path), "identity": ident,
+            "model_free": model_free, "fixture_sha256": fixture_hash, "baseline_identity": baseline_identity,
+            "selected": selected, "baseline_selected": baseline_selected,
+            "coverage": sorted(set(coverage)), "pairs": reports, "passed": all(x["exact"] for x in reports)}
+
+
+def qualify(args) -> dict:
+    anchor = comparison_anchor(getattr(args, "comparison_anchor", "legacy"))
+    # Import only for quality assessment; benchmark/tuning collection uses stdlib.
+    module_spec = importlib.util.spec_from_file_location("compare_images", Path(__file__).with_name("compare_images.py"))
+    compare_images = importlib.util.module_from_spec(module_spec)
+    module_spec.loader.exec_module(compare_images)
+    ident = None
+    selected = baseline_selected = baseline_ident = None
+    exact_reports = [exact_manifest(path, anchor) for path in args.exact]
+    if len({x["suite"] for x in exact_reports}) != len(exact_reports):
+        raise ValueError("qualification cannot contain duplicate exact suites")
+    if args.arithmetic == "k16" and {x["suite"] for x in exact_reports} != {"operators", "model320", "target"}:
+        raise ValueError("preserving qualification requires operators, model320 and target exact suites")
+    quality_reports = []
+    coverage, histories = set(), set()
+    for exact in exact_reports:
+        if selected is None:
+            selected, baseline_selected = exact["selected"], exact["baseline_selected"]
+            baseline_ident = exact["baseline_identity"]
+        if exact["selected"] != selected or exact["baseline_selected"] != baseline_selected:
+            raise ValueError("qualification exact-suite selected policy mismatch")
+        if any(exact["baseline_identity"][key] != baseline_ident[key] for key in IDENTITY_KEYS
+               if key != "model_sha256"):
+            raise ValueError("qualification exact-suite baseline identity mismatch")
+        if exact["model_free"]:
+            continue
+        if ident is None:
+            ident = exact["identity"]
+        if exact["identity"] != ident:
+            raise ValueError("qualification exact-suite identity mismatch")
+    for path in args.sequence:
+        manifest = read_json(path)
+        record_identity = identity(manifest.get("identity"))
+        record_selected = selected_policy(manifest.get("selected"), explicit_flags=True)
+        if record_selected["arithmetic"] != args.arithmetic:
+            raise ValueError("quality sequence actual arithmetic differs from requested qualification")
+        if selected is None:
+            selected = record_selected
+        if record_selected != selected:
+            raise ValueError("qualification sequence selected policy mismatch")
+        if ident is None:
+            ident = record_identity
+        if record_identity != ident:
+            raise ValueError("qualification sequence identity mismatch")
+        if manifest.get("data_range") != 1.0 or manifest.get("history_mode") not in ("identical", "evolved"):
+            raise ValueError("quality requires fixed data_range 1.0 and identical/evolved history mode")
+        if not isinstance(manifest.get("coverage"), list) or any(not isinstance(x, str) for x in manifest["coverage"]):
+            raise ValueError("quality sequence must name scene coverage")
+        frames = manifest.get("frames")
+        if not isinstance(frames, list) or not frames:
+            raise ValueError("quality sequence requires nonempty frames")
+        for frame in frames:
+            if not isinstance(frame, dict) or not all(isinstance(frame.get(name), str) and frame[name] for name in ("reference", "candidate")):
+                raise ValueError("quality frame requires reference and candidate paths")
+            metadata = compare_images.verify_metadata(frame.get("metadata"))
+            if metadata["model_sha256"] != ident["model_sha256"]:
+                raise ValueError("quality capture model does not match qualification identity")
+            if metadata["color_space"] != "scene-linear" or metadata["pipeline_point"] != "pre-fsr":
+                raise ValueError("quality requires scene-linear pre-FSR composed RGB")
+            for name in ("reference", "candidate"):
+                with (path.parent / frame[name]).open("rb") as image:
+                    if image.readline().strip() != b"PF":
+                        raise ValueError("scene-linear qualification requires unclamped RGB float PFM")
+        report = compare_images.compare_sequence(path, min_psnr=40, min_ssim=.99)
+        quality_reports.append({"source_manifest": str(path.resolve()), "source_sha256": sha256(path), "history_mode": manifest["history_mode"],
+                                "coverage": manifest["coverage"], "result": report})
+        coverage.update(manifest["coverage"])
+        histories.add(manifest["history_mode"])
+    complete_scenes = SCENE_COVERAGE.issubset(coverage) and histories == {"identical", "evolved"}
+    if ident is None or (args.arithmetic != "k16" and not complete_scenes):
+        raise ValueError("experimental qualification requires all prescribed scenes and both history modes")
+    if any(any(x["identity"][key] != ident[key] for key in IDENTITY_KEYS if key != "model_sha256" or not x["model_free"]) for x in exact_reports):
+        raise ValueError("exact/scene identity mismatch")
+    preserving = args.arithmetic == "k16" and all(x["passed"] for x in exact_reports)
+    scene_quality = complete_scenes and all(x["result"]["thresholds_passed"] for x in quality_reports)
+    return {"format": "OpenNR-amd-qualification-v1", "comparison_anchor": anchor, "identity": ident, "arithmetic": args.arithmetic,
+            "selections": {"baseline": baseline_selected, "candidate": selected},
+            "exact_suites": exact_reports, "quality_sequences": quality_reports,
+            "passed": preserving if args.arithmetic == "k16" else scene_quality,
+            "preservationQualified": preserving,
+            "releaseGates": {"scene_quality": scene_quality, "motion_review": False, "complete_game_benchmarks": False},
+            "limitations": ["Numerical gates do not replace human motion review or complete game benchmark validation."]}
+
+
+def tuning(performance_path: Path, qualification_path: Path, comparison_anchor="legacy") -> dict:
+    report, qualification = read_json(performance_path), read_json(qualification_path)
+    anchor = require_anchor(report, comparison_anchor)
+    require_anchor(qualification, anchor)
+    if report.get("format") != "OpenNR-amd-performance-v1" or qualification.get("format") != "OpenNR-amd-qualification-v1":
+        raise ValueError("expected generated performance and qualification reports")
+    # Evidence and gates are recomputed from raw files, rather than trusting a
+    # manually edited eligibility boolean or a summary of unrelated minima.
+    network_source = Path(report["network_source_manifest"]) if report.get("network_source_manifest") else None
+    if not isinstance(report.get("source_manifest"), str) or not evidence_equal(
+            analyze(Path(report["source_manifest"]), network_manifest=network_source, comparison_anchor=anchor), report):
+        raise ValueError("performance report no longer agrees with its raw interleaved samples")
+    exact_sources = [Path(x["source_manifest"]) for x in qualification.get("exact_suites", [])]
+    quality_sources = [Path(x["source_manifest"]) for x in qualification.get("quality_sequences", [])]
+    fresh_qualification = qualify(argparse.Namespace(exact=exact_sources, sequence=quality_sources, arithmetic="k16", comparison_anchor=anchor))
+    if not evidence_equal(fresh_qualification, qualification):
+        raise ValueError("qualification report no longer agrees with its binary/quality capture artifacts")
+    candidate_identity = identity(report.get("identities", {}).get("candidate"))
+    if identity(qualification.get("identity")) != candidate_identity:
+        raise ValueError("qualification identity does not match measured candidate")
+    if qualification.get("selections") != report.get("selections"):
+        raise ValueError("qualification selected policy does not match measured baseline/candidate")
+    baseline_identity = identity(report.get("identities", {}).get("baseline"))
+    for exact in qualification.get("exact_suites", []):
+        if any(exact["baseline_identity"][key] != baseline_identity[key] for key in IDENTITY_KEYS
+               if key != "model_sha256" or not exact["model_free"]):
+            raise ValueError("qualification baseline identity does not match measured baseline")
+    if report.get("selections", {}).get("candidate", {}).get("arithmetic") != "k16" or qualification.get("arithmetic") != "k16":
+        raise ValueError("automatic tuning only accepts preserving k16 arithmetic")
+    exact = qualification.get("exact_suites", [])
+    qualified = (qualification.get("passed") is True and qualification.get("preservationQualified") is True
+                 and {x.get("suite") for x in exact} == {"operators", "model320", "target"}
+                 and all(x.get("passed") is True for x in exact))
+    records = []
+    for operator in report.get("operators", []):
+        variants = operator.get("candidate_variants", [])
+        if not qualified or operator.get("performance_eligible") is not True or len(variants) != 1:
+            continue
+        actual_shape = shape(operator.get("shape"))
+        # The native session loader uses uint32 graph shape IDs. Named
+        # partitions remain useful in diagnostic reports, but cannot be
+        # represented by its current tuning contract.
+        if any(type(actual_shape[key]) is not int or not 0 <= actual_shape[key] <= 0xffffffff
+               for key in ("rows", "N", "K", "batches", "flags", "partition")):
+            continue
+        variant = variants[0]
+        if variant.get("variant") not in ACCELERATED_VARIANTS.get(operator["family"], set()):
+            continue
+        if type(variant.get("tile_n")) is not int or variant["tile_n"] not in (16, 32, 64) or type(variant.get("stage_k")) is not int or variant["stage_k"] not in (16, 32, 64):
+            continue
+        records.append({"key": {**candidate_identity, "arithmetic": "k16", "family": operator["family"], "shape": actual_shape},
+                        "comparison_anchor": anchor,
+                        **variant, "qualified": True, "operator_improvement_fraction": operator["improvement_fraction"],
+                        "network_median_ratio": report["network_median_ratio"], "network_p95_ratio": report["network_p95_ratio"],
+                        "evidence": {"performance_report_sha256": sha256(performance_path),
+                                     "qualification_report_sha256": sha256(qualification_path),
+                                     "selected": selected_policy(report["selections"]["candidate"], explicit_flags=True)}})
+    return {"format": "OpenNR-amd-tuning-v1", "comparison_anchor": anchor, "records": records,
+            "identity": candidate_identity, "geometry": report["geometry"],
+            "optimized_default_eligible": bool(records) and qualified and report.get("default_performance_eligible") is True,
+            "default_selection": report["selections"]["candidate"],
+            "fallback": "qualified preserving baseline; invalid/missing records never select experimental arithmetic"}
+
+
+def merge_candidates(candidates: list[list[Path]], comparison_anchor="legacy") -> dict:
+    """Choose per-shape winners from reverified evidence, never promote a mix."""
+    winners = {};common_identity = None;common_geometry = None;mixed_identity=False;mixed_geometry=False
+    for performance, qualification in candidates:
+        candidate = tuning(performance, qualification, comparison_anchor)
+        if common_identity is None:
+            common_identity=candidate.get("identity")
+            common_geometry=candidate.get("geometry")
+        else:
+            mixed_identity=mixed_identity or candidate.get("identity")!=common_identity
+            mixed_geometry=mixed_geometry or candidate.get("geometry")!=common_geometry
+        for record in candidate["records"]:
+            key = json.dumps(record["key"], sort_keys=True, separators=(",", ":"))
+            rank = (-record["operator_improvement_fraction"], record["network_median_ratio"],
+                    record["network_p95_ratio"], record["tile_n"], record["stage_k"],record.get("window_queries",64), record["variant"])
+            if key not in winners or rank < winners[key][0]:
+                winners[key] = rank, record
+    return {"format": "OpenNR-amd-tuning-v1", "comparison_anchor": comparison_anchor, "records": [winners[key][1] for key in sorted(winners)],
+            "identity": None if mixed_identity else common_identity,
+            "geometry": None if mixed_geometry else common_geometry,
+            "optimized_default_eligible": False,
+            "default_selection": None,
+            "fallback": "qualified preserving baseline; invalid/missing records never select experimental arithmetic",
+            "limitations": ["A combination of per-shape winners requires its own complete-network benchmark before default promotion."]}
+
+
+def captured_sequence(directory: Path, allow_nongame=False) -> list[tuple[Path, dict]]:
+    """Inspect only atomically published frames; incomplete staging is ignored."""
+    frames=[]
+    for frame_directory in directory.iterdir():
+        manifest=frame_directory/"manifest.json"
+        if frame_directory.is_dir() and not frame_directory.name.startswith(".") and manifest.is_file():
+            frame=read_json(manifest)
+            if frame.get("format")!="OpenNR-game-capture-v1":
+                raise ValueError("sequence includes an unsupported capture manifest")
+            if frame.get("gameCapture") is not True and not allow_nongame:
+                raise ValueError("game sequence requires genuine gameCapture metadata; synthetic diagnostics need --allow-nongame")
+            if not isinstance(frame.get("sequence_id"),str) or not frame["sequence_id"]:
+                raise ValueError("sequence replay requires bounded-capture sequence metadata")
+            integer(frame.get("frame_id"),"captured frame_id")
+            integer(frame.get("capture_ordinal"),"capture_ordinal")
+            frames.append((frame_directory,frame))
+    if not frames or len(frames)>120:
+        raise ValueError("sequence must contain 1 through 120 completed capture frames")
+    frames.sort(key=lambda item:item[1]["capture_ordinal"])
+    first=frames[0][1]
+    requested=integer(first.get("requested_capture_count"),"requested_capture_count",1)
+    if requested>120 or len(frames)!=requested:
+        raise ValueError("bounded sequence is incomplete; wait for every requested capture or record a new sequence")
+    if first["capture_ordinal"]!=0:
+        raise ValueError("bounded sequence is missing its first capture")
+    for index,(_,frame) in enumerate(frames):
+        if frame["sequence_id"]!=first["sequence_id"] or frame["capture_ordinal"]!=index:
+            raise ValueError("sequence identity or capture ordinal has a gap")
+        if frame.get("requested_capture_count")!=requested:
+            raise ValueError("capture request count changed within sequence")
+        if (frame.get("width"),frame.get("height"),frame.get("modelManifestSha256"))!=(first.get("width"),first.get("height"),first.get("modelManifestSha256")):
+            raise ValueError("capture geometry/model changed within bounded sequence")
+        if index and frame["frame_id"]!=frames[index-1][1]["frame_id"]+1 and frame.get("reset") is not True:
+            raise ValueError("capture frame gap requires a recorded history reset")
+    return frames
+
+
+def replay_sequence(args) -> dict:
+    if args.arithmetic!="k16" and not args.allow_arithmetic_change:
+        raise ValueError("experimental replay requires --allow-arithmetic-change")
+    frames=captured_sequence(args.capture_sequence.resolve(strict=True),args.allow_nongame)
+    executable=args.executable.resolve(strict=True);model=args.model.resolve(strict=True)
+    args.output.mkdir(parents=True,exist_ok=False);output=args.output.resolve()
+    module_spec=importlib.util.spec_from_file_location("compare_images",Path(__file__).with_name("compare_images.py"))
+    images=importlib.util.module_from_spec(module_spec);module_spec.loader.exec_module(images)
+    modes=("identical","evolved") if args.history_mode=="both" else (args.history_mode,)
+    parent_environment={key:value for key,value in os.environ.items() if not key.startswith("DLSS5VK_")}
+    reports=[]
+    for history_mode in modes:
+        quality={"format":"OpenNR-quality-sequence-v1","data_range":1.0,"history_mode":history_mode,
+                 "coverage":sorted(set(args.coverage)),"frames":[]}
+        previous_replay={};candidate_identity=None;candidate_selection=None
+        for index,(capture,frame) in enumerate(frames):
+            metadata=[];destinations={}
+            for role in ("reference","candidate"):
+                backend=args.reference_backend if role=="reference" else "amd"
+                destination=output/history_mode/role/("frame-"+str(frame["frame_id"]))
+                destination.parent.mkdir(parents=True,exist_ok=True)
+                command=[str(executable),"compositecheck","--backend",backend,"--model",str(model),
+                         "--fixture",str(destination),"--recorded-frame",str(capture),"--history-mode",history_mode]
+                if args.shaders:command.extend(["--shaders",str(args.shaders.resolve(strict=True))])
+                if args.game_shaders:command.extend(["--game-shaders",str(args.game_shaders.resolve(strict=True))])
+                if history_mode=="evolved" and role in previous_replay and (not index or frame["frame_id"]==frames[index-1][1]["frame_id"]+1):
+                    command.extend(["--previous-replay",str(previous_replay[role])])
+                candidate=role=="candidate"
+                overrides={"DLSS5VK_BACKEND":backend,"DLSS5VK_CHAIN":"0","DLSS5VK_VALIDATION":"0",
+                           "DLSS5VK_AMD_KERNELS":args.kernels if candidate else "baseline",
+                           "DLSS5VK_AMD_ARITHMETIC":args.arithmetic if candidate else "k16",
+                           "DLSS5VK_AMD_TILE_N":str(args.tile_n if candidate else 16),
+                           "DLSS5VK_AMD_STAGE_K":str(args.stage_k if candidate else 16),
+                           "DLSS5VK_AMD_WINDOW_QUERIES":str(getattr(args,"window_queries",64) if candidate else 64)}
+                for flag in FUSION_KEYS:
+                    overrides["DLSS5VK_AMD_"+flag.upper()]="1" if candidate and getattr(args,flag,False) else "0"
+                print(f"replay {history_mode} frame {index+1}/{len(frames)} {role}",flush=True)
+                log_path=destination.parent/(destination.name+".log")
+                with log_path.open("xb") as log:
+                    result=subprocess.run(command,stdout=log,stderr=subprocess.STDOUT,env={**parent_environment,**overrides},
+                                          cwd=str(executable.parent),timeout=args.timeout,
+                                          creationflags=subprocess.CREATE_NO_WINDOW if os.name=="nt" else 0)
+                if result.returncode:raise ValueError(f"replay failed with exit {result.returncode}; see {log_path}")
+                replay=read_json(destination/"manifest.json")
+                if replay.get("sourceFrameId")!=frame["frame_id"] or replay.get("historyMode")!=history_mode:
+                    raise ValueError("replay did not report the requested frame/history mode")
+                previous_replay[role]=destination;destinations[role]=destination
+                actual={"frame_id":frame["frame_id"],"sequence_id":frame["sequence_id"],"seed":replay["seed"],
+                        "model_sha256":frame["modelManifestSha256"].lower(),
+                        "input_sha256":frame["filesSha256"]["source-packed.f32"].lower(),"controls":frame["controls"],
+                        "render_resolution":[frame["width"],frame["height"]],"output_resolution":[frame["width"],frame["height"]],
+                        "pipeline_point":"pre-fsr","color_space":"scene-linear","pre_exposure":frame["pre_exposure"],
+                        "exposure_scale":frame["exposure_scale"],"jitter":frame["jitter"],"motion_scale":frame["motion_scale"],
+                        "reset":replay["reset"],"history_frame_ids":replay["historyFrameIds"]}
+                metadata.append(actual)
+                if candidate:
+                    current_identity=identity(replay["identity"])
+                    current_selection=selected_policy(replay.get("selected"), explicit_flags=True)
+                    if candidate_identity is not None and current_identity!=candidate_identity:
+                        raise ValueError("candidate device/driver/model/shader identity changed during replay")
+                    if candidate_selection is not None and current_selection!=candidate_selection:
+                        raise ValueError("candidate selected policy changed during replay")
+                    if (current_selection["arithmetic"]!=args.arithmetic or current_selection["tile_n"]!=args.tile_n
+                            or current_selection["stage_k"]!=args.stage_k or current_selection["window_queries"]!=getattr(args,"window_queries",64)
+                            or (args.kernels!="auto" and current_selection["kernels"]!=args.kernels)
+                            or any(current_selection[flag]!=getattr(args,flag,False) for flag in FUSION_KEYS)):
+                        raise ValueError("forced candidate replay selection was ignored or silently fell back")
+                    candidate_identity=current_identity
+                    candidate_selection=current_selection
+            images.verify_metadata({"reference":metadata[0],"candidate":metadata[1]})
+            quality["frames"].append({"reference":str((destinations["reference"]/"recorded-scene-linear-rgb.pfm").relative_to(output)),
+                                      "candidate":str((destinations["candidate"]/"recorded-scene-linear-rgb.pfm").relative_to(output)),
+                                      "metadata":{"reference":metadata[0],"candidate":metadata[1]}})
+        quality["identity"]=candidate_identity
+        quality["selected"]=candidate_selection
+        manifest_path=output/(history_mode+"-sequence.json");write_json(manifest_path,quality)
+        assessment=images.compare_sequence(manifest_path,min_psnr=40,min_ssim=.99)
+        write_json(output/(history_mode+"-quality.json"),assessment)
+        reports.append({"history_mode":history_mode,"manifest":manifest_path.name,"quality":assessment})
+    result={"format":"OpenNR-amd-sequence-replay-v1","frame_count":len(frames),
+            "genuine_game_capture":all(frame.get("gameCapture") is True for _,frame in frames),
+            "performance_representative":False,"sequences":reports,
+            "thresholds_passed":all(x["quality"]["thresholds_passed"] for x in reports),
+            "limitations":["Offline replay includes diagnostic readback and cannot measure game FPS.",
+                           "Evolved reference/candidate histories each start from reset; identical mode reuses captured history.",
+                           "Scene labels require reviewer verification; numerical passing does not establish motion acceptance."]}
+    write_json(output/"replay-report.json",result);return result
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest="action", required=True)
+    collect_parser = commands.add_parser("collect", help="launch interleaved GPU network runs")
+    collect_parser.add_argument("--executable", type=Path, required=True)
+    collect_parser.add_argument("--model", type=Path, required=True)
+    collect_parser.add_argument("--shaders", type=Path)
+    collect_parser.add_argument("--output", type=Path, required=True, help="new, absent output directory")
+    collect_parser.add_argument("--mode", choices=("bench", "profile"), default="bench")
+    collect_parser.add_argument("--width", type=int, default=1707)
+    collect_parser.add_argument("--height", type=int, default=960)
+    collect_parser.add_argument("--warmup", type=int, default=5)
+    collect_parser.add_argument("--frames", type=int, default=30)
+    collect_parser.add_argument("--pairs", type=int, default=3)
+    collect_parser.add_argument("--timeout", type=int, default=900, help="per child timeout in seconds")
+    collect_parser.add_argument("--kernels", choices=("auto", "baseline", "optimized"), default="optimized")
+    collect_parser.add_argument("--arithmetic", choices=("k16", "k32", "final"), default="k16")
+    collect_parser.add_argument("--tile-n", type=int, choices=(16, 32, 64), default=16)
+    collect_parser.add_argument("--stage-k", type=int, choices=(16, 32, 64), default=16)
+    collect_parser.add_argument("--window-queries",type=int,choices=(16,32,64),default=64)
+    collect_parser.add_argument("--allow-arithmetic-change", action="store_true")
+    for flag in FUSION_KEYS:
+        collect_parser.add_argument("--" + flag.replace("_","-"),action="store_true")
+    analyze_parser = commands.add_parser("analyze", help="validate and assess collected paired records")
+    analyze_parser.add_argument("manifest", type=Path)
+    analyze_parser.add_argument("--output", type=Path, required=True)
+    analyze_parser.add_argument("--allow-arithmetic-change", action="store_true")
+    analyze_parser.add_argument("--network-manifest", type=Path, help="matching ordinary bench run manifest for profile promotion gates")
+    qualify_parser = commands.add_parser("qualify", help="verify actual binary and scene capture artifacts")
+    qualify_parser.add_argument("--exact", type=Path, action="append", default=[])
+    qualify_parser.add_argument("--sequence", type=Path, action="append", default=[])
+    qualify_parser.add_argument("--arithmetic", choices=("k16", "k32", "final"), default="k16")
+    qualify_parser.add_argument("--output", type=Path, required=True)
+    tuning_parser = commands.add_parser("tuning", help="export qualified preserving per-shape tuning records")
+    tuning_parser.add_argument("--performance", type=Path, required=True)
+    tuning_parser.add_argument("--qualification", type=Path, required=True)
+    tuning_parser.add_argument("--output", type=Path, required=True)
+    merge_parser = commands.add_parser("merge", help="choose per-shape winners across qualified tile/staging experiments")
+    merge_parser.add_argument("--candidate", type=Path, nargs=2, action="append", required=True,
+                              metavar=("PERFORMANCE", "QUALIFICATION"))
+    merge_parser.add_argument("--output", type=Path, required=True)
+    for anchor_parser in (collect_parser, analyze_parser, qualify_parser, tuning_parser, merge_parser):
+        anchor_parser.add_argument("--comparison-anchor", choices=COMPARISON_ANCHORS, default="legacy",
+                                   help="explicit baseline role: legacy kernels or optimized preserving Q64 kernels")
+    replay_parser=commands.add_parser("replay",help="replay a bounded scene sequence with identical and evolved histories")
+    replay_parser.add_argument("--capture-sequence",type=Path,required=True)
+    replay_parser.add_argument("--executable",type=Path,required=True)
+    replay_parser.add_argument("--model",type=Path,required=True)
+    replay_parser.add_argument("--shaders",type=Path)
+    replay_parser.add_argument("--game-shaders",type=Path)
+    replay_parser.add_argument("--output",type=Path,required=True)
+    replay_parser.add_argument("--reference-backend",choices=("reference","amd"),default="reference")
+    replay_parser.add_argument("--history-mode",choices=("both","identical","evolved"),default="both")
+    replay_parser.add_argument("--kernels",choices=("baseline","optimized","auto"),default="optimized")
+    replay_parser.add_argument("--arithmetic",choices=("k16","k32","final"),default="k16")
+    replay_parser.add_argument("--tile-n",type=int,choices=(16,32,64),default=16)
+    replay_parser.add_argument("--stage-k",type=int,choices=(16,32,64),default=16)
+    replay_parser.add_argument("--window-queries",type=int,choices=(16,32,64),default=64)
+    replay_parser.add_argument("--timeout",type=int,default=900)
+    replay_parser.add_argument("--coverage",choices=sorted(SCENE_COVERAGE),action="append",default=[])
+    replay_parser.add_argument("--allow-nongame",action="store_true")
+    replay_parser.add_argument("--allow-arithmetic-change",action="store_true")
+    for flag in FUSION_KEYS:replay_parser.add_argument("--"+flag.replace("_","-"),action="store_true")
+    args = parser.parse_args()
+    try:
+        if args.action == "collect":
+            print(collect(args))
+            return 0
+        if args.action == "replay":
+            report=replay_sequence(args)
+            return 0 if report["thresholds_passed"] else 1
+        report = (analyze(args.manifest, args.allow_arithmetic_change, args.network_manifest, args.comparison_anchor) if args.action == "analyze" else
+                  qualify(args) if args.action == "qualify" else merge_candidates(args.candidate, args.comparison_anchor) if args.action == "merge" else
+                  tuning(args.performance, args.qualification, args.comparison_anchor))
+        write_json(args.output, report)
+        print(args.output)
+        return 1 if args.action == "qualify" and not report["passed"] else 0
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
+        parser.error(str(error))
+        return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

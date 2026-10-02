@@ -23,6 +23,8 @@
 #include "nr_graph.h"
 #include "numeric.h"
 #include "sha256.h"
+#include "shader_identity.h"
+#include "capture_request.h"
 using Microsoft::WRL::ComPtr;
 namespace {
 constexpr uint32_t kRuntimeFrameSlots = 8;
@@ -35,6 +37,19 @@ template<class F> int32_t guarded(F f){try{f();errorText.clear();return LMXXF_NR
 void textOut(char* out,uint32_t n,const std::string& text){if(out&&n){size_t k=std::min<size_t>(n-1,text.size());memcpy(out,text.data(),k);out[k]=0;}}
 float sane(float v,float lo,float hi,float fallback){return std::isfinite(v)?std::clamp(v,lo,hi):fallback;}
 std::string fileHash(const std::filesystem::path& path){std::ifstream file(path,std::ios::binary);if(!file)throw std::runtime_error("cannot hash capture asset");std::vector<uint8_t> bytes((std::istreambuf_iterator<char>(file)),{});return sha256Hex(bytes.data(),bytes.size());}
+std::string captureIdentityHash(std::string hash){for(char& c:hash)if(c>='a'&&c<='f')c-=('a'-'A');return hash;}
+std::string captureShaderHash(const shader_identity::Source& source){return captureIdentityHash(source.sha256);}
+vk::Pipeline capturedShaderPipeline(vk::Context& context,const shader_identity::Source& source,const char* label){
+  // The source snapshot supplies both the module bytes and capture identity.
+  // Reopening its filename after loading would allow a replacement to relabel
+  // a live pipeline. A shader module may be destroyed once pipeline creation
+  // completes; the pipeline keeps its compiled code independently.
+  struct Module{VkDevice device;VkShaderModule handle=VK_NULL_HANDLE;~Module(){if(handle)vkDestroyShaderModule(device,handle,nullptr);}} module{context.device()};
+  VkShaderModuleCreateInfo info{VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO};info.codeSize=source.words.size()*sizeof(uint32_t);info.pCode=source.words.data();
+  VK_CHECK(vkCreateShaderModule(module.device,&info,nullptr,&module.handle));
+  vk::SpecConstants noSpec;return context.createComputePipeline(module.handle,noSpec,label,0);
+}
+std::string captureQuote(const std::string& text){std::ostringstream out;out<<'"';for(unsigned char c:text){if(c=='"'||c=='\\')out<<'\\'<<char(c);else if(c<32)out<<"\\u00"<<std::hex<<std::setw(2)<<std::setfill('0')<<unsigned(c)<<std::dec;else out<<char(c);}out<<'"';return out.str();}
 uint32_t memoryType(vk::Context& c,uint32_t bits){VkPhysicalDeviceMemoryProperties p;vkGetPhysicalDeviceMemoryProperties(c.physical(),&p);for(uint32_t i=0;i<p.memoryTypeCount;i++)if((bits&(1u<<i))&&(p.memoryTypes[i].propertyFlags&VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))return i;throw std::runtime_error("no shared device-local memory type");}
 struct SharedBuffer {
   vk::Context* context=nullptr;ComPtr<ID3D12Resource> d3d;HANDLE handle=nullptr;vk::Buffer buffer;
@@ -80,8 +95,9 @@ struct FrameParams {uint32_t fullWidth,fullHeight,width,height,seed,historyValid
 static_assert(sizeof(FrameParams)==72&&sizeof(PackParams)==64);
 struct FrameCapture {
   vk::Context* context=nullptr;std::array<vk::Buffer,5> data{};bool complete=true;
+  std::string sequenceId;uint32_t ordinal=0,requested=0;uint64_t historyFrame=0,historySubmission=0,submittedTick=0,submittedFileTime=0;
   ~FrameCapture(){if(context)for(auto& b:data)context->destroyBuffer(b);}
-  void allocate(vk::Context& c,uint32_t index,uint64_t bytes){context=&c;data[index]=c.createBuffer(bytes,true,"one-shot diagnostic capture");}
+  void allocate(vk::Context& c,uint32_t index,uint64_t bytes){context=&c;data[index]=c.createBuffer(bytes,true,"bounded diagnostic capture");}
   void copy(VkCommandBuffer commands,uint32_t index,const vk::Buffer& source){VkBufferCopy region{0,0,data[index].size};vkCmdCopyBuffer(commands,source.buffer,data[index].buffer,1,&region);}
 };
 struct PackPipelines {
@@ -117,7 +133,7 @@ struct Session {
   float lastJitterX=0,lastJitterY=0,blendScale=1;std::vector<double> timings;OpenNrFrameMetadata nextMetadata{};MochizukiNrControls controls{};bool prepared=false,failed=false,controlsValid=true;uint64_t submittedFrames=0,bypassedFrames=0;OpenNrTimings lastTimings{};
   uint64_t lastPreparedValue=0,lastPreparedFrame=0;float lastPreparedJitterX=0,lastPreparedJitterY=0;
   ComPtr<IDXGIAdapter3> memoryAdapter;std::ofstream timingTrace;double sampledVramMiB=-1;uint64_t traceRows=0;
-  bool captureTaken=false;std::string modelHash,preprocessHash,compositeHash;
+  nr::capture::Request captureRequest;uint64_t captureSequenceCounter=0;std::string captureSequenceId,modelHash,preprocessHash,compositeHash;
   void invalidateTemporal(){reset=true;lastPreparedValue=lastPreparedFrame=0;lastPreparedJitterX=lastPreparedJitterY=0;}
   ~Session(){if(context){for(auto& j:jobs)j.reset();graph.reset();kernels.reset();model.reset();for(auto& h:histories)context->destroyBuffer(h);context->destroyPipeline(preprocess);context->destroyPipeline(composite);finished.reset();produced.reset();}if(event)CloseHandle(event);}
   void waitConsumer(uint64_t value){if(!value||consumed->GetCompletedValue()>=value)return;check(consumed->SetEventOnCompletion(value,event),"consumer completion");if(WaitForSingleObject(event,30000)!=WAIT_OBJECT_0)throw std::runtime_error("consumer drain timed out; session must remain alive");}
@@ -134,7 +150,7 @@ struct Session {
     // performance runs. All source copies were recorded before history reuse.
     try{
       if(!j.capture->complete)throw std::runtime_error("capture readback allocation incomplete");
-      const auto parent=root/"captures";std::filesystem::create_directories(parent);
+      const auto parent=root/"captures"/j.capture->sequenceId;std::filesystem::create_directories(parent);
       const auto name="frame-"+std::to_string(j.frame.frame_id)+"-"+std::to_string(j.value)+"-"+std::to_string(GetCurrentProcessId())+"-"+std::to_string(GetTickCount64());
       const auto staged=parent/("."+name+"-staging"),destination=parent/name;
       if(std::filesystem::exists(destination)||!std::filesystem::create_directory(staged))throw std::runtime_error("capture destination already exists");
@@ -142,15 +158,27 @@ struct Session {
       auto write=[&](const std::filesystem::path& path,const void* bytes,size_t n){std::ofstream file(path,std::ios::binary|std::ios::trunc);file.write((const char*)bytes,n);file.close();if(!file)throw std::runtime_error("capture write failed");};
       for(uint32_t i=0;i<5;i++)write(staged/names[i],j.capture->data[i].mapped,size_t(j.capture->data[i].size));
       write(staged/"controls.bin",&j.params,sizeof(j.params));
+      write(staged/"pack-controls.bin",&j.pack,sizeof(j.pack));
       std::ofstream manifest(staged/"manifest.json");
       wchar_t processPath[32768]{};GetModuleFileNameW(nullptr,processPath,32768);
       const auto processName=std::filesystem::path(processPath).filename().wstring();
       const bool gameCapture=CompareStringOrdinal(processName.c_str(),-1,L"Cyberpunk2077.exe",-1,TRUE)==CSTR_EQUAL;
-      manifest << "{\n  \"format\": \"OpenNR-game-capture-v1\",\n  \"gameCapture\": " << (gameCapture?"true":"false") << ",\n  \"performanceRepresentative\": false,\n  \"outputPublication\": \"Vulkan f32 scene result before D3D12 RGBA16F conversion\",\n  \"backend\": \"amd\",\n  \"arithmetic\": \"" << context->arithmeticMode() << "\",\n  \"width\": " << width << ",\n  \"height\": " << height << ",\n  \"fullWidth\": " << geometry.fullWidth << ",\n  \"fullHeight\": " << geometry.fullHeight << ",\n  \"frame_id\": " << j.frame.frame_id << ",\n  \"modelManifestSha256\": \"" << modelHash << "\",\n  \"preprocessSpvSha256\": \"" << preprocessHash << "\",\n  \"compositeSpvSha256\": \"" << compositeHash << "\",\n  \"domain\": \"scene-linear original exposure domain\",\n  \"filesSha256\": {";
+      const auto& captured=*j.capture;const auto& options=kernels->amdPolicy();const auto& capabilities=context->capabilities();
+      float gpuExposure=0;memcpy(&gpuExposure,(const uint8_t*)captured.data[0].mapped+uint64_t(width)*height*32,4);if(!std::isfinite(gpuExposure)||gpuExposure<=0)throw std::runtime_error("capture GPU exposure is invalid");
+      manifest << std::setprecision(9) << "{\n  \"format\": \"OpenNR-game-capture-v1\",\n  \"gameCapture\": " << (gameCapture?"true":"false") << ",\n  \"performanceRepresentative\": false,\n  \"outputPublication\": \"Vulkan f32 scene result before D3D12 RGBA16F conversion\",\n  \"backend\": \"amd\",\n  \"arithmetic\": \"" << options.arithmeticName() << "\",\n  \"kernelMode\": \"" << kernels->selectedKernelMode() << "\",\n  \"tileN\": " << options.tileN << ",\n  \"stageK\": " << options.stageK << ",\n  \"windowQueries\": " << options.windowQueries
+        << ",\n  \"width\": " << width << ",\n  \"height\": " << height << ",\n  \"fullWidth\": " << geometry.fullWidth << ",\n  \"fullHeight\": " << geometry.fullHeight << ",\n  \"frame_id\": " << j.frame.frame_id << ",\n  \"session_id\": " << j.frame.session_id << ",\n  \"submission_id\": " << j.value << ",\n  \"list_generation\": " << j.frame.list_generation
+        << ",\n  \"sequence_id\": " << captureQuote(captured.sequenceId) << ",\n  \"capture_ordinal\": " << captured.ordinal << ",\n  \"requested_capture_count\": " << captured.requested << ",\n  \"submitted_tick_ms\": " << captured.submittedTick << ",\n  \"submitted_filetime_100ns\": " << captured.submittedFileTime
+        << ",\n  \"seed\": " << j.params.seed << ",\n  \"reset\": " << (j.params.historyValid?"false":"true") << ",\n  \"history_frame_ids\": [" << (j.params.historyValid?std::to_string(captured.historyFrame):"") << "],\n  \"history_submission_id\": " << captured.historySubmission
+        << ",\n  \"pre_exposure\": " << j.pack.preExposure << ",\n  \"exposure_scale\": " << j.pack.exposureScale << ",\n  \"gpu_exposure\": " << gpuExposure << ",\n  \"exposure_available\": " << (j.pack.exposureAvailable?"true":"false")
+        << ",\n  \"jitter\": [" << j.metadata.jitter_x << ',' << j.metadata.jitter_y << "],\n  \"jitter_delta_pixels\": [" << j.pack.jitterDeltaX << ',' << j.pack.jitterDeltaY << "],\n  \"jitter_convention\": \"current render-pixel jitter; packed motion adds previous-minus-current delta\""
+        << ",\n  \"motion_scale\": [" << j.pack.motionScaleX << ',' << j.pack.motionScaleY << "],\n  \"motion_extent\": [" << j.pack.motionWidth << ',' << j.pack.motionHeight << "],\n  \"color_rectangle\": [" << j.pack.colorX << ',' << j.pack.colorY << ',' << width << ',' << height << "],\n  \"motion_rectangle\": [" << j.pack.motionX << ',' << j.pack.motionY << ',' << j.pack.motionWidth << ',' << j.pack.motionHeight << ']'
+        << ",\n  \"controls\": {\"automatic_mask\":" << j.params.autoMask << ",\"style\":" << j.params.style << ",\"tone\":" << j.params.tone << ",\"structure\":" << j.params.structure << ",\"skin\":" << j.params.skin << ",\"paper_white\":" << j.params.paperWhite << ",\"intensity\":" << j.params.intensity << ",\"blend_scale\":" << j.params.blendScale << ",\"history_strength\":" << j.params.historyStrength << ",\"enabled\":" << j.params.enabled << ",\"color_strength\":" << j.params.colorStrength << ",\"max_ratio\":" << j.params.maxRatio << '}'
+        << ",\n  \"modelManifestSha256\": \"" << modelHash << "\",\n  \"shaderSha256\": \"" << kernels->shaderSha256() << "\",\n  \"baselineShaderSha256\": \"" << kernels->baselineShaderSha256() << "\",\n  \"preprocessSpvSha256\": \"" << preprocessHash << "\",\n  \"compositeSpvSha256\": \"" << compositeHash << "\",\n  \"device\": " << captureQuote(context->deviceName()) << ",\n  \"driver\": " << captureQuote(capabilities.driverName+" "+capabilities.driverInfo)
+        << ",\n  \"domain\": \"scene-linear original exposure domain\",\n  \"filesSha256\": {";
       for(uint32_t i=0;i<5;i++)manifest << (i?",":"") << "\n    \"" << names[i] << "\": \"" << fileHash(staged/names[i]) << "\"";
-      manifest << ",\n    \"controls.bin\": \"" << fileHash(staged/"controls.bin") << "\"\n  }\n}\n";manifest.close();if(!manifest)throw std::runtime_error("capture manifest write failed");
+      manifest << ",\n    \"controls.bin\": \"" << fileHash(staged/"controls.bin") << "\",\n    \"pack-controls.bin\": \"" << fileHash(staged/"pack-controls.bin") << "\"\n  }\n}\n";manifest.close();if(!manifest)throw std::runtime_error("capture manifest write failed");
       std::filesystem::rename(staged,destination);
-      std::ofstream(root/"runtime.log",std::ios::app) << "one-shot diagnostic capture: " << destination.string() << "; excluded from performance results\n";
+      std::ofstream(root/"runtime.log",std::ios::app) << "bounded diagnostic capture " << captured.ordinal+1 << '/' << captured.requested << ": " << destination.string() << "; excluded from performance results\n";
     }catch(const std::exception& e){std::ofstream(root/"runtime.log",std::ios::app) << "diagnostic capture failed: " << e.what() << '\n';}
     j.capture.reset();
   }
@@ -161,9 +189,11 @@ struct Session {
     packer.create(d3d.Get(),root/"shaders"/"bridge.hlsl");model=std::make_unique<nr::Model>(*context,(root/"model").string(),true);
     if(model->blockCount()!=nr::Graph::kBlockCount)throw std::runtime_error("unsupported model block count");
     kernels=std::make_unique<nr::Kernels>(*context,(root/"shaders").string());blendScale=num::f16ToF32(nr::auxHalf(model->tensor(70,0,"blend_scale"),0,0));
-    vk::SpecConstants noSpec;preprocess=context->createComputePipeline(context->loadShaderModule((root/"shaders/game_preprocess.spv").string()),noSpec,"game preprocess",0);
-    composite=context->createComputePipeline(context->loadShaderModule((root/"shaders/game_composite.spv").string()),noSpec,"game composite",0);
-    modelHash=fileHash(root/"model/manifest.json");preprocessHash=fileHash(root/"shaders/game_preprocess.spv");compositeHash=fileHash(root/"shaders/game_composite.spv");
+    const auto preSource=shader_identity::read((root/"shaders/game_preprocess.spv").string());
+    const auto compositeSource=shader_identity::read((root/"shaders/game_composite.spv").string());
+    preprocess=capturedShaderPipeline(*context,preSource,"game preprocess");
+    composite=capturedShaderPipeline(*context,compositeSource,"game composite");
+    modelHash=captureIdentityHash(model->manifestSha256());preprocessHash=captureShaderHash(preSource);compositeHash=captureShaderHash(compositeSource);
     prepared=true;std::ofstream log(root/"runtime.log",std::ios::app);log << context->capabilityReport() << "arithmetic: " << context->arithmeticMode() << "\nmodel manifest SHA-256: " << modelHash << "\n";
     // Opt-in diagnostic metadata only. Images and model weights never leave the GPU here.
     // The DXGI sample covers this process's local segment, sampled every 60 completed jobs.
@@ -183,6 +213,14 @@ struct Session {
     failed=true;jobs={};graph.reset();features=nullptr;for(auto& b:histories)context->destroyBuffer(b);for(uint32_t slot=0;slot<kRuntimeFrameSlots;++slot)context->resetDescriptorPool(slot);
     geometry=nr::Geometry::fromValid(w,h);nr::Graph::Options options;options.fusedBlocks=false;
     graph=std::make_unique<nr::Graph>(*context,*model,*kernels,geometry,options);features=graph->allocate("game features",geometry.fullWidth*geometry.fullHeight,16,nr::Format::F32);
+    const auto& amdPolicy=kernels->amdPolicy();std::ofstream(root/"runtime.log",std::ios::app)
+      << "session geometry " << w << 'x' << h << " padded " << geometry.fullWidth << 'x' << geometry.fullHeight
+      << "; AMD kernels " << kernels->selectedKernelMode() << "; arithmetic " << amdPolicy.arithmeticName()
+      << "; tile N" << amdPolicy.tileN << "/K" << amdPolicy.stageK << "; fusion " << amdPolicy.fusion
+      << "; window queries " << amdPolicy.windowQueries
+      << "; expert fusion " << amdPolicy.expertFusion << "; block fusion " << amdPolicy.blockFusion
+      << "; experimental hardware publication " << amdPolicy.hardwarePublication
+      << "; shader SHA-256 " << kernels->shaderSha256() << "; preserving baseline shaders " << kernels->baselineShaderSha256() << '\n';
     for(auto& b:histories){b=context->createBuffer(uint64_t(w)*h*16,false,"neural history");context->fillZero(b);}width=w;height=h;historyValid=false;reset=true;parity=0;lastPreparedValue=lastPreparedFrame=0;lastPreparedJitterX=lastPreparedJitterY=0;failed=false;
   }
   void reclaim(Job& j){
@@ -191,7 +229,10 @@ struct Session {
         OpenNrTimings t{};t.struct_size=sizeof(t);t.abi_version=1;t.frame_id=j.frame.frame_id;t.submitted_frames=submittedFrames;t.bypassed_frames=bypassedFrames;t.allocated_neural_bytes=graph->activationBytes();for(auto& h:histories)t.allocated_neural_bytes+=h.size;
         double period=context->timestampPeriodNs()/1e6;t.preprocess_ms=(ts[1]-ts[0])*period;t.inference_ms=(ts[2]-ts[1])*period;t.composite_ms=(ts[3]-ts[2])*period;
         UINT64 frequency=0;uint64_t* d3dTs=nullptr;D3D12_RANGE read{0,32};if(j.actualQueue&&SUCCEEDED(j.actualQueue->GetTimestampFrequency(&frequency))&&frequency&&SUCCEEDED(j.bridgeReadback->Map(0,&read,reinterpret_cast<void**>(&d3dTs)))){t.pack_ms=double(d3dTs[1]-d3dTs[0])*1000/frequency;t.unpack_ms=double(d3dTs[3]-d3dTs[2])*1000/frequency;t.nr_bridge_ms=double(d3dTs[3]-d3dTs[0])*1000/frequency;D3D12_RANGE noWrite{};j.bridgeReadback->Unmap(0,&noWrite);}
-        if(!t.nr_bridge_ms)t.nr_bridge_ms=t.pack_ms+t.preprocess_ms+t.inference_ms+t.composite_ms+t.unpack_ms;lastTimings=t;traceCompleted(t);timings.push_back(t.nr_bridge_ms);if(timings.size()>120)timings.erase(timings.begin());
+        if(!t.nr_bridge_ms)t.nr_bridge_ms=t.pack_ms+t.preprocess_ms+t.inference_ms+t.composite_ms+t.unpack_ms;
+        // Diagnostic image copies alter GPU spans and publication can stall the
+        // CPU. Captured jobs never enter ordinary timing traces or summaries.
+        if(!j.capture){lastTimings=t;traceCompleted(t);timings.push_back(t.nr_bridge_ms);if(timings.size()>120)timings.erase(timings.begin());}
       }}
       if(j.vulkanSubmitted)publishCapture(j);else j.capture.reset();
       j.color.Reset();j.motion.Reset();j.exposure.Reset();j.recoveryList.Reset();j.recoveryAllocator.Reset();j.state=LMXXF_NR_JOB_NONE;j.retired=false;
@@ -292,10 +333,14 @@ int32_t enqueue(void* p,void* job,void* queue){if(!p||!job||!queue)return LMXXF_
   vkCmdResetQueryPool(j.commands,j.timestamps,0,4);vkCmdWriteTimestamp(j.commands,VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,j.timestamps,0);
   VkBufferMemoryBarrier2 external[2]{};for(uint32_t i=0;i<2;i++){auto& x=external[i];x.sType=VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;x.srcStageMask=VK_PIPELINE_STAGE_2_NONE;x.dstStageMask=VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;x.dstAccessMask=i?VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT:VK_ACCESS_2_SHADER_STORAGE_READ_BIT;x.srcQueueFamilyIndex=VK_QUEUE_FAMILY_EXTERNAL;x.dstQueueFamilyIndex=s.context->queueFamily();x.buffer=i?j.output->buffer.buffer:j.input->buffer.buffer;x.size=VK_WHOLE_SIZE;}
   VkDependencyInfo dep{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};dep.bufferMemoryBarrierCount=2;dep.pBufferMemoryBarriers=external;vkCmdPipelineBarrier2(j.commands,&dep);
-  const bool captureFlag=std::filesystem::exists(s.root/"capture.flag");if(!captureFlag)s.captureTaken=false;
-  if(!s.captureTaken&&captureFlag){
-    s.captureTaken=true;
-    try{j.capture=std::make_unique<FrameCapture>();const uint64_t n=uint64_t(s.width)*s.height;j.capture->allocate(*s.context,0,(n*2+1)*16);j.capture->allocate(*s.context,1,s.features->buffer.size);j.capture->allocate(*s.context,2,s.histories[s.parity].size);j.capture->allocate(*s.context,4,n*16);}
+  const auto capturePath=s.root/"capture.flag";const bool captureFlag=std::filesystem::exists(capturePath);if(!captureFlag)s.captureRequest.removed();
+  if(captureFlag&&!s.captureRequest.latched){
+    try{std::ifstream flag(capturePath,std::ios::binary);if(!flag)throw std::runtime_error("capture.flag cannot be read");char contents[65]{};flag.read(contents,sizeof(contents));const auto length=flag.gcount();if(length>64)throw std::runtime_error("capture.flag exceeds 64 bytes");s.captureRequest.activate(std::string_view(contents,size_t(length)));s.captureSequenceId="sequence-"+std::to_string(GetCurrentProcessId())+"-"+std::to_string(GetTickCount64())+"-"+std::to_string(++s.captureSequenceCounter);}
+    catch(const std::exception& e){s.captureRequest.latched=true;s.captureRequest.requested=s.captureRequest.remaining=0;std::ofstream(s.root/"runtime.log",std::ios::app) << "bounded capture request rejected: " << e.what() << '\n';}
+  }
+  if(s.captureRequest.remaining){
+    const auto ordinal=s.captureRequest.reserve();
+    try{j.capture=std::make_unique<FrameCapture>();j.capture->sequenceId=s.captureSequenceId;j.capture->ordinal=ordinal;j.capture->requested=s.captureRequest.requested;j.capture->historyFrame=valid?s.lastFrame:0;j.capture->historySubmission=valid?s.lastSubmittedValue:0;j.capture->submittedTick=GetTickCount64();FILETIME filetime;GetSystemTimePreciseAsFileTime(&filetime);j.capture->submittedFileTime=uint64_t(filetime.dwLowDateTime)|(uint64_t(filetime.dwHighDateTime)<<32);const uint64_t n=uint64_t(s.width)*s.height;j.capture->allocate(*s.context,0,(n*2+1)*16);j.capture->allocate(*s.context,1,s.features->buffer.size);j.capture->allocate(*s.context,2,s.histories[s.parity].size);j.capture->allocate(*s.context,4,n*16);}
     catch(const std::exception& e){j.capture.reset();std::ofstream(s.root/"runtime.log",std::ios::app) << "diagnostic capture allocation failed: " << e.what() << '\n';}
   }
   s.context->computeBarrier(j.commands);dispatchFrame(s,j,s.preprocess,false);s.context->computeBarrier(j.commands);vkCmdWriteTimestamp(j.commands,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,j.timestamps,1);
@@ -352,7 +397,7 @@ int32_t recoverSubmission(void* p,void* job,void* queue){
   });
 }
 int32_t retire(void* p,void* job){if(!p||!job)return LMXXF_NR_INVALID_ARGUMENT;return guarded([&]{auto& s=*(Session*)p;std::lock_guard lock(s.mutex);auto& j=ownedJob(s,job);if(j.state!=LMXXF_NR_JOB_NR_ENQUEUED||!j.actualQueue||(!j.outputsRecorded&&!j.recovered))throw std::runtime_error("Retire requires submitted NR or recovered fallback and consumer");j.consumerValue=++s.consumerCounter;check(j.actualQueue->Signal(s.consumed.Get(),j.consumerValue),"consumer lifetime fence");j.retired=true;j.state=LMXXF_NR_JOB_RETIRED;});}
-int32_t cancel(void* p,void* job){if(!p||!job)return LMXXF_NR_INVALID_ARGUMENT;return guarded([&]{auto& s=*(Session*)p;std::lock_guard lock(s.mutex);auto& j=ownedJob(s,job);if(j.state==LMXXF_NR_JOB_NR_ENQUEUED||j.state==LMXXF_NR_JOB_RETIRED||j.vulkanSubmitted)throw std::runtime_error("cannot cancel submitted work; retire and drain it");j.state=LMXXF_NR_JOB_NONE;j.color.Reset();j.motion.Reset();j.exposure.Reset();s.invalidateTemporal();});}
+int32_t cancel(void* p,void* job){if(!p||!job)return LMXXF_NR_INVALID_ARGUMENT;return guarded([&]{auto& s=*(Session*)p;std::lock_guard lock(s.mutex);auto& j=ownedJob(s,job);if(j.state==LMXXF_NR_JOB_NR_ENQUEUED||j.state==LMXXF_NR_JOB_RETIRED||j.vulkanSubmitted)throw std::runtime_error("cannot cancel submitted work; retire and drain it");j.capture.reset();j.state=LMXXF_NR_JOB_NONE;j.color.Reset();j.motion.Reset();j.exposure.Reset();s.invalidateTemporal();});}
 int32_t poll(void* p,void* job,uint32_t* state){if(!p||!job||!state)return LMXXF_NR_INVALID_ARGUMENT;return guarded([&]{auto& s=*(Session*)p;std::lock_guard lock(s.mutex);auto& j=ownedJob(s,job);*state=j.retired?LMXXF_NR_JOB_RETIRED:j.vulkanSubmitted&&s.finished->fence->GetCompletedValue()>=j.value?LMXXF_NR_JOB_NR_COMPLETE:j.state;});}
 int32_t drain(void* p){if(!p)return LMXXF_NR_INVALID_ARGUMENT;return guarded([&]{auto& s=*(Session*)p;std::lock_guard lock(s.mutex);s.drain();});}
 int32_t destroy(void* p){if(!p)return LMXXF_NR_INVALID_ARGUMENT;int32_t rc=drain(p);if(rc==0)delete(Session*)p;return rc;}

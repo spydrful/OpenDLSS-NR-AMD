@@ -12,18 +12,34 @@ FSR Quality, ray tracing and ray reconstruction off, and frame generation off.
 The goal is 60 real rendered frames per second, including the game, NR, and
 FSR. It is a goal, not a measured result. Running NR at native 2560×1440 instead
 processes more pixels and needs a separate performance budget.
-The current idle-GPU model-only benchmark measured 217.949 ms median at valid
-1707×960, before bridge, game or upscaler work. That implementation cannot meet
-the 60 FPS budget at this render resolution; substantial further optimization
-is required. See [amd-numerics.md](amd-numerics.md) for the measured scope.
+The current idle-GPU model-only comparison measures **141.343 → 122.331 ms
+median**, a **13.45%** reduction from legal Q64 compact attention to Q32,
+at valid 1707×960, padded to 1728×960, before bridge, game or upscaler work.
+This remains above the 8 ms NR-plus-bridge and 60 FPS budgets. The historical
+206.167 → 120.271 ms comparison used legacy attention exceeding this GPU's LDS
+limit; the current runtime rejects that path. The alpha 1 median was 217.949 ms.
+See the [performance implementation record](amd-performance-implementation.md)
+for the current configuration, hashes and measurement scope.
 
-Three warmed Cyberpunk benchmark passes reported 4.56, 4.56 and 4.57 FPS;
-completed in-game NR plus bridge work is about 213 ms. In-game frame generation
-was off, but driver AFMF was unverified, so real-rendered FPS is not asserted.
+Three alpha 2 NR-off Cyberpunk built-in benchmarks report 99.58, 99.32 and
+101.74 average FPS. The first ordinary NR-on pass reports **7.51 FPS**, with
+972 frames over 129.51 seconds; two additional passes and ten minutes of active
+gameplay remain pending. In-game frame generation and driver AFMF were observed
+off for these runs. Conservative PresentMon subsets are reported separately
+from full built-in benchmark results in the performance record.
+The game runs and eight-frame genuine replay used earlier application binaries;
+the current legal network measurement and final package identities are recorded
+separately. The shader aggregates are unchanged, but these are not fresh game
+benchmarks of the final binaries.
+
+The older alpha 1 NR-on passes reported 4.56, 4.56 and 4.57 FPS, with about
+213 ms NR-plus-bridge time. Driver AFMF was unverified in that historical test,
+so those older presentation FPS values do not assert real-rendered FPS.
 The [validation record](rx9070xt-validation.md) includes the actual settings,
 frame-time percentiles, VRAM samples, numerical comparisons and remaining
-game-quality checks. The temporary test installation has been removed and
-the user's original settings restored.
+game-quality checks. The temporary alpha 2 test installation was removed and
+the original user settings restored byte for byte; imported models and local
+captures were preserved.
 
 ## Validation status
 
@@ -51,6 +67,14 @@ captured-game temporal/image quality or HDR suitability. The real-game quality
 and 60 FPS release gates remain unmet. The upstream README's NVIDIA benchmark
 and parity claims describe upstream work, rather than measurements of this AMD
 fork. No model weights or reference captures are distributed here.
+
+The legal Q64/Q32 preserving comparison passes 657 operators / 858 strict byte
+checks, all 75 model checkpoints and the F32 head at 320×320, and complete
+target-resolution output. Eight genuine target-resolution game frames pass
+the composed RGB thresholds against the portable exact reference with both
+identical and independently evolved histories. Their short alley sequence and
+limited spatial inspection leave broader scene coverage and temporal review
+pending; they do not resolve the synthetic HDR-highlight failures below.
 
 The initial game release evaluation targets an SDR display. HDR display
 validation is deferred by the user; the separate HDR synthetic diagnostics
@@ -112,7 +136,7 @@ From the repository root:
 python ./tests/test_measurement_tools.py
 ./build/dlss5vk.exe info --backend amd --interop
 ./build/dlss5vk.exe selftest --backend reference
-./build/dlss5vk.exe selftest --backend amd
+./build/dlss5vk.exe selftest --backend amd --amd-kernels optimized
 ```
 
 Python 3.10 or later runs the timing helper. Image SSIM requires NumPy;
@@ -124,6 +148,19 @@ NVIDIA weights. The importer tests exercise malformed PE resources, truncated
 records, strict source hashes, raw-byte preservation, stage ranges, and refusal
 to overwrite a destination. Installer tests use a temporary synthetic game
 folder, never a real game install.
+
+AMD selftest explicitly selects `optimized`: its synthetic fixtures have no
+qualified model identity for auto selection. The portable reference selftest
+is unchanged. `--amd-kernels baseline` still requests the original legacy
+kernel, but the shared-memory guard rejects it on RX 9070 XT because its
+34,816-byte attention allocation exceeds the 32,768-byte device limit. The
+original shader and historical frozen measurements are retained without an
+override. For new strict comparisons and paired timings, use the explicit
+`--comparison-anchor compact64` tool option (or
+`benchmark_amd.ps1 -ComparisonAnchor compact64`). Its baseline role is
+optimized K16/N16/stage16/Q64, with all fusion and hardware-publication flags
+off. See the [reproduction recipe](amd-performance-implementation.md#reproducing-qualification)
+for the full current-shader snapshot and identity-bound qualification.
 
 The core exposes `--backend reference`, `--backend amd`, and `--backend nvidia`.
 Reference is intended for numerical verification; AMD selects the optimized

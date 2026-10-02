@@ -1,0 +1,183 @@
+#version 460
+#extension GL_EXT_float_e4m3 : require
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_KHR_shader_subgroup_basic : require
+#extension GL_KHR_shader_subgroup_shuffle : require
+#extension GL_GOOGLE_include_directive : require
+#define NR_AMD_HARDWARE_NUMERIC 1
+#define DLSS_E4M3_HW 1
+#include "portable_numeric.glsl"
+
+// Original AMD implementation under the repository's MIT license.
+// One four-wave32 workgroup computes 16 or 32 queries of an 8x8 window.
+// K/V remain all 64 keys in the model's physical key order. Query batches
+// duplicate their K/V staging to reduce LDS per workgroup. This standalone
+// variant intentionally leaves the qualified 64-query helper unchanged.
+layout(local_size_x = 128) in;
+layout(constant_id = 10) const uint NR_AS_ROUND_INTERVAL = 16u;
+layout(constant_id = 14) const uint NR_AS_QUERY_ROWS = 32u;
+layout(push_constant) uniform Push {
+  uint width, height, channels, heads, shiftX, shiftY, windowsX, windowCount;
+} pc;
+layout(std430, binding = 0) readonly buffer Qkv { uint8_t qkv[]; };
+layout(std430, binding = 1) readonly buffer Prior { float16_t prior[]; };
+layout(std430, binding = 5) writeonly buffer Output { uint8_t attended[]; };
+
+// Q16: 512 + 2048 + 2048 + 1024 + 2048 + 4096 = 11776 bytes (11.5 KiB).
+// Q32: 1024 + 2048 + 2048 + 2048 + 4096 + 4096 = 15360 bytes (15 KiB).
+// Specialization-sized arrays are independent typed allocations; no alias
+// between half scores and E4 weights or accumulator-fragment mapping is used.
+shared uint8_t nrAsQs[NR_AS_QUERY_ROWS * 32u];
+shared uint8_t nrAsKs[2048], nrAsVs[2048];
+shared uint8_t nrAsWeights[NR_AS_QUERY_ROWS * 64u];
+shared float16_t nrAsScores[NR_AS_QUERY_ROWS * 64u];
+shared float nrAsScratch[1024];
+
+#define NR_AS_ACC coopmat<float, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>
+#define NR_AS_MA coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseA>
+#define NR_AS_MB coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseB>
+
+uint nrAsUntile(uint token) {
+  uint tile = token >> 4u, local = token & 15u;
+  return ((tile >> 1u) * 4u + (local >> 2u)) * 8u +
+         (tile & 1u) * 4u + (local & 3u);
+}
+
+bool nrAsPublishAccumulator(uint completed, uint depth) {
+  return completed == depth || NR_AS_ROUND_INTERVAL == 16u ||
+         (NR_AS_ROUND_INTERVAL == 32u && (completed & 31u) == 0u);
+}
+
+void nrAsWaveBarrier() {
+  subgroupMemoryBarrierShared();
+  subgroupBarrier();
+}
+
+// The eight lanes of one query retain the baseline half-addition order.
+// Lane zero gathers the even/odd parity chains before reciprocal publication;
+// the XOR broadcasts deliver that same reciprocal to all eight owners.
+float nrAsReciprocal(uint row, uint lane) {
+  uint k = row * 64u + lane;
+  float a = roundF16(float(nrAsScores[k]) + float(nrAsScores[k + 8u]));
+  float b = roundF16(float(nrAsScores[k + 16u]) + float(nrAsScores[k + 24u]));
+  float c = roundF16(float(nrAsScores[k + 32u]) + float(nrAsScores[k + 40u]));
+  float d = roundF16(float(nrAsScores[k + 48u]) + float(nrAsScores[k + 56u]));
+  float piece = roundF16(roundF16(roundF16(a + b) + c) + d);
+  float p2 = subgroupShuffleXor(piece, 2u);
+  float p4 = subgroupShuffleXor(piece, 4u);
+  float p6 = subgroupShuffleXor(piece, 6u);
+  float parity = roundF16(roundF16(roundF16(piece + p2) + p4) + p6);
+  float even = subgroupShuffleXor(parity, lane);
+  float odd = subgroupShuffleXor(parity, lane ^ 1u);
+  float reciprocal = 0.0;
+  if (lane == 0u) reciprocal = roundF16(1.0 / roundF16(even + odd));
+  return subgroupShuffleXor(reciprocal, lane);
+}
+
+void nrAsCompute(uint head, uint queryBase, int wx, int wy) {
+  uint wave = gl_SubgroupID, lane = gl_SubgroupInvocationID;
+  uint tileBase = wave * 256u;
+  barrier();
+
+  // Each QK tile keeps the same two ordered K16 matrix products as the
+  // 64-query implementation, seeded by its absolute learned-prior row.
+  for (uint tile = wave; tile < (NR_AS_QUERY_ROWS / 16u) * 4u; tile += 4u) {
+    uint qt = tile / 4u, kt = tile % 4u;
+    for (uint i = lane; i < 256u; i += 32u) {
+      uint query = queryBase + qt * 16u + i / 16u;
+      uint priorOffset = query * 64u + kt * 16u + i % 16u;
+      nrAsScratch[tileBase + i] = float(prior[head * 4096u + priorOffset]);
+    }
+    nrAsWaveBarrier();
+    NR_AS_ACC acc;
+    coopMatLoad(acc, nrAsScratch, tileBase, 16u, gl_CooperativeMatrixLayoutRowMajor);
+    for (uint kb = 0u; kb < 32u; kb += 16u) {
+      NR_AS_MA a; NR_AS_MB b;
+      coopMatLoad(a, nrAsQs, qt * 512u + kb, 32u, gl_CooperativeMatrixLayoutRowMajor);
+      coopMatLoad(b, nrAsKs, kt * 512u + kb, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+      acc = coopMatMulAdd(a, b, acc);
+      if (nrAsPublishAccumulator(kb + 16u, 32u))
+        for (uint i = 0u; i < acc.length(); ++i) acc[i] = roundF16(acc[i]);
+    }
+    nrAsWaveBarrier();
+    coopMatStore(acc, nrAsScratch, tileBase, 16u, gl_CooperativeMatrixLayoutRowMajor);
+    nrAsWaveBarrier();
+    for (uint i = lane; i < 256u; i += 32u) {
+      uint offset = (qt * 16u + i / 16u) * 64u + kt * 16u + i % 16u;
+      nrAsScores[offset] = float16_t(nrWindowExp(nrAsScratch[tileBase + i]));
+    }
+    nrAsWaveBarrier();
+  }
+  barrier();
+
+  uint component = lane & 7u;
+  for (uint batch = 0u; batch < NR_AS_QUERY_ROWS / 16u; ++batch) {
+    uint row = wave * 4u + lane / 8u + batch * 16u;
+    float reciprocal = nrAsReciprocal(row, component);
+    for (uint key = component; key < 64u; key += 8u)
+      nrAsWeights[row * 64u + key] = uint8_t(nrPublishE4(
+          roundF16(float(nrAsScores[row * 64u + key]) * reciprocal)));
+  }
+  barrier();
+
+  // Output tiles preserve the original four ordered K16 W*V products.
+  // Q16 has two tiles, Q32 four; idle waves still enter phase barriers.
+  for (uint tile = wave; tile < (NR_AS_QUERY_ROWS / 16u) * 2u; tile += 4u) {
+    uint qt = tile / 2u, ct = tile % 2u;
+    NR_AS_ACC acc = NR_AS_ACC(0.0);
+    for (uint kb = 0u; kb < 64u; kb += 16u) {
+      NR_AS_MA a; NR_AS_MB b;
+      coopMatLoad(a, nrAsWeights, qt * 1024u + kb, 64u, gl_CooperativeMatrixLayoutRowMajor);
+      coopMatLoad(b, nrAsVs, kb * 32u + ct * 16u, 32u, gl_CooperativeMatrixLayoutRowMajor);
+      acc = coopMatMulAdd(a, b, acc);
+      if (nrAsPublishAccumulator(kb + 16u, 64u))
+        for (uint i = 0u; i < acc.length(); ++i) acc[i] = roundF16(acc[i]);
+    }
+    coopMatStore(acc, nrAsScratch, tileBase, 16u, gl_CooperativeMatrixLayoutRowMajor);
+    nrAsWaveBarrier();
+    for (uint i = lane; i < 256u; i += 32u) {
+      uint query = queryBase + qt * 16u + i / 16u;
+      uint channel = ct * 16u + i % 16u;
+      int x = wx + int(query % 8u), y = wy + int(query / 8u);
+      if (x >= 0 && y >= 0 && x < int(pc.width) && y < int(pc.height)) {
+        uint offset = (uint(y) * pc.width + uint(x)) * pc.channels + head * 32u + channel;
+        attended[offset] = uint8_t(nrPublishE4(nrAsScratch[tileBase + i]));
+      }
+    }
+    nrAsWaveBarrier();
+  }
+  barrier();
+}
+
+void main() {
+  uint thread = gl_LocalInvocationID.x, head = gl_WorkGroupID.x;
+  uint queryBatches = 64u / NR_AS_QUERY_ROWS;
+  uint batchWindow = gl_WorkGroupID.y + gl_WorkGroupID.z * 65535u;
+  uint window = batchWindow / queryBatches;
+  if (head >= pc.heads || window >= pc.windowCount) return;
+  uint queryBase = (batchWindow % queryBatches) * NR_AS_QUERY_ROWS;
+  int wx = int((window % pc.windowsX) * 8u) - int(pc.shiftX);
+  int wy = int((window / pc.windowsX) * 8u) - int(pc.shiftY);
+
+  for (uint i = thread; i < NR_AS_QUERY_ROWS * 32u; i += 128u) {
+    uint query = queryBase + i / 32u, channel = i % 32u;
+    int x = wx + int(query % 8u), y = wy + int(query / 8u);
+    nrAsQs[i] = uint8_t(0);
+    if (x >= 0 && y >= 0 && x < int(pc.width) && y < int(pc.height)) {
+      uint base = (uint(y) * pc.width + uint(x)) * pc.channels * 3u + head * 96u;
+      nrAsQs[i] = qkv[base + channel];
+    }
+  }
+  for (uint i = thread; i < 2048u; i += 128u) {
+    uint key = nrAsUntile(i / 32u), channel = i % 32u;
+    int x = wx + int(key % 8u), y = wy + int(key / 8u);
+    nrAsKs[i] = uint8_t(0); nrAsVs[i] = uint8_t(0);
+    if (x >= 0 && y >= 0 && x < int(pc.width) && y < int(pc.height)) {
+      uint base = (uint(y) * pc.width + uint(x)) * pc.channels * 3u + head * 96u;
+      nrAsKs[i] = qkv[base + 32u + channel];
+      nrAsVs[i] = qkv[base + 64u + channel];
+    }
+  }
+  nrAsCompute(head, queryBase, wx, wy);
+}

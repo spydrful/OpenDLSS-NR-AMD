@@ -1,0 +1,266 @@
+{
+  "format": "OpenNR-published-game-replay-v1",
+  "genuine_game_capture": true,
+  "frame_count": 8,
+  "thresholds_passed": true,
+  "performance_representative": false,
+  "data_range": 1.0,
+  "display_scope": "Initial SDR",
+  "observed_scene": "Eight consecutive frames of an alley with camera movement and steam; no demonstrated faces, moving objects, disocclusion transitions, exposure change or camera cut.",
+  "visual_review": "Four matched reference/candidate contact-sheet samples inspected with the same diagnostic display mapping; no conspicuous spatial disagreement. No full temporal playback acceptance, and this limited inspection does not establish absence of flicker or ghosting.",
+  "missing_coverage": [
+    "faces",
+    "moving_objects",
+    "disocclusion_transitions",
+    "exposure_changes",
+    "camera_cuts"
+  ],
+  "source_report_sha256": "ed1066bb643750f99446e8abfa172f9a409876248363e3b7994f133a52b10610",
+  "sequences": [
+    {
+      "history_mode": "identical",
+      "thresholds_passed": true,
+      "minimum_psnr_db": 49.53557451139221,
+      "minimum_ssim": 0.9989200963257625,
+      "frames": [
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 50.42154906695659,
+          "ssim": 0.9989454116011741,
+          "rmse": 0.0030124687237946773,
+          "max_absolute_error": 0.25110721588134766,
+          "different_samples": 4905672,
+          "thresholds_passed": true,
+          "frame_id": 1155
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 50.274124760383856,
+          "ssim": 0.9989266213273544,
+          "rmse": 0.003064035283004694,
+          "max_absolute_error": 0.30731773376464844,
+          "different_samples": 4905633,
+          "thresholds_passed": true,
+          "frame_id": 1156
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 49.53557451139221,
+          "ssim": 0.998950968575675,
+          "rmse": 0.0033359633787414618,
+          "max_absolute_error": 1.0395565032958984,
+          "different_samples": 4905782,
+          "thresholds_passed": true,
+          "frame_id": 1157
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 50.32861013476804,
+          "ssim": 0.9989438383932515,
+          "rmse": 0.003044875174150751,
+          "max_absolute_error": 0.19885683059692383,
+          "different_samples": 4905870,
+          "thresholds_passed": true,
+          "frame_id": 1158
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 50.69597363499521,
+          "ssim": 0.9989785075507854,
+          "rmse": 0.002918779707799026,
+          "max_absolute_error": 0.3689117431640625,
+          "different_samples": 4905305,
+          "thresholds_passed": true,
+          "frame_id": 1159
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 50.50950983854604,
+          "ssim": 0.9989515788473127,
+          "rmse": 0.0029821158297077626,
+          "max_absolute_error": 1.0992431640625,
+          "different_samples": 4905989,
+          "thresholds_passed": true,
+          "frame_id": 1160
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 50.56712085533883,
+          "ssim": 0.998964782516835,
+          "rmse": 0.0029624017611718993,
+          "max_absolute_error": 0.3614511489868164,
+          "different_samples": 4905667,
+          "thresholds_passed": true,
+          "frame_id": 1161
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 50.444168785069714,
+          "ssim": 0.9989200963257625,
+          "rmse": 0.0030046338851297235,
+          "max_absolute_error": 1.2463798522949219,
+          "different_samples": 4905869,
+          "thresholds_passed": true,
+          "frame_id": 1162
+        }
+      ]
+    },
+    {
+      "history_mode": "evolved",
+      "thresholds_passed": true,
+      "minimum_psnr_db": 48.519173512117234,
+      "minimum_ssim": 0.9986424367244088,
+      "frames": [
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 48.76594473368393,
+          "ssim": 0.9987498841161143,
+          "rmse": 0.0036450439008044243,
+          "max_absolute_error": 0.30196547508239746,
+          "different_samples": 4908131,
+          "thresholds_passed": true,
+          "frame_id": 1155
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 48.519173512117234,
+          "ssim": 0.9986424367244088,
+          "rmse": 0.003750086837243596,
+          "max_absolute_error": 0.3371715545654297,
+          "different_samples": 4908118,
+          "thresholds_passed": true,
+          "frame_id": 1156
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 49.08942267185584,
+          "ssim": 0.9986765151236289,
+          "rmse": 0.0035117926569886893,
+          "max_absolute_error": 0.37664222717285156,
+          "different_samples": 4907849,
+          "thresholds_passed": true,
+          "frame_id": 1157
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 49.48520803549879,
+          "ssim": 0.9987277246191718,
+          "rmse": 0.0033553636723396164,
+          "max_absolute_error": 0.3182535171508789,
+          "different_samples": 4907911,
+          "thresholds_passed": true,
+          "frame_id": 1158
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 49.32298198796887,
+          "ssim": 0.9987469469601749,
+          "rmse": 0.003418620563168383,
+          "max_absolute_error": 0.40123987197875977,
+          "different_samples": 4906964,
+          "thresholds_passed": true,
+          "frame_id": 1159
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 48.95033361230483,
+          "ssim": 0.9987242711975016,
+          "rmse": 0.003568480430093584,
+          "max_absolute_error": 2.9423065185546875,
+          "different_samples": 4906987,
+          "thresholds_passed": true,
+          "frame_id": 1160
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 49.521338695929686,
+          "ssim": 0.9987393644768222,
+          "rmse": 0.003341435368313927,
+          "max_absolute_error": 0.30792236328125,
+          "different_samples": 4907025,
+          "thresholds_passed": true,
+          "frame_id": 1161
+        },
+        {
+          "width": 1707,
+          "height": 960,
+          "peak": 1.0,
+          "psnr_db": 49.37567638318869,
+          "ssim": 0.9986527652504068,
+          "rmse": 0.0033979437156916427,
+          "max_absolute_error": 0.4466514587402344,
+          "different_samples": 4907218,
+          "thresholds_passed": true,
+          "frame_id": 1162
+        }
+      ]
+    }
+  ],
+  "production_reproduction": {
+    "frames": 8,
+    "preprocessed_features_bit_exact": true,
+    "head_bit_exact": true,
+    "composed_bit_exact": true,
+    "repeatable": true,
+    "policy": {
+      "kernels": "optimized",
+      "arithmetic": "k16",
+      "tile_n": 16,
+      "stage_k": 16,
+      "window_queries": 32,
+      "fusion": false,
+      "expert_fusion": false,
+      "block_fusion": false,
+      "hardware_publication": false
+    },
+    "identity": {
+      "device_id": "1002:7550",
+      "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+      "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+      "shader_sha256": "31a0295666cde46ad5d15d190e3ceaced19421531b06dcb7a5282c04999b9348",
+      "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+    }
+  },
+  "binaries": {
+    "diagnostic_sha256": "1c5f969fb3474d53956b959cafea423ebebb64b26c6a7b72374f889fc96efa4",
+    "captured_runtime_sha256": "0c5c05c57ff7faa6c96c4d84dd84c15ba6d299e969985fbddf5093f68cdd91cf"
+  },
+  "limitations": [
+    "Offline replay includes diagnostic readback and cannot measure game FPS.",
+    "Evolved reference/candidate histories each start from reset; identical mode reuses captured history.",
+    "Scene labels require reviewer verification; numerical passing does not establish motion acceptance.",
+    "Raw images, source buffers, model tensors and game captures are excluded.",
+    "The software reference is the portable F13/F24 diagnostic; original NVIDIA runtime parity requires independent original captures.",
+    "The shader/model loaded-byte provenance patch will have separately recorded final binary hashes; these results used the preceding frozen binaries and stable assets."
+  ]
+}

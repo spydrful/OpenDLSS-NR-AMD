@@ -2,11 +2,14 @@
 // of the network (GLSL cooperative-matrix reference kernels and the PTX kernels of scripts/ptx/).
 #pragma once
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "nr_model.h"
 #include "vk_context.h"
+#include "amd_fusion.h"
+#include "amd_selection.h"
 
 namespace nr {
 
@@ -72,6 +75,22 @@ class Kernels {
   void gemmF16(VkCommandBuffer commands, const GemmF16Args& args);
   vk::Backend backend() const { return context_.backend(); }
   bool nativePortable() const { return backend() != vk::Backend::Nvidia; }
+  bool optimizedRequested() const { return amdOptimized_; }
+  const char* selectedKernelMode() const { return amdOptimized_ ? "optimized" : "baseline"; }
+  const std::string& shaderSha256() const { return shaderHash_; }
+  const std::string& baselineShaderSha256() const { return baselineShaderHash_; }
+  std::string deviceId() const;
+  std::string driverId() const;
+  const amd::Options& amdPolicy() const { return amdPolicy_; }
+  void setModelIdentity(const std::string& manifestHash, uint32_t width=0, uint32_t height=0);
+  bool amdFfn32Enabled() const;
+  bool amdQkv32Enabled() const;
+  bool amdExpertFfnEnabled() const;
+  bool amdBlock32Enabled() const;
+  void amdFfn32(VkCommandBuffer commands, const AmdFfn32Args& args);
+  void amdQkv32(VkCommandBuffer commands, const AmdQkv32Args& args);
+  void amdExpertFfn(VkCommandBuffer commands, const AmdExpertFfnArgs& args);
+  void amdBlock32(VkCommandBuffer commands, const AmdBlock32Args& args);
   static bool ptxGemmEnabled();   // the gemm2 PTX route (DLSS5VK_PTX_GEMM, default on)
   static bool ptxQkvEnabled();    // the fused QKV + window attention PTX route (DLSS5VK_PTX_QKV, default on)
 
@@ -248,7 +267,12 @@ class Kernels {
   VkDeviceAddress tileCounters(uint32_t count);
   // Optional per-dispatch profiling: timestamps after every dispatch with a label.
   void beginProfile(VkCommandBuffer commands, uint32_t maxDispatches);
-  struct ProfileEntry { std::string label; double milliseconds; };
+  struct ProfileDetails {
+    std::string family, variant;
+    uint32_t rows=0, N=0, K=0, batches=1, flags=0, partition=0, tileN=0, stageK=0;
+    uint32_t gridX=0,gridY=0,gridZ=0,threads=0,subgroupSize=0,tileM=0;
+  };
+  struct ProfileEntry { std::string label; double milliseconds; ProfileDetails details; };
   std::vector<ProfileEntry> endProfile();  // call after the queue is idle
   void setStageLabel(const std::string& label) { stageLabel_ = label; }
   const std::map<std::string, vk::Pipeline>& pipelines() const { return pipelines_; }
@@ -278,7 +302,27 @@ class Kernels {
                       uint32_t count);
   vk::Context& context_;
   bool amdGlobalMatrix_ = false;
+  bool amdOptimized_ = false;
+  amd::Selection amdSelection_;
+  amd::Options& amdPolicy_;
+  void loadAmdOptimizedModules();
+  void loadAmdTuning();
+  VkShaderModule loadCachedShaderModule(const std::string& file);
+  std::string loadedShaderSetHash(const std::vector<std::string>& names) const;
+  std::string shaderDirectory_, shaderHash_, baselineShaderHash_, modelHash_;
+  std::string requestedShaderHash_;
+  uint32_t modelWidth_=0, modelHeight_=0;
+  std::vector<ProfileDetails> profileDetails_;
+  ProfileDetails dispatchDetails_;
   std::map<std::string, VkShaderModule> modules_;
+  std::map<std::string, VkShaderModule> requestedModules_;
+  struct LoadedShaderModule {
+    VkDevice device = VK_NULL_HANDLE;
+    VkShaderModule module = VK_NULL_HANDLE;
+    std::string sha256;
+    ~LoadedShaderModule() { if (module) vkDestroyShaderModule(device, module, nullptr); }
+  };
+  std::map<std::string, std::unique_ptr<LoadedShaderModule>> sourceModules_;
   std::map<std::string, vk::Pipeline> pipelines_;
   vk::Buffer siluTable_;
   uint32_t dispatches_ = 0;

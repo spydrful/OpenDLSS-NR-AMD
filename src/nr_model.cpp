@@ -86,6 +86,8 @@ uint32_t tiledToken(uint32_t token) {
 Model::Model(vk::Context& context, const std::string& directory, bool verifyHashes) : context_(context) {
   const std::string manifestBytes = readText(directory + "/manifest.json");
   const std::string manifestHash = sha256Hex(reinterpret_cast<const uint8_t*>(manifestBytes.data()), manifestBytes.size());
+  manifestHash_ = manifestHash;
+  for (char& c : manifestHash_) if (c >= 'A' && c <= 'F') c += 'a' - 'A';
   printf("model manifest SHA-256: %s (stage hashes %s)\n", manifestHash.c_str(), verifyHashes ? "verified" : "unchecked");
   json::Value manifest = json::parse(manifestBytes);
   blockCount_ = (uint32_t)manifest["totals"]["blockCount"].integer();

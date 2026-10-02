@@ -1,0 +1,409 @@
+{
+  "format": "OpenNR-cyberpunk-published-evidence-v1",
+  "recorded_utc": "2026-10-02",
+  "proprietaryArtifactsIncluded": false,
+  "releaseGatesMet": false,
+  "software": {
+    "game": "Cyberpunk 2077 2.31",
+    "game_executable_product_version": "3.0.5294808",
+    "driver": "AMD Software Adrenalin 26.9.1 (LLPC)",
+    "vulkan": "1.4.349",
+    "windows": "Windows 11 Pro 10.0.26200",
+    "gpu": "AMD Radeon RX 9070 XT (1002:7550), 16 GiB",
+    "host_source_pin": "557bb8553098395f5f138c2e22ed25f256f7a3a2"
+  },
+  "settings": {
+    "output": [
+      2560,
+      1440
+    ],
+    "render": [
+      1707,
+      960
+    ],
+    "padded": [
+      1728,
+      960
+    ],
+    "preset": "Custom with target High fields; texture High",
+    "fsr_game_setting": "FSR 3 Quality",
+    "fsr_driver_upscaling_override": "Enabled in existing user profile; unchanged between NR-off/on conditions",
+    "ray_tracing": false,
+    "path_tracing": false,
+    "frame_generation": false,
+    "afmf": false,
+    "hdr_display": "None / SDR",
+    "window_mode": "Windowed",
+    "v_sync": false,
+    "max_fps_limit": false
+  },
+  "frame_generation_verification": {
+    "application": "Game Video/Graphics UI observed FSR3 FG No/Off and game FrameGeneration Off",
+    "driver": {
+      "AFMFManual": "Disabled",
+      "gameProfile": "Cyberpunk2077.exe",
+      "driver": "26.9.1",
+      "inGameFrameGenerationRequiresVerification": true,
+      "observedUtc": "2026-10-02T09:07:15.5114508Z",
+      "method": "AMD Software window2 accessibility profile observation",
+      "FSRFrameGenerationOverride": "Disabled"
+    },
+    "assertion": "The earlier inGameFrameGenerationRequiresVerification field was superseded by direct UI verification for measured passes; driver AFMF and FSR FG override remained disabled."
+  },
+  "selected": {
+    "backend": "amd",
+    "kernels": "optimized",
+    "arithmetic": "k16",
+    "tile_n": 16,
+    "stage_k": 16,
+    "window_queries": 32,
+    "fusion": false,
+    "expert_fusion": false,
+    "block_fusion": false,
+    "hardware_publication": false,
+    "passes": 1,
+    "model_scale": 1,
+    "temporal": true
+  },
+  "binaries": {
+    "runtime": "0c5c05c57ff7faa6c96c4d84dd84c15ba6d299e969985fbddf5093f68cdd91cf",
+    "diagnostic": "1c5f969fb3474d53956b959cfafea423ebebb64b26c6a7b72374f889fc96efa4",
+    "optiScalerHost": "3c43bb1d4a5843b68b0537b8703c4a0c12bf4e47f17c53e225df57cad276dee7"
+  },
+  "complete_builtin_benchmarks": {
+    "nr_off": [
+      {
+        "nr": "off",
+        "pass": 1,
+        "average_fps": 99.58,
+        "minimum_fps": 74.69,
+        "maximum_fps": 120.82,
+        "time_seconds": 64.26,
+        "frames": 6406,
+        "frame_generation": false,
+        "afmf": false,
+        "resolution": "2560x1440",
+        "fsr": "3.0 Quality",
+        "ray_tracing": false,
+        "preset": "Custom target High fields"
+      },
+      {
+        "nr": "off",
+        "pass": 2,
+        "average_fps": 99.32,
+        "minimum_fps": 75.46,
+        "maximum_fps": 121.92,
+        "time_seconds": 64.25,
+        "frames": 6381,
+        "frame_generation": false,
+        "afmf": false,
+        "resolution": "2560x1440",
+        "fsr": "3.0 Quality",
+        "ray_tracing": false,
+        "preset": "Custom target High fields"
+      },
+      {
+        "average_fps": 101.74,
+        "min_fps": 76.4,
+        "max_fps": 125.23,
+        "duration_seconds": 64.26,
+        "frames": 6538,
+        "nr": "off",
+        "frame_generation": "off",
+        "afmf": "off",
+        "resolution": "2560x1440",
+        "fsr": "FSR3 Quality",
+        "ray_tracing": "off",
+        "preset": "Custom with target High fields",
+        "source": "observed Cyberpunk 2.31 benchmark result screen",
+        "presentmon_percentiles": "not qualified: no observed-world QPC boundaries for this pass"
+      }
+    ],
+    "nr_on": [
+      {
+        "average_fps": 7.51,
+        "min_fps": 7.44,
+        "max_fps": 7.59,
+        "duration_seconds": 129.51,
+        "frames": 972,
+        "nr": "on",
+        "frame_generation": "off",
+        "afmf": "off",
+        "resolution": "2560x1440",
+        "fsr": "FSR3 Quality",
+        "ray_tracing": "off",
+        "preset": "Custom with target High fields",
+        "source": "observed Cyberpunk 2.31 full benchmark result screen",
+        "image_readback": false
+      }
+    ],
+    "additional_nr_on_runs": "pending"
+  },
+  "bounded_presentmon_world_subsets": {
+    "nr_off_pass2": {
+      "source": "build\\performance\\game-20261002\\off-2-presentmon.csv",
+      "source_sha256": "f1e793889d136b7c35c34f05174a745a4601e391be82bfba01bbdc336cf19b1d",
+      "source_rows": 15114,
+      "selection": {
+        "application": "cyberpunk2077.exe",
+        "process_id": 8160,
+        "swap_chain": "0x289d36067c0",
+        "start_seconds": null,
+        "end_seconds": null,
+        "qpc_start": "131715195901",
+        "qpc_end": "132005054416",
+        "qpc_column": "CPUStartQPC",
+        "qpc_unit": "ticks",
+        "qpc_frequency": 10000000
+      },
+      "clock_column": "CPUStartQPC",
+      "clock_unit": "ticks",
+      "interval_method": "difference between retained application timestamps",
+      "selected_present_rows": 15114,
+      "explicit_generated_rows_removed": 0,
+      "retained_application_present_rows": 15114,
+      "initial_intervals_unavailable": 1,
+      "range_excluded_intervals": 11989,
+      "range_intervals_before_warmup": 3124,
+      "warmup_intervals": 0,
+      "measured_intervals": 3124,
+      "dropped_presents_retained": 0,
+      "zero_intervals_retained": 0,
+      "frame_generation_off_asserted": true,
+      "frame_ms": {
+        "mean": 9.277722727272728,
+        "median": 9.29935,
+        "p95": 10.677389999999999,
+        "p99": 11.726456999999998,
+        "min": 6.9263,
+        "max": 16.9307
+      },
+      "application_present_fps": 107.78507068985874,
+      "real_rendered_fps": 107.78507068985874,
+      "p95_frame_budget_met_60fps": true,
+      "limitations": [
+        "FG-off is an external capture-setting assertion; CSV cannot prove no uninstrumented generation.",
+        "Unknown frame types, dropped/unshown presents and timing outliers are retained.",
+        "Range selection requires both interval endpoints inside the inclusive range; no FPS is inferred from runtime jobs.",
+        "No alignment with OpenNR runtime trace frame IDs is attempted."
+      ]
+    },
+    "nr_on_pass1": {
+      "source": "build\\performance\\game-20261002\\on-1-presentmon.csv",
+      "source_sha256": "d6fddf2e72eb911747127a2cb199bab2ffd3f73f9568c034f2da19715c0e7db4",
+      "source_rows": 5862,
+      "selection": {
+        "application": "cyberpunk2077.exe",
+        "process_id": 29312,
+        "swap_chain": "0x1e5d34a8040",
+        "start_seconds": null,
+        "end_seconds": null,
+        "qpc_start": "155023431390",
+        "qpc_end": "156007692827",
+        "qpc_column": "CPUStartQPC",
+        "qpc_unit": "ticks",
+        "qpc_frequency": 10000000
+      },
+      "clock_column": "CPUStartQPC",
+      "clock_unit": "ticks",
+      "interval_method": "difference between retained application timestamps",
+      "selected_present_rows": 5862,
+      "explicit_generated_rows_removed": 0,
+      "retained_application_present_rows": 5862,
+      "initial_intervals_unavailable": 1,
+      "range_excluded_intervals": 5124,
+      "range_intervals_before_warmup": 737,
+      "warmup_intervals": 0,
+      "measured_intervals": 737,
+      "dropped_presents_retained": 0,
+      "zero_intervals_retained": 0,
+      "frame_generation_off_asserted": true,
+      "frame_ms": {
+        "mean": 133.23120230664858,
+        "median": 133.2766,
+        "p95": 135.66924,
+        "p99": 136.864388,
+        "min": 129.2589,
+        "max": 138.0679
+      },
+      "application_present_fps": 7.505749274095512,
+      "real_rendered_fps": 7.505749274095512,
+      "p95_frame_budget_met_60fps": false,
+      "limitations": [
+        "FG-off is an external capture-setting assertion; CSV cannot prove no uninstrumented generation.",
+        "Unknown frame types, dropped/unshown presents and timing outliers are retained.",
+        "Range selection requires both interval endpoints inside the inclusive range; no FPS is inferred from runtime jobs.",
+        "No alignment with OpenNR runtime trace frame IDs is attempted."
+      ],
+      "boundary_qualification": {
+        "observed_utc": "2026-10-02T10:27:11+00:00",
+        "qpc": 156007692827,
+        "qpc_frequency": 10000000,
+        "process_id": 29312,
+        "scope": "conservative observed world subset",
+        "last_published_runtime_frame_id": 3068,
+        "submitted_frames": 3070,
+        "bypassed_frames": 0,
+        "runtime_boundary_scope": "last fully published asynchronous completion row; not a per-present join",
+        "qualification": "End is one second before the last confirmed world screenshot clock observation at 10:27:12 UTC. UTC/QPC mapping uses the originally recorded end pair; original end included menu transition. No latency-based filtering.",
+        "last_confirmed_world_clock_utc": "2026-10-02T10:27:12Z",
+        "original_boundary_file": "on-1-bound-end.json",
+        "original_qpc": 156148195257
+      }
+    },
+    "scope": "Each percentile describes only its observed bounded world subset. Full-run average FPS comes separately from the game result screen. No outlier filtering."
+  },
+  "completed_nr_job_bracket": {
+    "source": "build\\performance\\game-20261002\\on-1-runtime-bracket.csv",
+    "source_completed_jobs": 840,
+    "detected_segments": 1,
+    "segments": [
+      {
+        "segment": 0,
+        "completed_jobs": 840,
+        "warmup_jobs": 0,
+        "first_frame_id": 2229,
+        "last_frame_id": 3068,
+        "timings_ms": {
+          "pack_ms": {
+            "mean": 0.05307080952380952,
+            "median": 0.05068,
+            "p95": 0.057241999999999994,
+            "p99": 0.06974800000000005,
+            "min": 0.04692,
+            "max": 0.35168
+          },
+          "preprocess_ms": {
+            "mean": 0.4611882857142857,
+            "median": 0.45132,
+            "p95": 0.483642,
+            "p99": 0.7124504,
+            "min": 0.402,
+            "max": 0.76244
+          },
+          "inference_ms": {
+            "mean": 124.418025,
+            "median": 124.42866000000001,
+            "p95": 124.92764,
+            "p99": 125.188042,
+            "min": 122.53088,
+            "max": 127.84556
+          },
+          "composite_ms": {
+            "mean": 0.3419528095238095,
+            "median": 0.30513999999999997,
+            "p95": 0.56939,
+            "p99": 0.5877888,
+            "min": 0.28416,
+            "max": 0.60644
+          },
+          "unpack_ms": {
+            "mean": 0.07375619047619048,
+            "median": 0.06456,
+            "p95": 0.09033799999999999,
+            "p99": 0.28587720000000005,
+            "min": 0.05824,
+            "max": 0.32016
+          },
+          "neural_ms": {
+            "mean": 125.71140938095239,
+            "median": 125.7113,
+            "p95": 126.273966,
+            "p99": 126.5744304,
+            "min": 123.80428,
+            "max": 129.00328
+          }
+        },
+        "vram_mib_sampled": {
+          "mean": 9451.16015625,
+          "peak": 9645.3515625
+        },
+        "vram_unknown_jobs": 0,
+        "allocated_neural_bytes_partial_peak": 2383296512,
+        "ending_session_counters": {
+          "submitted_frames": 3070,
+          "bypassed_frames": 0
+        },
+        "observed_counter_increases": {
+          "submitted_frames": 839,
+          "bypassed_frames": 0
+        },
+        "counter_baseline_frame_id": 2229,
+        "first_job_counter_interval_unobserved": true
+      }
+    ],
+    "limitations": [
+      "Rows are completed NR jobs, not all game frames; no FPS or PresentMon per-frame join is inferred.",
+      "Frame-ID/counter regressions split segments; append-only traces may contain multiple runs.",
+      "Cumulative counters are snapshots, not per-row events; activity before/after trace coverage is unknown.",
+      "VRAM is sampled DXGI process-local usage, refreshed every 60 completed jobs; repeated values are not independent samples.",
+      "allocated_neural_bytes excludes weights, game resources and shared buffers; it is not total VRAM.",
+      "neural_ms spans the GPU bridge and may include waits; it is not network-only time."
+    ],
+    "scope": "Completed NR jobs after the observed world-start completion anchor through the delayed end anchor, including a possible menu transition. This is an asynchronous completion bracket, not a QPC-aligned world subset or a per-present join.",
+    "ordinary_capture": true,
+    "source_sha256": "c944efc69c80c045ec044507377a3dd558072345ad8b0150d47b5c6567dcb0cb"
+  },
+  "excluded_measurements": {
+    "nr_off_warmup": {
+      "nr": "off",
+      "role": "discarded warmup",
+      "average_fps": 102.01,
+      "minimum_fps": 76.07,
+      "maximum_fps": 125.88,
+      "time_seconds": 64.26,
+      "frames": 6555,
+      "game_version": "2.31",
+      "frame_generation": false,
+      "ray_tracing": false,
+      "output": "2560x1440",
+      "fsr": "3.0 Quality",
+      "preset": "Custom (target High fields)",
+      "driver": "26.9.1"
+    },
+    "nr_on_warmup": {
+      "scope": "discarded warmup benchmark containing eight diagnostic image captures",
+      "average_fps": 6.1,
+      "duration_seconds": 159.83,
+      "frames": 975,
+      "nr": "on",
+      "used_for_performance": false
+    },
+    "on1_original_end": "Original delayed boundary included a menu transition; the published subset ends conservatively one second before the last confirmed world observation. Original source records remain local.",
+    "off1_off3_percentiles": "Not published: no qualified observed world bounds / clock alignment."
+  },
+  "validation": {
+    "ten_minute_active_gameplay": "pending",
+    "motion_visual_review": "pending",
+    "bounded_game_capture": "8 genuine consecutive target-resolution frames; identical and independently evolved reference/candidate replay pass every matched frame; see cyberpunk-replay-rx9070xt-20261002.json. Broader visual/scene coverage remains pending.",
+    "installed_driver_dynamic_profiling": "partial/truncated RGP; no complete dynamic occupancy/timing qualification"
+  },
+  "limitations": [
+    "One ordinary NR-on full benchmark is insufficient for the requested three warmed NR-on passes.",
+    "The <=8 ms NR plus bridge and <=16.67 ms/60 real FPS targets are unmet.",
+    "NR remains disabled by default; HDR-highlight synthetic arithmetic quality gates are unmet.",
+    "Raw game captures, NVIDIA DLLs, extracted weights and raw profiler capture are excluded.",
+    "Existing host uses a Streamline spoofing workaround for launch stability; unchanged GPL host binary."
+  ],
+  "local_source_hashes": {
+    "off-1-result.json": "8c4aac08f3ac12461356a2c01105a244dd7385f759313c160a1dc6e5020d6b71",
+    "off-2-result.json": "14f2e830615cf695452d84db176de74ae0cd2871ae03955efd9738c19a2c0141",
+    "off-3-result.json": "0e9d8b145a8c786abc4a5add54bd382cb89b1c1a72699505a94cca8a6953cbc4",
+    "on-1-result.json": "728f9f563f8c848782250d11a59ffa2a1c88170eeaa8ecc732d1ec27040b7c1a",
+    "off-2-presentmon.json": "8a4002ecc47a85eec62d8e7a062bb1e97780b8b8bcf80a51ced7c109a9ab61a7",
+    "on-1-presentmon-qualified.json": "a9ae23cbf67bf8c08716d66d5fefa4c4f68726876f3f2c7d6acbfbcb01d7042e",
+    "on-1-runtime-bracket.json": "9f0b81ef3a5557a2d5b4ed5237b626e2b201b4b26cdd0fb36aa679d40ea568fb",
+    "final-gpu-timings.csv": "5ae9f28e9d016922dc50e772c3acd66eabe5d0f7ddcc1ca1e6f0a2c89b748a0f",
+    "final-runtime.log": "537bc63b14f079750d2fc468771233d7ec60279c7e96886a95d3e196dd1e5ef5",
+    "UserSettings-target.json": "a2db0f38d608e460710fe9cfaf1edd9f22d75c6fc1befd486fb7112180f9937c"
+  },
+  "restoration": {
+    "verifiedUtc": "2026-10-02T10:42:40.6913984Z",
+    "gameProcessClosed": true,
+    "testPackageUninstalled": true,
+    "originalUserSettingsRestored": true,
+    "originalUserSettingsSha256": "d1b2419f1da1a308f13b594b222d77144f5b42f0836b2ae92beefb0da18607c6",
+    "importedModelPreserved": true,
+    "localGameCapturesPreserved": true
+  }
+}

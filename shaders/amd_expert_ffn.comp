@@ -1,0 +1,150 @@
+#version 460
+// C64/C128/C256 expert FFN. Process one expert's hidden activation at a time,
+// then contract all published expert outputs in the original order.
+#extension GL_EXT_float_e4m3 : require
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_KHR_shader_subgroup_basic : require
+#extension GL_GOOGLE_include_directive : require
+#define NR_AMD_HARDWARE_NUMERIC 1
+#define DLSS_E4M3_HW 1
+#include "portable_numeric.glsl"
+
+layout(local_size_x = 128) in;
+layout(constant_id = 0) const uint CHANNELS = 64;
+layout(constant_id = 10) const uint NR_EXPERT_ROUND_INTERVAL = 16;
+layout(push_constant) uniform Push {
+  uint rows, inputStride, residualStride, outputStride, scaleHalfOffset, residualIsHalf;
+} pc;
+layout(std430, binding = 0) readonly buffer Input { uint8_t input8[]; };
+layout(std430, binding = 1) readonly buffer Expand { uint8_t w1[]; };
+layout(std430, binding = 2) readonly buffer Narrow { uint8_t w2[]; };
+layout(std430, binding = 3) readonly buffer Project { uint8_t w3[]; };
+layout(std430, binding = 4) readonly buffer Auxiliary { float16_t aux[]; };
+layout(std430, binding = 5) writeonly buffer Quantized { uint8_t output8[]; };
+layout(std430, binding = 6) readonly buffer ResidualE4 { uint8_t residual8[]; };
+layout(std430, binding = 7) readonly buffer ResidualHalf { float16_t residual16[]; };
+layout(std430, binding = 8) writeonly buffer Raw { float16_t output16[]; };
+
+// At C256: input+narrow 8 KiB, hidden 2 KiB, weight 4 KiB, scratch 8 KiB.
+shared uint8_t efInput[16 * CHANNELS], efHidden[16 * 128], efNarrow[16 * CHANNELS];
+shared uint8_t efWeight[32 * 128];
+shared float efScratch[16 * 128];
+#define EF_ACC coopmat<float, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>
+#define EF_A coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseA>
+#define EF_B coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseB>
+
+void efPublish(inout EF_ACC acc, uint completed, uint total) {
+  if (completed == total || NR_EXPERT_ROUND_INTERVAL == 16u ||
+      (NR_EXPERT_ROUND_INTERVAL == 32u && completed % 32u == 0u))
+    for (uint i = 0u; i < acc.length(); ++i) acc[i] = roundF16(acc[i]);
+}
+
+void main() {
+  uint thread = gl_LocalInvocationID.x, wave = gl_SubgroupID;
+  uint rowBase = (gl_WorkGroupID.y + gl_WorkGroupID.z * 65535u) * 16u;
+  for (uint i = thread; i < 16u * CHANNELS; i += 128u) {
+    uint row = rowBase + i / CHANNELS;
+    efInput[i] = row < pc.rows ? input8[row * pc.inputStride + i % CHANNELS] : uint8_t(0);
+  }
+  barrier();
+  for (uint expert = 0u; expert < CHANNELS / 32u; ++expert) {
+    EF_ACC acc0 = EF_ACC(0.0), acc1 = EF_ACC(0.0);
+    // Four waves cover N128 for a common 16-row input tile.
+    for (uint stage = 0u; stage < CHANNELS; stage += 32u) {
+      for (uint i = thread; i < 4096u; i += 128u) {
+        uint column = i / 32u, k = i % 32u;
+        efWeight[i] = w1[((expert * (CHANNELS / 32u) + stage / 32u) * 128u + column) * 32u + k];
+      }
+      barrier();
+      for (uint localK = 0u; localK < 32u; localK += 16u) {
+        EF_A a; EF_B b0, b1;
+        coopMatLoad(a, efInput, stage + localK, CHANNELS, gl_CooperativeMatrixLayoutRowMajor);
+        coopMatLoad(b0, efWeight, wave * 1024u + localK, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+        coopMatLoad(b1, efWeight, wave * 1024u + 512u + localK, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+        acc0 = coopMatMulAdd(a, b0, acc0); acc1 = coopMatMulAdd(a, b1, acc1);
+        efPublish(acc0, stage + localK + 16u, CHANNELS); efPublish(acc1, stage + localK + 16u, CHANNELS);
+      }
+      barrier();
+    }
+    coopMatStore(acc0, efScratch, wave * 32u, 128u, gl_CooperativeMatrixLayoutRowMajor);
+    coopMatStore(acc1, efScratch, wave * 32u + 16u, 128u, gl_CooperativeMatrixLayoutRowMajor);
+    barrier();
+    for (uint i = thread; i < 2048u; i += 128u)
+      efHidden[i] = uint8_t(nrPublishE4(mpCubicSilu(efScratch[i])));
+    barrier();
+
+    // Only wave0 contracts N32 for this expert. Every invocation still joins
+    // staging barriers so subsequent experts cannot overwrite live operands.
+    acc0 = EF_ACC(0.0); acc1 = EF_ACC(0.0);
+    for (uint stage = 0u; stage < 128u; stage += 32u) {
+      for (uint i = thread; i < 1024u; i += 128u)
+        efWeight[i] = w2[((expert * 4u + stage / 32u) * 32u + i / 32u) * 32u + i % 32u];
+      barrier();
+      if (wave == 0u) {
+        for (uint localK = 0u; localK < 32u; localK += 16u) {
+          EF_A a; EF_B b0, b1;
+          coopMatLoad(a, efHidden, stage + localK, 128u, gl_CooperativeMatrixLayoutRowMajor);
+          coopMatLoad(b0, efWeight, localK, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+          coopMatLoad(b1, efWeight, 512u + localK, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+          acc0 = coopMatMulAdd(a, b0, acc0); acc1 = coopMatMulAdd(a, b1, acc1);
+          efPublish(acc0, stage + localK + 16u, 128u); efPublish(acc1, stage + localK + 16u, 128u);
+        }
+      }
+      barrier();
+    }
+    if (wave == 0u) {
+      coopMatStore(acc0, efScratch, 0u, 32u, gl_CooperativeMatrixLayoutRowMajor);
+      coopMatStore(acc1, efScratch, 16u, 32u, gl_CooperativeMatrixLayoutRowMajor);
+    }
+    barrier();
+    for (uint i = thread; i < 512u; i += 128u)
+      efNarrow[(i / 32u) * CHANNELS + expert * 32u + i % 32u] = uint8_t(nrPublishE4(efScratch[i]));
+    barrier();
+  }
+
+  // W3 begins from the rounded scaled skip, after all expert E4 publications.
+  for (uint columnBase = 0u; columnBase < CHANNELS; columnBase += 128u) {
+    for (uint i = thread; i < 2048u; i += 128u) {
+      uint row = rowBase + i / 128u, column = columnBase + i % 128u;
+      float initial = 0.0;
+      if (row < pc.rows && column < CHANNELS) {
+        uint index = row * pc.residualStride + column;
+        float value = pc.residualIsHalf != 0u ? float(residual16[index]) : nrDecodeE4(uint(residual8[index]));
+        initial = roundF16(value * float(aux[pc.scaleHalfOffset + column]));
+      }
+      efScratch[i] = initial;
+    }
+    barrier();
+    EF_ACC acc0, acc1;
+    coopMatLoad(acc0, efScratch, wave * 32u, 128u, gl_CooperativeMatrixLayoutRowMajor);
+    coopMatLoad(acc1, efScratch, wave * 32u + 16u, 128u, gl_CooperativeMatrixLayoutRowMajor);
+    for (uint stage = 0u; stage < CHANNELS; stage += 32u) {
+      for (uint i = thread; i < 4096u; i += 128u) {
+        uint column = columnBase + i / 32u;
+        efWeight[i] = column < CHANNELS ? w3[((stage / 32u) * CHANNELS + column) * 32u + i % 32u] : uint8_t(0);
+      }
+      barrier();
+      for (uint localK = 0u; localK < 32u; localK += 16u) {
+        EF_A a; EF_B b0, b1;
+        coopMatLoad(a, efNarrow, stage + localK, CHANNELS, gl_CooperativeMatrixLayoutRowMajor);
+        coopMatLoad(b0, efWeight, wave * 1024u + localK, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+        coopMatLoad(b1, efWeight, wave * 1024u + 512u + localK, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+        acc0 = coopMatMulAdd(a, b0, acc0); acc1 = coopMatMulAdd(a, b1, acc1);
+        efPublish(acc0, stage + localK + 16u, CHANNELS); efPublish(acc1, stage + localK + 16u, CHANNELS);
+      }
+      barrier();
+    }
+    coopMatStore(acc0, efScratch, wave * 32u, 128u, gl_CooperativeMatrixLayoutRowMajor);
+    coopMatStore(acc1, efScratch, wave * 32u + 16u, 128u, gl_CooperativeMatrixLayoutRowMajor);
+    barrier();
+    for (uint i = thread; i < 2048u; i += 128u) {
+      uint row = rowBase + i / 128u, column = columnBase + i % 128u;
+      if (row >= pc.rows || column >= CHANNELS) continue;
+      uint index = row * pc.outputStride + column;
+      output16[index] = float16_t(efScratch[i]);
+      output8[index] = uint8_t(nrPublishE4(efScratch[i]));
+    }
+    barrier();
+  }
+}

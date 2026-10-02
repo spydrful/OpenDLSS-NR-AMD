@@ -405,13 +405,23 @@ void syntheticRuntimeCase(ID3D12Device* device, ID3D12CommandQueue* queue, const
   } trace;
   struct Capture {
     std::filesystem::path flag, directory; bool created = false, enabled = false;
+    uint32_t requested = 0;
     std::vector<std::filesystem::path> prior;
     ~Capture() { if (created) { std::error_code ignored; std::filesystem::remove(flag, ignored); } }
   } capture;
   if (getenv("OPEN_NR_RUNTIME_CAPTURE_SELFTEST")) {
     capture.enabled = true; capture.flag = assets / "capture.flag"; capture.directory = assets / "captures";
     if (std::filesystem::exists(capture.directory)) for (const auto& entry : std::filesystem::directory_iterator(capture.directory)) if (entry.is_directory()) capture.prior.push_back(entry.path());
-    if (!std::filesystem::exists(capture.flag)) { std::ofstream marker(capture.flag); expect(bool(marker), "cannot enable one-shot diagnostic capture"); capture.created = true; }
+    const char* requested = getenv("OPEN_NR_RUNTIME_CAPTURE_FRAMES");
+    const uint32_t requestedCount = nr::capture::frameCount(requested ? std::string_view(requested) : std::string_view("1"));
+    if (!std::filesystem::exists(capture.flag)) {
+      std::ofstream marker(capture.flag); marker << requestedCount; expect(bool(marker), "cannot enable bounded diagnostic capture"); capture.created = true;
+    }
+    std::ifstream marker(capture.flag, std::ios::binary);
+    expect(bool(marker), "cannot inspect existing diagnostic capture request");
+    const std::string contents((std::istreambuf_iterator<char>(marker)), {});
+    capture.requested = nr::capture::frameCount(contents);
+    expect(!requested || capture.requested == requestedCount, "existing capture.flag differs from OPEN_NR_RUNTIME_CAPTURE_FRAMES");
   }
   if (getenv("OPEN_NR_RUNTIME_TRACE_SELFTEST")) {
     trace.enabled = true; trace.flag = assets / "record-timings.flag"; trace.csv = assets / "gpu-timings.csv";
@@ -446,7 +456,9 @@ void syntheticRuntimeCase(ID3D12Device* device, ID3D12CommandQueue* queue, const
   const uint32_t renderWidth = setting("OPEN_NR_RUNTIME_WIDTH", 320, 192, 3840);
   const uint32_t renderHeight = setting("OPEN_NR_RUNTIME_HEIGHT", 320, 128, 2160);
   const uint32_t resizeWidth = renderWidth == 192 ? 160 : 192, resizeHeight = renderHeight == 128 ? 96 : 128;
-  const uint32_t frameCount = setting("OPEN_NR_RUNTIME_FRAMES", 2, 2, 120);
+  // Capture jobs are intentionally excluded from ordinary timing publication.
+  // Follow the requested sequence with one ordinary frame before timing checks.
+  const uint32_t frameCount = std::max(setting("OPEN_NR_RUNTIME_FRAMES", 2, 2, 120), capture.requested + 1);
   printf("interop %s DLL actual model lifecycle/benchmark: %ux%u, %u frames, assets %s\n", label, renderWidth, renderHeight, frameCount, assets.string().c_str());
   std::vector<std::array<uint16_t, 4>> colors(renderWidth * renderHeight);
   std::vector<std::array<uint16_t, 2>> motion(renderWidth * renderHeight);
@@ -591,22 +603,37 @@ void syntheticRuntimeCase(ID3D12Device* device, ID3D12CommandQueue* queue, const
     publication.write(reinterpret_cast<const char*>(firstPublication.data()), firstPublication.size() * sizeof(firstPublication[0]));
     expect(bool(publication), "cannot save actual D3D12 publication diagnostic");
   }
-  OpenNrTimings timings{sizeof(OpenNrTimings)}; success(runtime.api.GetTimings(runtime.session, &timings), "synthetic GPU timestamp query");
-  printf("interop %s DLL counters: submitted %llu bypassed %llu; bridge %.3f inference %.3f ms\n", label,
-         (unsigned long long)timings.submitted_frames, (unsigned long long)timings.bypassed_frames, timings.nr_bridge_ms, timings.inference_ms);
+  OpenNrTimings timings{sizeof(OpenNrTimings)};
+  const auto initialTimingResult = runtime.api.GetTimings(runtime.session, &timings);
+  if (capture.requested >= 2) {
+    expect(initialTimingResult == LMXXF_NR_UNAVAILABLE, "captured frames leaked into ordinary runtime GPU timings");
+  } else {
+    success(initialTimingResult, "synthetic GPU timestamp query");
+    printf("interop %s DLL counters: submitted %llu bypassed %llu; bridge %.3f inference %.3f ms\n", label,
+           (unsigned long long)timings.submitted_frames, (unsigned long long)timings.bypassed_frames, timings.nr_bridge_ms, timings.inference_ms);
   // Five flags/resource refusals plus busy-slot and resize are seven bypasses.
-  expect(timings.submitted_frames == 2 && timings.bypassed_frames == 7 && timings.allocated_neural_bytes > 0 &&
+    expect(timings.submitted_frames == 2 && timings.bypassed_frames == 7 && timings.allocated_neural_bytes > 0 &&
          std::isfinite(timings.nr_bridge_ms) && timings.inference_ms > 0 && timings.pack_ms >= 0 && timings.unpack_ms >= 0,
-         "synthetic runtime timings lack completed GPU work");
+           "synthetic runtime timings lack completed GPU work");
+  }
   auto printTimings = [&] {
     printf("interop %s DLL frame %llu GPU timestamps: pack %.3f preprocess %.3f inference %.3f composite %.3f unpack %.3f bridge %.3f ms; allocated %llu bytes\n", label,
            (unsigned long long)timings.frame_id, timings.pack_ms, timings.preprocess_ms, timings.inference_ms, timings.composite_ms, timings.unpack_ms, timings.nr_bridge_ms, (unsigned long long)timings.allocated_neural_bytes);
   };
-  printTimings();
+  if (initialTimingResult == LMXXF_NR_OK) printTimings();
   for (uint64_t id = 3; id <= frameCount; ++id) {
     submitFrame(frames[id % 2], id, renderWidth, renderHeight); success(runtime.api.lifecycle.Drain(runtime.session), "warmed runtime drain");
     verifyFrame(frames[id % 2]); timings.struct_size = sizeof(timings);
-    success(runtime.api.GetTimings(runtime.session, &timings), "warmed runtime GPU timestamp query"); printTimings();
+    const auto timingResult = runtime.api.GetTimings(runtime.session, &timings);
+    if (id <= capture.requested) {
+      expect(timingResult == LMXXF_NR_UNAVAILABLE, "bounded capture leaked into ordinary runtime timings");
+    } else {
+      success(timingResult, "warmed runtime GPU timestamp query");
+      expect(timings.frame_id == id && timings.submitted_frames == id && timings.bypassed_frames == 7 &&
+             timings.allocated_neural_bytes > 0 && std::isfinite(timings.nr_bridge_ms) && timings.inference_ms > 0,
+             "ordinary timing after bounded capture lacks actual completed work");
+      printTimings();
+    }
   }
   submitFrame(frames[0], frameCount + 1, resizeWidth, resizeHeight); success(runtime.api.lifecycle.Drain(runtime.session), "synthetic resize drain"); verifyFrame(frames[0]);
   // Values are assigned during preparation. Never execute the older lists:
@@ -628,17 +655,57 @@ void syntheticRuntimeCase(ID3D12Device* device, ID3D12CommandQueue* queue, const
     std::vector<std::filesystem::path> created;
     if (std::filesystem::exists(capture.directory)) for (const auto& entry : std::filesystem::directory_iterator(capture.directory))
       if (entry.is_directory() && std::find(capture.prior.begin(), capture.prior.end(), entry.path()) == capture.prior.end()) created.push_back(entry.path());
-    expect(created.size() == 1 && std::filesystem::exists(created[0] / "manifest.json"), "one-shot capture omitted or duplicated a completed frame");
+    expect(created.size() == 1 && created[0].filename().string().starts_with("sequence-"), "bounded capture omitted or duplicated a sequence");
     auto bytes = [](const std::filesystem::path& path) {
       std::ifstream file(path, std::ios::binary | std::ios::ate); expect(bool(file), "capture file missing"); const auto length = file.tellg();
       expect(length >= 0, "capture file size unavailable"); std::vector<uint8_t> result(size_t(length), 0); file.seekg(0); file.read(reinterpret_cast<char*>(result.data()), result.size()); expect(bool(file), "short capture read"); return result;
     };
-    const auto manifestBytes = bytes(created[0] / "manifest.json"); const auto manifest = json::parse(std::string(manifestBytes.begin(), manifestBytes.end()));
+    struct CapturedFrame { std::filesystem::path path; json::Value manifest; };
+    std::vector<CapturedFrame> capturedFrames;
+    for (const auto& entry : std::filesystem::directory_iterator(created[0])) if (entry.is_directory()) {
+      expect(std::filesystem::exists(entry.path() / "manifest.json"), "bounded capture left an incomplete frame directory");
+      const auto manifestBytes = bytes(entry.path() / "manifest.json");
+      capturedFrames.push_back({entry.path(), json::parse(std::string(manifestBytes.begin(), manifestBytes.end()))});
+    }
+    expect(capturedFrames.size() == capture.requested, "bounded capture omitted or exceeded requested completed frames");
+    std::sort(capturedFrames.begin(), capturedFrames.end(), [](const auto& a, const auto& b) {
+      return a.manifest["capture_ordinal"].integer() < b.manifest["capture_ordinal"].integer();
+    });
+    const auto sequenceId = created[0].filename().string();
+    int64_t previousSubmission = 0, previousTick = 0;
+    for (size_t index = 0; index < capturedFrames.size(); ++index) {
+      const auto& frame = capturedFrames[index]; const auto& metadata = frame.manifest;
+      expect(metadata["format"].str() == "OpenNR-game-capture-v1" && metadata["gameCapture"].kind == json::Value::Bool &&
+             !metadata["gameCapture"].boolean && metadata["performanceRepresentative"].kind == json::Value::Bool &&
+             !metadata["performanceRepresentative"].boolean, "bounded harness capture claims game origin or representative performance");
+      expect(metadata["sequence_id"].str() == sequenceId && metadata["capture_ordinal"].integer() == index &&
+             metadata["requested_capture_count"].integer() == capture.requested && metadata["frame_id"].integer() == index + 1 &&
+             metadata["width"].integer() == renderWidth && metadata["height"].integer() == renderHeight,
+             "bounded capture frame identity, ordinal, count or geometry differs");
+      expect(metadata["submission_id"].integer() > previousSubmission && metadata["submitted_tick_ms"].integer() >= previousTick &&
+             metadata["submitted_filetime_100ns"].integer() > 0, "bounded capture submission identity/timestamp is invalid");
+      expect(metadata["reset"].kind == json::Value::Bool && metadata["history_frame_ids"].kind == json::Value::Array,
+             "bounded capture omitted reset/history ancestry metadata");
+      if (metadata["reset"].boolean) {
+        expect(metadata["history_frame_ids"].array.empty(), "reset capture retained a history ancestor");
+      } else {
+        expect(index > 0 && metadata["history_frame_ids"].size() == 1 && metadata["history_frame_ids"][0].integer() == index &&
+               metadata["history_submission_id"].integer() == previousSubmission,
+               "bounded capture history does not descend from the previous submitted frame");
+      }
+      expect(std::isfinite(metadata["gpu_exposure"].number) && metadata["gpu_exposure"].number > 0 &&
+             metadata["jitter"].size() == 2 && metadata["motion_scale"].size() == 2 && metadata["controls"].kind == json::Value::Object,
+             "bounded capture omitted exposure/motion/jitter/control metadata");
+      for (const auto* name : {"source-packed.f32", "features.f32", "previous-history.f32", "controls.bin", "pack-controls.bin", "head.f32", "scene-linear-rgba.f32"})
+        expect(fileHash(frame.path / name) == metadata["filesSha256"][name].str(), "bounded captured file hash mismatch");
+      previousSubmission = metadata["submission_id"].integer(); previousTick = metadata["submitted_tick_ms"].integer();
+    }
+    const auto& firstCapture = capturedFrames[0].path; const auto& manifest = capturedFrames[0].manifest;
     expect(manifest["format"].str() == "OpenNR-game-capture-v1" && !manifest["gameCapture"].boolean && !manifest["performanceRepresentative"].boolean, "harness capture claims game origin or representative performance");
     expect(manifest["width"].integer() == renderWidth && manifest["height"].integer() == renderHeight && manifest["frame_id"].integer() == 1, "captured frame metadata differs");
     for (const auto* name : {"source-packed.f32", "features.f32", "previous-history.f32", "controls.bin", "head.f32", "scene-linear-rgba.f32"})
-      expect(fileHash(created[0] / name) == manifest["filesSha256"][name].str(), "captured file hash mismatch");
-    const auto packed = bytes(created[0] / "source-packed.f32"), oldHistory = bytes(created[0] / "previous-history.f32"), featureBytes = bytes(created[0] / "features.f32"), controls = bytes(created[0] / "controls.bin"), output = bytes(created[0] / "scene-linear-rgba.f32");
+      expect(fileHash(firstCapture / name) == manifest["filesSha256"][name].str(), "captured file hash mismatch");
+    const auto packed = bytes(firstCapture / "source-packed.f32"), oldHistory = bytes(firstCapture / "previous-history.f32"), featureBytes = bytes(firstCapture / "features.f32"), controls = bytes(firstCapture / "controls.bin"), output = bytes(firstCapture / "scene-linear-rgba.f32");
     const auto geometry = nr::Geometry::fromValid(renderWidth, renderHeight);
     expect(packed.size() == (uint64_t(renderWidth) * renderHeight * 2 + 1) * 16 && oldHistory.size() == uint64_t(renderWidth) * renderHeight * 16 && controls.size() == 72 && featureBytes.size() == uint64_t(geometry.fullWidth) * geometry.fullHeight * 64 && output.size() == uint64_t(renderWidth) * renderHeight * 16, "capture source/features/controls/output extent differs");
     expect(std::all_of(oldHistory.begin(), oldHistory.end(), [](uint8_t value) { return value == 0; }), "first captured prior history was overwritten by a subsequent frame");
@@ -659,20 +726,20 @@ void syntheticRuntimeCase(ID3D12Device* device, ID3D12CommandQueue* queue, const
       }
       expect(num::f16Bits(rgba[3]) == colors[pixel][3], "captured composite alpha differs");
     }
-    printf("interop one-shot capture: exact actual source, untouched prior history, reset features, six hashes, exact F32-to-actual-D3D12-RGBA16F RTZ publication and truthful synthetic origin PASS (%s; excluded from performance results)\n", created[0].string().c_str());
+    printf("interop bounded capture: %u frames, ordered identity/ancestry/exposure metadata, all file hashes; first-frame exact actual source, untouched prior history, reset features and exact F32-to-actual-D3D12-RGBA16F RTZ publication; truthful synthetic origin PASS (%s; excluded from performance results)\n", capture.requested, created[0].string().c_str());
   }
   if (trace.enabled) {
     auto rows = trace.rows(); const size_t priorData = trace.priorRows ? trace.priorRows - 1 : 0;
     expect(!rows.empty() && rows[0] == "frame_id,pack_ms,preprocess_ms,inference_ms,composite_ms,unpack_ms,neural_ms,vram_mib,allocated_neural_bytes,submitted_frames,bypassed_frames",
            "runtime timing trace header mismatch");
-    expect(rows.size() == priorData + frameCount + 3, "runtime timing trace omitted or duplicated completed jobs");
+    expect(rows.size() == priorData + frameCount + 3 - capture.requested, "runtime timing trace omitted/duplicated ordinary jobs or included diagnostic captures");
     for (size_t index = priorData + 1; index < rows.size(); ++index) {
       std::stringstream line(rows[index]); std::string value; std::vector<double> fields;
       while (std::getline(line, value, ',')) fields.push_back(std::stod(value));
       expect(fields.size() == 11 && fields[3] > 0 && fields[7] > 0 && fields[8] > 0, "runtime trace lacks GPU timing/actual process VRAM/allocation samples");
       for (auto field : fields) expect(std::isfinite(field), "runtime timing trace contains nonfinite metadata");
     }
-    printf("interop DLL trace: %u completed frames, positive DXGI process local VRAM, finite GPU timestamps, no duplicate reclaim rows PASS (%s)\n", frameCount + 2, trace.csv.string().c_str());
+    printf("interop DLL trace: %u ordinary completed frames, %u diagnostic frames excluded, positive DXGI process local VRAM, finite GPU timestamps, no duplicate reclaim rows PASS (%s)\n", frameCount + 2 - capture.requested, capture.requested, trace.csv.string().c_str());
   }
   printf("interop %s DLL lifecycle: verified model, flags/array rejection/failed-prepare cleanup, cancel, two queued slots, in-flight refusal, timestamps, drain/resize/reset/destroy PASS\n", label);
 }

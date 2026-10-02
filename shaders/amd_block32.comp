@@ -1,0 +1,213 @@
+#version 460
+// Full native C32 body; FP16 adapters, pooling, upsample and head remain outside.
+// The default retains all logical half/E4 publications from decomposition.
+#extension GL_EXT_float_e4m3 : require
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_KHR_shader_subgroup_basic : require
+#extension GL_KHR_shader_subgroup_shuffle : require
+#extension GL_GOOGLE_include_directive : require
+#define NR_AMD_HARDWARE_NUMERIC 1
+#define DLSS_E4M3_HW 1
+#include "portable_numeric.glsl"
+
+layout(local_size_x = 128) in;
+layout(push_constant) uniform Push {
+  uint width, height, channels, heads, shiftX, shiftY, windowsX, windowCount;
+  uint ffnScaleHalfOffset, attentionScaleHalfOffset, qScaleWordOffset;
+  uint inputStride, residualStride, outputStride, residualIsHalf, outputFlags;
+} pc;
+layout(std430, binding = 0) readonly buffer Input { uint8_t state8[]; };
+layout(std430, binding = 1) readonly buffer Expand { uint8_t w1[]; };
+layout(std430, binding = 2) readonly buffer Contract { uint8_t w2[]; };
+layout(std430, binding = 3) readonly buffer Qkv { uint8_t wqkv[]; };
+layout(std430, binding = 4) readonly buffer Projection { uint8_t wproj[]; };
+layout(std430, binding = 5) readonly buffer Prior { float16_t prior[]; };
+layout(std430, binding = 6) readonly buffer Auxiliary { uint aux32[]; };
+layout(std430, binding = 7) readonly buffer ResidualHalf { float16_t residual16[]; };
+layout(std430, binding = 8) readonly buffer ResidualE4 { uint8_t residual8[]; };
+layout(std430, binding = 9) writeonly buffer Output { uint8_t output8[]; };
+layout(std430, binding = 10) writeonly buffer RawOutput { float16_t output16[]; };
+
+shared uint8_t bfInput[2048], bfFfn[2048];
+shared float16_t bfRawFfn[2048];
+#define NR_AMD_WINDOW_EXTERNAL_INTERFACE 1
+// Attention replaces the no-longer-live FFN E4 vector. The raw FFN skip remains
+// independent until projection is complete.
+#define NR_AW_STORE_ATTENDED(x, y, head, channel, value) \
+  bfFfn[(uint((y) - wy) * 8u + uint((x) - wx)) * 32u + (channel)] = (value)
+#include "amd_window_optimized_body.glsl"
+
+// 30 KiB declared LDS. Typed arrays have disjoint phase lifetimes, not casts:
+// FFN: Q/K/V/weights hold four hidden [16][128] E4 tiles; scratch is an epilogue.
+// QKV: scores hold a [64][32] raw-half vector, scratch is an epilogue.
+// Attention: Q/K/V/weights/scores/scratch take their normal compact meanings.
+// Projection: scratch is an epilogue; bfRawFfn is still the raw-half skip.
+// Workgroup barriers separate phases; per-wave tiles never cross fragment scopes.
+float bfAuxHalf(uint index) { return float(f16FromBits(aux32[index >> 1u] >> ((index & 1u) * 16u))); }
+uint bfPhysical(uint natural) {
+  uint x = natural & 7u, y = natural >> 3u;
+  return ((y >> 2u) * 2u + (x >> 2u)) * 16u + (y & 3u) * 4u + (x & 3u);
+}
+bool bfValid(uint token, int wx, int wy) {
+  int x = wx + int(token & 7u), y = wy + int(token >> 3u);
+  return x >= 0 && y >= 0 && x < int(pc.width) && y < int(pc.height);
+}
+uint bfGlobal(uint token, int wx, int wy) { return uint(wy + int(token >> 3u)) * pc.width + uint(wx + int(token & 7u)); }
+void bfPublish(inout NR_AW_ACC acc, uint completed, uint total) {
+  if (nrAwPublishAccumulator(completed, total))
+    for (uint i = 0u; i < acc.length(); ++i) acc[i] = roundF16(acc[i]);
+}
+void bfStoreHidden(uint wave, uint index, uint8_t value) {
+  if (wave == 0u) nrAwQs[index] = value;
+  else if (wave == 1u) nrAwKs[index] = value;
+  else if (wave == 2u) nrAwVs[index] = value;
+  else nrAwWeights[index] = value;
+}
+void bfLoadHidden(out NR_AW_MA a, uint wave, uint kb) {
+  if (wave == 0u) coopMatLoad(a, nrAwQs, kb, 128u, gl_CooperativeMatrixLayoutRowMajor);
+  else if (wave == 1u) coopMatLoad(a, nrAwKs, kb, 128u, gl_CooperativeMatrixLayoutRowMajor);
+  else if (wave == 2u) coopMatLoad(a, nrAwVs, kb, 128u, gl_CooperativeMatrixLayoutRowMajor);
+  else coopMatLoad(a, nrAwWeights, kb, 128u, gl_CooperativeMatrixLayoutRowMajor);
+}
+
+void main() {
+  uint thread = gl_LocalInvocationID.x, wave = gl_SubgroupID, lane = gl_SubgroupInvocationID;
+  uint window = gl_WorkGroupID.y + gl_WorkGroupID.z * 65535u;
+  if (window >= pc.windowCount) return;
+  int wx = int((window % pc.windowsX) * 8u) - int(pc.shiftX);
+  int wy = int((window / pc.windowsX) * 8u) - int(pc.shiftY);
+  for (uint i = thread; i < 2048u; i += 128u) {
+    uint token = i / 32u;
+    bfInput[i] = bfValid(token, wx, wy) ? state8[bfGlobal(token, wx, wy) * pc.inputStride + i % 32u] : uint8_t(0);
+  }
+  barrier();
+
+  // Dense C32 W1, SiLU, E4 publication. Four waves own independent M16 tiles.
+  for (uint column = 0u; column < 128u; column += 16u) {
+    NR_AW_ACC acc = NR_AW_ACC(0.0);
+    for (uint kb = 0u; kb < 32u; kb += 16u) {
+      NR_AW_MA a; NR_AW_MB b;
+      coopMatLoad(a, bfInput, wave * 512u + kb, 32u, gl_CooperativeMatrixLayoutRowMajor);
+      coopMatLoad(b, w1, column * 32u + kb, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+      acc = coopMatMulAdd(a, b, acc); bfPublish(acc, kb + 16u, 32u);
+    }
+    coopMatStore(acc, nrAwScratch, wave * 256u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+    nrAwWaveBarrier();
+    for (uint i = lane; i < 256u; i += 32u)
+      bfStoreHidden(wave, (i / 16u) * 128u + column + i % 16u, uint8_t(nrPublishE4(mpCubicSilu(nrAwScratch[wave * 256u + i]))));
+    nrAwWaveBarrier();
+  }
+  barrier();
+
+  // W2's skip is raw F16 when an external adapter/merge supplied it.
+  for (uint column = 0u; column < 32u; column += 16u) {
+    for (uint i = lane; i < 256u; i += 32u) {
+      uint token = wave * 16u + i / 16u, c = column + i % 16u;
+      float initial = 0.0;
+      if (bfValid(token, wx, wy)) {
+        uint index = bfGlobal(token, wx, wy) * pc.residualStride + c;
+        float skip = pc.residualIsHalf != 0u ? float(residual16[index]) : nrDecodeE4(uint(residual8[index]));
+        initial = roundF16(skip * bfAuxHalf(pc.ffnScaleHalfOffset + c));
+      }
+      nrAwScratch[wave * 256u + i] = initial;
+    }
+    nrAwWaveBarrier();
+    NR_AW_ACC acc;
+    coopMatLoad(acc, nrAwScratch, wave * 256u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+    for (uint kb = 0u; kb < 128u; kb += 16u) {
+      NR_AW_MA a; NR_AW_MB b;
+      bfLoadHidden(a, wave, kb);
+      coopMatLoad(b, w2, ((kb / 32u) * 32u + column) * 32u + kb % 32u, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+      acc = coopMatMulAdd(a, b, acc); bfPublish(acc, kb + 16u, 128u);
+    }
+    coopMatStore(acc, nrAwScratch, wave * 256u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+    nrAwWaveBarrier();
+    for (uint i = lane; i < 256u; i += 32u) {
+      uint token = wave * 16u + i / 16u, index = token * 32u + column + i % 16u;
+      float value = nrAwScratch[wave * 256u + i];
+      bfRawFfn[index] = float16_t(value); bfFfn[index] = uint8_t(nrPublishE4(value));
+    }
+    nrAwWaveBarrier();
+  }
+  barrier();
+
+  // The hidden tiles are now dead. Reuse scores for each raw-half Q/K/V vector.
+  for (uint part = 0u; part < 3u; ++part) {
+    for (uint column = 0u; column < 32u; column += 16u) {
+      NR_AW_ACC acc = NR_AW_ACC(0.0);
+      for (uint kb = 0u; kb < 32u; kb += 16u) {
+        NR_AW_MA a; NR_AW_MB b;
+        coopMatLoad(a, bfFfn, wave * 512u + kb, 32u, gl_CooperativeMatrixLayoutRowMajor);
+        coopMatLoad(b, wqkv, (part * 32u + column) * 32u + kb, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+        acc = coopMatMulAdd(a, b, acc); bfPublish(acc, kb + 16u, 32u);
+      }
+      coopMatStore(acc, nrAwScratch, wave * 256u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+      nrAwWaveBarrier();
+      for (uint i = lane; i < 256u; i += 32u)
+        nrAwScores[(wave * 16u + i / 16u) * 32u + column + i % 16u] = float16_t(nrAwScratch[wave * 256u + i]);
+      nrAwWaveBarrier();
+    }
+    barrier();
+    uint component = thread & 15u;
+    for (uint tokenBase = 0u; tokenBase < 64u; tokenBase += 8u) {
+      uint token = tokenBase + (thread >> 4u), base = token * 32u;
+      float16_t v0 = nrAwScores[base + component], v1 = nrAwScores[base + 16u + component];
+      if (part != 2u) {
+        precise float16_t highSquare = v1 * v1;
+        float16_t sum = fma(v0, v0, highSquare);
+        for (uint distance = 8u; distance != 0u; distance >>= 1u) {
+          precise float16_t next = sum + float16_t(subgroupShuffleXor(float(sum), distance)); sum = next;
+        }
+        float16_t norm = float16_t(inversesqrt(float(sum)));
+        precise float16_t normalized0 = v0 * norm, normalized1 = v1 * norm;
+        v0 = normalized0; v1 = normalized1;
+        if (part == 0u) {
+          float16_t scale = float16_t(uintBitsToFloat(aux32[pc.qScaleWordOffset]));
+          precise float16_t scaled0 = v0 * scale, scaled1 = v1 * scale; v0 = scaled0; v1 = scaled1;
+        }
+      }
+      uint8_t e0 = bfValid(token, wx, wy) ? e4m3Hw(v0) : uint8_t(0);
+      uint8_t e1 = bfValid(token, wx, wy) ? e4m3Hw(v1) : uint8_t(0);
+      if (part == 0u) { nrAwQs[base + component] = e0; nrAwQs[base + 16u + component] = e1; }
+      else {
+        uint keyBase = bfPhysical(token) * 32u;
+        if (part == 1u) { nrAwKs[keyBase + component] = e0; nrAwKs[keyBase + 16u + component] = e1; }
+        else { nrAwVs[keyBase + component] = e0; nrAwVs[keyBase + 16u + component] = e1; }
+      }
+    }
+    barrier();
+  }
+  // QKV consumed the FFN E4 vector. Clear it before the attended publication,
+  // retaining explicit zero inputs for invalid shifted query rows.
+  for (uint i = thread; i < 2048u; i += 128u) bfFfn[i] = uint8_t(0);
+  nrAwCompute(0u, wx, wy);
+
+  // Projection seeded by the retained raw-half FFN skip (not its E4 twin).
+  for (uint column = 0u; column < 32u; column += 16u) {
+    for (uint i = lane; i < 256u; i += 32u) {
+      uint token = wave * 16u + i / 16u, c = column + i % 16u;
+      nrAwScratch[wave * 256u + i] = roundF16(float(bfRawFfn[token * 32u + c]) * bfAuxHalf(pc.attentionScaleHalfOffset + c));
+    }
+    nrAwWaveBarrier();
+    NR_AW_ACC acc;
+    coopMatLoad(acc, nrAwScratch, wave * 256u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+    for (uint kb = 0u; kb < 32u; kb += 16u) {
+      NR_AW_MA a; NR_AW_MB b;
+      coopMatLoad(a, bfFfn, wave * 512u + kb, 32u, gl_CooperativeMatrixLayoutRowMajor);
+      coopMatLoad(b, wproj, column * 32u + kb, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+      acc = coopMatMulAdd(a, b, acc); bfPublish(acc, kb + 16u, 32u);
+    }
+    coopMatStore(acc, nrAwScratch, wave * 256u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+    nrAwWaveBarrier();
+    for (uint i = lane; i < 256u; i += 32u) {
+      uint token = wave * 16u + i / 16u;
+      if (!bfValid(token, wx, wy)) continue;
+      uint index = bfGlobal(token, wx, wy) * pc.outputStride + column + i % 16u;
+      float value = nrAwScratch[wave * 256u + i];
+      if ((pc.outputFlags & 2u) != 0u) output8[index] = uint8_t(nrPublishE4(value));
+      if ((pc.outputFlags & 1u) != 0u) output16[index] = float16_t(value);
+    }
+    nrAwWaveBarrier();
+  }
+}

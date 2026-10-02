@@ -57,6 +57,7 @@ class Model {
 
   size_t nanWeightsReplaced() const { return nanWeights_; }
   uint32_t blockCount() const { return blockCount_; }
+  const std::string& manifestSha256() const { return manifestHash_; }
 
  private:
   struct Stage {
@@ -69,6 +70,7 @@ class Model {
   std::map<std::string, vk::Buffer> matrices_;
   size_t nanWeights_ = 0;
   uint32_t blockCount_ = 0;
+  std::string manifestHash_;
 };
 
 // Exact float16 load of the aux (per-column) vectors stored inside a tensor.

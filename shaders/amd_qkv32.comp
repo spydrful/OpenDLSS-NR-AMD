@@ -1,0 +1,118 @@
+#version 460
+// C32 QKV + normalization + compact attention. The FP16 QKV publication and
+// fixed normalization tree are retained; neither full QKV tensor reaches VRAM.
+#extension GL_EXT_float_e4m3 : require
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_KHR_shader_subgroup_basic : require
+#extension GL_KHR_shader_subgroup_shuffle : require
+#extension GL_GOOGLE_include_directive : require
+#define NR_AMD_HARDWARE_NUMERIC 1
+#define DLSS_E4M3_HW 1
+#include "portable_numeric.glsl"
+
+layout(local_size_x = 128) in;
+layout(push_constant) uniform Push {
+  uint width, height, channels, heads, shiftX, shiftY, windowsX, windowCount;
+  uint scaleWordOffset, inputStride, outputStride;
+} pc;
+layout(std430, binding = 0) readonly buffer Input { uint8_t input8[]; };
+layout(std430, binding = 1) readonly buffer Weights { uint8_t qkvWeights[]; };
+layout(std430, binding = 2) readonly buffer Prior { float16_t prior[]; };
+layout(std430, binding = 4) readonly buffer Auxiliary { uint aux32[]; };
+layout(std430, binding = 5) writeonly buffer Output { uint8_t attended[]; };
+
+#define NR_AMD_WINDOW_EXTERNAL_INTERFACE 1
+#define NR_AW_STORE_ATTENDED(x, y, head, channel, value) \
+  attended[(uint(y) * pc.width + uint(x)) * pc.outputStride + (channel)] = (value)
+#include "amd_window_optimized_body.glsl"
+
+// Together with the compact attention body's 22 KiB this declares 28.5 KiB.
+// Its per-wave accumulator scratch is reused before the attention phase begins.
+shared uint8_t nfInput[64 * 32], nfWeight[16 * 32];
+shared float16_t nfVector[64 * 32];
+
+uint nfPhysical(uint natural) {
+  uint x = natural & 7u, y = natural >> 3u;
+  return ((y >> 2u) * 2u + (x >> 2u)) * 16u + (y & 3u) * 4u + (x & 3u);
+}
+
+void nfPublish(inout NR_AW_ACC acc, uint completed) {
+  if (nrAwPublishAccumulator(completed, 32u))
+    for (uint i = 0u; i < acc.length(); ++i) acc[i] = roundF16(acc[i]);
+}
+
+void main() {
+  uint thread = gl_LocalInvocationID.x, wave = gl_SubgroupID;
+  uint window = gl_WorkGroupID.y + gl_WorkGroupID.z * 65535u;
+  if (window >= pc.windowCount) return;
+  int wx = int((window % pc.windowsX) * 8u) - int(pc.shiftX);
+  int wy = int((window / pc.windowsX) * 8u) - int(pc.shiftY);
+  for (uint i = thread; i < 2048u; i += 128u) {
+    uint token = i / 32u;
+    int x = wx + int(token & 7u), y = wy + int(token >> 3u);
+    bool valid = x >= 0 && y >= 0 && x < int(pc.width) && y < int(pc.height);
+    nfInput[i] = valid ? input8[(uint(y) * pc.width + uint(x)) * pc.inputStride + i % 32u] : uint8_t(0);
+  }
+  barrier();
+
+  // Produce one raw-half Q/K/V vector at a time. Each wave owns 16 query rows;
+  // publication passes through an explicit RowMajor LDS tile, never a guessed
+  // fragment lane-to-coordinate mapping.
+  for (uint part = 0u; part < 3u; ++part) {
+    for (uint halfColumn = 0u; halfColumn < 2u; ++halfColumn) {
+      uint columnBase = part * 32u + halfColumn * 16u;
+      for (uint i = thread; i < 512u; i += 128u)
+        nfWeight[i] = qkvWeights[(columnBase + i / 32u) * 32u + i % 32u];
+      barrier();
+      NR_AW_ACC acc = NR_AW_ACC(0.0);
+      for (uint kb = 0u; kb < 32u; kb += 16u) {
+        NR_AW_MA a; NR_AW_MB b;
+        coopMatLoad(a, nfInput, wave * 512u + kb, 32u, gl_CooperativeMatrixLayoutRowMajor);
+        coopMatLoad(b, nfWeight, kb, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+        acc = coopMatMulAdd(a, b, acc); nfPublish(acc, kb + 16u);
+      }
+      coopMatStore(acc, nrAwScratch, wave * 256u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+      barrier();
+      for (uint i = thread; i < 1024u; i += 128u)
+        nfVector[(i / 16u) * 32u + halfColumn * 16u + i % 16u] = float16_t(nrAwScratch[i]);
+      barrier();
+    }
+
+    // Sixteen lanes cooperate on each token, matching amd_normalize_body's
+    // rounded fma/high-square and XOR8/4/2/1 tree. Invalid shifted-window keys
+    // are explicitly zeroed after normalization, as in the decomposed loader.
+    uint component = thread & 15u;
+    for (uint tokenBase = 0u; tokenBase < 64u; tokenBase += 8u) {
+      uint token = tokenBase + (thread >> 4u), base = token * 32u;
+      float16_t v0 = nfVector[base + component], v1 = nfVector[base + 16u + component];
+      if (part != 2u) {
+        precise float16_t highSquare = v1 * v1;
+        float16_t sum = fma(v0, v0, highSquare);
+        for (uint distance = 8u; distance != 0u; distance >>= 1u) {
+          precise float16_t next = sum + float16_t(subgroupShuffleXor(float(sum), distance));
+          sum = next;
+        }
+        float16_t norm = float16_t(inversesqrt(float(sum)));
+        precise float16_t normalized0 = v0 * norm, normalized1 = v1 * norm;
+        v0 = normalized0; v1 = normalized1;
+        if (part == 0u) {
+          float16_t scale = float16_t(uintBitsToFloat(aux32[pc.scaleWordOffset]));
+          precise float16_t scaled0 = v0 * scale, scaled1 = v1 * scale;
+          v0 = scaled0; v1 = scaled1;
+        }
+      }
+      int x = wx + int(token & 7u), y = wy + int(token >> 3u);
+      bool valid = x >= 0 && y >= 0 && x < int(pc.width) && y < int(pc.height);
+      uint8_t e0 = valid ? e4m3Hw(v0) : uint8_t(0), e1 = valid ? e4m3Hw(v1) : uint8_t(0);
+      if (part == 0u) { nrAwQs[base + component] = e0; nrAwQs[base + 16u + component] = e1; }
+      else {
+        uint keyBase = nfPhysical(token) * 32u;
+        if (part == 1u) { nrAwKs[keyBase + component] = e0; nrAwKs[keyBase + 16u + component] = e1; }
+        else { nrAwVs[keyBase + component] = e0; nrAwVs[keyBase + 16u + component] = e1; }
+      }
+    }
+    barrier();
+  }
+  nrAwCompute(0u, wx, wy);
+}

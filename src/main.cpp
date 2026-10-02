@@ -9,6 +9,8 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
+#include <limits>
 #include <array>
 #include <map>
 #include <set>
@@ -32,6 +34,9 @@ int runModelValidation(int argc, char** argv);
 #endif
 #if defined(NR_COMPOSITE_VALIDATION)
 int runCompositeValidation(int argc, char** argv);
+#endif
+#if defined(NR_AMD_KERNEL_PRESERVATION)
+int runAmdKernelPreservation(int argc, char** argv);
 #endif
 
 namespace {
@@ -59,6 +64,165 @@ std::string argValue(int argc, char** argv, const char* name, const std::string&
 bool hasFlag(int argc, char** argv, const char* name) {
   for (int i = 1; i < argc; ++i) if (!strcmp(argv[i], name)) return true;
   return false;
+}
+
+int integerArgument(int argc, char** argv, const char* name, int fallback, int minimum = 0, int maximum = std::numeric_limits<int>::max()) {
+  for (int i = 1; i < argc; ++i) if (!strcmp(argv[i], name)) {
+    if (i + 1 == argc) throw std::runtime_error(std::string("missing value for ") + name);
+    const std::string text = argv[i + 1]; size_t used = 0;
+    long long value;
+    try { value = std::stoll(text, &used); }
+    catch (...) { throw std::runtime_error(std::string("invalid integer for ") + name); }
+    if (used != text.size() || value < minimum || value > maximum)
+      throw std::runtime_error(std::string(name) + " must be an integer in [" + std::to_string(minimum) + "," + std::to_string(maximum) + "]");
+    return int(value);
+  }
+  return fallback;
+}
+
+void setEnvironment(const char* key, const std::string& value) {
+#if defined(_WIN32)
+  if (_putenv_s(key, value.c_str())) throw std::runtime_error(std::string("cannot set ") + key);
+#else
+  if (setenv(key, value.c_str(), 1)) throw std::runtime_error(std::string("cannot set ") + key);
+#endif
+}
+
+void configureAmdArguments(int argc, char** argv) {
+  const std::pair<const char*,const char*> flags[] = {
+      {"--amd-kernels","DLSS5VK_AMD_KERNELS"}, {"--amd-arithmetic","DLSS5VK_AMD_ARITHMETIC"},
+      {"--amd-tile-n","DLSS5VK_AMD_TILE_N"}, {"--amd-stage-k","DLSS5VK_AMD_STAGE_K"},
+      {"--amd-window-queries","DLSS5VK_AMD_WINDOW_QUERIES"},
+      {"--amd-fusion","DLSS5VK_AMD_FUSION"}, {"--amd-expert-fusion","DLSS5VK_AMD_EXPERT_FUSION"},
+      {"--amd-block-fusion","DLSS5VK_AMD_BLOCK_FUSION"}, {"--amd-hardware-publication","DLSS5VK_AMD_HARDWARE_PUBLICATION"},
+      {"--amd-tuning","DLSS5VK_AMD_TUNING"}};
+  bool configured = false;
+  for (const auto& flag : flags) for (int i = 1; i < argc; ++i) if (!strcmp(argv[i],flag.first)) {
+    if (i + 1 == argc || std::string(argv[i + 1]).starts_with("--"))
+      throw std::runtime_error(std::string("missing value for ") + flag.first);
+    setEnvironment(flag.second,argv[i + 1]); configured = true;
+  }
+  if (configured) (void)amd::Options::fromEnvironment();
+}
+
+std::string jsonQuote(const std::string& value) {
+  std::ostringstream out; out << '"';
+  for (unsigned char c : value) {
+    if (c == '"' || c == '\\') out << '\\' << char(c);
+    else if (c < 32) out << "\\u" << std::hex << std::setw(4) << std::setfill('0') << unsigned(c) << std::dec;
+    else out << char(c);
+  }
+  return out.str() + '"';
+}
+
+void jsonSeries(std::ostream& out, const std::vector<double>& values) {
+  out << '[';
+  for (size_t i = 0; i < values.size(); ++i) {
+    if (!std::isfinite(values[i]) || values[i] < 0) throw std::runtime_error("invalid GPU timestamp sample");
+    if (i) out << ',';
+    out << std::setprecision(17) << values[i];
+  }
+  out << ']';
+}
+
+double percentile(const std::vector<double>& samples, double fraction) {
+  auto sorted = samples; std::sort(sorted.begin(),sorted.end());
+  const double at = double(sorted.size() - 1) * fraction;
+  const size_t lower = size_t(at), upper = std::min(lower + 1,sorted.size() - 1);
+  return sorted[lower] + (sorted[upper] - sorted[lower]) * (at - double(lower));
+}
+
+void printSamples(const std::vector<double>& samples, uint32_t width, uint32_t height, const nr::Geometry& geometry) {
+  printf("median %.3f ms, p95 %.3f ms, p99 %.3f ms, min %.3f ms over %zu frames at %ux%u (full %ux%u)\n",
+      percentile(samples,.5),percentile(samples,.95),percentile(samples,.99),*std::min_element(samples.begin(),samples.end()),
+      samples.size(),width,height,geometry.fullWidth,geometry.fullHeight);
+}
+
+using ProfileFrames = std::vector<std::vector<nr::Kernels::ProfileEntry>>;
+
+bool sameDispatch(const nr::Kernels::ProfileEntry& a, const nr::Kernels::ProfileEntry& b) {
+  const auto& x = a.details; const auto& y = b.details;
+  return a.label == b.label && x.family == y.family && x.variant == y.variant && x.rows == y.rows &&
+      x.N == y.N && x.K == y.K && x.batches == y.batches && x.flags == y.flags && x.partition == y.partition &&
+      x.tileN == y.tileN && x.stageK == y.stageK;
+}
+
+std::string profileFamily(const nr::Kernels::ProfileEntry& entry) {
+  if (!entry.details.family.empty()) return entry.details.family;
+  const auto split = entry.label.find(" | ");
+  const auto kernel = split == std::string::npos ? entry.label : entry.label.substr(split + 3);
+  return kernel.substr(0,kernel.find(' '));
+}
+
+void writeBenchmarkJson(const std::string& path, const char* command, const vk::Context& context,
+                        const nr::Model& model, const nr::Kernels& kernels, const nr::Geometry& geometry,
+                        uint32_t width, uint32_t height, int warmup, const std::vector<double>& samples,
+                        const ProfileFrames& profile = {}, double overheadProbe = 0) {
+  if (path.empty()) return;
+  const auto parent = std::filesystem::path(path).parent_path();
+  if (!parent.empty()) std::filesystem::create_directories(parent);
+  std::ofstream out(path,std::ios::trunc);
+  const auto& options = kernels.amdPolicy();
+  const bool optimized = kernels.optimizedRequested();
+  out << "{\n\"format\":\"OpenNR-amd-benchmark-v1\",\"command\":" << jsonQuote(command)
+      << ",\"backend\":" << jsonQuote(vk::backendName(context.backend())) << ",\"arithmetic_mode\":" << jsonQuote(context.arithmeticMode())
+      << ",\"readback\":false,\"instrumented\":" << (profile.empty() ? "false" : "true")
+      << ",\"timing_scope\":\"neural-inference-only\",\"samples_order\":\"chronological\",\"width\":" << width
+      << ",\"height\":" << height << ",\"padded_width\":" << geometry.fullWidth << ",\"padded_height\":" << geometry.fullHeight
+      << ",\"frames\":" << samples.size() << ",\"warmup\":" << warmup
+      << ",\"identity\":{\"device_id\":" << jsonQuote(kernels.deviceId()) << ",\"driver_id\":" << jsonQuote(kernels.driverId())
+      << ",\"model_sha256\":" << jsonQuote(model.manifestSha256()) << ",\"shader_sha256\":" << jsonQuote(kernels.shaderSha256())
+      << ",\"baseline_shader_sha256\":" << jsonQuote(kernels.baselineShaderSha256()) << "},\n"
+      << "\"requested\":{\"kernels\":" << jsonQuote(context.amdOptions().kernelName())
+      << ",\"arithmetic\":" << jsonQuote(context.amdOptions().arithmeticName()) << "},\n"
+      << "\"selected\":{\"kernels\":" << jsonQuote(kernels.selectedKernelMode()) << ",\"arithmetic\":" << jsonQuote(options.arithmeticName())
+      << ",\"tile_n\":" << (optimized ? options.tileN : 16u) << ",\"stage_k\":" << (optimized ? options.stageK : 16u)
+      << ",\"window_queries\":" << (optimized ? options.windowQueries : 64u)
+      << ",\"fusion\":" << (optimized && options.fusion ? "true" : "false")
+      << ",\"expert_fusion\":" << (optimized && options.expertFusion ? "true" : "false")
+      << ",\"block_fusion\":" << (optimized && options.blockFusion ? "true" : "false")
+      << ",\"hardware_publication\":" << (optimized && options.hardwarePublication ? "true" : "false") << "},\n\"frame_ms\":";
+  jsonSeries(out,samples);
+  if (!profile.empty()) {
+    std::vector<double> totals(profile.size(),0);
+    std::map<std::string,std::vector<double>> families;
+    double minimized = 0;
+    out << ",\n\"dispatches\":[\n";
+    for (size_t index = 0; index < profile[0].size(); ++index) {
+      const auto& entry = profile[0][index]; const auto& details = entry.details;
+      const auto family = profileFamily(entry);
+      std::vector<double> times; times.reserve(profile.size());
+      for (size_t frame = 0; frame < profile.size(); ++frame) {
+        if (profile[frame].size() != profile[0].size() || !sameDispatch(entry,profile[frame][index]))
+          throw std::runtime_error("profile dispatch metadata/order changed between frames");
+        const auto milliseconds = profile[frame][index].milliseconds;
+        times.push_back(milliseconds); totals[frame] += milliseconds;
+        auto& series = families[family]; if (series.empty()) series.resize(profile.size()); series[frame] += milliseconds;
+      }
+      minimized += *std::min_element(times.begin(),times.end());
+      if (index) out << ",\n";
+      out << "{\"index\":" << index << ",\"label\":" << jsonQuote(entry.label) << ",\"family\":" << jsonQuote(family)
+          << ",\"variant\":" << jsonQuote(details.variant.empty() ? "unclassified" : details.variant)
+          << ",\"shape\":{\"rows\":" << details.rows << ",\"N\":" << details.N << ",\"K\":" << details.K
+          << ",\"batches\":" << details.batches << ",\"flags\":" << details.flags << ",\"partition\":" << details.partition
+          << "},\"tile_n\":" << details.tileN << ",\"stage_k\":" << details.stageK
+          << ",\"geometry\":{\"grid\":[" << details.gridX << ',' << details.gridY << ',' << details.gridZ
+          << "],\"threads\":" << details.threads << ",\"required_subgroup_size\":" << details.subgroupSize
+          << ",\"tile_m\":" << details.tileM << "},\"frame_ms\":";
+      jsonSeries(out,times); out << '}';
+    }
+    out << "\n],\"dispatch_span_total_ms\":"; jsonSeries(out,totals);
+    out << ",\"independently_minimized_dispatch_sum_ms\":" << std::setprecision(17) << minimized
+        << ",\"dispatch_minima_description\":\"Sum of independently minimized dispatch spans; not a measured frame\""
+        << ",\"dispatch_overhead_probe_ms\":" << overheadProbe << ",\"family_totals_ms\":{";
+    bool first = true;
+    for (const auto& [name,times] : families) {
+      if (!first) out << ','; first = false; out << jsonQuote(name) << ':'; jsonSeries(out,times);
+    }
+    out << '}';
+  }
+  out << "\n}\n";
+  if (!out) throw std::runtime_error("cannot write " + path);
 }
 
 std::string executableDirectory(const char* argv0) {
@@ -577,10 +741,11 @@ int runParity(int argc, char** argv) {
 int runBench(int argc, char** argv) {
   std::string modelDir = argValue(argc, argv, "--model");
   std::string shaderDir = argValue(argc, argv, "--shaders", executableDirectory(argv[0]) + "/shaders");
-  uint32_t width = (uint32_t)atoi(argValue(argc, argv, "--width", "768").c_str());
-  uint32_t height = (uint32_t)atoi(argValue(argc, argv, "--height", "768").c_str());
-  int frames = atoi(argValue(argc, argv, "--frames", "10").c_str());
-  if (modelDir.empty()) { fprintf(stderr, "usage: dlss5vk bench --model <dir> [--width W --height H --frames N]\n"); return 2; }
+  uint32_t width = uint32_t(integerArgument(argc,argv,"--width",1707,1,32768));
+  uint32_t height = uint32_t(integerArgument(argc,argv,"--height",960,1,32768));
+  const int frames = integerArgument(argc,argv,"--frames",30,1);
+  const int warmup = integerArgument(argc,argv,"--warmup",5);
+  if (modelDir.empty()) { fprintf(stderr, "usage: dlss5vk bench --model <dir> [--width W --height H --warmup N --frames N --json path]\n"); return 2; }
   vk::Context context;
   printf("device: %s\n", context.deviceName().c_str());
   nr::Model model(context, modelDir, !hasFlag(argc, argv, "--no-verify"));
@@ -593,8 +758,8 @@ int runBench(int argc, char** argv) {
   std::vector<float> synthetic((size_t)fullRows * 16);
   for (size_t i = 0; i < synthetic.size(); ++i) synthetic[i] = num::roundF16(std::sin(i * 0.0017f) * 0.125f);
   context.upload(features->buffer, synthetic.data(), synthetic.size() * 4);
-  // Warm compile.
-  {
+  for (int frame = 0; frame < warmup; ++frame) {
+    context.resetDescriptorPool();
     VkCommandBuffer commands = context.beginCommands();
     graph.record(commands, *features);
     context.endAndSubmit(commands, true);
@@ -615,9 +780,8 @@ int runBench(int argc, char** argv) {
     samples.push_back(stamps[1] - stamps[0]);
     printf("frame %d: %.3f ms GPU (%u dispatches)\n", frame, samples.back(), kernels.dispatchCount());
   }
-  std::sort(samples.begin(), samples.end());
-  printf("median %.3f ms, min %.3f ms over %d frames at %ux%u (full %ux%u)\n", samples[samples.size() / 2],
-         samples.front(), frames, width, height, geometry.fullWidth, geometry.fullHeight);
+  printSamples(samples,width,height,geometry);
+  writeBenchmarkJson(argValue(argc,argv,"--json"),"bench",context,model,kernels,geometry,width,height,warmup,samples);
   vkDestroyQueryPool(context.device(), queries, nullptr);
   return 0;
 }
@@ -632,15 +796,20 @@ int runShaderInfo(int argc, char** argv) {
   std::string shaderDir = argValue(argc, argv, "--shaders", executableDirectory(argv[0]) + "/shaders");
   std::string filter = argValue(argc, argv, "--filter", "");
   bool sass = hasFlag(argc, argv, "--sass");
-  if (modelDir.empty()) { fprintf(stderr, "usage: dlss5vk shaderinfo --model <dir> [--filter name] [--sass]\n"); return 2; }
+  uint32_t width = uint32_t(integerArgument(argc,argv,"--width",1707,1,32768));
+  uint32_t height = uint32_t(integerArgument(argc,argv,"--height",960,1,32768));
+  if (modelDir.empty()) { fprintf(stderr, "usage: dlss5vk shaderinfo --model <dir> [--width W --height H --filter name --sass]\n"); return 2; }
   vk::Context context;
   context.setCaptureStatistics(true);
   nr::Model model(context, modelDir, !hasFlag(argc, argv, "--no-verify"));
   nr::Kernels kernels(context, shaderDir);
   kernels.setSiluTable(ref::siluTable());
-  nr::Geometry geometry = nr::Geometry::fromValid(768, 768);
+  nr::Geometry geometry = nr::Geometry::fromValid(width,height);
+  printf("shader statistics geometry: %ux%u, padded %ux%u; driver %s | %s\n",width,height,geometry.fullWidth,geometry.fullHeight,
+      context.capabilities().driverName.c_str(),context.capabilities().driverInfo.c_str());
   nr::Graph graph(context, model, kernels, geometry, {.fusedBlocks = fusedBlocksEnabled()});
   nr::Activation* features = graph.allocate("input features", geometry.fullWidth * geometry.fullHeight, 16, nr::Format::F32);
+  context.fillZero(features->buffer);
   VkCommandBuffer commands = context.beginCommands();
   graph.record(commands, *features);
   context.endAndSubmit(commands, true);
@@ -657,19 +826,23 @@ namespace {
 int runProfile(int argc, char** argv) {
   std::string modelDir = argValue(argc, argv, "--model");
   std::string shaderDir = argValue(argc, argv, "--shaders", executableDirectory(argv[0]) + "/shaders");
-  uint32_t width = (uint32_t)atoi(argValue(argc, argv, "--width", "768").c_str());
-  uint32_t height = (uint32_t)atoi(argValue(argc, argv, "--height", "768").c_str());
-  if (modelDir.empty()) { fprintf(stderr, "usage: dlss5vk profile --model <dir> [--width W --height H]\n"); return 2; }
+  uint32_t width = uint32_t(integerArgument(argc,argv,"--width",1707,1,32768));
+  uint32_t height = uint32_t(integerArgument(argc,argv,"--height",960,1,32768));
+  const int frames = integerArgument(argc,argv,"--frames",30,1);
+  const int warmup = integerArgument(argc,argv,"--warmup",5);
+  if (modelDir.empty()) { fprintf(stderr, "usage: dlss5vk profile --model <dir> [--width W --height H --warmup N --frames N --json path]\n"); return 2; }
   if (!getenv("DLSS5VK_CHAIN")) nr::Kernels::setChainEnabled(false);   // per-dispatch timings need the barriers
   vk::Context context;
   printf("maxComputeSharedMemorySize %u bytes\n", context.maxComputeSharedMemory());
   nr::Model model(context, modelDir, !hasFlag(argc, argv, "--no-verify"));
   nr::Kernels kernels(context, shaderDir);
   kernels.setSiluTable(ref::siluTable());
-  // Barrier/dispatch overhead: 400 trivial dispatches each followed by a full compute barrier.
+  double overheadProbe = 0;
+  // Small-buffer overhead is separate from all whole-model timing samples.
   {
     nr::Activation tiny; tiny.format = nr::Format::F16; tiny.rows = 64; tiny.channels = 16; tiny.allocRows = 64;
     tiny.buffer = context.createBuffer(64 * 16 * 2, false, "tiny");
+    context.fillZero(tiny.buffer);
     nr::Activation tinyOut = tiny; tinyOut.format = nr::Format::E4;
     tinyOut.buffer = context.createBuffer(64 * 16, false, "tiny out");
     VkQueryPool pool = context.createTimestampPool(2);
@@ -680,7 +853,8 @@ int runProfile(int argc, char** argv) {
     vkCmdWriteTimestamp(commands, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, pool, 1);
     context.endAndSubmit(commands, true);
     std::vector<double> stamps = context.readTimestampsMs(pool, 2);
-    printf("400 trivial dispatches + barriers: %.3f ms (%.2f us each)\n", stamps[1] - stamps[0], (stamps[1] - stamps[0]) * 2.5);
+    overheadProbe = stamps[1] - stamps[0];
+    printf("400 trivial dispatches + barriers: %.3f ms (%.2f us each)\n", overheadProbe, overheadProbe * 2.5);
     vkDestroyQueryPool(context.device(), pool, nullptr);
     context.destroyBuffer(tiny.buffer); context.destroyBuffer(tinyOut.buffer);
     context.resetDescriptorPool();
@@ -692,7 +866,8 @@ int runProfile(int argc, char** argv) {
   std::vector<float> synthetic((size_t)fullRows * 16);
   for (size_t i = 0; i < synthetic.size(); ++i) synthetic[i] = num::roundF16(std::sin(i * 0.0017f) * 0.125f);
   context.upload(features->buffer, synthetic.data(), synthetic.size() * 4);
-  {
+  for (int frame = 0; frame < warmup; ++frame) {
+    context.resetDescriptorPool();
     VkCommandBuffer commands = context.beginCommands();
     graph.record(commands, *features);
     context.endAndSubmit(commands, true);
@@ -701,26 +876,39 @@ int runProfile(int argc, char** argv) {
   std::map<std::string, double> byLabel;
   std::map<std::string, double> byStage;
   double total = 0;
-  // Other programs share the GPU: take the per-dispatch minimum over several frames.
-  const int frames = atoi(argValue(argc, argv, "--frames", "7").c_str());
+  // Preserve chronological measured frames; independent minima are secondary diagnostics.
   std::vector<nr::Kernels::ProfileEntry> best;
+  ProfileFrames allFrames;
+  std::vector<double> samples;
+  VkQueryPool frameQueries = context.createTimestampPool(2);
   for (int frame = 0; frame < frames; ++frame) {
     context.resetDescriptorPool();
     VkCommandBuffer commands = context.beginCommands();
+    vkCmdResetQueryPool(commands,frameQueries,0,2);
     kernels.beginProfile(commands, 4096);
+    vkCmdWriteTimestamp(commands,VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,frameQueries,0);
     graph.record(commands, *features);
+    vkCmdWriteTimestamp(commands,VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,frameQueries,1);
     context.endAndSubmit(commands, true);
     checkChainTimeouts(kernels);
     std::vector<nr::Kernels::ProfileEntry> entries = kernels.endProfile();
+    const auto timestamps = context.readTimestampsMs(frameQueries,2);
+    samples.push_back(timestamps[1] - timestamps[0]);
+    printf("frame %d: %.3f ms GPU (profile-instrumented, %zu dispatches)\n",frame,samples.back(),entries.size());
     if (best.empty()) best = entries;
+    if (entries.size() != best.size()) throw std::runtime_error("profile dispatch count changed between frames");
     for (size_t i = 0; i < entries.size() && i < best.size(); ++i)
+      if (!sameDispatch(best[i],entries[i])) throw std::runtime_error("profile dispatch metadata changed between frames");
+    for (size_t i = 0; i < entries.size(); ++i)
       best[i].milliseconds = std::min(best[i].milliseconds, entries[i].milliseconds);
+    allFrames.push_back(std::move(entries));
   }
   const std::string stageFilter = argValue(argc, argv, "--stage", "");
   for (size_t index = 0; index < best.size(); ++index) {
     const auto& entry = best[index];
     size_t bar = entry.label.find(" | ");
-    std::string stage = entry.label.substr(0, bar), kernel = entry.label.substr(bar + 3);
+    std::string stage = bar == std::string::npos ? "unclassified" : entry.label.substr(0,bar);
+    std::string kernel = bar == std::string::npos ? entry.label : entry.label.substr(bar + 3);
     if (!stageFilter.empty() && stage.find(stageFilter) != std::string::npos)
       printf("  %8.2f us  [%3zu] %s | %s\n", entry.milliseconds * 1000.0, index, stage.c_str(), kernel.c_str());
     byLabel[kernel] += entry.milliseconds;
@@ -729,19 +917,25 @@ int runProfile(int argc, char** argv) {
   }
   std::vector<std::pair<std::string, double>> sorted(byLabel.begin(), byLabel.end());
   std::sort(sorted.begin(), sorted.end(), [](auto& a, auto& b) { return a.second > b.second; });
-  printf("total %.3f ms (sum of per-dispatch spans, %ux%u)\n\nby kernel:\n", total, width, height);
-  for (size_t i = 0; i < sorted.size() && i < 40; ++i)
+  printSamples(samples,width,height,geometry);
+  printf("independently minimized dispatch sum %.3f ms (not a measured frame, %ux%u)\n\nby kernel (all entries):\n",total,width,height);
+  for (size_t i = 0; i < sorted.size(); ++i)
     printf("  %8.3f ms  %5.1f%%  %s\n", sorted[i].second, 100 * sorted[i].second / total, sorted[i].first.c_str());
   std::vector<std::pair<std::string, double>> stages(byStage.begin(), byStage.end());
   std::sort(stages.begin(), stages.end(), [](auto& a, auto& b) { return a.second > b.second; });
   printf("\nby stage:\n");
   for (size_t i = 0; i < stages.size(); ++i)
     printf("  %8.3f ms  %5.1f%%  %s\n", stages[i].second, 100 * stages[i].second / total, stages[i].first.c_str());
+  writeBenchmarkJson(argValue(argc,argv,"--json"),"profile",context,model,kernels,geometry,width,height,warmup,samples,allFrames,overheadProbe);
+  vkDestroyQueryPool(context.device(),frameQueries,nullptr);
   return 0;
 }
 }  // namespace
 
 int runCommand(int argc, char** argv) {
+#if defined(NR_AMD_KERNEL_PRESERVATION)
+  if (argc >= 2 && !strcmp(argv[1],"amdcheck")) return runAmdKernelPreservation(argc,argv);
+#endif
 #if defined(NR_COMPOSITE_VALIDATION)
   if (argc >= 2 && !strcmp(argv[1], "compositecheck")) return runCompositeValidation(argc, argv);
 #endif
@@ -764,13 +958,16 @@ int runCommand(int argc, char** argv) {
   if (argc >= 2 && !strcmp(argv[1], "profile")) return runProfile(argc, argv);
   if (argc >= 2 && !strcmp(argv[1], "parity")) return runParity(argc, argv);
   if (argc >= 2 && !strcmp(argv[1], "bench")) return runBench(argc, argv);
-  fprintf(stderr, "usage: dlss5vk info|selftest|modelcheck|compositecheck|parity|verify|bench|profile|shaderinfo [--backend auto|amd|nvidia|reference] ...\n");
+  fprintf(stderr, "usage: dlss5vk info|selftest|amdcheck|modelcheck|compositecheck|parity|verify|bench|profile|shaderinfo [--backend auto|amd|nvidia|reference] ...\n"
+      "AMD: --amd-kernels auto|baseline|optimized --amd-arithmetic k16|k32|final --amd-tile-n 16|32|64 --amd-stage-k 16|32|64\n"
+      "     --amd-fusion 0|1 --amd-expert-fusion 0|1 --amd-block-fusion 0|1 --amd-hardware-publication 0|1 --amd-tuning path\n");
   return 2;
 }
 
 int main(int argc, char** argv) {
   int code = 1;
   try {
+    configureAmdArguments(argc,argv);
     const std::string backend = argValue(argc, argv, "--backend");
     if (!backend.empty()) {
       vk::parseBackend(backend);

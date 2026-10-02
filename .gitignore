@@ -8,6 +8,9 @@
 !/tools/compare_images.py
 !/tools/analyze_runtime.py
 !/tools/analyze_presentmon.py
+!/tools/tune_amd.py
+!/tools/qualify_amd_model.py
+!/tools/compare_amd_scenes.py
 /build/
 /fixtures/
 /models/

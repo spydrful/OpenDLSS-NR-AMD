@@ -1,0 +1,96 @@
+{
+  "format": "OpenNR-amd-publication-rounding-evidence-v1",
+  "observed_date": "2026-10-02",
+  "scope": "CPU-only offline comparison of current GEMM SPIR-V, plus a previously recorded GPU-output scalar witness",
+  "target": "gfx1201",
+  "gpu_executed_for_this_analysis": false,
+  "installed_driver_isa_inspected": false,
+  "raw_isa_elf_spirv_output_buffers_distributed": false,
+  "input_spirv": {
+    "local_path": "build/shaders/amd_gemm_optimized.spv",
+    "bytes": 21060,
+    "sha256": "8673dfb3bb0f30d987c44e4d77df3850bcf44818c5b095e0065a1378e6d6fc23"
+  },
+  "tool": {
+    "release": "Radeon GPU Analyzer 2.14.2",
+    "mode": "Portable bundled LLPC offline; auto-reflected descriptors",
+    "compiler_arguments": ["--gfxip=12.0.1", "--subgroup-size=32", "--native-wave-size=32", "--auto-layout-desc", "--include-llvm-ir"],
+    "identity_manifest": {"local_path": "scripts/rga_tool_manifest.json", "bytes": 1571, "sha256": "50d6428e3c997068424b664493bad8be73338e5d459a55123758747c5dc1c265"},
+    "rga": {"local_path": "tools/rga/2.14.2/rga.exe", "bytes": 2917128, "sha256": "a3074dfbd9558da11ec3d973192b855b7f73e4bfe70b8d7734c20d13a79a2bc5"},
+    "compiler": {"local_path": "tools/rga/2.14.2/utils/amdllpc.exe", "bytes": 71119632, "sha256": "6a57e7642d9804b54562ea47f562a0f6e0e7c74ccfc62cd04b1759c026b0e51b"}
+  },
+  "common_specialization": {"0": 32, "2": 0, "3": 0, "10": 16, "11": 16, "12": 16},
+  "specialization_meaning": {"0": "K", "2": "flags", "3": "partition", "10": "publication interval", "11": "tile N", "12": "staged K", "13": "hardware half publication"},
+  "hardware_run": {
+    "specialization_13": true,
+    "report": {"local_path": "build/performance/rga/publication-k32-flags0-hw-20261002/analysis.json", "bytes": 6000, "sha256": "61dd8a5fb40167f9b65e10d4dc0168aae99f6febf70538b51bcf27d727972471"},
+    "specialized_spirv_sha256": "04d4c16efb073792aed84f70a02b9737581abc8e158ca4bdeca44c51f8a0bf12",
+    "elf_sha256": "9dc5e6097cefb88781b8cdf3c9b6ad875ff3795c9a14a5c4618bcd0aa5159dda",
+    "binary_isa": {"local_path": "build/performance/rga/publication-k32-flags0-hw-20261002/gfx1201_rga-binary_comp.isa", "bytes": 31788, "sha256": "913d14818b575b92db385c25d4e71eb8b09578fa2e88de239b474f54016392e8"},
+    "compiler_disassembly": {"local_path": "build/performance/rga/publication-k32-flags0-hw-20261002/wave32.isa", "bytes": 151859, "sha256": "99c2ce247ba6c344dcee12e79cb64c5c5a8a3bf5d0d2eec3dd6da7ab4d4d13f1"},
+    "static_instructions": {
+      "fp8_wmma_count": 2,
+      "fp8_wmma_binary_isa_lines": [200, 308],
+      "packed_conversion_opcode": "v_cvt_pk_rtz_f16_f32_e64",
+      "packed_conversion_count": 16,
+      "first_packed_conversion_binary_isa_line": 203,
+      "first_packed_conversion_address_hex": "0x3E8",
+      "second_group_first_packed_conversion_binary_isa_line": 313,
+      "conversion_location": "Eight packed RTZ conversions after each K16 WMMA group, then half-to-F32 conversion before reuse",
+      "runtime_execution_count": false
+    },
+    "resources": {"wavefront_size": 32, "workgroup": [128, 1, 1], "lds_bytes": 5632, "declared_lds_bytes": 5376, "compiler_added_lds_bytes": 256, "vgprs": 22, "sgprs": 27, "scratch_bytes": 0, "vgpr_spills": 0, "sgpr_spills": 0}
+  },
+  "software_run": {
+    "specialization_13": false,
+    "report": {"local_path": "build/performance/rga/publication-k32-flags0-sw-20261002/analysis.json", "bytes": 6001, "sha256": "b15300965b2872f52df775b10c4703d7d232c49fb0541b721a9e7c2a90f60290"},
+    "specialized_spirv_sha256": "8bf266431e7ee24edea0a9a3137075b1fb25348d8ea5ef27031900c480db8d85",
+    "elf_sha256": "a6d5d978abf8694f2950550af9476ceda25db500a1fc3a45f28eefe2ec830a1d",
+    "binary_isa": {"local_path": "build/performance/rga/publication-k32-flags0-sw-20261002/gfx1201_rga-binary_comp.isa", "bytes": 90490, "sha256": "822eba117809571e600e8b27da764fe2572094e0ce04b3a3c3761919fc12c723"},
+    "compiler_disassembly": {"local_path": "build/performance/rga/publication-k32-flags0-sw-20261002/wave32.isa", "bytes": 328798, "sha256": "f6c4f19bb7cfa2e7942554726d6296d79a27caaeac4472a84db04af2d62f973e"},
+    "static_instructions": {
+      "fp8_wmma_count": 2,
+      "packed_rtz_conversion_count": 0,
+      "rne_normal_rounding_binary_isa_lines": {"retained_lsb_extraction": 214, "bias_plus_lsb_addition": 216, "low_mantissa_bit_mask": 217},
+      "rounding_location": "Integer RNE tie-handling sequence follows WMMA; subnormal and special-value branches remain",
+      "runtime_execution_count": false
+    },
+    "resources": {"wavefront_size": 32, "workgroup": [128, 1, 1], "lds_bytes": 5632, "declared_lds_bytes": 5376, "compiler_added_lds_bytes": 256, "vgprs": 22, "sgprs": 27, "scratch_bytes": 0, "vgpr_spills": 0, "sgpr_spills": 0}
+  },
+  "previous_gpu_witness": {
+    "device_id": "1002:7550",
+    "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+    "operator": "gemm-K32-N16-R1-v1",
+    "output_element_type": "IEEE binary16 little-endian",
+    "half_index_zero_based": 18,
+    "baseline_half_bits_hex": "BF60",
+    "candidate_half_bits_hex": "BF61",
+    "baseline_value": -1.84375,
+    "candidate_value": -1.8447265625,
+    "both_normal_finite": true,
+    "legacy_baseline_historical_not_legal_pipeline_qualification": true,
+    "source_manifest": {"local_path": "build/performance/optimized-hw/operators.json", "bytes": 289822, "sha256": "dd34cf514a3bdd960b7283a5afe29e7b8399193284c76784854b8c3d533e466d"},
+    "baseline_output": {"local_path": "build/performance/optimized-hw/operators/baseline/gemm-K32-N16-R1-v1.bin", "bytes": 6144, "sha256": "5f365f35cc9034cf86498cea3bceaf48fc76bb9344e8f5f849a63a0ca0557760"},
+    "candidate_output": {"local_path": "build/performance/optimized-hw/operators/candidate/gemm-K32-N16-R1-v1.bin", "bytes": 6144, "sha256": "3c685ac6f027701b09dd3afd69e3c2619efbd0bafca1b003c8106db58698a457"},
+    "full_suite": {"operators": 657, "paired_checks": 858, "mismatched_checks": 780, "validation_errors_reported": 0},
+    "scope_note": "This existing residual variant witness is not the flags-zero offline specialization; it independently demonstrates normal-value publication differences. No new GPU test was run."
+  },
+  "official_instruction_semantics": {
+    "source_url": "https://www.amd.com/content/dam/amd/en/documents/radeon-tech-docs/instruction-set-architectures/rdna4-instruction-set-architecture.pdf",
+    "section": "16.7 VOP2 Instructions, V_CVT_PK_RTZ_F16_F32",
+    "rule": "The packed F32-to-F16 instruction uses round-toward-zero and ignores the current rounding mode.",
+    "scalar_alternative": "V_CVT_F16_F32 respects the current rounding mode.",
+    "rte_mode_only_repairs_existing_packed_spelling": false
+  },
+  "assessment": {
+    "offline_arithmetic_mismatch_observed": true,
+    "explanation": "The software contract publishes RNE half values after every K16 group; the observed packed hardware lowering publishes RTZ half values instead. Changing an intermediate accumulator changes subsequent WMMA inputs, so a final result need not move toward zero.",
+    "installed_driver_cause": "Consistent inference from offline lowering and existing failures; the rejected installed-driver variant's native ISA has not been inspected.",
+    "future_probe": "An explicit RTE-controlled scalar F32-to-F16-to-F32 conversion, or packing already correctly rounded halves, is worth a separate probe. Verify actual lowering and supported float controls before strict normal/tie/subnormal/signed-zero/Inf/NaN and complete-network qualification.",
+    "hardware_publication_default": false,
+    "hardware_publication_preservation_qualified": false,
+    "hardware_publication_default_eligible": false,
+    "performance_improvement_claim": false,
+    "source_to_spirv_reproducibility_proved": false
+  }
+}

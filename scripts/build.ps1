@@ -16,6 +16,8 @@ $modelValidationSource = Join-Path $root 'tests\model_validation.cpp'
 if (Test-Path $modelValidationSource) { $sources += ' "' + $modelValidationSource + '"'; $testDefine += ' /DNR_MODEL_VALIDATION' }
 $compositeValidationSource = Join-Path $root 'tests\composite_validation.cpp'
 if (Test-Path $compositeValidationSource) { $sources += ' "' + $compositeValidationSource + '"'; $testDefine += ' /DNR_COMPOSITE_VALIDATION' }
+$amdPreservationSource = Join-Path $root 'tests\amd_kernel_preservation.cpp'
+if (Test-Path $amdPreservationSource) { $sources += ' "' + $amdPreservationSource + '"'; $testDefine += ' /DNR_AMD_KERNEL_PRESERVATION' }
 $volk = '"' + (Join-Path $root "tools\volk\volk.c") + '"'
 $include = '/I"' + (Join-Path $root "tools\Vulkan-Headers\include") + '" /I"' + (Join-Path $root "tools\volk") + '" /I"' + (Join-Path $root "src") + '"'
 $opt = if ($Debug) { "/Od /Zi" } else { "/O2" }

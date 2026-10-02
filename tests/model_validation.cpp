@@ -141,8 +141,8 @@ struct Run {
   uint32_t allocations = 0, dispatches = 0;
 };
 Run execute(vk::Context& context, nr::Model& model, nr::Kernels& kernels,
-            const nr::Geometry& geometry, const nr::Activation& input, bool capture, int frames, bool intermediates = false) {
-  nr::Graph graph(context, model, kernels, geometry, {.captureBoundaries = capture, .captureIntermediates = intermediates, .fusedBlocks = false});
+            const nr::Geometry& geometry, const nr::Activation& input, bool capture, int frames, bool intermediates = false, bool headOnly = false) {
+  nr::Graph graph(context, model, kernels, geometry, {.captureBoundaries = capture && !headOnly, .captureIntermediates = intermediates, .fusedBlocks = false});
   Run result; VkQueryPool timestamps = context.createTimestampPool(2);
   for (int frame = -1; frame < frames; ++frame) {
     context.resetDescriptorPool(); auto commands = context.beginCommands();
@@ -161,7 +161,7 @@ Run execute(vk::Context& context, nr::Model& model, nr::Kernels& kernels,
   }
   vkDestroyQueryPool(context.device(), timestamps, nullptr);
   result.activationBytes = graph.activationBytes(); result.allocations = graph.activationCount();
-  if (capture) for (const auto& name : nr::Graph::referenceBoundaryNames()) {
+  if (capture && !headOnly) for (const auto& name : nr::Graph::referenceBoundaryNames()) {
     const auto found = graph.boundaries().find(name); require(found != graph.boundaries().end(), "missing boundary " + name);
     const auto& activation = *found->second; require(activation.format == nr::Format::E4, "boundary is not E4: " + name);
     uint32_t width = 0, height = 0;
@@ -170,7 +170,7 @@ Run execute(vk::Context& context, nr::Model& model, nr::Kernels& kernels,
     require(width != 0, "unknown boundary geometry " + name);
     result.boundaries[name] = {context.download(activation.buffer, activation.validBytes()), width, height, activation.channels, activation.format};
   }
-  if (intermediates) for (const auto& [name, activation] : graph.boundaries()) if (name.rfind("block-0/", 0) == 0)
+  if (intermediates && !headOnly) for (const auto& [name, activation] : graph.boundaries()) if (name.rfind("block-0/", 0) == 0)
     result.boundaries[name] = {context.download(activation->buffer, activation->validBytes()), geometry.fullWidth, geometry.fullHeight, activation->channels, activation->format};
   return result;
 }
@@ -218,13 +218,15 @@ int runModelValidation(int argc, char** argv) {
   input.buffer = context.createBuffer(input.validBytes(), false, "modelcheck shared features");
   context.upload(input.buffer, inputValues.data(), inputValues.size() * 4);
   const Run production = execute(context, model, kernels, geometry, input, false, frames);
-  const Run captured = execute(context, model, kernels, geometry, input, true, 1, flag(argc, argv, "--intermediates"));
+  const bool headOnly=flag(argc,argv,"--head-only");
+  const Run captured = execute(context, model, kernels, geometry, input, true, 1, flag(argc, argv, "--intermediates"),headOnly);
   context.destroyBuffer(input.buffer);
   require(production.head == captured.head, "capture schedule changed the production head");
   const auto composed = compose(production.head, inputValues, geometry);
   const auto finiteHead = compareF32(production.head, production.head);
   require(finiteHead.nonfinite == 0, "model head contains nonfinite values");
-  write(destination / "head.f32", production.head); write(destination / "composed-rgb.f32", composed);
+  write(destination / "head.f32", production.head); write(destination / "captured-head.f32", captured.head);
+  write(destination / "composed-rgb.f32", composed);
   std::ostringstream blocks, transitions, metricEntries; bool firstBlock = true, firstTransition = true, firstMetric = true;
   uint64_t different = 0; size_t comparedBoundaries = 0;
   auto metric = [&](const std::string& name, const Metrics& stats) {
@@ -233,6 +235,7 @@ int runModelValidation(int argc, char** argv) {
     require(stats.nonfinite == 0, "nonfinite comparison " + name);
   };
   for (const auto& name : nr::Graph::referenceBoundaryNames()) {
+    if(headOnly)break;
     const auto& boundary = captured.boundaries.at(name); const std::string file = name + ".u8";
     write(destination / file, boundary.data);
     std::ostringstream entry;
@@ -251,19 +254,33 @@ int runModelValidation(int argc, char** argv) {
     metric("head", compareF32(production.head, read(referencePath / "head.f32")));
     metric("composed reset RGB", compareF32(composed, read(referencePath / "composed-rgb.f32")));
   }
+  const auto& policy=kernels.amdPolicy();
+  std::ostringstream executedIdentity,executedSelection;
+  executedIdentity << "{\"device_id\":" << quote(kernels.deviceId()) << ",\"driver_id\":" << quote(kernels.driverId())
+    << ",\"model_sha256\":" << quote(model.manifestSha256()) << ",\"shader_sha256\":" << quote(kernels.shaderSha256())
+    << ",\"baseline_shader_sha256\":" << quote(kernels.baselineShaderSha256()) << '}';
+  executedSelection << "{\"kernels\":" << quote(kernels.selectedKernelMode()) << ",\"arithmetic\":" << quote(policy.arithmeticName())
+    << ",\"tile_n\":" << policy.tileN << ",\"stage_k\":" << policy.stageK << ",\"window_queries\":" << policy.windowQueries
+    << ",\"fusion\":" << (policy.fusion?"true":"false") << ",\"expert_fusion\":" << (policy.expertFusion?"true":"false")
+    << ",\"block_fusion\":" << (policy.blockFusion?"true":"false") << ",\"hardware_publication\":" << (policy.hardwarePublication?"true":"false") << '}';
   std::ostringstream manifest;
   manifest << "{\"producer\":" << quote("OpenNR Vulkan " + backend + "; local validation, not NVIDIA capture")
+    << ",\"captureImplementation\":" << quote(flag(argc, argv, "--intermediates") ? "decomposed" : "selected-production")
     << ",\"inputGenerator\":\"fixedpoint-proxy-clt-noise-v1\",\"inputFeaturesSha256\":" << quote(inputDigest)
     << ",\"modelManifestSha256\":" << quote(modelDigest)
+    << ",\"identity\":" << executedIdentity.str() << ",\"selected\":" << executedSelection.str()
     << ",\"sourceDimensions\":[" << width << ',' << height << "],\"fullDimensions\":[" << geometry.fullWidth << ',' << geometry.fullHeight
     << "],\"inputFeatures\":{\"file\":\"features.f32\"},\"checks\":[\"boundaries\",\"head\"],\"blocks\":[" << blocks.str()
     << "],\"transitions\":[" << transitions.str() << "],\"referenceHead\":{\"file\":\"head.f32\"},"
+    << "\"capturedHead\":{\"file\":\"captured-head.f32\",\"productionIdentical\":true},"
     << "\"compositionMetric\":{\"file\":\"composed-rgb.f32\",\"domain\":\"clamped truncated-half display-proxy RGB\",\"style\":0,\"intensity\":1,\"historyStrength\":0}}";
   const auto manifestText = manifest.str(); write(destination / "manifest.json", manifestText.data(), manifestText.size());
   auto times = production.gpuMs; std::sort(times.begin(), times.end());
   std::ostringstream report; report << std::setprecision(12)
     << "{\"format\":\"OpenNR-local-modelcheck-v1\",\"backend\":" << quote(backend)
+    << ",\"captureImplementation\":" << quote(flag(argc, argv, "--intermediates") ? "decomposed" : "selected-production")
     << ",\"device\":" << quote(context.deviceName()) << ",\"nvidiaParityEstablished\":false,\"qualityThresholdApplied\":false,"
+    << "\"identity\":" << executedIdentity.str() << ",\"selected\":" << executedSelection.str() << ','
     << "\"identicalFeaturesSha256\":" << quote(inputDigest) << ",\"modelManifestSha256\":" << quote(modelDigest)
     << ",\"productionRepeatable\":true,\"captureHeadIdentical\":true,\"nonfiniteHead\":0,\"dispatches\":" << production.dispatches
     << ",\"productionActivationBytes\":" << production.activationBytes << ",\"productionAllocations\":" << production.allocations

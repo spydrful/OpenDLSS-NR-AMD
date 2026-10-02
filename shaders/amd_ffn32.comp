@@ -1,0 +1,111 @@
+#version 460
+// C32 FFN fusion using the native loader's K32-major weights. Logical half
+// and E4 publications remain present even though the hidden tensor stays in LDS.
+#extension GL_EXT_float_e4m3 : require
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_KHR_shader_subgroup_basic : require
+#extension GL_GOOGLE_include_directive : require
+#define NR_AMD_HARDWARE_NUMERIC 1
+#define DLSS_E4M3_HW 1
+#include "portable_numeric.glsl"
+
+layout(local_size_x = 128) in;
+layout(constant_id = 10) const uint NR_FFN_ROUND_INTERVAL = 16;
+layout(push_constant) uniform Push {
+  uint rows, inputStride, residualStride, outputStride, scaleHalfOffset, residualIsHalf;
+} pc;
+layout(std430, binding = 0) readonly buffer Input { uint8_t input8[]; };
+layout(std430, binding = 1) readonly buffer Expand { uint8_t w1[]; };
+layout(std430, binding = 2) readonly buffer Contract { uint8_t w2[]; };
+layout(std430, binding = 3) readonly buffer ResidualHalf { float16_t residual16[]; };
+layout(std430, binding = 4) readonly buffer Auxiliary { float16_t aux[]; };
+layout(std430, binding = 5) writeonly buffer Quantized { uint8_t output8[]; };
+layout(std430, binding = 6) readonly buffer ResidualE4 { uint8_t residual8[]; };
+layout(std430, binding = 7) writeonly buffer Raw { float16_t output16[]; };
+
+// 19 KiB declared LDS: no intermediate full-resolution activation publication.
+shared uint8_t ffnInput[64 * 32], ffnHidden[64 * 128], ffnWeight[32 * 32];
+shared float ffnScratch[64 * 32];
+#define FFN_ACC coopmat<float, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>
+#define FFN_A coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseA>
+#define FFN_B coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseB>
+
+void ffnPublish(inout FFN_ACC acc, uint completed, uint total) {
+  if (completed == total || NR_FFN_ROUND_INTERVAL == 16u ||
+      (NR_FFN_ROUND_INTERVAL == 32u && completed % 32u == 0u))
+    for (uint i = 0u; i < acc.length(); ++i) acc[i] = roundF16(acc[i]);
+}
+
+void main() {
+  uint thread = gl_LocalInvocationID.x, subgroup = gl_SubgroupID;
+  uint rowBase = (gl_WorkGroupID.y + gl_WorkGroupID.z * 65535u) * 64u;
+  for (uint i = thread; i < 2048u; i += 128u) {
+    uint row = rowBase + i / 32u;
+    ffnInput[i] = row < pc.rows ? input8[row * pc.inputStride + i % 32u] : uint8_t(0);
+  }
+  barrier();
+
+  // Four N32 tiles of W1. Each matrix operation still consumes a K16 slice.
+  for (uint columnBase = 0u; columnBase < 128u; columnBase += 32u) {
+    for (uint i = thread; i < 1024u; i += 128u)
+      ffnWeight[i] = w1[(columnBase + i / 32u) * 32u + i % 32u];
+    barrier();
+    FFN_ACC acc0 = FFN_ACC(0.0), acc1 = FFN_ACC(0.0);
+    for (uint kb = 0u; kb < 32u; kb += 16u) {
+      FFN_A a; FFN_B b0, b1;
+      coopMatLoad(a, ffnInput, subgroup * 512u + kb, 32u, gl_CooperativeMatrixLayoutRowMajor);
+      coopMatLoad(b0, ffnWeight, kb, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+      coopMatLoad(b1, ffnWeight, 512u + kb, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+      acc0 = coopMatMulAdd(a, b0, acc0); acc1 = coopMatMulAdd(a, b1, acc1);
+      ffnPublish(acc0, kb + 16u, 32u); ffnPublish(acc1, kb + 16u, 32u);
+    }
+    coopMatStore(acc0, ffnScratch, subgroup * 512u, 32u, gl_CooperativeMatrixLayoutRowMajor);
+    coopMatStore(acc1, ffnScratch, subgroup * 512u + 16u, 32u, gl_CooperativeMatrixLayoutRowMajor);
+    barrier();
+    for (uint i = thread; i < 2048u; i += 128u)
+      ffnHidden[(i / 32u) * 128u + columnBase + i % 32u] =
+          uint8_t(nrPublishE4(mpCubicSilu(ffnScratch[i])));
+    barrier();
+  }
+
+  // Seed the contraction with the same rounded, scaled residual as native GEMM.
+  for (uint i = thread; i < 2048u; i += 128u) {
+    uint row = rowBase + i / 32u, column = i % 32u;
+    float initial = 0.0;
+    if (row < pc.rows) {
+      uint index = row * pc.residualStride + column;
+      float value = pc.residualIsHalf != 0u ? float(residual16[index]) : nrDecodeE4(uint(residual8[index]));
+      initial = roundF16(value * float(aux[pc.scaleHalfOffset + column]));
+    }
+    ffnScratch[i] = initial;
+  }
+  barrier();
+  FFN_ACC acc0, acc1;
+  coopMatLoad(acc0, ffnScratch, subgroup * 512u, 32u, gl_CooperativeMatrixLayoutRowMajor);
+  coopMatLoad(acc1, ffnScratch, subgroup * 512u + 16u, 32u, gl_CooperativeMatrixLayoutRowMajor);
+  for (uint stage = 0u; stage < 128u; stage += 32u) {
+    for (uint i = thread; i < 1024u; i += 128u)
+      ffnWeight[i] = w2[((stage / 32u) * 32u + i / 32u) * 32u + i % 32u];
+    barrier();
+    for (uint localK = 0u; localK < 32u; localK += 16u) {
+      FFN_A a; FFN_B b0, b1;
+      coopMatLoad(a, ffnHidden, subgroup * 2048u + stage + localK, 128u, gl_CooperativeMatrixLayoutRowMajor);
+      coopMatLoad(b0, ffnWeight, localK, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+      coopMatLoad(b1, ffnWeight, 512u + localK, 32u, gl_CooperativeMatrixLayoutColumnMajor);
+      acc0 = coopMatMulAdd(a, b0, acc0); acc1 = coopMatMulAdd(a, b1, acc1);
+      ffnPublish(acc0, stage + localK + 16u, 128u); ffnPublish(acc1, stage + localK + 16u, 128u);
+    }
+    barrier();
+  }
+  coopMatStore(acc0, ffnScratch, subgroup * 512u, 32u, gl_CooperativeMatrixLayoutRowMajor);
+  coopMatStore(acc1, ffnScratch, subgroup * 512u + 16u, 32u, gl_CooperativeMatrixLayoutRowMajor);
+  barrier();
+  for (uint i = thread; i < 2048u; i += 128u) {
+    uint row = rowBase + i / 32u;
+    if (row >= pc.rows) continue;
+    uint index = row * pc.outputStride + i % 32u;
+    output16[index] = float16_t(ffnScratch[i]);
+    output8[index] = uint8_t(nrPublishE4(ffnScratch[i]));
+  }
+}

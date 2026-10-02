@@ -3,6 +3,7 @@
 // eight-binding descriptor layout and GPU timestamps. No graphics, no windows.
 #pragma once
 #include <volk.h>
+#include "amd_config.h"
 
 #include <array>
 #include <cstdint>
@@ -123,6 +124,7 @@ class Context {
   bool isAmd() const { return backend() == Backend::AmdFast; }
   bool isReference() const { return backend() == Backend::Reference; }
   const DeviceCapabilities& capabilities() const { return capabilities_; }
+  const amd::Options& amdOptions() const { return amdOptions_; }
   std::string capabilityReport() const;
   const char* arithmeticMode() const;
 
@@ -176,6 +178,7 @@ class Context {
   uint32_t maxComputeSharedMemory() const { return maxSharedMemory_; }
 
  private:
+  amd::Options amdOptions_;
   uint32_t findMemoryType(uint32_t typeBits, VkMemoryPropertyFlags required);
   VkInstance instance_ = VK_NULL_HANDLE;
   VkDebugUtilsMessengerEXT messenger_ = VK_NULL_HANDLE;

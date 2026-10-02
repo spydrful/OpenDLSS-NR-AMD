@@ -1,10 +1,20 @@
 # Install the RX 9070 XT alpha
 
-This guide installs the prebuilt **v0.1.0-alpha.1** package in Cyberpunk 2077 on
-Windows. This is an experimental development release: at 1440p output with FSR
-Quality, enabled NR measured **4.56 / 4.56 / 4.57 FPS** and about **213 ms for NR
-plus its bridge**. Performance and game-quality gates remain unmet. NR ships
-**disabled**; enable it deliberately for testing.
+This guide installs the prebuilt **v0.1.0-alpha.2** package in Cyberpunk 2077 on
+Windows. This is an experimental development release. The latest idle-GPU
+network benchmark reduces the median from **141.343 ms to 122.331 ms** against
+the legal Q64 compact anchor (**13.45%**) at 1707 x 960 input (1728 x 960 padded);
+that is not game FPS or NR-plus-bridge
+timing. Three NR-off game benchmarks report 99.58 / 99.32 / 101.74 FPS; the first
+ordinary NR-on benchmark reports **7.51 FPS**. Further NR-on passes, ten-minute
+active gameplay and broad image/temporal review remain pending. Performance and
+game-quality gates remain unmet. NR ships **disabled**, using K16 publication arithmetic;
+enable it deliberately for testing.
+
+Game measurements used earlier application binaries with the same selected Q32
+shaders; their identities are retained in the performance record. They are not
+fresh game benchmarks of the final package. The earlier 206.167 → 120.271 ms
+network comparison used over-limit legacy attention and remains historical.
 
 ## Requirements
 
@@ -23,8 +33,8 @@ plus its bridge**. Performance and game-quality gates remain unmet. NR ships
 
 ## Download and check the package
 
-1. Open the [v0.1.0-alpha.1 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.1).
-   Download **OpenNR-AMD-v0.1.0-alpha.1-rx9070xt.zip** and its **.zip.sha256** asset.
+1. Open the [v0.1.0-alpha.2 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.2).
+   Download **OpenNR-AMD-v0.1.0-alpha.2-rx9070xt.zip** and its **.zip.sha256** asset.
    GitHub's automatic **Source code** archives do not contain the built DLLs.
 2. Compare the ZIP's SHA-256 with the sidecar, then extract it to a writable
    folder, for example `D:\OpenNR-AMD-alpha`. Keep this package for removal.
@@ -34,9 +44,9 @@ plus its bridge**. Performance and game-quality gates remain unmet. NR ships
 For example, in the download folder:
 
 ```powershell
-Get-FileHash './OpenNR-AMD-v0.1.0-alpha.1-rx9070xt.zip' -Algorithm SHA256
-Get-Content './OpenNR-AMD-v0.1.0-alpha.1-rx9070xt.zip.sha256'
-Expand-Archive './OpenNR-AMD-v0.1.0-alpha.1-rx9070xt.zip' -DestinationPath 'D:\OpenNR-AMD-alpha'
+Get-FileHash './OpenNR-AMD-v0.1.0-alpha.2-rx9070xt.zip' -Algorithm SHA256
+Get-Content './OpenNR-AMD-v0.1.0-alpha.2-rx9070xt.zip.sha256'
+Expand-Archive './OpenNR-AMD-v0.1.0-alpha.2-rx9070xt.zip' -DestinationPath 'D:\OpenNR-AMD-alpha'
 ```
 
 The installer also validates the package's managed payload hashes. Do not edit
@@ -95,6 +105,12 @@ Launch Cyberpunk with FSR Quality enabled. NR is initially **off**. Press
 The configured `NrBackend=mochizuki` is the host's compatibility name for loading
 this package's `OpenNrRuntime.dll`; leave it as packaged.
 
+The default INI also sets `[Spoofing] StreamlineSpoofing=false`. NVIDIA Streamline
+capability spoofing is unnecessary for this FSR-based AMD integration. A startup
+crash with NR disabled was traced to the unchanged host's cached Streamline
+capability pointer, before the neural runtime loaded. Keep this setting disabled
+in custom INI files; the host otherwise defaults it to enabled.
+
 The OpenDLSS-NR AMD panel exposes **Effect strength**, **Colour strength**,
 **Highlight guard**, **Style**, **Use motion and history**, **History strength**,
 **Status**, **Render input** and **NR + bridge** timings. Defaults run one
@@ -103,9 +119,112 @@ enabled. The initial target input is 1707 x 960, padded to 1728 x 960.
 
 Use **Enable NR** to turn the network off and return to ordinary FSR.
 Setting effect strength to zero still runs inference. The displayed NR timing
-is not game FPS. Broad motion/face/ghosting review and corrected game capture
-validation remain pending; scene-linear precision failures are also documented
-in the [validation record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.1/docs/rx9070xt-validation.md).
+is not game FPS. Eight genuine game frames pass the numerical replay thresholds;
+broad scene coverage and motion/face/ghosting review remain pending. Unresolved
+scene-linear highlight failures are documented in
+the [validation record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.2/docs/rx9070xt-validation.md).
+The [performance implementation record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.2/docs/amd-performance-implementation.md)
+documents the alpha 2 kernel measurements and preservation checks.
+
+## Diagnostic kernel selection and measurements
+
+The runtime defaults to `auto` kernel selection and `k16` arithmetic. Auto accepts
+qualified preserving kernels tied to the exact GPU, driver, model and shader
+identities. A packaged `open-nr/shaders/amd-tuning.json`, when present, also binds
+the qualified session geometry. Invalid or stale tuning is rejected; a qualified
+record must also bind its full measured policy, including every fusion and
+publication flag. Rejection retains a qualified fallback when available.
+If no qualified path fits the device's
+shared-memory limit, inference is refused and the game host bypasses NR.
+
+The diagnostic CLI exposes these controls:
+
+| Selector | Values | Purpose |
+| --- | --- | --- |
+| `--amd-kernels` | `auto`, `baseline`, `optimized` | Qualified selection, explicit legacy request, or forced candidate |
+| `--amd-arithmetic` | `k16`, `k32`, `final` | K16 is the alpha default; K32/final alter publication order |
+| `--amd-window-queries` | `16`, `32`, `64` | Queries per compact attention workgroup |
+| `--amd-tile-n`, `--amd-stage-k` | `16`, `32`, `64` | GEMM output tile and staged K width |
+| `--amd-fusion`, `--amd-expert-fusion`, `--amd-block-fusion`, `--amd-hardware-publication` | `0`, `1` | Experimental overrides; default `0` |
+| `--amd-tuning` | JSON path | Explicit qualified tuning file |
+
+The corresponding runtime environment variables are `DLSS5VK_AMD_KERNELS`,
+`DLSS5VK_AMD_ARITHMETIC`, `DLSS5VK_AMD_WINDOW_QUERIES`, `DLSS5VK_AMD_TILE_N`,
+`DLSS5VK_AMD_STAGE_K`, `DLSS5VK_AMD_FUSION`, `DLSS5VK_AMD_EXPERT_FUSION`,
+`DLSS5VK_AMD_BLOCK_FUSION`, `DLSS5VK_AMD_HARDWARE_PUBLICATION` and
+`DLSS5VK_AMD_TUNING`. Keep the packaged defaults for game testing. Forced
+diagnostic choices bypass auto qualification; `baseline` requires K16, N16/K16,
+64 queries and all overrides off. On RX 9070 XT the resource guard rejects it:
+legacy attention requires 34,816 bytes and the device exposes 32,768 bytes.
+The original shader and historical evidence remain retained, with no override.
+Use the explicitly labeled `compact64` comparison anchor for new measurements:
+its baseline role runs optimized K16/N16/stage16/Q64 with every fusion and
+hardware-publication override off. This is distinct from the historical legacy
+baseline. It is a diagnostic-tool selection, not a runtime environment variable.
+
+From the extracted package, this collects three interleaved baseline/candidate
+network pairs into a new output directory:
+
+```powershell
+./scripts/benchmark_amd.ps1 -Executable './tools/dlss5vk.exe' `
+  -ShaderDirectory './payload/open-nr/shaders' -ModelDirectory "$game\open-nr\model" `
+  -OutputDirectory './diagnostics/network-q32' -Kernels optimized -Arithmetic k16 `
+  -WindowQueries 32 -ComparisonAnchor compact64 `
+  -Width 1707 -Height 960 -Warmup 5 -Frames 30 -Pairs 3
+```
+
+Python 3.10+ is required for these optional tools; NumPy is needed for SSIM.
+Keep ordinary `bench` runs separate from `-Mode profile`: profiles instrument
+each dispatch and report shader/specialization/shape metadata, GPU timestamp
+samples and instrumentation overhead. Captures and profiles are excluded from
+ordinary timing evidence. Model-only throughput must not be reported as game FPS.
+
+`tools/qualify_amd_model.py` verifies actual binary modelcheck artifacts.
+`tools/tune_amd.py` assesses paired timing records, exact suites and sequence
+quality before generating tuning JSON. Synthetic model preservation does not
+establish game quality or original NVIDIA parity. Follow the performance record
+for building and freezing the current shaders, `amdcheck`, modelcheck,
+qualification and tuning commands. New RX 9070 XT comparisons pass
+`--comparison-anchor compact64` to the strict qualification and tuning tools;
+actual selected policies and execution identities must match throughout.
+
+`scripts/analyze_amd_shaders.ps1 -FetchTool` optionally downloads the pinned
+portable Radeon GPU Analyzer compiler using `scripts/rga_tool_manifest.json`.
+It runs CPU-only wave32 ISA/resource analysis without installing a driver or
+layer. Its offline compiler results are separate from installed-driver resource
+statistics and GPU validation. The RGA binaries are not included in this package.
+
+## Bounded diagnostic captures
+
+With NR enabled, create `<game>/open-nr/capture.flag` containing a count from
+**1 through 120** to request that many NR submissions. An empty file requests
+one frame. The request latches once; changing its contents while it remains
+present does not start another sequence. To stop or rearm, remove the flag and
+allow a subsequent NR submission to observe its absence before creating it again.
+
+```powershell
+Set-Content -LiteralPath "$game\open-nr\capture.flag" -Value '8' -Encoding ascii
+```
+
+After the request completes, remove the flag before another request:
+
+```powershell
+Remove-Item -LiteralPath "$game\open-nr\capture.flag"
+```
+
+Completed frames are atomically published under
+`open-nr/captures/sequence-*/frame-*`. Each includes packed source, features,
+previous history, head, scene-linear output, controls and a hash manifest with
+sequence/frame/submission identities, reset ancestry, exposure, jitter, model,
+shader and kernel policy. Inspect `open-nr/runtime.log` for completion or errors.
+Capture readbacks cost memory, disk space and GPU time; captured jobs are excluded
+from the ordinary runtime timing trace. A failed allocation or retired frame can
+leave the requested sequence incomplete, which replay rejects.
+
+`tools/tune_amd.py replay --capture-sequence <sequence-directory>` can compare
+identical-history and independently evolved-history runs; its default history
+mode is `both`. Use the complete commands in the performance record. Capture
+files remain local and are excluded from packages and repository commits.
 
 ## Remove or upgrade
 
@@ -141,7 +260,7 @@ or delete original backups to bypass the check.
 
 | Symptom | Next step |
 | --- | --- |
-| Very low FPS with NR enabled | Expected in this alpha at the target resolution; clear **Enable NR**. |
+| Very low FPS with NR enabled | Clear **Enable NR**. The first ordinary alpha 2 NR-on benchmark measured 7.51 FPS; the gameplay performance budget remains unmet. |
 | Missing `MSVCP140` / `VCRUNTIME140` dependency | Install the current Microsoft Visual C++ v14 **x64** Redistributable linked above. |
 | Model import rejected | Check the complete DLL hash above and choose a new destination; unsupported containers are rejected. |
 | No Insert overlay | Confirm installation targeted the folder containing `Cyberpunk2077.exe`; inspect existing proxy/mod conflicts and the host log. |

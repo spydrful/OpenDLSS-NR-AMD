@@ -1,0 +1,195 @@
+{
+  "format": "OpenNR-amd-performance-v1",
+  "comparison_anchor": "compact64",
+  "source_manifest": "D:\\amd\\build\\performance\\legal-compact64-20261002\\bench\\interleaved.json",
+  "source_sha256": "fc40642b481aaf3897dbac6495305672af6c2a7236f3a5c5cd24a4de2574dc15",
+  "source_records": [
+    {
+      "path": "pair-01-baseline.json",
+      "sha256": "7e96af8807989264fb8afc48df931a6e0050136c1f54ee1039406b869f1a4abd"
+    },
+    {
+      "path": "pair-01-candidate.json",
+      "sha256": "f25ade0e38d6b24ca585b7af013418014d8e47dc45fc3b95180c501f1b338bd7"
+    },
+    {
+      "path": "pair-02-baseline.json",
+      "sha256": "cb8ee42f0db8784f96f7d36889866ac6cfbac2d30b890e244a2def8a8c701558"
+    },
+    {
+      "path": "pair-02-candidate.json",
+      "sha256": "f82850f5628d6e6b2065ee4f0fe8100c2789a83ed1b30f2157f7c730d45e9470"
+    },
+    {
+      "path": "pair-03-baseline.json",
+      "sha256": "04a7f11d0b7aa8160946688754323d9bc862151988ebc9facd4567bcbb6ff597"
+    },
+    {
+      "path": "pair-03-candidate.json",
+      "sha256": "4c8ddc254a89b370ea6d6b6bf8d984b2d542ef5e669270869ef7df8209bcd4f5"
+    }
+  ],
+  "command": "bench",
+  "instrumented": false,
+  "pairs": 3,
+  "geometry": {
+    "width": 1707,
+    "height": 960,
+    "padded_width": 1728,
+    "padded_height": 960
+  },
+  "identities": {
+    "baseline": {
+      "device_id": "1002:7550",
+      "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+      "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+      "shader_sha256": "e71855a4554be2cfc62a36faa4de7522b052a04a5148a54c46ab45989b188621",
+      "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+      "executable_sha256": "5812da825825f0b50df964509e627d9773072709e3838e22c2935dbddb618778"
+    },
+    "candidate": {
+      "device_id": "1002:7550",
+      "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+      "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+      "shader_sha256": "31a0295666cde46ad5d15d190e3ceaced19421531b06dcb7a5282c04999b9348",
+      "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+      "executable_sha256": "5812da825825f0b50df964509e627d9773072709e3838e22c2935dbddb618778"
+    }
+  },
+  "selections": {
+    "baseline": {
+      "kernels": "optimized",
+      "arithmetic": "k16",
+      "tile_n": 16,
+      "stage_k": 16,
+      "window_queries": 64,
+      "fusion": false,
+      "expert_fusion": false,
+      "block_fusion": false,
+      "hardware_publication": false
+    },
+    "candidate": {
+      "kernels": "optimized",
+      "arithmetic": "k16",
+      "tile_n": 16,
+      "stage_k": 16,
+      "window_queries": 32,
+      "fusion": false,
+      "expert_fusion": false,
+      "block_fusion": false,
+      "hardware_publication": false
+    }
+  },
+  "baseline_ms": {
+    "samples": 90,
+    "mean": 141.49115777764882,
+    "median": 141.3426999989897,
+    "p95": 143.03575000222773,
+    "p99": 143.60299680057912,
+    "min": 139.2101599983871,
+    "max": 143.93663999810815,
+    "standard_deviation": 0.914625177465709,
+    "coefficient_of_variation": 0.0064641861147466785
+  },
+  "candidate_ms": {
+    "samples": 90,
+    "mean": 122.40724488898285,
+    "median": 122.33070000074804,
+    "p95": 123.2626740001142,
+    "p99": 123.53375039927661,
+    "min": 121.12779999896884,
+    "max": 123.81200000271201,
+    "standard_deviation": 0.5709111370342713,
+    "coefficient_of_variation": 0.004664030609887991
+  },
+  "interleaved_pairs": [
+    {
+      "pair": 0,
+      "baseline": {
+        "samples": 30,
+        "mean": 141.94584666651983,
+        "median": 141.77338000014424,
+        "p95": 142.95019399933517,
+        "p99": 143.6507115983218,
+        "min": 140.81384000182152,
+        "max": 143.93663999810815,
+        "standard_deviation": 0.7175260229005486,
+        "coefficient_of_variation": 0.005054927916181068
+      },
+      "candidate": {
+        "samples": 30,
+        "mean": 122.9335306669275,
+        "median": 122.99215999990702,
+        "p95": 123.48771399985999,
+        "p99": 123.72133440159261,
+        "min": 121.98392000049353,
+        "max": 123.81200000271201,
+        "standard_deviation": 0.4346445884145767,
+        "coefficient_of_variation": 0.0035356064863392724
+      }
+    },
+    {
+      "pair": 1,
+      "baseline": {
+        "samples": 30,
+        "mean": 141.44602399989964,
+        "median": 141.38217999972403,
+        "p95": 143.03575000222773,
+        "p99": 143.10515360094607,
+        "min": 140.11363999918103,
+        "max": 143.11332000046968,
+        "standard_deviation": 0.8988368853313732,
+        "coefficient_of_variation": 0.00635462814657845
+      },
+      "candidate": {
+        "samples": 30,
+        "mean": 122.38871199997763,
+        "median": 122.45461999997497,
+        "p95": 122.98223000075669,
+        "p99": 123.06274640019983,
+        "min": 121.46763999760151,
+        "max": 123.06560000032187,
+        "standard_deviation": 0.36140736944004126,
+        "coefficient_of_variation": 0.002952946914255518
+      }
+    },
+    {
+      "pair": 2,
+      "baseline": {
+        "samples": 30,
+        "mean": 141.08160266652703,
+        "median": 141.0325399991125,
+        "p95": 143.0180659983307,
+        "p99": 143.48595400001852,
+        "min": 139.2101599983871,
+        "max": 143.56176000088453,
+        "standard_deviation": 0.9001954638789291,
+        "coefficient_of_variation": 0.006380672227028147
+      },
+      "candidate": {
+        "samples": 30,
+        "mean": 121.8994920000434,
+        "median": 121.93936000019312,
+        "p95": 122.36082599945367,
+        "p99": 122.52368479792028,
+        "min": 121.12779999896884,
+        "max": 122.5813599973917,
+        "standard_deviation": 0.3509333127213759,
+        "coefficient_of_variation": 0.0028788742837521503
+      }
+    }
+  ],
+  "network_source_manifest": null,
+  "network_evidence": null,
+  "network_median_ratio": 0.8654900465437723,
+  "network_p95_ratio": 0.8617613009208847,
+  "protocol_complete": true,
+  "network_regression_gate_passed": true,
+  "default_performance_eligible": true,
+  "operators": [],
+  "limitations": [
+    "Network timestamps exclude D3D12 bridge, FSR and presentation; no game FPS is inferred.",
+    "Profile instrumentation timings are kept separate from ordinary benchmark timings.",
+    "Performance eligibility alone does not qualify arithmetic, temporal behavior or release readiness."
+  ]
+}

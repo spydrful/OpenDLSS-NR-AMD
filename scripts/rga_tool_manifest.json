@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "tool": "Radeon GPU Analyzer",
+  "releaseTag": "2.14.2",
+  "releaseUrl": "https://github.com/GPUOpen-Tools/radeon_gpu_analyzer/releases/tag/2.14.2",
+  "archiveUrl": "https://github.com/GPUOpen-Tools/radeon_gpu_analyzer/releases/download/2.14.2/rga-windows-x64-2.14.2.zip",
+  "archiveFile": "rga-windows-x64-2.14.2.zip",
+  "archiveBytes": 238252445,
+  "archiveSha256": "5b46941a72722ddb27c9427ca4413bccc6892b4185ec1d5b9120740687fa166d",
+  "digestProvenance": "GitHub official release assets API SHA256 digest, independently checked against downloaded archive",
+  "cliVersion": "Radeon GPU Analyzer Version: 2.14.2.7 (05/11/2026)",
+  "offlineLlpcVersion": "LLVM version 22.0.0git; Optimized build",
+  "files": {
+    "rga.exe": "a3074dfbd9558da11ec3d973192b855b7f73e4bfe70b8d7734c20d13a79a2bc5",
+    "utils/amdllpc.exe": "6a57e7642d9804b54562ea47f562a0f6e0e7c74ccfc62cd04b1759c026b0e51b",
+    "utils/lc/opencl/bin/llvm-readobj.exe": "b77b2efb88458d9ef1901c6a07c865e5f961977826f56d3279ffe8aca053fb03",
+    "utils/lc/disassembler/amdgpu-dis.exe": "894d7fe2137495bc591eeb6d3051865ddac93288b7d0239a67f988eddc588cf8"
+  },
+  "noticeFiles": ["LICENSE.txt", "RGA_NOTICES.txt"],
+  "manualUrl": "https://gpuopen.com/manuals/rga_manual/help_manual/",
+  "limitations": "Portable offline LLPC results are not the installed Windows driver. RGA default vk-spv-offline selects wave64 for these shaders; this workflow explicitly selects wave32 using the bundled compiler and reads the compiled ELF metadata. No driver, layer, registry entry or MSI is installed."
+}

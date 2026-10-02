@@ -140,9 +140,9 @@ DeviceRequirements::DeviceRequirements(VkPhysicalDevice physical, Backend reques
     }
     if (selected == Backend::AmdFast && !capabilities.fp8Matrix16)
       throw std::runtime_error("amd backend requires subgroup FP8 E4M3 16x16x16 matrices with FP32 accumulator/result (RX 9000/RDNA4)");
-    if (selected == Backend::AmdFast && (!(subgroup.supportedOperations & VK_SUBGROUP_FEATURE_SHUFFLE_RELATIVE_BIT) ||
+    if (selected == Backend::AmdFast && (!(subgroup.supportedOperations & VK_SUBGROUP_FEATURE_SHUFFLE_BIT) ||
                                         !(subgroup.supportedStages & VK_SHADER_STAGE_COMPUTE_BIT)))
-      throw std::runtime_error("amd backend requires compute subgroup shuffle-relative operations for half-tree normalization");
+      throw std::runtime_error("amd backend requires compute subgroup shuffle operations for half-tree normalization");
   }
   if (selected == Backend::Nvidia) {
     required(coop2.cooperativeMatrixWorkgroupScope, "cooperativeMatrixWorkgroupScope");
@@ -264,7 +264,10 @@ Context::Context(VkInstance instance, VkPhysicalDevice physical, VkDevice device
 
 const char* Context::arithmeticMode() const {
   switch (backend()) {
-    case Backend::AmdFast: return "RDNA4 E4M3 K16 FP32 accumulation / FP16 publication";
+    case Backend::AmdFast:
+      if (amdOptions_.arithmetic == amd::Arithmetic::K32) return "RDNA4 selected FP8 K32 / fixed layer publication (experimental)";
+      if (amdOptions_.arithmetic == amd::Arithmetic::Final) return "RDNA4 selected FP8 final / fixed layer publication (experimental)";
+      return "RDNA4 E4M3 K16 FP32 accumulation / FP16 publication";
     case Backend::Reference: return "NVIDIA fixed-point F13/F24 emulation / FP16 publication";
     case Backend::Nvidia: return "NVIDIA FP16 cooperative matrices / PTX";
     default: return "unselected";
@@ -279,7 +282,8 @@ std::string Context::capabilityReport() const {
       << "\nVulkan: " << VK_API_VERSION_MAJOR(p.apiVersion) << "." << VK_API_VERSION_MINOR(p.apiVersion) << "." << VK_API_VERSION_PATCH(p.apiVersion)
       << " driver: " << p.driverVersion << "\ndriver: " << capabilities_.driverName << " " << capabilities_.driverInfo
       << "\narithmetic: " << arithmeticMode() << "\nsubgroup: " << capabilities_.subgroupSize << " (compute requests 32)"
-      << "\nsubgroup shuffle-relative: " << (capabilities_.subgroupOperations & VK_SUBGROUP_FEATURE_SHUFFLE_RELATIVE_BIT ? "yes" : "no")
+      << "\nsubgroup shuffle: " << (capabilities_.subgroupOperations & VK_SUBGROUP_FEATURE_SHUFFLE_BIT ? "yes" : "no")
+      << "\nshared-memory limit: " << p.limits.maxComputeSharedMemorySize << " bytes"
       << "\nFP8 E4M3 16x16x16 -> FP32: " << (capabilities_.fp8Matrix16 ? "yes" : "no")
       << "\nNVIDIA PTX: " << (capabilities_.cudaLaunch ? "yes" : "no")
       << "\nD3D12 external interop: " << (capabilities_.externalInterop ? "enabled" : "disabled") << "\n";
@@ -289,6 +293,7 @@ std::string Context::capabilityReport() const {
   return out.str();
 }
 void Context::initCommon() {
+  if (isAmd()) amdOptions_ = amd::Options::fromEnvironment();
   const auto& properties = capabilities_.properties;
   deviceName_ = properties.deviceName;
   timestampPeriod_ = properties.limits.timestampPeriod;

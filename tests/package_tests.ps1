@@ -59,6 +59,8 @@ try {
   Assert-Nr (@($taskManifest.files).Count -eq 12) 'expected payload files are missing'
   Assert-Nr ($taskManifest.releaseChannel -eq 'development' -and $null -eq $taskManifest.releaseTag -and $null -eq $taskManifest.sourceCommit) 'unversioned development package metadata changed'
   Assert-Nr ($taskManifest.nrEnabledByDefault -eq $false -and (Get-Content -LiteralPath (Join-Path $taskOutput 'payload\OptiScaler.ini') -Raw) -match '(?m)^Enabled=false\s*$') 'generated configuration must make NR opt-in'
+  Assert-Nr ((Get-Content -LiteralPath (Join-Path $taskOutput 'payload\OptiScaler.ini') -Raw) -match '(?m)^\[Spoofing\]\r?\nStreamlineSpoofing=false\r?$') 'generated AMD configuration must disable NVIDIA Streamline capability spoofing'
+  Assert-Nr ($taskManifest.amdArithmeticDefault -eq 'k16' -and $null -eq $taskManifest.amdTuning -and -not (Test-Path -LiteralPath (Join-Path $taskOutput 'payload\open-nr\shaders\amd-tuning.json'))) 'absent optional tuning changed alpha arithmetic or entered payload'
   Assert-Nr ((Get-Content -LiteralPath (Join-Path $taskOutput 'PACKAGE-README.txt') -Raw) -match 'Insert\s*\r?\n?-> Neural -> Enable NR') 'package instructions do not explain how to enable NR'
   Assert-Nr (-not (Test-Path -LiteralPath (Join-Path $taskOutput 'payload\open-nr\shaders\experimental.spv'))) 'unselected experimental shader entered payload'
   Assert-Nr (@($taskManifest.releaseGates.PSObject.Properties | Where-Object { $_.Value.status -ne 'unmet' }).Count -eq 0 -and @($taskManifest.releaseGates.PSObject.Properties).Count -eq 4) 'unmet numerical/game release gates missing'
@@ -69,6 +71,11 @@ try {
   Assert-Nr (Test-Path -LiteralPath (Join-Path $taskOutput 'payload\open-nr\shaders\game_preprocess.spv')) 'game shader missing'
   Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'tools\analyze_runtime.py')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'tools\analyze_presentmon.py')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'scripts\fetch_presentmon.ps1'))) 'diagnostic tools are missing from package'
   Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'tools\dlss5vk.exe')) -and @($taskManifest.diagnosticTools).Count -eq 2 -and @($taskManifest.files | Where-Object { $_.destination -like '*.exe' }).Count -eq 0) 'diagnostic executable missing, unhashed or scheduled for game installation'
+  Assert-Nr (@($taskManifest.diagnosticSources).Count -eq 11 -and @($taskManifest.diagnosticSources | Where-Object { $_.installedInGame }).Count -eq 0) 'diagnostic source metadata missing or scripts scheduled for game installation'
+  foreach ($taskDiagnostic in $taskManifest.diagnosticSources) {
+    Assert-Nr ((Get-NrHash (Get-NrChild $taskOutput $taskDiagnostic.file)) -eq $taskDiagnostic.sha256) 'diagnostic script/tool source missing or altered'
+  }
+  Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'tools\tune_amd.py')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'tools\qualify_amd_model.py')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'tools\compare_amd_scenes.py')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'scripts\analyze_amd_shaders.ps1')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'scripts\rga_tool_manifest.json'))) 'AMD qualification/offline analysis delivery tools missing'
   Assert-Nr (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\game\runtime.cpp')) 'runtime corresponding source missing'
   Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\integrations\optiscaler\HostJobLifetime.h')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\integrations\optiscaler\recovery_tests.inc'))) 'host safety integration sources missing'
   Assert-Nr (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\scripts\test_host_safety.ps1')) 'host safety build/test driver missing'
@@ -79,6 +86,8 @@ try {
   Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\integrations\optiscaler\sources\fsr31-local-symbols.patch')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\scripts\patch_fsr31_static_source.ps1'))) 'FSR31 local source changes missing'
   Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\ports\browser-webgpu\tools\headless.mjs')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\ports\browser-webgpu\shaders\ops.wgsl'))) 'browser reference/diagnostic sources missing'
   Assert-Nr (-not (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\ports\browser-webgpu\web\fixtures'))) 'generated browser fixtures entered source package'
+  Assert-Nr (-not (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\tools\rga'))) 'downloaded portable RGA tool entered corresponding application source'
+  Assert-Nr (-not (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\tools\rgp'))) 'downloaded portable RGP/RDP tools entered corresponding application source'
   Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\ports\browser-webgpu\web\vendor\basis\LICENSE')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\ports\browser-webgpu\web\vendor\basis\ATTRIBUTION.md'))) 'vendored Basis license and attribution missing'
   Assert-Nr (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\third_party\optiscaler-host\mock.cpp')) 'host source has wrong relative layout'
   Assert-Nr (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\third_party\optiscaler-host\OptiScaler\exports\exports.h')) 'authored host export header was pruned'
@@ -104,8 +113,17 @@ try {
   Assert-NrThrows { & (Join-Path $taskRoot 'scripts\package.ps1') @taskParams } 'multiline release tag was accepted'
   Assert-Nr (-not (Test-Path -LiteralPath $taskParams.OutputDirectory)) 'invalid release metadata published output'
   $taskParams.ReleaseTag = 'v0.1.0-alpha.99'
+  # Exercise the managed optional file without claiming that this synthetic
+  # manifest is runtime-qualified. Runtime identity validation is a separate test.
+  $taskTuningSource = Join-Path $taskKernels 'amd-tuning.json'
+  Set-Content -LiteralPath $taskTuningSource -Value '{"format":"OpenNR-amd-tuning-v1","syntheticPackageContract":true}'
   & (Join-Path $taskRoot 'scripts\package.ps1') @taskParams
   $taskAlphaManifest = Read-NrPackage $taskParams.OutputDirectory
+  $taskTuningHash = Get-NrHash $taskTuningSource
+  $taskTuningEntries = @($taskAlphaManifest.files | Where-Object { $_.destination -eq 'open-nr/shaders/amd-tuning.json' })
+  Assert-Nr ($taskTuningEntries.Count -eq 1 -and $taskTuningEntries[0].role -eq 'amd-tuning' -and $taskTuningEntries[0].sha256 -eq $taskTuningHash) 'optional tuning is missing, duplicated or not managed by its hash'
+  Assert-Nr ($taskAlphaManifest.amdTuning.file -eq 'payload/open-nr/shaders/amd-tuning.json' -and $taskAlphaManifest.amdTuning.sha256 -eq $taskTuningHash -and $taskAlphaManifest.amdTuning.installedInGame -and $taskAlphaManifest.amdTuning.identityAndGeometryCheckedAtRuntime) 'optional tuning metadata does not describe the managed artifact'
+  Assert-Nr ((Get-NrHash (Get-NrChild $taskParams.OutputDirectory $taskAlphaManifest.amdTuning.file)) -eq $taskTuningHash -and $taskAlphaManifest.amdArithmeticDefault -eq 'k16' -and $taskAlphaManifest.nrEnabledByDefault -eq $false) 'optional tuning changed defaults or copied different bytes'
   Assert-Nr ($taskAlphaManifest.releaseChannel -eq 'alpha' -and $taskAlphaManifest.releaseTag -eq 'v0.1.0-alpha.99' -and $taskAlphaManifest.sourceCommit -ceq ('a' * 40)) 'versioned alpha metadata missing or source commit not normalized'
   $taskGuideHash = Get-NrHash (Join-Path $taskRoot 'docs\INSTALL.md')
   Assert-Nr ($taskAlphaManifest.installationGuide.file -eq 'INSTALL.md' -and $taskAlphaManifest.installationGuide.sha256 -eq $taskGuideHash -and (Get-NrHash (Join-Path $taskParams.OutputDirectory 'INSTALL.md')) -eq $taskGuideHash -and (Get-NrHash (Join-Path $taskParams.OutputDirectory 'source\OpenDLSS-NR-AMD\docs\INSTALL.md')) -eq $taskGuideHash) 'release install guide is missing, unhashed or differs from corresponding source'

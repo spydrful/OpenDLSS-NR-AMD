@@ -1,7 +1,8 @@
 # AMD arithmetic validation
 
 The AMD and reference backends reuse the fork's original 71-block graph, tensor
-layout, model loader, and half/E4M3 publication points. NVIDIA PTX launches,
+layout and model loader. Their default arithmetic retains the half/E4M3
+publication points; K32/final are separately named experiments. NVIDIA PTX launches,
 counter chaining, and fused NVIDIA shaders are disabled for these backends.
 
 `--backend reference` emulates the documented Ada F13 dot product in groups of
@@ -12,16 +13,19 @@ verification path, not a performance target.
 
 `--backend amd` uses queried Vulkan KHR 16×16×16 E4M3 matrices with f32
 accumulators and a required subgroup size of 32 for FP8 GEMMs and window
-attention. It publishes each group of 16 products to half and retains split-K
+attention. The default K16 policy publishes each group of 16 products to half and retains split-K
 publication order. AMD's f32 matrix arithmetic does not implement Ada's
 per-product F13 alignment and truncation, so this route is deliberately not
 advertised as bit-exact. Global attention uses a cooperative matrix kernel
 with bounded 64-key staging and half publication after each group of 16.
 `DLSS5VK_AMD_GLOBAL_SCALAR=1` selects the scalar f32 global dot-product kernel
 for an explicit comparison. The half adapter/head uses the exact software F24
-kernel on both routes. The first implementation keeps graph
-intermediates in GPU buffers and uses Vulkan barriers between dispatches;
-fusion and further performance tuning remain work to be measured.
+kernel on both routes. The decomposed implementation keeps graph
+intermediates in GPU buffers and uses Vulkan barriers between dispatches.
+Compact attention and GEMM experiments now have strict same-AMD preservation
+checks and measured inference improvements; opt-in C32/expert fusion is
+implemented but its measured combined path is slower. See the
+[performance implementation report](amd-performance-implementation.md).
 
 On the development RX 9070 XT, both backends passed the model-free operator,
 all-half E4 publication, and optional game-shader checks. Both also completed
@@ -186,7 +190,7 @@ independent of token count. Its padded/tail synthetic tests pass, and all 75
 scalar global kernel. `DLSS5VK_AMD_GLOBAL_SCALAR=1` selects that scalar kernel
 for an explicit comparison.
 
-On the idle local RX 9070 XT, the final native inference benchmark measured
+On the idle local RX 9070 XT, the pre-optimization native inference benchmark measured
 23.570 ms median at 320×320 and 217.949 ms median at valid 1707×960
 (1728×960 padded field). The target profile measured global attention at
 2.115 ms; full-resolution window-attention passes remain about 17.2–17.5 ms
@@ -194,13 +198,30 @@ each. Those inference timings exclude game bridge, upscaling and display.
 The 8 ms target is not met. Earlier higher measurements overlapped a game's
 menu rendering and should not be treated as a clean optimization baseline.
 
-## Measured next work
+The new compact Q64 and Q32 kernels pass 657 strict GPU operators and 858
+paired-buffer checks against the frozen accelerated AMD baseline. Q64 also
+matches all 75 real-model boundaries/head at 320; the refreshed Q32 suite also
+passes those boundaries and both decomposed/production heads. Both query paths
+match all 6,635,520 target F32 head values. These are preservation checks against AMD,
+not equality with Ada F13 or NVIDIA's runtime. The matched Q32 interleaved
+target benchmark measured 120.271 ms median and 121.013 ms P95 versus
+206.167/210.130 ms for its legacy baseline, using three pairs, five warmups
+and 30 measured frames per role per pair. It excludes bridge/game/display,
+still misses the 8 ms NR budget, and does not establish updated game FPS or
+scene/temporal quality. The linked implementation report records rejected
+tile/publication variants, opt-in fusion regressions and remaining gates.
+
+## Profile that motivated the current optimization
 
 These priorities follow the local RX 9070 XT target profile in
 `build/interop/global-matrix-profile1707.log`, which reports 210.206 ms as the
-sum of dispatch spans. They are proposed experiments, not measured speedups.
-The separate warmed inference median is 217.949 ms; reaching 8 ms requires
-more than a 27-fold reduction before adding the bridge or game.
+sum of dispatch spans. These are the original priorities; compact attention,
+staged GEMM and fusion experiments are now implemented and measured in the
+[performance report](amd-performance-implementation.md). The historical
+profile below is retained as context, not the current optimized timing.
+Its separate warmed inference median was 217.949 ms; that historical starting
+point required more than a 27-fold reduction to reach 8 ms before adding the
+bridge or game.
 
 1. **Window attention.** The listed window-attention kernels total about
    108.164 ms, or 51.5% of the profiled spans. The two full-resolution passes

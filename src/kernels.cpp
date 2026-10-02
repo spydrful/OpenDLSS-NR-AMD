@@ -1,10 +1,19 @@
 #include "kernels.h"
+#include "amd_fusion_validation.h"
+#include "amd_qualified_fallback.h"
+#include "amd_window_resources.h"
+#include "shader_identity.h"
 
 #include <fstream>
 #include <sstream>
 
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
+#include <algorithm>
+#include <cmath>
+#include "sha256.h"
+#include "json.h"
 
 namespace nr {
 
@@ -39,10 +48,15 @@ void check(bool condition, const char* message) {
 }
 }  // namespace
 
-Kernels::Kernels(vk::Context& context, const std::string& shaderDirectory) : context_(context) {
+Kernels::Kernels(vk::Context& context, const std::string& shaderDirectory)
+    : context_(context), amdSelection_(context.amdOptions()), amdPolicy_(amdSelection_.current()) {
+  shaderDirectory_ = shaderDirectory;
   ptxDirectory_ = getenv("DLSS5VK_PTX_DIR") ? getenv("DLSS5VK_PTX_DIR") : shaderDirectory + "/../ptx";
   if (nativePortable()) {
     const bool fast = context_.isAmd();
+    if (fast && amdPolicy_.kernels == amd::KernelMode::Baseline)
+      amd::requireWindowLds(false,64,context_.maxComputeSharedMemory(),
+                            "forced legacy AMD baseline attention");
     const char* scalarGlobal = getenv("DLSS5VK_AMD_GLOBAL_SCALAR");
     amdGlobalMatrix_ = fast && !(scalarGlobal && !strcmp(scalarGlobal, "1"));
     const std::pair<const char*, const char*> modules[] = {
@@ -53,7 +67,44 @@ Kernels::Kernels(vk::Context& context, const std::string& shaderDirectory) : con
       {"window_normalize", fast ? "amd_window_normalize" : "window_normalize"},
       {"global_normalize", fast ? "amd_global_normalize" : "global_normalize"}};
     for (const auto& entry : modules)
-      modules_[entry.first] = context_.loadShaderModule(shaderDirectory + "/" + entry.second + ".spv");
+      modules_[entry.first] = loadCachedShaderModule(entry.second);
+    if (fast) {
+      const auto& options = amdPolicy_;
+      amdOptimized_ = amd::diagnosticSelection(options);
+      std::vector<std::string> names;
+      for (const auto& entry : modules) names.push_back(entry.second);
+      baselineShaderHash_ = loadedShaderSetHash(names);
+      if (amdOptimized_) {
+        modules_["gemm_fp8_optimized"] = loadCachedShaderModule("amd_gemm_optimized");
+        const char* windowName=options.windowQueries==64 ? "amd_window_optimized" : "amd_window_small";
+        modules_["window_attend_optimized"] = loadCachedShaderModule(windowName);
+        if (options.arithmetic != amd::Arithmetic::K16 && amdGlobalMatrix_) {
+          modules_["global_attend_optimized"] = loadCachedShaderModule("amd_global_matrix_optimized");
+          for(auto& name:names)if(name=="amd_global_matrix")name="amd_global_matrix_optimized";
+        }
+        for (auto& name : names) { if (name == "amd_gemm") name = "amd_gemm_optimized"; if (name == "amd_window") name = windowName; }
+        if (options.fusion) {
+          for (const auto* name : {"amd_ffn32", "amd_qkv32"}) {
+            modules_[name] = loadCachedShaderModule(name); names.push_back(name);
+          }
+        }
+        if (options.expertFusion) {
+          modules_["amd_expert_ffn"] = loadCachedShaderModule("amd_expert_ffn");
+          names.push_back("amd_expert_ffn");
+        }
+        if (options.blockFusion) {
+          modules_["amd_block32"] = loadCachedShaderModule("amd_block32"); names.push_back("amd_block32");
+        }
+      }
+      shaderHash_ = loadedShaderSetHash(names);
+      fprintf(stderr, "[amd] kernels %s (requested %s), arithmetic %s, tile N%u/K%u, fusion %u\n",
+              selectedKernelMode(), options.kernelName(), options.arithmeticName(), options.tileN, options.stageK, unsigned(options.fusion));
+    } else {
+      std::vector<std::string> names;for(const auto& entry:modules)names.push_back(entry.second);
+      shaderHash_=loadedShaderSetHash(names);baselineShaderHash_=shaderHash_;
+    }
+    requestedShaderHash_=shaderHash_;
+    requestedModules_=modules_;
     return;
   }
   for (const char* name : {"gemm_fp8", "gemm_f16", "ops", "window_normalize", "window_attend", "global_normalize",
@@ -81,13 +132,217 @@ void Kernels::setSiluTable(const std::vector<uint16_t>& table) {
   context_.upload(siluTable_, table.data(), 65536 * 2);
 }
 
+void Kernels::setModelIdentity(const std::string& hash,uint32_t width,uint32_t height) {
+  modelHash_=hash;modelWidth_=width;modelHeight_=height;
+  if(context_.isAmd()) {
+    // A resize, model change or replaced tuning file must never inherit the
+    // previous graph's qualified policy. Start again from the immutable request.
+    amdSelection_.restart();
+    amdOptimized_=amd::diagnosticSelection(amdPolicy_);
+    shaderHash_=requestedShaderHash_;
+    modules_=requestedModules_;
+  }
+  if(context_.isAmd() && !amdSelection_.forced() &&
+     amd::pinnedFallbackIdentity(deviceId(),driverId(),modelHash_,baselineShaderHash_)) {
+    try {
+      loadAmdOptimizedModules();
+      if(shaderHash_==amd::qualified::shaders){amdOptimized_=true;fprintf(stderr,"[amd] qualified compact K16 fallback selected (64 queries)\n");}
+      else shaderHash_=baselineShaderHash_;
+    } catch(const std::exception& e){fprintf(stderr,"[amd] preserving fallback unavailable: %s\n",e.what());shaderHash_=baselineShaderHash_;}
+  }
+  loadAmdTuning();
+  if(context_.isAmd() && amdPolicy_.kernels==amd::KernelMode::Auto && !amdOptimized_)
+    amd::requireWindowLds(false,64,context_.maxComputeSharedMemory(),
+                          "no qualified AMD auto pipeline for this identity; legacy AMD attention");
+}
+std::string Kernels::deviceId() const {
+  const auto& p=context_.capabilities().properties; char buffer[32];
+  snprintf(buffer,sizeof(buffer),"%04x:%04x",p.vendorID,p.deviceID); return buffer;
+}
+std::string Kernels::driverId() const {
+  const auto& c=context_.capabilities(); return c.driverName+"|"+c.driverInfo+"|"+std::to_string(c.properties.driverVersion);
+}
+bool Kernels::amdFfn32Enabled() const { return context_.isAmd() && amdOptimized_ && amdPolicy_.fusion; }
+bool Kernels::amdQkv32Enabled() const { return amdFfn32Enabled(); }
+bool Kernels::amdExpertFfnEnabled() const { return context_.isAmd() && amdOptimized_ && amdPolicy_.expertFusion; }
+bool Kernels::amdBlock32Enabled() const { return context_.isAmd() && amdOptimized_ && amdPolicy_.blockFusion; }
+
+void Kernels::loadAmdOptimizedModules() {
+  std::vector<std::string> names{"amd_gemm_optimized","portable_f16",amdPolicy_.windowQueries==64?"amd_window_optimized":"amd_window_small",
+      amdGlobalMatrix_ ? "amd_global_matrix" : "amd_global","ops","preprocess","amd_window_normalize","amd_global_normalize"};
+  auto load=[&](const std::string& key,const std::string& file){modules_[key]=loadCachedShaderModule(file);};
+  load("gemm_fp8_optimized","amd_gemm_optimized");
+  const auto windowFile=amdPolicy_.windowQueries==64?"amd_window_optimized":"amd_window_small";
+  load("window_attend_optimized",windowFile);
+  auto fusion=[&](const char* name){load(name,name);names.push_back(name);};
+  if(amdPolicy_.fusion){fusion("amd_ffn32");fusion("amd_qkv32");}
+  if(amdPolicy_.expertFusion)fusion("amd_expert_ffn");
+  if(amdPolicy_.blockFusion)fusion("amd_block32");
+  shaderHash_=loadedShaderSetHash(names);
+}
+
+VkShaderModule Kernels::loadCachedShaderModule(const std::string& file) {
+  const auto found=sourceModules_.find(file);
+  if(found!=sourceModules_.end())return found->second->module;
+  const auto source=shader_identity::read(shaderDirectory_+"/"+file+".spv");
+  auto loaded=std::make_unique<LoadedShaderModule>();
+  loaded->device=context_.device();loaded->sha256=source.sha256;
+  VkShaderModuleCreateInfo info{VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO};
+  info.codeSize=source.words.size()*sizeof(uint32_t);info.pCode=source.words.data();
+  VK_CHECK(vkCreateShaderModule(loaded->device,&info,nullptr,&loaded->module));
+  const auto module=loaded->module;
+  sourceModules_.emplace(file,std::move(loaded));
+  return module;
+}
+
+std::string Kernels::loadedShaderSetHash(const std::vector<std::string>& names) const {
+  std::vector<std::pair<std::string,std::string>> hashes;
+  for(const auto& name:names) {
+    const auto found=sourceModules_.find(name);
+    if(found==sourceModules_.end())throw std::runtime_error("missing loaded shader identity input "+name);
+    hashes.emplace_back(name,found->second->sha256);
+  }
+  return shader_identity::aggregate(std::move(hashes));
+}
+
+void Kernels::loadAmdTuning() {
+  if(!context_.isAmd() || amdPolicy_.kernels==amd::KernelMode::Baseline)return;
+  if(amdPolicy_.tuningPath.empty()) {
+    auto path=std::filesystem::path(shaderDirectory_)/"amd-tuning.json";
+    if(!amdSelection_.forced() && std::filesystem::is_regular_file(path))amdPolicy_.tuningPath=path.string();else return;
+  }
+  const auto saved=amdPolicy_;const auto savedHash=shaderHash_;const bool savedOptimized=amdOptimized_;
+  const auto savedModules=modules_;
+  try {
+    std::ifstream file(amdPolicy_.tuningPath,std::ios::binary);
+    check(bool(file),"cannot read AMD tuning record");
+    std::string source((std::istreambuf_iterator<char>(file)),{});
+    check(source.size()<=16u*1024u*1024u,"AMD tuning file exceeds size limit");
+    const auto doc=json::parse(source);
+    amdPolicy_=amd::tuningPolicy(doc,saved,modelWidth_,modelHeight_,!amdSelection_.forced());
+    amd::validateTuningRecordPolicies(doc,amdPolicy_);
+    loadAmdOptimizedModules();
+    const auto& identity=doc["identity"];
+    check(identity["device_id"].str()==deviceId() && identity["driver_id"].str()==driverId() && identity["model_sha256"].str()==modelHash_ && identity["shader_sha256"].str()==shaderHash_ && identity["baseline_shader_sha256"].str()==baselineShaderHash_,"AMD tuning identity mismatch");
+    const auto& records=doc["records"];
+    check(records.kind==json::Value::Array && !records.array.empty(),"AMD tuning contains no qualified operators");
+    for(const auto& record:records.array) {
+      check(record["qualified"].kind==json::Value::Bool && record["qualified"].boolean,"unqualified AMD tuning record");
+      for(const auto* name:{"operator_improvement_fraction","network_median_ratio","network_p95_ratio"})check(record[name].kind==json::Value::Number && std::isfinite(record[name].number) && record[name].number>0,"invalid AMD tuning measurement");
+      check(record["operator_improvement_fraction"].number>=.05 && record["operator_improvement_fraction"].number<=1 && record["network_median_ratio"].number<=.95 && record["network_p95_ratio"].number<=1.02,"unqualified AMD tuning measurement");
+      const auto& key=record["key"];
+      check(key["device_id"].str()==deviceId() && key["driver_id"].str()==driverId() && key["model_sha256"].str()==modelHash_ && key["shader_sha256"].str()==shaderHash_ && key["baseline_shader_sha256"].str()==baselineShaderHash_ && key["arithmetic"].str()=="k16","AMD operator identity mismatch");
+      const auto& shape=key["shape"];
+      for(const auto* name:{"rows","N","K","batches","flags","partition"})check(shape[name].kind==json::Value::Number && std::isfinite(shape[name].number) && shape[name].number>=0 && shape[name].number<=double(UINT32_MAX) && std::floor(shape[name].number)==shape[name].number,"invalid AMD operator shape");
+      for(const auto* name:{"tile_n","stage_k"})check(record[name].kind==json::Value::Number && (record[name].number==16 || record[name].number==32 || record[name].number==64),"AMD tuning exceeds tile limits");
+      const auto& proof=record["evidence"];
+      for(const auto* name:{"performance_report_sha256","qualification_report_sha256"}) {
+        const auto& hash=proof[name].str();check(hash.size()==64 && hash.find_first_not_of("0123456789abcdef")==std::string::npos,"invalid AMD tuning evidence hash");
+      }
+    }
+    check(64u*amdPolicy_.stageK+amdPolicy_.tileN*amdPolicy_.stageK+64u*amdPolicy_.tileN*4u<=context_.maxComputeSharedMemory(),"AMD tuning exceeds memory limit");
+    amdOptimized_=true;
+    fprintf(stderr,"[amd] qualified session tuning selected N%u/K%u, model %s\n",amdPolicy_.tileN,amdPolicy_.stageK,modelHash_.c_str());
+  } catch(const std::exception& error) {
+    amdPolicy_=saved;shaderHash_=savedHash;amdOptimized_=savedOptimized;modules_=savedModules;
+    if(amdSelection_.forced())throw;
+    fprintf(stderr,"[amd] tuning rejected, retaining preserving fallback: %s\n",error.what());
+  }
+}
+
+void Kernels::amdFfn32(VkCommandBuffer commands, const AmdFfn32Args& a) {
+  validateAmdFfn32(a);
+  check(amdFfn32Enabled(), "AMD FFN fusion was not selected");
+  check(context_.maxComputeSharedMemory() >= 19456u, "AMD FFN exceeds shared-memory limit");
+  check(a.input && a.residual && a.rawOutput && a.quantizedOutput && a.auxTensor && a.expandWeights && a.contractWeights, "AMD FFN operands");
+  check(a.input->format == Format::E4 && a.input->channels == 32 && a.residual->channels == 32 && a.rawOutput->format == Format::F16 && a.quantizedOutput->format == Format::E4, "AMD FFN formats");
+  struct Push { uint32_t rows,inputStride,residualStride,outputStride,scaleHalfOffset,residualIsHalf; }
+    push{a.rows,a.input->channels,a.residual->channels,a.quantizedOutput->channels,a.scaleByteOffset/2,a.residual->format==Format::F16 ? 1u : 0u};
+  const vk::Buffer* bindings[vk::kGenericBindings] = {};
+  bindings[0]=&a.input->buffer; bindings[1]=a.expandWeights; bindings[2]=a.contractWeights;
+  bindings[a.residual->format==Format::F16?3:6]=&a.residual->buffer; bindings[4]=&a.auxTensor->raw;
+  bindings[5]=&a.quantizedOutput->buffer; bindings[7]=&a.rawOutput->buffer;
+  vk::SpecConstants spec; spec.add(10,amdPolicy_.publicationInterval());
+  dispatchLabel_="amd_ffn32 "+std::to_string(a.rows);
+  dispatchDetails_={"ffn", "amd_ffn32",a.rows,32,128,1,0,0,32,32};
+  uint32_t groups=(a.rows+63)/64;
+  dispatch(commands,pipeline("amd_ffn32",spec),bindings,&push,sizeof(push),1,std::min(groups,65535u),(groups+65534)/65535);
+}
+
+void Kernels::amdQkv32(VkCommandBuffer commands, const AmdQkv32Args& a) {
+  validateAmdQkv32(a);
+  check(amdQkv32Enabled(), "AMD QKV fusion was not selected");
+  check(context_.maxComputeSharedMemory() >= 29184u, "AMD QKV exceeds shared-memory limit");
+  check(a.input && a.weights && a.prior && a.auxTensor && a.attended && a.input->format==Format::E4 && a.attended->format==Format::E4 && a.input->channels==32 && a.attended->channels==32, "AMD QKV operands");
+  uint32_t windowsX=(a.width+a.shiftX+7)/8,windows=windowsX*((a.height+a.shiftY+7)/8);
+  struct Push { uint32_t width,height,channels,heads,shiftX,shiftY,windowsX,windowCount,scaleWordOffset,inputStride,outputStride; }
+    push{a.width,a.height,32,1,a.shiftX,a.shiftY,windowsX,windows,a.scaleByteOffset/4,a.input->channels,a.attended->channels};
+  const vk::Buffer* bindings[vk::kGenericBindings]={};
+  bindings[0]=&a.input->buffer; bindings[1]=a.weights; bindings[2]=a.prior; bindings[4]=&a.auxTensor->raw; bindings[5]=&a.attended->buffer;
+  vk::SpecConstants spec; spec.add(10,amdPolicy_.publicationInterval());
+  dispatchLabel_="amd_qkv32 "+std::to_string(windows)+"w";
+  dispatchDetails_={"qkv_attention", "amd_qkv32",a.width*a.height,96,32,1,a.shiftX|(a.shiftY<<16),0,64,16};
+  dispatch(commands,pipeline("amd_qkv32",spec),bindings,&push,sizeof(push),1,std::min(windows,65535u),(windows+65534)/65535);
+}
+
+void Kernels::amdExpertFfn(VkCommandBuffer commands, const AmdExpertFfnArgs& a) {
+  validateAmdExpertFfn(a);
+  check(amdExpertFfnEnabled(), "AMD expert fusion was not selected");
+  check(a.channels==64 || a.channels==128 || a.channels==256, "AMD expert channel family");
+  check(16u*a.channels*2+2048+4096+8192 <= context_.maxComputeSharedMemory(), "AMD expert exceeds shared-memory limit");
+  check(a.input && a.residual && a.rawOutput && a.quantizedOutput && a.auxTensor && a.expandWeights && a.narrowWeights && a.projectWeights,"AMD expert operands");
+  struct Push { uint32_t rows,inputStride,residualStride,outputStride,scaleHalfOffset,residualIsHalf; }
+    push{a.rows,a.input->channels,a.residual->channels,a.quantizedOutput->channels,a.scaleByteOffset/2,a.residual->format==Format::F16?1u:0u};
+  const vk::Buffer* bindings[vk::kGenericBindings]={};
+  bindings[0]=&a.input->buffer; bindings[1]=a.expandWeights; bindings[2]=a.narrowWeights; bindings[3]=a.projectWeights;
+  bindings[4]=&a.auxTensor->raw; bindings[5]=&a.quantizedOutput->buffer; bindings[a.residual->format==Format::F16?7:6]=&a.residual->buffer; bindings[8]=&a.rawOutput->buffer;
+  vk::SpecConstants spec; spec.add(0,a.channels); spec.add(10,amdPolicy_.publicationInterval());
+  dispatchLabel_="amd_expert_ffn "+std::to_string(a.rows)+" C"+std::to_string(a.channels);
+  dispatchDetails_={"expert_ffn","amd_expert_ffn",a.rows,a.channels,a.channels,1,0,0,128,32};
+  uint32_t groups=(a.rows+15)/16;
+  dispatch(commands,pipeline("amd_expert_ffn",spec),bindings,&push,sizeof(push),1,std::min(groups,65535u),(groups+65534)/65535);
+}
+
+void Kernels::amdBlock32(VkCommandBuffer commands, const AmdBlock32Args& a) {
+  validateAmdBlock32(a);
+  check(amdBlock32Enabled(),"AMD C32 block fusion was not selected");
+  check(context_.maxComputeSharedMemory()>=30720u,"AMD C32 block exceeds shared-memory limit");
+  check(a.state && a.residual && a.expandWeights && a.contractWeights && a.qkvWeights && a.projectionWeights && a.prior && a.auxTensor && (a.output || a.rawOutput),"AMD C32 block operands");
+  check(a.state->format==Format::E4 && a.state->channels==32 && a.residual->channels==32,"AMD C32 block formats");
+  check(!a.output || a.output->format==Format::E4,"AMD C32 E4 output format");
+  check(!a.rawOutput || a.rawOutput->format==Format::F16,"AMD C32 half output format");
+  uint32_t windowsX=(a.width+a.shiftX+7)/8,windows=windowsX*((a.height+a.shiftY+7)/8);
+  uint32_t stride=a.output ? a.output->channels : a.rawOutput->channels;
+  check(!a.output || !a.rawOutput || a.output->channels==a.rawOutput->channels,"AMD C32 dual output stride");
+  struct Push {uint32_t width,height,channels,heads,shiftX,shiftY,windowsX,windowCount,ffnScaleHalfOffset,attentionScaleHalfOffset,qScaleWordOffset,inputStride,residualStride,outputStride,residualIsHalf,outputFlags;}
+    push{a.width,a.height,32,1,a.shiftX,a.shiftY,windowsX,windows,a.ffnScaleByteOffset/2,a.attentionScaleByteOffset/2,a.qScaleByteOffset/4,a.state->channels,a.residual->channels,stride,a.residual->format==Format::F16?1u:0u,(a.rawOutput?1u:0u)|(a.output?2u:0u)};
+  const vk::Buffer* bindings[vk::kGenericBindings]={};
+  bindings[0]=&a.state->buffer; bindings[1]=a.expandWeights; bindings[2]=a.contractWeights; bindings[3]=a.qkvWeights; bindings[4]=a.projectionWeights;
+  bindings[5]=a.prior; bindings[6]=&a.auxTensor->raw; bindings[a.residual->format==Format::F16?7:8]=&a.residual->buffer;
+  if(a.output)bindings[9]=&a.output->buffer; if(a.rawOutput)bindings[10]=&a.rawOutput->buffer;
+  vk::SpecConstants spec;spec.add(10,amdPolicy_.publicationInterval());
+  dispatchLabel_="amd_block32 "+std::to_string(windows)+"w";
+  dispatchDetails_={"c32_block","amd_block32",a.width*a.height,32,32,1,a.shiftX|(a.shiftY<<16),0,64,16};
+  dispatch(commands,pipeline("amd_block32",spec),bindings,&push,sizeof(push),1,std::min(windows,65535u),(windows+65534)/65535);
+}
+
 VkPipeline Kernels::pipeline(const char* shader, const vk::SpecConstants& constants, uint32_t requiredSubgroupSize) {
   if (nativePortable()) {
-    const bool matrix = context_.isAmd() && (!strcmp(shader, "gemm_fp8") || !strcmp(shader, "window_attend") || (amdGlobalMatrix_ && !strcmp(shader, "global_attend")));
+    const bool matrix = context_.isAmd() && (!strcmp(shader, "gemm_fp8") || !strcmp(shader, "window_attend") ||
+      !strcmp(shader, "gemm_fp8_optimized") || !strcmp(shader, "window_attend_optimized") ||
+      !strncmp(shader, "amd_", 4) || (amdGlobalMatrix_ && (!strcmp(shader, "global_attend") || !strcmp(shader, "global_attend_optimized"))));
     requiredSubgroupSize = matrix ? 32u : 0u;
   }
+  if(dispatchDetails_.variant.empty())dispatchDetails_.variant=shader;
+  dispatchDetails_.subgroupSize=requiredSubgroupSize;
+  dispatchDetails_.threads=!strcmp(shader,"preprocess")?64u:
+      (!strcmp(shader,"ops") || !strcmp(shader,"window_normalize") || !strcmp(shader,"global_normalize"))?256u:128u;
+  if(!dispatchDetails_.tileM && (strstr(shader,"gemm") || !strcmp(shader,"gemm_f16")))dispatchDetails_.tileM=64;
+  if(!strcmp(shader,"ops") && dispatchDetails_.family.empty() && !constants.data.empty())dispatchDetails_.flags=constants.data[0];
   std::string key = shader;
-  for (uint32_t value : constants.data) key += ":" + std::to_string(value);
+  key += "@sg" + std::to_string(requiredSubgroupSize);
+  for (size_t i = 0; i < constants.data.size(); ++i)
+    key += ":" + std::to_string(constants.entries[i].constantID) + "=" + std::to_string(constants.data[i]);
   auto it = pipelines_.find(key);
   if (it != pipelines_.end()) return it->second.pipeline;
   vk::Pipeline created = context_.createComputePipeline(modules_.at(shader), constants, shader, requiredSubgroupSize);
@@ -103,6 +358,7 @@ void Kernels::beginProfile(VkCommandBuffer commands, uint32_t maxDispatches) {
   vkCmdWriteTimestamp(commands, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, profileQueries_, 0);
   profileCount_ = 1;
   profileLabels_.clear();
+  profileDetails_.clear();
   dispatches_ = 0;
 }
 
@@ -110,7 +366,7 @@ std::vector<Kernels::ProfileEntry> Kernels::endProfile() {
   std::vector<ProfileEntry> entries;
   if (!profileQueries_) return entries;
   std::vector<double> stamps = context_.readTimestampsMs(profileQueries_, profileCount_);
-  for (uint32_t i = 1; i < profileCount_; ++i) entries.push_back({profileLabels_[i - 1], stamps[i] - stamps[i - 1]});
+  for (uint32_t i = 1; i < profileCount_; ++i) entries.push_back({profileLabels_[i - 1], stamps[i] - stamps[i - 1], profileDetails_[i - 1]});
   vkDestroyQueryPool(context_.device(), profileQueries_, nullptr);
   profileQueries_ = VK_NULL_HANDLE;
   return entries;
@@ -120,6 +376,9 @@ void Kernels::dispatch(VkCommandBuffer commands, VkPipeline pipeline,
                        const vk::Buffer* const bindings[vk::kGenericBindings], const void* push, uint32_t pushBytes,
                        uint32_t x, uint32_t y, uint32_t z) {
   VkDescriptorSet set = context_.allocateSet(bindings);
+  dispatchDetails_.gridX=x;dispatchDetails_.gridY=y;dispatchDetails_.gridZ=z;
+  if(!dispatchDetails_.rows && pushBytes>=4)memcpy(&dispatchDetails_.rows,push,4);
+  if(!dispatchDetails_.N && pushBytes>=8 && !strcmp(dispatchDetails_.variant.c_str(),"ops"))memcpy(&dispatchDetails_.N,static_cast<const uint8_t*>(push)+4,4);
   vkCmdBindPipeline(commands, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
   vkCmdBindDescriptorSets(commands, VK_PIPELINE_BIND_POINT_COMPUTE, context_.pipelineLayout(), 0, 1, &set, 0, nullptr);
   vkCmdPushConstants(commands, context_.pipelineLayout(), VK_SHADER_STAGE_COMPUTE_BIT, 0, pushBytes, push);
@@ -128,7 +387,13 @@ void Kernels::dispatch(VkCommandBuffer commands, VkPipeline pipeline,
   if (profileQueries_ && profileCount_ < profileCapacity_) {
     vkCmdWriteTimestamp(commands, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, profileQueries_, profileCount_++);
     profileLabels_.push_back(stageLabel_ + " | " + dispatchLabel_);
+    if (dispatchDetails_.family.empty()) {
+      dispatchDetails_.family = dispatchLabel_.substr(0, dispatchLabel_.find(' '));
+      dispatchDetails_.variant = dispatchDetails_.family;
+    }
+    profileDetails_.push_back(dispatchDetails_);
   }
+  dispatchDetails_ = {};
   ++dispatches_;
 }
 
@@ -212,7 +477,13 @@ void Kernels::cudaLaunchTracked(VkCommandBuffer commands, VkCudaFunctionNV funct
   if (profileQueries_ && profileCount_ < profileCapacity_) {
     vkCmdWriteTimestamp(commands, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, profileQueries_, profileCount_++);
     profileLabels_.push_back(stageLabel_ + " | " + dispatchLabel_);
+    if (dispatchDetails_.family.empty()) {
+      dispatchDetails_.family = dispatchLabel_.substr(0, dispatchLabel_.find(' '));
+      dispatchDetails_.variant = "nvidia_ptx";
+    }
+    profileDetails_.push_back(dispatchDetails_);
   }
+  dispatchDetails_ = {};
   ++dispatches_;
 }
 
@@ -220,6 +491,7 @@ void Kernels::dispatchLinear(VkCommandBuffer commands, VkPipeline pipeline,
                              const vk::Buffer* const bindings[vk::kGenericBindings], const void* push,
                              uint32_t pushBytes, uint32_t count) {
   uint32_t groups = (count + 255) / 256;
+  if(dispatchDetails_.rows==0 && pushBytes>=4)memcpy(&dispatchDetails_.rows,push,4);
   uint32_t y = (groups + 65534) / 65535;
   dispatch(commands, pipeline, bindings, push, pushBytes, std::min(groups, 65535u), y, 1);
 }
@@ -490,11 +762,20 @@ void Kernels::nativeGemmFp8(VkCommandBuffer commands, const GemmFp8Args& a) {
                    (a.broadcastInput ? F_BROADCAST_INPUT : 0);
   vk::SpecConstants constants;
   constants.add(0, a.K); constants.add(2, flags); constants.add(3, a.partition);
+  const bool optimized = context_.isAmd() && amdOptimized_;
+  const auto& policy = amdPolicy_;
+  uint32_t tileN = optimized ? policy.tileN : 16u;
+  uint32_t stageK = optimized ? policy.stageK : 16u;
+  if (optimized) {
+    check(64u * stageK + tileN * stageK + 64u * tileN * 4u <= context_.maxComputeSharedMemory(), "AMD GEMM variant exceeds shared-memory limit");
+    constants.add(10, policy.publicationInterval()); constants.add(11, tileN); constants.add(12, stageK);
+    constants.add(13, policy.hardwarePublication ? 1u : 0u);
+  }
   struct Push {
     uint32_t rows, N, Nmatrix, weightColumnOffset, inputStride, inputColumnBase;
     uint32_t outputStride, outputColumnOffset, auxHalfOffset, batches, columnGroups, splitStride;
   } push{a.rows, a.N, a.Nmatrix, a.weightColumnOffset, a.input->channels, a.inputColumnBase,
-         a.output->channels, a.outputColumnOffset, a.auxByteOffset / 2, a.batches, a.N / 16, 0};
+         a.output->channels, a.outputColumnOffset, a.auxByteOffset / 2, a.batches, (a.N + tileN - 1) / tileN, 0};
   const vk::Buffer* bindings[vk::kGenericBindings] = {};
   bindings[0] = &a.input->buffer; bindings[1] = a.weights;
   if (!a.quantize) bindings[2] = &a.output->buffer;
@@ -505,7 +786,9 @@ void Kernels::nativeGemmFp8(VkCommandBuffer commands, const GemmFp8Args& a) {
   uint32_t groups = (a.rows + 63) / 64;
   dispatchLabel_ = std::string(context_.isAmd() ? "amd_fp8 " : "reference_fp8 ") +
                    std::to_string(a.rows) + "x" + std::to_string(a.K) + "->" + std::to_string(a.N);
-  dispatch(commands, pipeline("gemm_fp8", constants), bindings, &push, sizeof(push), a.batches * (a.N / 16),
+  dispatchDetails_ = {"fp8_gemm", optimized ? "amd_gemm_optimized" : (context_.isAmd() ? "amd_gemm" : "portable_gemm"),
+                      a.rows, a.N, a.K, a.batches, flags, a.partition, tileN, stageK};
+  dispatch(commands, pipeline(optimized ? "gemm_fp8_optimized" : "gemm_fp8", constants), bindings, &push, sizeof(push), a.batches * push.columnGroups,
            std::min(groups, 65535u), (groups + 65534) / 65535);
 }
 
@@ -531,6 +814,7 @@ void Kernels::gemmF16(VkCommandBuffer commands, const GemmF16Args& a) {
   if (a.output->format == Format::F32) bindings[7] = &a.output->buffer;
   uint32_t rowGroups = (a.rows + 63) / 64;
   dispatchLabel_ = "gemm_f16 " + std::to_string(a.rows) + "x" + std::to_string(a.K) + "->" + std::to_string(a.N);
+  dispatchDetails_ = {"f16_gemm", nativePortable() ? "portable_f16" : "nvidia_f16", a.rows, a.N, a.K, 1, flags, 0, a.N, 16};
   dispatch(commands, pipeline("gemm_f16", constants), bindings, &push, sizeof(push), 1, std::min(rowGroups, 65535u),
            (rowGroups + 65534) / 65535);
 }
@@ -554,6 +838,7 @@ void Kernels::preprocessFromProxy(VkCommandBuffer commands, const vk::Buffer& pr
   bindings[0] = &proxy;
   bindings[7] = &features.buffer;
   dispatchLabel_ = "preprocess";
+  dispatchDetails_={"preprocess","preprocess",a.fullWidth*a.fullHeight,16,4,1,0,0,8,0};
   dispatch(commands, pipeline("preprocess", {}, 0), bindings, &push, sizeof(push), (a.fullWidth + 7) / 8,
            (a.fullHeight + 7) / 8, 1);
 }
@@ -954,8 +1239,21 @@ void Kernels::windowAttend(VkCommandBuffer commands, const Activation& normalize
   bindings[1] = &prior;
   bindings[5] = &attended.buffer;
   dispatchLabel_ = "window_attend " + std::to_string(windows) + "w x" + std::to_string(heads);
-  dispatch(commands, pipeline("window_attend", {}), bindings, &push, sizeof(push), heads, std::min(windows, 65535u),
-           (windows + 65534) / 65535);
+  const bool optimized = context_.isAmd() && amdOptimized_;
+  if (context_.isAmd())
+    amd::requireWindowLds(optimized,amdPolicy_.windowQueries,context_.maxComputeSharedMemory(),
+                          optimized ? "compact AMD attention" : "legacy AMD attention");
+  vk::SpecConstants constants;
+  if (optimized) {
+    constants.add(10, amdPolicy_.publicationInterval());
+    if(amdPolicy_.windowQueries!=64)constants.add(14,amdPolicy_.windowQueries);
+  }
+  dispatchDetails_ = {"window_attention", optimized ? (amdPolicy_.windowQueries==64?"amd_window_optimized":"amd_window_small") : (context_.isAmd() ? "amd_window" : "portable_window"),
+                      width * height, 64, 32, heads, shiftX | (shiftY << 16), 0, 64, 16};
+  dispatchDetails_.tileM=optimized?amdPolicy_.windowQueries:64u;
+  uint32_t groups=windows*(optimized?64u/amdPolicy_.windowQueries:1u);
+  dispatch(commands, pipeline(optimized ? "window_attend_optimized" : "window_attend", constants), bindings, &push, sizeof(push), heads, std::min(groups, 65535u),
+           (groups + 65534) / 65535);
 }
 
 bool Kernels::ptxGlobalAttentionEnabled() {
@@ -1061,6 +1359,7 @@ void Kernels::globalNormalize(VkCommandBuffer commands, const Activation& qkv, c
   bindings[4] = &tensor.raw;
   bindings[5] = &normalized.buffer;
   dispatchLabel_ = "global_normalize";
+  dispatchDetails_={"global_normalize",context_.isAmd()?"amd_global_normalize":"global_normalize",tokens,heads*96,32,heads,0,0,32,0};
   dispatchLinear(commands, pipeline("global_normalize", {}), bindings, &push, sizeof(push), tokens * heads * (context_.isAmd() ? 16u : 1u));
 }
 
@@ -1078,7 +1377,10 @@ void Kernels::globalAttend(VkCommandBuffer commands, const Activation& normalize
   if (nativePortable()) {
     if (!amdGlobalMatrix_) check((VkDeviceSize)paddedTokens * 3 + 4 <= context_.maxComputeSharedMemory(), "native global attention shared-memory limit");
     const uint32_t queries = amdGlobalMatrix_ ? (tokens + 15u) / 16u : tokens;
-    dispatch(commands, pipeline("global_attend", constants), bindings, &push, sizeof(push), heads,
+    bool experimental=context_.isAmd() && amdOptimized_ && amdGlobalMatrix_ && amdPolicy_.arithmetic!=amd::Arithmetic::K16;
+    if(experimental)constants.add(10,amdPolicy_.publicationInterval());
+    dispatchDetails_={"global_attention",experimental?"amd_global_matrix_optimized":(amdGlobalMatrix_?"amd_global_matrix":"portable_global"),tokens,paddedTokens,32,heads,0,0,16,16};
+    dispatch(commands, pipeline(experimental?"global_attend_optimized":"global_attend", constants), bindings, &push, sizeof(push), heads,
              std::min(queries, 65535u), (queries + 65534) / 65535);
     return;
   }
