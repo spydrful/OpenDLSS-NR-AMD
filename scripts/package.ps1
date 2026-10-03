@@ -144,7 +144,7 @@ foreach ($taskNotice in @('LICENSE', 'NOTICE', 'tools\MODEL_IMPORTER_NOTICE.txt'
   Copy-Item -LiteralPath (Join-Path $taskRoot $taskNotice) -Destination $taskStage
 }
 if (Test-Path -LiteralPath $taskInstallGuide -PathType Leaf) { Copy-Item -LiteralPath $taskInstallGuide -Destination (Join-Path $taskStage 'INSTALL.md') }
-foreach ($taskGuide in @('amd-performance-implementation.md', 'amd-performance-research.md')) {
+foreach ($taskGuide in @('amd-performance-implementation.md', 'amd-performance-research.md', 'amd-gemm-delivery.md', 'amd-rte-delivery.md')) {
   $taskGuideSource = Join-Path $taskRoot ('docs\' + $taskGuide)
   if (Test-Path -LiteralPath $taskGuideSource -PathType Leaf) { Copy-Item -LiteralPath $taskGuideSource -Destination $taskStage }
 }
@@ -179,7 +179,11 @@ function Copy-NrSources([string]$SourceRoot, [string]$Prefix) {
       if ($taskItem.PSIsContainer) { $taskPending.Push($taskItem.FullName); continue }
       $taskRelative = $taskItem.FullName.Substring($SourceRoot.Length).TrimStart('\', '/')
       if ($taskRelative -match '(?i)(weights\.bin|stage\d+\.bin|dlssnr\.bin|model-files\.sha256)') { continue }
-      if ($taskItem.Extension.ToLowerInvariant() -notin $taskExtensions -and
+      # This public driver report is frozen by the measurement manifest.
+      # Keep the single referenced log; arbitrary build/game logs stay excluded.
+      $taskFrozenDriverStats = $Prefix -eq 'OpenDLSS-NR-AMD\docs' -and
+        $taskRelative -eq 'performance\rte-kernels-measurements\shaderinfo-production.log'
+      if (-not $taskFrozenDriverStats -and $taskItem.Extension.ToLowerInvariant() -notin $taskExtensions -and
           $taskItem.Name -notmatch '^(?i:LICENSE|COPYING|NOTICE|AUTHORS|COPYRIGHT|PATENTS)(?:[._-].*)?$' -and
           $taskItem.Name -notin @('CMakeLists.txt', '.gitmodules', '.gitignore', '.gitattributes')) { continue }
       # Source paths come from regular files, not a manifest. The staging tree
@@ -199,7 +203,7 @@ foreach ($taskDirectory in @('src', 'shaders', 'game', 'integrations', 'scripts'
 }
 $taskBrowserSource = Join-Path $taskRoot 'ports\browser-webgpu'
 if (Test-Path -LiteralPath $taskBrowserSource -PathType Container) { Copy-NrSources $taskBrowserSource 'OpenDLSS-NR-AMD\ports\browser-webgpu' }
-foreach ($taskFile in @('LICENSE', 'NOTICE', 'README.md', '.gitignore')) {
+foreach ($taskFile in @('LICENSE', 'NOTICE', 'README.md', '.gitignore', '.gitattributes')) {
   Copy-Item -LiteralPath (Join-Path $taskRoot $taskFile) -Destination (Join-Path $taskStage 'source\OpenDLSS-NR-AMD')
 }
 # Preserve complete official static-dependency source archives, including build
@@ -221,19 +225,20 @@ $taskReadme = @'
 OpenNR-AMD development validation package
 
 This build has unmet performance and matched-image quality release gates.
-The current idle-GPU network comparison measured 141.343 -> 122.331 ms median
-(13.45%) from legal compact Q64 to Q32 at 1707x960 input (1728x960 padded),
-using three interleaved pairs with five warmups and 30 measured frames per run.
-This is network-only GPU time, not game FPS or NR+bridge time. The historical
-206.167 -> 120.271 ms comparison used the now-rejected over-limit legacy path.
-Three NR-off game benchmarks measured 99.58 / 99.32 / 101.74 FPS; the first
-ordinary NR-on benchmark measured 7.51 FPS. These game runs used earlier
-application binaries whose identities are recorded separately. Two further
-NR-on passes and ten minutes of active gameplay remain pending. The 8 ms
-NR+bridge and 60 rendered FPS targets have not been reached. See
-amd-performance-implementation.md for current kernel evidence and
-rx9070xt-validation.md for historical alpha 1 game settings, hashes and limits.
-Broad temporal/image quality validation remains pending.
+The current source's preserving Direct-RTE GEMM and Register-RTE Q32 attention
+measured 58.527 ms network median against the immutable alpha 3 Direct/staged
+Q32 baseline's 82.225 ms (28.82% improvement), at 1707x960 input (1728x960 padded).
+This comparison used three interleaved pairs, five warmups and 30 measured
+frames per run, without readback or per-dispatch profiling. It measures
+network-only GPU time; current RTE game performance and NR+bridge time remain
+unmeasured. The historical alpha 3 game benchmarks averaged 97.12 FPS with NR
+off and 10.69 FPS with NR on across three warmed passes per condition. Those
+results identify the earlier alpha 3 Direct-GEMM runtime, not the current RTE
+source. The 8 ms NR+bridge and 60 rendered FPS NR-on targets remain unmet.
+See amd-rte-delivery.md for current kernel evidence and
+rx9070xt-validation.md for recorded game settings, hashes and limits.
+Broad temporal/image quality validation and ten minutes of active gameplay
+remain pending.
 
 Start with INSTALL.md for prerequisites, installation, local model import,
 enabling NR and reversible removal. The generated default OptiScaler.ini has
@@ -241,16 +246,27 @@ NR disabled (Enabled=false), with K16 publication arithmetic. To opt in after im
 -> Neural -> Enable NR. Setting effect strengths to zero still runs inference.
 Auto kernel selection requires matched device/driver/model/shader identities.
 An optional shaders/amd-tuning.json also binds qualified session geometry.
-Each record binds the full measured session policy; missing or inconsistent
-policy evidence rejects old caches and auto keeps the qualified legal fallback.
+Each record binds the full measured session policy, including GEMM and window
+layout selectors; missing or inconsistent policy evidence rejects old caches
+and auto keeps the qualified legal preserving fallback. Scalar RTE modules
+require independent FP16 rounding-to-nearest-even, denorm preservation and
+signed-zero/Inf/NaN controls; register attention also requires compatible FP16
+matrix accumulators. Unsupported forced selections fail visibly. Auto tuning
+records that exceed capabilities or resource limits fall back safely.
 If no qualified path fits GPU resource limits,
 inference is refused and the game host bypasses NR. A custom INI or explicit
 environment overrides can change packaged defaults.
 
 Diagnostic selectors expose baseline/optimized/auto kernels, Q16/Q32/Q64 window
-queries, GEMM tile/staging choices, experimental fusion/publication overrides
-and qualified tuning. K32/final arithmetic is experimental and is not an alpha
-auto default. scripts/benchmark_amd.ps1 and tools/tune_amd.py save paired ordinary
+queries, --amd-gemm shared|packed|direct|direct-rte and
+--amd-window-layout staged|register|register-rte, GEMM tile/staging choices,
+experimental fusion/publication overrides and qualified tuning. Corresponding
+process selections include DLSS5VK_AMD_GEMM and DLSS5VK_AMD_WINDOW_LAYOUT and
+are read once at session creation. Direct GEMM requires stage K16; register
+attention requires Q16 or Q32. Scalar RTE is distinct from the rejected packed
+half-publication override; direct-rte requires that override off. K32/final
+arithmetic is experimental and is not an alpha auto default.
+scripts/benchmark_amd.ps1 and tools/tune_amd.py save paired ordinary
 network measurements separately from per-dispatch profile runs. Profile
 instrumentation and captures do not qualify ordinary game performance.
 tools/qualify_amd_model.py verifies real model artifacts. Bounded capture.flag

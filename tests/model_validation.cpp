@@ -262,6 +262,7 @@ int runModelValidation(int argc, char** argv) {
   executedSelection << "{\"kernels\":" << quote(kernels.selectedKernelMode()) << ",\"arithmetic\":" << quote(policy.arithmeticName())
     << ",\"tile_n\":" << policy.tileN << ",\"stage_k\":" << policy.stageK << ",\"window_queries\":" << policy.windowQueries
     << ",\"gemm\":" << quote(policy.gemmName())
+    << ",\"window_layout\":" << quote(policy.windowLayoutName())
     << ",\"fusion\":" << (policy.fusion?"true":"false") << ",\"expert_fusion\":" << (policy.expertFusion?"true":"false")
     << ",\"ffn32_fusion\":" << (policy.ffn32Enabled()?"true":"false") << ",\"qkv32_fusion\":" << (policy.qkv32Enabled()?"true":"false")
     << ",\"block_fusion\":" << (policy.blockFusion?"true":"false") << ",\"hardware_publication\":" << (policy.hardwarePublication?"true":"false") << '}';

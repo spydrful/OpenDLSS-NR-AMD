@@ -8,7 +8,7 @@
 namespace amd {
 inline bool diagnosticSelection(const Options& options) {
   return options.kernels == KernelMode::Optimized || options.arithmetic != Arithmetic::K16 || options.gemm != Gemm::Shared ||
-      options.tileN != 16 || options.stageK != 16 || options.windowQueries != 64 ||
+      options.tileN != 16 || options.stageK != 16 || options.windowQueries != 64 || options.windowLayout != WindowLayout::Staged ||
       options.ffn32Enabled() || options.qkv32Enabled() || options.expertFusion || options.blockFusion || options.hardwarePublication;
 }
 class Selection {
@@ -37,6 +37,11 @@ inline Gemm gemmPolicy(const json::Value& value) {
   if(value["gemm"].kind != json::Value::String)throw std::runtime_error("AMD tuning GEMM policy must be a string");
   return Options::parseGemm(value["gemm"].string);
 }
+inline WindowLayout windowLayoutPolicy(const json::Value& value) {
+  if(!value.has("window_layout"))return WindowLayout::Staged; // Immutable prior records only name staged attention.
+  if(value["window_layout"].kind != json::Value::String)throw std::runtime_error("AMD tuning window layout must be a string");
+  return Options::parseWindowLayout(value["window_layout"].string);
+}
 inline Fusion32Policy fusion32Policy(const json::Value& value) {
   if(value["fusion"].kind != json::Value::Bool)
     throw std::runtime_error("AMD tuning legacy fusion summary must be Boolean");
@@ -60,6 +65,7 @@ inline void requireTuningPolicyMatch(const json::Value& value, const Options& po
     require(v.kind == json::Value::Bool && v.boolean == expected,"AMD tuning evidence capability mismatch");};
   text("kernels","optimized");text("arithmetic","k16");
   require(gemmPolicy(value)==policy.gemm,"AMD tuning GEMM evidence policy mismatch");
+  require(windowLayoutPolicy(value)==policy.windowLayout,"AMD tuning window layout evidence policy mismatch");
   number("tile_n",policy.tileN);number("stage_k",policy.stageK);number("window_queries",policy.windowQueries);
   const auto fusion=fusion32Policy(value);
   require(fusion.ffn == policy.ffn32Enabled() && fusion.qkv == policy.qkv32Enabled(),
@@ -86,7 +92,7 @@ inline void validateTuningRecordPolicies(const json::Value& doc, const Options& 
       require(variant.string == policy.gemmShaderName(),"AMD tuning GEMM variant mismatch");
       geometry(policy.tileN,policy.stageK);
     } else if(family.string == "window_attention") {
-      require(variant.string == (policy.windowQueries==64 ? "amd_window_optimized" : "amd_window_small"),
+      require(variant.string == policy.windowShaderName(),
               "AMD tuning attention variant mismatch");
       geometry(64,16); // 64 keys and ordered K16 matrix steps, not the GEMM tile.
       const auto& queries=record["window_queries"];
@@ -126,11 +132,15 @@ inline Options tuningPolicy(const json::Value& doc, const Options& current,
     require(selected[key].kind == json::Value::Bool,"invalid AMD tuning capability");return selected[key].boolean;};
   const auto fusion=fusion32Policy(selected);
   const auto gemm=gemmPolicy(selected);
-  require(gemm!=Gemm::Direct || stageK==16,"direct AMD tuning GEMM requires stage_k=16");
+  const auto windowLayout=windowLayoutPolicy(selected);
+  require(windowLayout==WindowLayout::Staged || queries==16 || queries==32,"register AMD tuning window layout requires Q16 or Q32");
+  require((gemm!=Gemm::Direct && gemm!=Gemm::DirectRte) || stageK==16,"direct AMD tuning GEMM requires stage_k=16");
   const bool expert=flag("expert_fusion"),block=flag("block_fusion"),hardware=flag("hardware_publication");
+  require(gemm!=Gemm::DirectRte || !hardware,"scalar RTE tuning cannot name packed hardware publication");
   if(allowAutoSelection){
     prospective.tileN=tileN;prospective.stageK=stageK;prospective.windowQueries=queries;
     prospective.gemm=gemm;
+    prospective.windowLayout=windowLayout;
     prospective.ffn32Fusion=fusion.ffn;prospective.qkv32Fusion=fusion.qkv;prospective.fusion=fusion.ffn && fusion.qkv;
     prospective.expertFusion=expert;prospective.blockFusion=block;prospective.hardwarePublication=hardware;
   }else{
@@ -139,6 +149,7 @@ inline Options tuningPolicy(const json::Value& doc, const Options& current,
     require(tileN == current.tileN && stageK == current.stageK && queries == current.windowQueries,
             "forced AMD tuning policy mismatch");
     require(gemm==current.gemm,"forced AMD GEMM policy mismatch");
+    require(windowLayout==current.windowLayout,"forced AMD window layout policy mismatch");
     require(fusion.ffn == current.ffn32Enabled() && fusion.qkv == current.qkv32Enabled() && expert == current.expertFusion && block == current.blockFusion && hardware == current.hardwarePublication,
             "forced AMD capability policy mismatch");
   }

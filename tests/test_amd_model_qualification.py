@@ -168,6 +168,68 @@ class ModelQualificationTests(unittest.TestCase):
             self.run_qualification(comparison_anchor="qualified32")
         self.assertFalse(self.output.exists())
 
+    def direct32_anchor(self):
+        self.qualified32_anchor()
+        for root, benchmark in ((self.baseline, self.baseline_benchmark), (self.candidate, self.candidate_benchmark)):
+            for path in (root / "manifest.json", root / "modelcheck-report.json", benchmark):
+                self.mutate(path, lambda value: value["selected"].update(gemm="direct"))
+
+    def test_direct32_model_requires_explicit_alpha3_baseline_and_all_checkpoints(self):
+        self.fixtures(); self.direct32_anchor()
+        result = self.run_qualification(comparison_anchor="direct32")
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["checks"], 77)
+        self.assertEqual(result["baseline_selected"]["gemm"], "direct")
+        self.assertTrue(qualification._protocol.exact_manifest(self.output, "direct32")["passed"])
+        with self.assertRaisesRegex(ValueError, "explicit --comparison-anchor"):
+            qualification._protocol.exact_manifest(self.output, "qualified32")
+
+    def test_direct32_target_preserves_signed_zero_and_production_schedule_gates(self):
+        self.fixtures(target=True); self.direct32_anchor()
+        self.change_byte(self.candidate / "head.f32", offset=3)
+        result = self.run_qualification(target=True, comparison_anchor="direct32")
+        self.assertFalse(result["passed"])
+        self.assertEqual(result["mismatchedChecks"], 2)
+
+    def test_direct32_cannot_silently_compare_with_shared_baseline(self):
+        self.fixtures(); self.direct32_anchor()
+        for path in (self.baseline / "manifest.json", self.baseline / "modelcheck-report.json", self.baseline_benchmark):
+            self.mutate(path, lambda value: value["selected"].update(gemm="shared"))
+        with self.assertRaisesRegex(ValueError, "direct32 baseline"):
+            self.run_qualification(comparison_anchor="direct32")
+        self.assertFalse(self.output.exists())
+
+    def test_register_attention_binds_candidate_layout_and_all_checkpoints(self):
+        self.fixtures(); self.direct32_anchor()
+        for path in (self.candidate / "manifest.json", self.candidate / "modelcheck-report.json", self.candidate_benchmark):
+            self.mutate(path, lambda value: value["selected"].update(window_layout="register"))
+        result = self.run_qualification(comparison_anchor="direct32")
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["checks"], 77)
+        self.assertEqual(result["baseline_selected"]["window_layout"], "staged")
+        self.assertEqual(result["selected"]["window_layout"], "register")
+
+    def test_register_attention_cannot_inherit_staged_fixture_publication(self):
+        self.fixtures(); self.direct32_anchor()
+        self.mutate(self.candidate_benchmark, lambda value: value["selected"].update(window_layout="register"))
+        with self.assertRaisesRegex(ValueError, "selected policy differs from benchmark"):
+            self.run_qualification(comparison_anchor="direct32")
+        self.assertFalse(self.output.exists())
+
+    def test_register_rte_attention_binds_its_distinct_preserving_policy(self):
+        self.fixtures(); self.direct32_anchor()
+        for path in (self.candidate / "manifest.json", self.candidate / "modelcheck-report.json", self.candidate_benchmark):
+            self.mutate(path, lambda value: value["selected"].update(window_layout="register-rte", gemm="direct-rte"))
+        result = self.run_qualification(comparison_anchor="direct32")
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["checks"], 77)
+        self.assertEqual(result["selected"]["window_layout"], "register-rte")
+        self.assertEqual(result["selected"]["gemm"], "direct-rte")
+        self.mutate(self.candidate / "manifest.json", lambda value: value["selected"].update(window_layout="register"))
+        self.output = self.root / "different-policy-qualification.json"
+        with self.assertRaisesRegex(ValueError, "selected policy differs from benchmark"):
+            self.run_qualification(comparison_anchor="direct32")
+
     def test_direct_gemm_candidate_binds_explicit_route_with_legacy_shared_baseline(self):
         self.fixtures(); self.qualified32_anchor()
         for path in (self.candidate / "manifest.json", self.candidate / "modelcheck-report.json", self.candidate_benchmark):

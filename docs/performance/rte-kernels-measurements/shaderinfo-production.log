@@ -1,0 +1,342 @@
+[vk] AMD Radeon RX 9070 XT, backend amd, FP8 K16/FP32 yes, PTX no
+[vk] driver AMD proprietary driver 26.9.1 (LLPC); Vulkan 1.4.349
+[vk] arithmetic: RDNA4 E4M3 K16 FP32 accumulation / FP16 publication
+[amd] kernels optimized (requested optimized), arithmetic k16, GEMM direct-rte, tile N16/K16, attention register-rte, FFN32 fusion 0, QKV32 fusion 0
+model manifest SHA-256: 163F7FDEAA5B0C2BA39103CF5C46853B18D163847CEA67F8C9D85E77F78C655E (stage hashes verified)
+shader statistics geometry: 1707x960, padded 1728x960; driver AMD proprietary driver | 26.9.1 (LLPC)
+== gemm_f16@module2669265978816@sg0:0=16:1=32:2=32
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 27  (Number of used VGPRs)
+  numUsedSgprs = 40  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 0  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 0  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_f16@module2669265978816@sg0:0=32:1=16:2=256
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 26  (Number of used VGPRs)
+  numUsedSgprs = 30  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 0  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 0  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=1024:2=0:3=256:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 44  (Number of used VGPRs)
+  numUsedSgprs = 33  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=1024:2=0:3=512:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 44  (Number of used VGPRs)
+  numUsedSgprs = 33  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=1024:2=24:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 30  (Number of used VGPRs)
+  numUsedSgprs = 32  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=1024:2=83:3=256:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 45  (Number of used VGPRs)
+  numUsedSgprs = 40  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=128:2=0:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 37  (Number of used VGPRs)
+  numUsedSgprs = 33  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=128:2=152:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 37  (Number of used VGPRs)
+  numUsedSgprs = 33  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=128:2=16:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 37  (Number of used VGPRs)
+  numUsedSgprs = 33  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=128:2=35:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 39  (Number of used VGPRs)
+  numUsedSgprs = 46  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=128:2=83:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 38  (Number of used VGPRs)
+  numUsedSgprs = 40  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=128:2=99:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 38  (Number of used VGPRs)
+  numUsedSgprs = 45  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=256:2=0:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 30  (Number of used VGPRs)
+  numUsedSgprs = 32  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=256:2=152:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 30  (Number of used VGPRs)
+  numUsedSgprs = 31  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=256:2=16:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 30  (Number of used VGPRs)
+  numUsedSgprs = 32  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=256:2=83:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 31  (Number of used VGPRs)
+  numUsedSgprs = 40  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=256:2=99:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 31  (Number of used VGPRs)
+  numUsedSgprs = 45  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=32:2=0:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 32  (Number of used VGPRs)
+  numUsedSgprs = 31  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=32:2=16:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 32  (Number of used VGPRs)
+  numUsedSgprs = 31  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=32:2=19:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 33  (Number of used VGPRs)
+  numUsedSgprs = 41  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=32:2=24:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 32  (Number of used VGPRs)
+  numUsedSgprs = 31  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=32:2=35:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 34  (Number of used VGPRs)
+  numUsedSgprs = 46  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=32:2=3:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 33  (Number of used VGPRs)
+  numUsedSgprs = 40  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=4096:2=83:3=1024:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 45  (Number of used VGPRs)
+  numUsedSgprs = 40  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=512:2=0:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 30  (Number of used VGPRs)
+  numUsedSgprs = 32  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=512:2=16:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 30  (Number of used VGPRs)
+  numUsedSgprs = 32  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=512:2=83:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 31  (Number of used VGPRs)
+  numUsedSgprs = 40  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=512:2=99:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 31  (Number of used VGPRs)
+  numUsedSgprs = 45  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=64:2=0:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 37  (Number of used VGPRs)
+  numUsedSgprs = 33  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=64:2=152:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 37  (Number of used VGPRs)
+  numUsedSgprs = 33  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=64:2=16:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 37  (Number of used VGPRs)
+  numUsedSgprs = 33  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=64:2=24:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 37  (Number of used VGPRs)
+  numUsedSgprs = 33  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=64:2=83:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 38  (Number of used VGPRs)
+  numUsedSgprs = 40  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== gemm_fp8_optimized@module2669268955120@sg32:0=64:2=99:3=0:10=16:11=16:12=16:13=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 38  (Number of used VGPRs)
+  numUsedSgprs = 45  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 4096  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 4096  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== global_attend@module2669268777920@sg32:0=448
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 39  (Number of used VGPRs)
+  numUsedSgprs = 31  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 12288  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 12288  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== global_normalize@module2669268903744@sg0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 256
+  numUsedVgprs = 16  (Number of used VGPRs)
+  numUsedSgprs = 18  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 0  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 0  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== ops@module2669268846352@sg0:0=0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 256
+  numUsedVgprs = 9  (Number of used VGPRs)
+  numUsedSgprs = 10  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 0  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 0  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== ops@module2669268846352@sg0:0=2
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 256
+  numUsedVgprs = 18  (Number of used VGPRs)
+  numUsedSgprs = 18  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 0  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 0  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== ops@module2669268846352@sg0:0=3
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 256
+  numUsedVgprs = 16  (Number of used VGPRs)
+  numUsedSgprs = 26  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 0  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 0  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== ops@module2669268846352@sg0:0=4
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 256
+  numUsedVgprs = 16  (Number of used VGPRs)
+  numUsedSgprs = 22  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 0  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 0  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== window_attend_optimized@module2669269037440@sg32:10=16:14=32
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 128
+  numUsedVgprs = 38  (Number of used VGPRs)
+  numUsedSgprs = 29  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 13312  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 13312  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+
+== window_normalize@module2669268452848@sg0
+ShaderProperties.cs (Executable handles following Vulkan stages:  VK_SHADER_STAGE_COMPUTE_BIT ) subgroup 256
+  numUsedVgprs = 16  (Number of used VGPRs)
+  numUsedSgprs = 18  (Number of used SGPRs)
+  ldsSizePerLocalWorkGroup = 0  (LDS size per local workgroup)
+  ldsUsageSizeInBytes = 0  (LDS usage size in Bytes)
+  scratchMemUsageInBytes = 0  (Scratch memory usage in Bytes)
+

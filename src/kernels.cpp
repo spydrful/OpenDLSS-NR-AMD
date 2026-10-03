@@ -80,8 +80,12 @@ Kernels::Kernels(vk::Context& context, const std::string& shaderDirectory)
       for (const auto& entry : modules) names.push_back(entry.second);
       baselineShaderHash_ = loadedShaderSetHash(names);
       if (amdOptimized_) {
+        check(!options.requiresRtePublication() || context_.capabilities().halfPublicationRte,
+              "AMD scalar RTE publication requires independent FP16 RTE, denorm and signed-zero/Inf/NaN controls");
+        check(!options.registerWindowOperands() || context_.capabilities().fp16Accumulator16,
+              "AMD register attention requires subgroup 16x16 FP16 accumulator support");
         modules_["gemm_fp8_optimized"] = loadCachedShaderModule(options.gemmShaderName());
-        const char* windowName=options.windowQueries==64 ? "amd_window_optimized" : "amd_window_small";
+        const char* windowName=options.windowShaderName();
         modules_["window_attend_optimized"] = loadCachedShaderModule(windowName);
         if (options.arithmetic != amd::Arithmetic::K16 && amdGlobalMatrix_) {
           modules_["global_attend_optimized"] = loadCachedShaderModule("amd_global_matrix_optimized");
@@ -99,8 +103,8 @@ Kernels::Kernels(vk::Context& context, const std::string& shaderDirectory)
         }
       }
       shaderHash_ = loadedShaderSetHash(names);
-      fprintf(stderr, "[amd] kernels %s (requested %s), arithmetic %s, GEMM %s, tile N%u/K%u, FFN32 fusion %u, QKV32 fusion %u\n",
-              selectedKernelMode(), options.kernelName(), options.arithmeticName(), options.gemmName(), options.tileN, options.stageK, unsigned(options.ffn32Enabled()),unsigned(options.qkv32Enabled()));
+      fprintf(stderr, "[amd] kernels %s (requested %s), arithmetic %s, GEMM %s, tile N%u/K%u, attention %s, FFN32 fusion %u, QKV32 fusion %u\n",
+              selectedKernelMode(), options.kernelName(), options.arithmeticName(), options.gemmName(), options.tileN, options.stageK, options.windowLayoutName(), unsigned(options.ffn32Enabled()),unsigned(options.qkv32Enabled()));
     } else {
       std::vector<std::string> names;for(const auto& entry:modules)names.push_back(entry.second);
       shaderHash_=loadedShaderSetHash(names);baselineShaderHash_=shaderHash_;
@@ -170,11 +174,15 @@ bool Kernels::amdExpertFfnEnabled() const { return context_.isAmd() && amdOptimi
 bool Kernels::amdBlock32Enabled() const { return context_.isAmd() && amdOptimized_ && amdPolicy_.blockFusion; }
 
 void Kernels::loadAmdOptimizedModules() {
-  std::vector<std::string> names{amdPolicy_.gemmShaderName(),"portable_f16",amdPolicy_.windowQueries==64?"amd_window_optimized":"amd_window_small",
+  check(!amdPolicy_.requiresRtePublication() || context_.capabilities().halfPublicationRte,
+        "AMD scalar RTE publication requires independent FP16 RTE, denorm and signed-zero/Inf/NaN controls");
+  check(!amdPolicy_.registerWindowOperands() || context_.capabilities().fp16Accumulator16,
+        "AMD register attention requires subgroup 16x16 FP16 accumulator support");
+  std::vector<std::string> names{amdPolicy_.gemmShaderName(),"portable_f16",amdPolicy_.windowShaderName(),
       amdGlobalMatrix_ ? "amd_global_matrix" : "amd_global","ops","preprocess","amd_window_normalize","amd_global_normalize"};
   auto load=[&](const std::string& key,const std::string& file){modules_[key]=loadCachedShaderModule(file);};
   load("gemm_fp8_optimized",amdPolicy_.gemmShaderName());
-  const auto windowFile=amdPolicy_.windowQueries==64?"amd_window_optimized":"amd_window_small";
+  const auto windowFile=amdPolicy_.windowShaderName();
   load("window_attend_optimized",windowFile);
   auto fusion=[&](const char* name){load(name,name);names.push_back(name);};
   if(amdPolicy_.ffn32Enabled())fusion("amd_ffn32");
@@ -243,7 +251,7 @@ void Kernels::loadAmdTuning() {
         const auto& hash=proof[name].str();check(hash.size()==64 && hash.find_first_not_of("0123456789abcdef")==std::string::npos,"invalid AMD tuning evidence hash");
       }
     }
-    const uint32_t operandLds = amdPolicy_.gemm == amd::Gemm::Direct ? 0u : (64u + amdPolicy_.tileN) * amdPolicy_.stageK;
+    const uint32_t operandLds = amdPolicy_.directOperands() ? 0u : (64u + amdPolicy_.tileN) * amdPolicy_.stageK;
     check(operandLds+64u*amdPolicy_.tileN*4u<=context_.maxComputeSharedMemory(),"AMD tuning exceeds memory limit");
     amdOptimized_=true;
     fprintf(stderr,"[amd] qualified session tuning selected N%u/K%u, model %s\n",amdPolicy_.tileN,amdPolicy_.stageK,modelHash_.c_str());
@@ -774,9 +782,9 @@ void Kernels::nativeGemmFp8(VkCommandBuffer commands, const GemmFp8Args& a) {
   uint32_t tileN = optimized ? policy.tileN : 16u;
   uint32_t stageK = optimized ? policy.stageK : 16u;
   if (optimized) {
-    const uint32_t operandLds = policy.gemm == amd::Gemm::Direct ? 0u : (64u + tileN) * stageK;
+    const uint32_t operandLds = policy.directOperands() ? 0u : (64u + tileN) * stageK;
     check(operandLds + 64u * tileN * 4u <= context_.maxComputeSharedMemory(), "AMD GEMM variant exceeds shared-memory limit");
-    check(policy.gemm != amd::Gemm::Direct || stageK == 16u, "direct AMD GEMM requires K16 operand loads");
+    check(!policy.directOperands() || stageK == 16u, "direct AMD GEMM requires K16 operand loads");
     constants.add(10, policy.publicationInterval()); constants.add(11, tileN); constants.add(12, stageK);
     constants.add(13, policy.hardwarePublication ? 1u : 0u);
   }
@@ -1251,13 +1259,13 @@ void Kernels::windowAttend(VkCommandBuffer commands, const Activation& normalize
   const bool optimized = context_.isAmd() && amdOptimized_;
   if (context_.isAmd())
     amd::requireWindowLds(optimized,amdPolicy_.windowQueries,context_.maxComputeSharedMemory(),
-                          optimized ? "compact AMD attention" : "legacy AMD attention");
+                          optimized ? "compact AMD attention" : "legacy AMD attention",amdPolicy_.windowLayout);
   vk::SpecConstants constants;
   if (optimized) {
     constants.add(10, amdPolicy_.publicationInterval());
     if(amdPolicy_.windowQueries!=64)constants.add(14,amdPolicy_.windowQueries);
   }
-  dispatchDetails_ = {"window_attention", optimized ? (amdPolicy_.windowQueries==64?"amd_window_optimized":"amd_window_small") : (context_.isAmd() ? "amd_window" : "portable_window"),
+  dispatchDetails_ = {"window_attention", optimized ? amdPolicy_.windowShaderName() : (context_.isAmd() ? "amd_window" : "portable_window"),
                       width * height, 64, 32, heads, shiftX | (shiftY << 16), 0, 64, 16};
   dispatchDetails_.tileM=optimized?amdPolicy_.windowQueries:64u;
   uint32_t groups=windows*(optimized?64u/amdPolicy_.windowQueries:1u);

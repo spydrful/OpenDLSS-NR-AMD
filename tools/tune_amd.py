@@ -28,12 +28,13 @@ MODEL_CHECKPOINTS = {f"block-{i}" for i in range(70)} | {
     "transition-0-1", "transition-4-5", "transition-8-9", "transition-14-15", "transition-22-23"}
 LEGACY_FUSION_KEYS = ("fusion", "expert_fusion", "block_fusion", "hardware_publication")
 FUSION_KEYS = (*LEGACY_FUSION_KEYS, "ffn32_fusion", "qkv32_fusion")
-SELECTION_KEYS = ("kernels", "arithmetic", "gemm", "tile_n", "stage_k", "window_queries", *FUSION_KEYS)
-GEMM_VARIANTS = {"shared": "amd_gemm_optimized", "packed": "amd_gemm_packed", "direct": "amd_gemm_direct"}
-COMPARISON_ANCHORS = ("legacy", "compact64", "qualified32")
+SELECTION_KEYS = ("kernels", "arithmetic", "gemm", "tile_n", "stage_k", "window_queries", "window_layout", *FUSION_KEYS)
+GEMM_VARIANTS = {"shared": "amd_gemm_optimized", "packed": "amd_gemm_packed", "direct": "amd_gemm_direct",
+                 "direct-rte": "amd_gemm_direct_rte"}
+COMPARISON_ANCHORS = ("legacy", "compact64", "qualified32", "direct32")
 ACCELERATED_VARIANTS = {
     "fp8_gemm": set(GEMM_VARIANTS.values()),
-    "window_attention": {"amd_window_optimized", "amd_window_small"},
+    "window_attention": {"amd_window_optimized", "amd_window_small", "amd_window_register", "amd_window_register_rte"},
     "ffn": {"amd_ffn32"}, "qkv_attention": {"amd_qkv32"},
     "expert_ffn": {"amd_expert_ffn"}, "c32_block": {"amd_block32"},
 }
@@ -94,14 +95,18 @@ def selected_policy(value, *, explicit_flags=False) -> dict:
     """Bind SPIR-V specialization constants as well as shader-file hashes."""
     if not isinstance(value, dict) or value.get("kernels") not in ("baseline", "optimized") or value.get("arithmetic") not in ("k16", "k32", "final"):
         raise ValueError("missing actual selected AMD kernel/arithmetic policy")
-    result = {"window_queries": 64, "gemm": "shared", **value}
+    result = {"window_queries": 64, "window_layout": "staged", "gemm": "shared", **value}
     if type(result["gemm"]) is not str or result["gemm"] not in GEMM_VARIANTS:
-        raise ValueError("selected.gemm must be shared, packed or direct")
+        raise ValueError("selected.gemm must be shared, packed, direct or direct-rte")
     for key in ("tile_n", "stage_k", "window_queries"):
         if type(result.get(key)) is not int or result[key] not in (16, 32, 64):
             raise ValueError(f"selected.{key} must be 16, 32 or 64")
-    if result["gemm"] == "direct" and result["stage_k"] != 16:
+    if result["gemm"] in ("direct", "direct-rte") and result["stage_k"] != 16:
         raise ValueError("direct GEMM requires stage_k=16")
+    if result["window_layout"] not in ("staged", "register", "register-rte"):
+        raise ValueError("selected.window_layout must be staged, register or register-rte")
+    if result["window_layout"] != "staged" and (result["window_queries"] == 64 or result["kernels"] == "baseline"):
+        raise ValueError("register attention requires optimized Q16/Q32")
     for key in LEGACY_FUSION_KEYS:
         if key not in result and not explicit_flags:
             result[key] = False
@@ -115,6 +120,8 @@ def selected_policy(value, *, explicit_flags=False) -> dict:
         result.update({key: result["fusion"] for key in routes})
     if any(type(result[key]) is not bool for key in routes) or result["fusion"] != all(result[key] for key in routes):
         raise ValueError("selected independent fusion policy contradicts legacy summary")
+    if result["gemm"] == "direct-rte" and result["hardware_publication"]:
+        raise ValueError("direct-rte specifies scalar RTE; packed hardware publication must be off")
     return {key: result[key] for key in SELECTION_KEYS}
 
 
@@ -133,7 +140,7 @@ def requested_fusion_policy(args, candidate=True) -> dict:
 
 def comparison_anchor(value="legacy") -> str:
     if value not in COMPARISON_ANCHORS:
-        raise ValueError("comparison_anchor must be legacy, compact64 or qualified32")
+        raise ValueError("comparison_anchor must be legacy, compact64, qualified32 or direct32")
     return value
 
 
@@ -159,12 +166,21 @@ def evidence_equal(first, second) -> bool:
     return canonical(first) == canonical(second)
 
 
+def anchor_queries(anchor: str) -> int:
+    return 32 if comparison_anchor(anchor) in ("qualified32", "direct32") else 64
+
+
+def anchor_gemm(anchor: str) -> str:
+    return "direct" if comparison_anchor(anchor) == "direct32" else "shared"
+
+
 def preserving_baseline(selected: dict, anchor="legacy") -> bool:
     anchor = comparison_anchor(anchor)
     mode = "baseline" if anchor == "legacy" else "optimized"
-    window_queries = 32 if anchor == "qualified32" else 64
-    return (selected["kernels"] == mode and selected["arithmetic"] == "k16" and selected.get("gemm", "shared") == "shared"
+    window_queries = anchor_queries(anchor)
+    return (selected["kernels"] == mode and selected["arithmetic"] == "k16" and selected.get("gemm", "shared") == anchor_gemm(anchor)
             and selected["tile_n"] == 16 and selected["stage_k"] == 16 and selected["window_queries"] == window_queries
+            and selected.get("window_layout", "staged") == "staged"
             and not any(selected[key] for key in FUSION_KEYS))
 
 
@@ -241,14 +257,19 @@ def benchmark(path: Path, *, explicit_policy=False) -> dict:
                 raise ValueError("dispatch must name actual variant")
             for name in ("tile_n", "stage_k"):
                 integer(entry.get(name), "dispatch." + name)
-            if entry["family"]=="window_attention" or entry["variant"].startswith("amd_window_small"):
+            compact_window = entry["variant"].startswith(("amd_window_small", "amd_window_register"))
+            if entry["family"]=="window_attention" or compact_window:
                 geometry=entry.get("geometry",{})
                 if not isinstance(geometry,dict):raise ValueError("window attention geometry must be an object")
-                if entry["variant"].startswith("amd_window_small") and "tile_m" not in geometry:
-                    raise ValueError("small-window profile must record actual geometry.tile_m")
+                if compact_window and "tile_m" not in geometry:
+                    raise ValueError("compact-window profile must record actual geometry.tile_m")
                 queries=geometry.get("tile_m",64)
                 if type(queries) is not int or queries not in (16,32,64):
                     raise ValueError("window attention geometry.tile_m must be 16, 32 or 64")
+                if compact_window and queries not in (16,32):
+                    raise ValueError("compact-window geometry.tile_m must be 16 or 32")
+                if queries != value["selected"]["window_queries"]:
+                    raise ValueError("window attention geometry.tile_m differs from selected.window_queries")
             entry["frame_ms"] = samples(entry.get("frame_ms"), value["frames"], "dispatch.frame_ms", allow_zero=True)
     return value
 
@@ -294,7 +315,7 @@ def analyze(path: Path, allow_arithmetic_change=False, network_manifest: Path | 
             require_anchor(run, anchor)
         if role == "baseline" and not preserving_baseline(
                 selected_policy(run["selected"], explicit_flags=anchor != "legacy"), anchor):
-            query_count = 32 if anchor == "qualified32" else 64
+            query_count = anchor_queries(anchor)
             raise ValueError(f"baseline must use the explicit {anchor} preserving N16/K16/Q{query_count} policy without overrides")
         if run["selected"]["arithmetic"] != "k16" and not allow_arithmetic_change:
             raise ValueError("changed arithmetic requires --allow-arithmetic-change")
@@ -310,6 +331,7 @@ def analyze(path: Path, allow_arithmetic_change=False, network_manifest: Path | 
         selection = {k: run["selected"][k] for k in ("kernels", "arithmetic", "tile_n", "stage_k")}
         selection["gemm"] = run["selected"]["gemm"]
         selection["window_queries"]=run["selected"]["window_queries"]
+        selection["window_layout"]=run["selected"]["window_layout"]
         selection.update({k: run["selected"].get(k, False) for k in FUSION_KEYS})
         if role == "baseline" and any(selection[k] for k in FUSION_KEYS):
             raise ValueError("baseline cannot enable fusion or hardware publication overrides")
@@ -381,56 +403,81 @@ def analyze(path: Path, allow_arithmetic_change=False, network_manifest: Path | 
 
 def collect(args) -> Path:
     anchor = comparison_anchor(getattr(args, "comparison_anchor", "legacy"))
+    if anchor == "direct32" and (getattr(args, "baseline_executable", None) is None or
+                                 getattr(args, "baseline_shaders", None) is None):
+        raise ValueError("direct32 collection requires explicit --baseline-executable and --baseline-shaders; "
+                         "it is a preserving policy anchor, not an immutable alpha 3 identity pin")
     if args.arithmetic != "k16" and not args.allow_arithmetic_change:
         raise ValueError("changed arithmetic requires --allow-arithmetic-change")
     requested_gemm = getattr(args, "gemm", "shared")
-    if requested_gemm not in GEMM_VARIANTS or (requested_gemm == "direct" and args.stage_k != 16):
-        raise ValueError("GEMM must be shared|packed|direct; direct requires stage_k=16")
+    if requested_gemm not in GEMM_VARIANTS or (requested_gemm in ("direct", "direct-rte") and args.stage_k != 16):
+        raise ValueError("GEMM must be shared|packed|direct|direct-rte; direct requires stage_k=16")
     for name in ("width", "height", "frames", "pairs", "timeout"):
         integer(getattr(args, name), name, 1)
     integer(args.warmup, "warmup")
     executable = args.executable.resolve(strict=True)
+    baseline_executable = (getattr(args, "baseline_executable", None) or executable).resolve(strict=True)
     model = args.model.resolve(strict=True)
-    if not executable.is_file() or not model.is_dir():
+    if not executable.is_file() or not baseline_executable.is_file() or not model.is_dir():
         raise ValueError("executable must be a file and model must be a directory")
     shaders = args.shaders.resolve(strict=True) if args.shaders else None
+    baseline_shaders = getattr(args, "baseline_shaders", None)
+    baseline_shaders = baseline_shaders.resolve(strict=True) if baseline_shaders else shaders
+    if any(directory is not None and not directory.is_dir() for directory in (shaders, baseline_shaders)):
+        raise ValueError("shader paths must be directories")
     args.output.mkdir(parents=True, exist_ok=False)
     output = args.output.resolve()
-    executable_hash = sha256(executable)
+    executable_hashes = {"baseline": sha256(baseline_executable), "candidate": sha256(executable)}
     manifest = {"format": "OpenNR-amd-interleaved-v1", "comparison_anchor": anchor, "created_utc": datetime.now(timezone.utc).isoformat(),
                 "model_directory": str(model), "command": args.mode, "runs": []}
+    if anchor == "direct32":
+        manifest["comparison_anchor_scope"] = (
+            "Preserving Direct/K16/N16/stage16/Q32/staged policy with explicitly selected baseline artifacts. "
+            "Measured executable and loaded shader hashes bind these artifacts; an immutable alpha 3 "
+            "comparison additionally requires independent release-identity proof.")
+        print("direct32 is a preserving policy anchor; retain independent immutable release-hash proof "
+              "when claiming an alpha 3 baseline", flush=True)
     child_base = {key: value for key, value in os.environ.items() if not key.startswith("DLSS5VK_")}
     for pair in range(args.pairs):
         for role in ("baseline", "candidate"):
+            role_executable = baseline_executable if role == "baseline" else executable
+            role_shaders = baseline_shaders if role == "baseline" else shaders
+            if sha256(role_executable) != executable_hashes[role]:
+                raise ValueError(f"{role} executable changed during collection")
             anchor_mode = "baseline" if anchor == "legacy" else "optimized"
             kernels, arithmetic, tile_n, stage_k = (anchor_mode, "k16", 16, 16) if role == "baseline" else (args.kernels, args.arithmetic, args.tile_n, args.stage_k)
-            window_queries=(32 if anchor == "qualified32" else 64) if role=="baseline" else getattr(args,"window_queries",64)
-            gemm = "shared" if role == "baseline" else requested_gemm
+            window_queries=anchor_queries(anchor) if role=="baseline" else getattr(args,"window_queries",64)
+            window_layout="staged" if role=="baseline" else getattr(args,"window_layout","staged")
+            gemm = anchor_gemm(anchor) if role == "baseline" else requested_gemm
             stem = f"pair-{pair + 1:02d}-{role}"
             json_path, log_path = output / (stem + ".json"), output / (stem + ".log")
-            command = [str(executable), args.mode, "--backend", "amd", "--model", str(model),
+            command = [str(role_executable), args.mode, "--backend", "amd", "--model", str(model),
                        "--width", str(args.width), "--height", str(args.height), "--frames", str(args.frames),
                        "--warmup", str(args.warmup), "--amd-kernels", kernels, "--amd-arithmetic", arithmetic,
                        "--amd-tile-n", str(tile_n), "--amd-stage-k", str(stage_k), "--json", str(json_path)]
             command.extend(["--amd-window-queries",str(window_queries)])
+            command.extend(["--amd-window-layout",window_layout])
             command.extend(["--amd-gemm",gemm])
-            if shaders:
-                command.extend(["--shaders", str(shaders)])
+            if role_shaders:
+                command.extend(["--shaders", str(role_shaders)])
             overrides = {"DLSS5VK_BACKEND": "amd", "DLSS5VK_CHAIN": "0", "DLSS5VK_VALIDATION": "0",
                          "DLSS5VK_DEBUG": "0", "DLSS5VK_AMD_KERNELS": kernels, "DLSS5VK_AMD_ARITHMETIC": arithmetic,
                          "DLSS5VK_AMD_TILE_N": str(tile_n), "DLSS5VK_AMD_STAGE_K": str(stage_k),
                          "DLSS5VK_AMD_WINDOW_QUERIES":str(window_queries),
+                         "DLSS5VK_AMD_WINDOW_LAYOUT":window_layout,
                          "DLSS5VK_AMD_GEMM":gemm,
                          "DLSS5VK_PIPELINE_CACHE": str(output / "pipeline-cache")}
             requested_fusion = requested_fusion_policy(args, role == "candidate")
             overrides.update({"DLSS5VK_AMD_" + key.upper(): "1" if enabled else "0" for key,enabled in requested_fusion.items()})
             print(f"{stem}: {args.mode} {args.width}x{args.height}, anchor={anchor}, {kernels}/{arithmetic}/{gemm}, N{tile_n}/K{stage_k}/Q{window_queries}", flush=True)
             with log_path.open("xb") as log:
-                result = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, cwd=str(executable.parent),
+                result = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, cwd=str(role_executable.parent),
                                         env={**child_base, **overrides}, timeout=args.timeout,
                                         creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
             if result.returncode:
                 raise ValueError(f"{stem} failed with exit {result.returncode}; see {log_path}")
+            if sha256(role_executable) != executable_hashes[role]:
+                raise ValueError(f"{role} executable changed during collection")
             run = benchmark(json_path, explicit_policy=anchor != "legacy")
             for field in ("width", "height", "warmup", "frames", "command"):
                 expected = args.mode if field == "command" else getattr(args, field)
@@ -439,13 +486,14 @@ def collect(args) -> Path:
             expected_policy = {"arithmetic": arithmetic, "tile_n": tile_n, "stage_k": stage_k}
             expected_policy["gemm"] = gemm
             expected_policy["window_queries"]=window_queries
+            expected_policy["window_layout"]=window_layout
             expected_policy.update(requested_fusion)
             if kernels != "auto":
                 expected_policy["kernels"] = kernels
             if any(run["selected"].get(k,False) != v for k, v in expected_policy.items()):
                 raise ValueError("forced candidate selection was ignored or silently fell back")
             manifest["runs"].append({"role": role, "pair": pair, "comparison_anchor": anchor, "file": json_path.name, "log": log_path.name,
-                                     "executable_sha256": executable_hash, "argv": command, "environment": overrides})
+                                     "executable_sha256": executable_hashes[role], "argv": command, "environment": overrides})
     path = output / "interleaved.json"
     write_json(path, manifest)
     write_json(output / "performance.json", analyze(path, args.allow_arithmetic_change, comparison_anchor=anchor))
@@ -655,6 +703,15 @@ def tuning(performance_path: Path, qualification_path: Path, comparison_anchor="
             continue
         if operator["family"] == "fp8_gemm" and variant["variant"] != GEMM_VARIANTS[selected_policy(report["selections"]["candidate"])["gemm"]]:
             raise ValueError("GEMM dispatch variant does not match its qualified session policy")
+        if operator["family"] == "window_attention":
+            policy = selected_policy(report["selections"]["candidate"])
+            expected_window = ("amd_window_register_rte" if policy["window_layout"] == "register-rte" else
+                               "amd_window_register" if policy["window_layout"] == "register" else
+                               "amd_window_optimized" if policy["window_queries"] == 64 else "amd_window_small")
+            if variant["variant"] != expected_window:
+                raise ValueError("attention dispatch variant does not match its qualified session policy")
+            if type(variant.get("window_queries")) is not int or variant["window_queries"] != policy["window_queries"]:
+                raise ValueError("attention dispatch query geometry does not match its qualified session policy")
         if type(variant.get("tile_n")) is not int or variant["tile_n"] not in (16, 32, 64) or type(variant.get("stage_k")) is not int or variant["stage_k"] not in (16, 32, 64):
             continue
         records.append({"key": {**candidate_identity, "arithmetic": "k16", "family": operator["family"], "shape": actual_shape},
@@ -738,8 +795,8 @@ def replay_sequence(args) -> dict:
     if args.arithmetic!="k16" and not args.allow_arithmetic_change:
         raise ValueError("experimental replay requires --allow-arithmetic-change")
     requested_gemm=getattr(args,"gemm","shared")
-    if requested_gemm not in GEMM_VARIANTS or (requested_gemm=="direct" and args.stage_k!=16):
-        raise ValueError("GEMM must be shared|packed|direct; direct requires stage_k=16")
+    if requested_gemm not in GEMM_VARIANTS or (requested_gemm in ("direct", "direct-rte") and args.stage_k!=16):
+        raise ValueError("GEMM must be shared|packed|direct|direct-rte; direct requires stage_k=16")
     frames=captured_sequence(args.capture_sequence.resolve(strict=True),args.allow_nongame)
     executable=args.executable.resolve(strict=True);model=args.model.resolve(strict=True)
     args.output.mkdir(parents=True,exist_ok=False);output=args.output.resolve()
@@ -771,7 +828,8 @@ def replay_sequence(args) -> dict:
                            "DLSS5VK_AMD_GEMM":getattr(args,"gemm","shared") if candidate else "shared",
                            "DLSS5VK_AMD_TILE_N":str(args.tile_n if candidate else 16),
                            "DLSS5VK_AMD_STAGE_K":str(args.stage_k if candidate else 16),
-                           "DLSS5VK_AMD_WINDOW_QUERIES":str(getattr(args,"window_queries",64) if candidate else 64)}
+                           "DLSS5VK_AMD_WINDOW_QUERIES":str(getattr(args,"window_queries",64) if candidate else 64),
+                           "DLSS5VK_AMD_WINDOW_LAYOUT":getattr(args,"window_layout","staged") if candidate else "staged"}
                 requested_fusion = requested_fusion_policy(args, candidate)
                 for flag,enabled in requested_fusion.items():
                     overrides["DLSS5VK_AMD_"+flag.upper()]="1" if enabled else "0"
@@ -803,6 +861,7 @@ def replay_sequence(args) -> dict:
                         raise ValueError("candidate selected policy changed during replay")
                     if (current_selection["arithmetic"]!=args.arithmetic or current_selection["gemm"]!=getattr(args,"gemm","shared") or current_selection["tile_n"]!=args.tile_n
                             or current_selection["stage_k"]!=args.stage_k or current_selection["window_queries"]!=getattr(args,"window_queries",64)
+                            or current_selection["window_layout"]!=getattr(args,"window_layout","staged")
                             or (args.kernels!="auto" and current_selection["kernels"]!=args.kernels)
                             or any(current_selection[flag]!=requested_fusion[flag] for flag in FUSION_KEYS)):
                         raise ValueError("forced candidate replay selection was ignored or silently fell back")
@@ -833,8 +892,10 @@ def main() -> int:
     commands = parser.add_subparsers(dest="action", required=True)
     collect_parser = commands.add_parser("collect", help="launch interleaved GPU network runs")
     collect_parser.add_argument("--executable", type=Path, required=True)
+    collect_parser.add_argument("--baseline-executable", type=Path, help="frozen baseline tool; defaults to --executable")
     collect_parser.add_argument("--model", type=Path, required=True)
     collect_parser.add_argument("--shaders", type=Path)
+    collect_parser.add_argument("--baseline-shaders", type=Path, help="frozen baseline modules; defaults to --shaders")
     collect_parser.add_argument("--output", type=Path, required=True, help="new, absent output directory")
     collect_parser.add_argument("--mode", choices=("bench", "profile"), default="bench")
     collect_parser.add_argument("--width", type=int, default=1707)
@@ -849,6 +910,7 @@ def main() -> int:
     collect_parser.add_argument("--tile-n", type=int, choices=(16, 32, 64), default=16)
     collect_parser.add_argument("--stage-k", type=int, choices=(16, 32, 64), default=16)
     collect_parser.add_argument("--window-queries",type=int,choices=(16,32,64),default=64)
+    collect_parser.add_argument("--window-layout",choices=("staged","register","register-rte"),default="staged")
     collect_parser.add_argument("--allow-arithmetic-change", action="store_true")
     for flag in LEGACY_FUSION_KEYS:
         collect_parser.add_argument("--" + flag.replace("_","-"),action="store_true")
@@ -874,7 +936,8 @@ def main() -> int:
     merge_parser.add_argument("--output", type=Path, required=True)
     for anchor_parser in (collect_parser, analyze_parser, qualify_parser, tuning_parser, merge_parser):
         anchor_parser.add_argument("--comparison-anchor", choices=COMPARISON_ANCHORS, default="legacy",
-                                   help="explicit baseline role: legacy kernels, compact64 optimized Q64, or qualified32 optimized Q32")
+                                   help="preserving policy anchor: legacy, shared compact64/qualified32, or direct32 "
+                                        "(collection needs explicit baseline tool/shaders; immutable release hashes are verified separately)")
     replay_parser=commands.add_parser("replay",help="replay a bounded scene sequence with identical and evolved histories")
     replay_parser.add_argument("--capture-sequence",type=Path,required=True)
     replay_parser.add_argument("--executable",type=Path,required=True)
@@ -890,6 +953,7 @@ def main() -> int:
     replay_parser.add_argument("--tile-n",type=int,choices=(16,32,64),default=16)
     replay_parser.add_argument("--stage-k",type=int,choices=(16,32,64),default=16)
     replay_parser.add_argument("--window-queries",type=int,choices=(16,32,64),default=64)
+    replay_parser.add_argument("--window-layout",choices=("staged","register","register-rte"),default="staged")
     replay_parser.add_argument("--timeout",type=int,default=900)
     replay_parser.add_argument("--coverage",choices=sorted(SCENE_COVERAGE),action="append",default=[])
     replay_parser.add_argument("--allow-nongame",action="store_true")

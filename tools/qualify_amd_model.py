@@ -168,7 +168,7 @@ def fixture(path: Path, benchmark_path: Path, role: str, target_only: bool, comp
     require(identity(report.get("identity"), f"{role} report") == ident and selection(report.get("selected"), f"{role} report") == selected,
             f"{role}: manifest/report execution provenance disagrees")
     if role == "baseline":
-        query_count = 32 if comparison_anchor == "qualified32" else 64
+        query_count = _protocol.anchor_queries(comparison_anchor)
         require(_protocol.preserving_baseline(selected, comparison_anchor),
                 f"baseline must use the explicit {comparison_anchor} baseline N16/K16/Q{query_count} policy without overrides")
     else:
@@ -315,7 +315,7 @@ def main(argv=None) -> int:
     parser.add_argument("--output", type=Path, required=True, help="new exact-manifest path under ignored build/ (also writes two proof bundles)")
     parser.add_argument("--target-only", action="store_true", help="head/capture-production only at valid 1707x960; default is all 75 boundaries at 320x320")
     parser.add_argument("--comparison-anchor", choices=_protocol.COMPARISON_ANCHORS, default="legacy",
-                        help="explicit baseline role: legacy kernels, compact64 optimized Q64, or qualified32 optimized Q32")
+                        help="explicit baseline role: legacy, shared compact64/qualified32, or alpha 3 direct32")
     args = parser.parse_args(argv)
     try:
         result = qualify(args.baseline, args.candidate, args.baseline_benchmark, args.candidate_benchmark,

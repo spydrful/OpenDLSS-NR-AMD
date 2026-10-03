@@ -236,6 +236,7 @@ int recordedComposite(int argc, char** argv, const std::filesystem::path& captur
   selected << ",\"selected\":{\"kernels\":" << quoteText(kernels.selectedKernelMode())
     << ",\"arithmetic\":" << quoteText(context.isReference()?"reference":policy.arithmeticName()) << ",\"tile_n\":" << policy.tileN << ",\"stage_k\":" << policy.stageK
     << ",\"gemm\":" << quoteText(policy.gemmName())
+    << ",\"window_layout\":" << quoteText(policy.windowLayoutName())
     << ",\"window_queries\":" << policy.windowQueries << ",\"fusion\":" << (policy.fusion?"true":"false") << ",\"expert_fusion\":" << (policy.expertFusion?"true":"false")
     << ",\"ffn32_fusion\":" << (policy.ffn32Enabled()?"true":"false") << ",\"qkv32_fusion\":" << (policy.qkv32Enabled()?"true":"false")
     << ",\"block_fusion\":" << (policy.blockFusion?"true":"false") << ",\"hardware_publication\":" << (policy.hardwarePublication?"true":"false") << "}}";
@@ -325,6 +326,7 @@ int runCompositeValidation(int argc, char** argv) {
     << ",\"baseline_shader_sha256\":" << quoteText(kernels.baselineShaderSha256()) << "},\"selected\":{\"kernels\":" << quoteText(kernels.selectedKernelMode())
     << ",\"arithmetic\":" << quoteText(context.isReference()?"reference":policy.arithmeticName()) << ",\"tile_n\":" << policy.tileN << ",\"stage_k\":" << policy.stageK
     << ",\"gemm\":" << quoteText(policy.gemmName())
+    << ",\"window_layout\":" << quoteText(policy.windowLayoutName())
     << ",\"window_queries\":" << policy.windowQueries << ",\"fusion\":" << (policy.fusion?"true":"false") << ",\"expert_fusion\":" << (policy.expertFusion?"true":"false")
     << ",\"ffn32_fusion\":" << (policy.ffn32Enabled()?"true":"false") << ",\"qkv32_fusion\":" << (policy.qkv32Enabled()?"true":"false")
     << ",\"block_fusion\":" << (policy.blockFusion?"true":"false") << ",\"hardware_publication\":" << (policy.hardwarePublication?"true":"false") << "}}";

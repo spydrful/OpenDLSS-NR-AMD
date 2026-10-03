@@ -1,0 +1,18 @@
+#version 460
+#extension GL_GOOGLE_include_directive : require
+#include "../common.glsl"
+#include "amd_half_publication_rte.glsl"
+layout(local_size_x = 128) in;
+layout(push_constant) uniform Push { uint count; } pc;
+layout(std430, binding = 0) readonly buffer Input { uint inputBits[]; };
+layout(std430, binding = 1) writeonly buffer Output { uvec4 outputBits[]; };
+void main() {
+  uint index = gl_GlobalInvocationID.x;
+  if (index >= pc.count) return;
+  float value = uintBitsToFloat(inputBits[index]);
+  // Raw half bits, candidate widened bits, baseline widened bits, and the
+  // rejected packed spelling. The last lane is diagnostic, never an oracle.
+  outputBits[index] = uvec4(nrHalfBitsRte(value),
+      floatBitsToUint(nrHalfPublishRte(value)), floatBitsToUint(roundF16(value)),
+      floatBitsToUint(unpackHalf2x16(packHalf2x16(vec2(value, 0.0))).x));
+}

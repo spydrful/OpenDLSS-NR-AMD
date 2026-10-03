@@ -34,6 +34,9 @@ struct DeviceCapabilities {
   uint32_t subgroupSize = 0;
   VkSubgroupFeatureFlags subgroupOperations = 0;
   bool fp8Matrix16 = false;
+  bool fp16Accumulator16 = false;
+  bool halfPublicationRte = false;
+  VkPhysicalDeviceFloatControlsProperties floatControls{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FLOAT_CONTROLS_PROPERTIES};
   bool pipelineStatistics = false;
   bool cudaLaunch = false;
   bool externalInterop = false;

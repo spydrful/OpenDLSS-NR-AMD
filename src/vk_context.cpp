@@ -69,11 +69,17 @@ DeviceRequirements::DeviceRequirements(VkPhysicalDevice physical, Backend reques
   VkPhysicalDeviceDriverProperties driver{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES};
   VkPhysicalDeviceProperties2 properties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
   properties.pNext = &subgroup; subgroup.pNext = &subgroupControl; subgroupControl.pNext = &driver;
+  driver.pNext = &capabilities.floatControls;
   vkGetPhysicalDeviceProperties2(physical, &properties);
   capabilities.properties = properties.properties;
   capabilities.driverName = driver.driverName; capabilities.driverInfo = driver.driverInfo;
   capabilities.subgroupSize = subgroup.subgroupSize;
   capabilities.subgroupOperations = subgroup.supportedOperations;
+  const auto& fc = capabilities.floatControls;
+  capabilities.halfPublicationRte = fc.shaderRoundingModeRTEFloat16 && fc.shaderDenormPreserveFloat16 &&
+      fc.shaderSignedZeroInfNanPreserveFloat16 &&
+      fc.roundingModeIndependence != VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_NONE &&
+      fc.denormBehaviorIndependence != VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_NONE;
   if (properties.properties.apiVersion < VK_API_VERSION_1_3) throw std::runtime_error("Vulkan 1.3 is required");
   Backend selected = requested;
   if (selected == Backend::Auto) {
@@ -133,6 +139,9 @@ DeviceRequirements::DeviceRequirements(VkPhysicalDevice physical, Backend reques
     VK_CHECK(getMatrices(physical, &matrixCount, capabilities.matrixTypes.data()));
     capabilities.matrixTypes.resize(matrixCount);
     for (const auto& m : capabilities.matrixTypes) {
+      if (m.MSize == 16 && m.NSize == 16 && m.scope == VK_SCOPE_SUBGROUP_KHR &&
+          (m.CType == VK_COMPONENT_TYPE_FLOAT16_KHR || m.ResultType == VK_COMPONENT_TYPE_FLOAT16_KHR))
+        capabilities.fp16Accumulator16 = true;
       if (m.MSize == 16 && m.NSize == 16 && m.KSize == 16 && m.scope == VK_SCOPE_SUBGROUP_KHR &&
           m.AType == VK_COMPONENT_TYPE_FLOAT8_E4M3_EXT && m.BType == VK_COMPONENT_TYPE_FLOAT8_E4M3_EXT &&
           m.CType == VK_COMPONENT_TYPE_FLOAT32_KHR && m.ResultType == VK_COMPONENT_TYPE_FLOAT32_KHR && !m.saturatingAccumulation)
@@ -285,6 +294,8 @@ std::string Context::capabilityReport() const {
       << "\nsubgroup shuffle: " << (capabilities_.subgroupOperations & VK_SUBGROUP_FEATURE_SHUFFLE_BIT ? "yes" : "no")
       << "\nshared-memory limit: " << p.limits.maxComputeSharedMemorySize << " bytes"
       << "\nFP8 E4M3 16x16x16 -> FP32: " << (capabilities_.fp8Matrix16 ? "yes" : "no")
+      << "\nFP16 16x16 accumulator type: " << (capabilities_.fp16Accumulator16 ? "yes" : "no")
+      << "\nIndependent FP16 RTE/denorm/zero controls: " << (capabilities_.halfPublicationRte ? "yes" : "no")
       << "\nNVIDIA PTX: " << (capabilities_.cudaLaunch ? "yes" : "no")
       << "\nD3D12 external interop: " << (capabilities_.externalInterop ? "enabled" : "disabled") << "\n";
   for (const auto& m : capabilities_.matrixTypes)

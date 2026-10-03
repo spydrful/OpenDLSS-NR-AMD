@@ -52,10 +52,11 @@ struct Runner {
     environment.set("DLSS5VK_AMD_KERNELS", baseline && anchor == "legacy" ? "baseline" : "optimized");
     if (baseline) {
       environment.set("DLSS5VK_AMD_ARITHMETIC", "k16");
-      environment.set("DLSS5VK_AMD_GEMM", "shared");
+      environment.set("DLSS5VK_AMD_GEMM", anchor == "direct32" ? "direct" : "shared");
       environment.set("DLSS5VK_AMD_TILE_N", "16");
       environment.set("DLSS5VK_AMD_STAGE_K", "16");
-      environment.set("DLSS5VK_AMD_WINDOW_QUERIES", anchor == "qualified32" ? "32" : "64");
+      environment.set("DLSS5VK_AMD_WINDOW_QUERIES", anchor == "qualified32" || anchor == "direct32" ? "32" : "64");
+      environment.set("DLSS5VK_AMD_WINDOW_LAYOUT", "staged");
       environment.set("DLSS5VK_AMD_FUSION", "0");
       environment.set("DLSS5VK_AMD_FFN32_FUSION", "0");
       environment.set("DLSS5VK_AMD_QKV32_FUSION", "0");
@@ -71,8 +72,10 @@ struct Runner {
     if (baseline) {
       const auto& actual = kernels->amdPolicy();
       const std::string expectedMode = anchor == "legacy" ? "baseline" : "optimized";
-      const uint32_t expectedQueries = anchor == "qualified32" ? 32u : 64u;
-      if (kernels->selectedKernelMode() != expectedMode || actual.arithmetic != amd::Arithmetic::K16 || actual.gemm != amd::Gemm::Shared ||
+      const uint32_t expectedQueries = anchor == "qualified32" || anchor == "direct32" ? 32u : 64u;
+      const auto expectedGemm = anchor == "direct32" ? amd::Gemm::Direct : amd::Gemm::Shared;
+      if (kernels->selectedKernelMode() != expectedMode || actual.arithmetic != amd::Arithmetic::K16 || actual.gemm != expectedGemm ||
+          actual.windowLayout != amd::WindowLayout::Staged ||
           actual.tileN != 16 || actual.stageK != 16 || actual.windowQueries != expectedQueries ||
           actual.ffn32Enabled() || actual.qkv32Enabled() || actual.expertFusion || actual.blockFusion || actual.hardwarePublication)
         throw std::runtime_error("amdcheck comparison anchor did not select its explicit preserving N16/K16/Q policy");
@@ -230,7 +233,7 @@ Output gemm(Runner& runner, const GemmCase& test, bool overdispatch = false) {
     // Exercise the direct shader's workgroup-uniform row guard with tiny
     // buffers, including Z groups whose row bases exceed four million.
     const auto& policy = kernels.amdPolicy();
-    if (policy.gemm != amd::Gemm::Direct || test.rows > 128)
+    if (!policy.directOperands() || test.rows > 128)
       throw std::runtime_error("overdispatch fixture requires direct GEMM and at most 128 rows");
     uint32_t flags = (residual ? 1u : 0u) | (scaled ? 2u : 0u) | (silu ? 8u : 0u) |
         (quantize ? 16u : 0u) | (dual ? 32u : 0u) | (residual && !residualHalf ? 64u : 0u) |
@@ -350,6 +353,7 @@ std::string identity(const Runner& runner) {
       << ",\"stage_k\":" << options.stageK << ",\"window_queries\":" << options.windowQueries << ",\"fusion\":" << (options.fusion ? "true" : "false")
       << ",\"ffn32_fusion\":" << (options.ffn32Enabled() ? "true" : "false") << ",\"qkv32_fusion\":" << (options.qkv32Enabled() ? "true" : "false")
       << ",\"gemm\":\"" << options.gemmName() << '"'
+      << ",\"window_layout\":\"" << options.windowLayoutName() << '"'
       << ",\"expert_fusion\":" << (options.expertFusion ? "true" : "false")
       << ",\"block_fusion\":" << (options.blockFusion ? "true" : "false")
       << ",\"hardware_publication\":" << (options.hardwarePublication ? "true" : "false")
@@ -391,10 +395,10 @@ int runAmdKernelPreservation(int argc, char** argv) {
     const auto candidateDirectory = argument(argc, argv, "--shaders");
     const auto fixtureDirectory = argument(argc, argv, "--fixture");
     const auto anchor = argument(argc, argv, "--comparison-anchor", "legacy");
-    if (anchor != "legacy" && anchor != "compact64" && anchor != "qualified32")
-      throw std::runtime_error("--comparison-anchor must be legacy, compact64 or qualified32");
+    if (anchor != "legacy" && anchor != "compact64" && anchor != "qualified32" && anchor != "direct32")
+      throw std::runtime_error("--comparison-anchor must be legacy, compact64, qualified32 or direct32");
     if (baselineDirectory.empty() || candidateDirectory.empty() || fixtureDirectory.empty()) {
-      fprintf(stderr, "usage: dlss5vk amdcheck --baseline-shaders <frozen dir> --shaders <candidate dir> --fixture <output dir> [--json <manifest>] [--comparison-anchor legacy|compact64|qualified32]\n");
+      fprintf(stderr, "usage: dlss5vk amdcheck --baseline-shaders <frozen dir> --shaders <candidate dir> --fixture <output dir> [--json <manifest>] [--comparison-anchor legacy|compact64|qualified32|direct32]\n");
       return 2;
     }
     if (fs::equivalent(fs::path(baselineDirectory), fs::path(candidateDirectory)))
@@ -430,7 +434,7 @@ int runAmdKernelPreservation(int argc, char** argv) {
       ++results.operators;
       if (results.operators % 50 == 0) printf("amdcheck progress: %u operators, %zu checks, %u mismatched\n", results.operators, results.pairs.size(), results.failures);
     }
-    if(candidate.kernels->amdPolicy().gemm == amd::Gemm::Direct) {
+    if(candidate.kernels->amdPolicy().directOperands()) {
       for(uint32_t variant : {0u,3u,5u}) {
         GemmCase test{variant == 5 ? 512u : 32u,48,73,variant,0x90704e11u+variant};
         const auto expected=gemm(baseline,test),actual=gemm(candidate,test,true);

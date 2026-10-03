@@ -94,6 +94,7 @@ void configureAmdArguments(int argc, char** argv) {
       {"--amd-gemm","DLSS5VK_AMD_GEMM"},
       {"--amd-tile-n","DLSS5VK_AMD_TILE_N"}, {"--amd-stage-k","DLSS5VK_AMD_STAGE_K"},
       {"--amd-window-queries","DLSS5VK_AMD_WINDOW_QUERIES"},
+      {"--amd-window-layout","DLSS5VK_AMD_WINDOW_LAYOUT"},
       {"--amd-fusion","DLSS5VK_AMD_FUSION"}, {"--amd-expert-fusion","DLSS5VK_AMD_EXPERT_FUSION"},
       {"--amd-ffn32-fusion","DLSS5VK_AMD_FFN32_FUSION"}, {"--amd-qkv32-fusion","DLSS5VK_AMD_QKV32_FUSION"},
       {"--amd-block-fusion","DLSS5VK_AMD_BLOCK_FUSION"}, {"--amd-hardware-publication","DLSS5VK_AMD_HARDWARE_PUBLICATION"},
@@ -181,6 +182,7 @@ void writeBenchmarkJson(const std::string& path, const char* command, const vk::
       << ",\"gemm\":" << jsonQuote(options.gemmName())
       << ",\"tile_n\":" << (optimized ? options.tileN : 16u) << ",\"stage_k\":" << (optimized ? options.stageK : 16u)
       << ",\"window_queries\":" << (optimized ? options.windowQueries : 64u)
+      << ",\"window_layout\":" << jsonQuote(optimized ? options.windowLayoutName() : "staged")
       << ",\"fusion\":" << (optimized && options.fusion ? "true" : "false")
       << ",\"ffn32_fusion\":" << (optimized && options.ffn32Enabled() ? "true" : "false")
       << ",\"qkv32_fusion\":" << (optimized && options.qkv32Enabled() ? "true" : "false")
@@ -965,7 +967,8 @@ int runCommand(int argc, char** argv) {
   if (argc >= 2 && !strcmp(argv[1], "bench")) return runBench(argc, argv);
   fprintf(stderr, "usage: dlss5vk info|selftest|amdcheck|modelcheck|compositecheck|parity|verify|bench|profile|shaderinfo [--backend auto|amd|nvidia|reference] ...\n"
       "AMD: --amd-kernels auto|baseline|optimized --amd-arithmetic k16|k32|final --amd-tile-n 16|32|64 --amd-stage-k 16|32|64\n"
-      "     --amd-gemm shared|packed|direct --amd-fusion 0|1 (both C32 routes)\n"
+      "     --amd-gemm shared|packed|direct|direct-rte --amd-fusion 0|1 (both C32 routes)\n"
+      "     --amd-window-queries 16|32|64 --amd-window-layout staged|register|register-rte\n"
       "     --amd-ffn32-fusion 0|1 --amd-qkv32-fusion 0|1\n"
       "     --amd-expert-fusion 0|1 --amd-block-fusion 0|1 --amd-hardware-publication 0|1 --amd-tuning path\n");
   return 2;

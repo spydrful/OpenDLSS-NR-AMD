@@ -1,0 +1,422 @@
+{
+  "format": "OpenNR-post-alpha3-scalar-rte-evidence-v1",
+  "observedUtcDates": [
+    "2026-10-02",
+    "2026-10-03"
+  ],
+  "scope": "Scalar FP16 publication conversion diagnostic and offline target-specialization resource audit only; independently identified Register-RTE attention offline resources are supplemental.",
+  "device": {
+    "name": "AMD Radeon RX 9070 XT",
+    "deviceId": "1002:7550",
+    "gfxTarget": "gfx1201",
+    "driver": "AMD proprietary driver",
+    "driverVersion": "26.9.1 (LLPC)",
+    "driverId": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+    "vulkanApi": "1.4.349"
+  },
+  "floatControls": {
+    "shaderRoundingModeRTEFloat16": true,
+    "shaderDenormPreserveFloat16": true,
+    "shaderSignedZeroInfNanPreserveFloat16": true,
+    "roundingModeIndependence": "32_BIT_ONLY",
+    "roundingModeIndependenceValue": 0,
+    "denormBehaviorIndependence": "32_BIT_ONLY",
+    "denormBehaviorIndependenceValue": 0,
+    "requestedCapabilities": [
+      4464,
+      4466,
+      4467
+    ],
+    "requestedExecutionModes": [
+      "DenormPreserve16",
+      "SignedZeroInfNanPreserve16",
+      "RoundingModeRTE16"
+    ],
+    "coupledF32ControlsQualified": false
+  },
+  "source": {
+    "identityScope": "Current production and diagnostic source; historical tested source identities are separately labeled below.",
+    "productionGemm": {
+      "file": "shaders/amd_gemm_direct_rte.comp",
+      "bytes": 5444,
+      "sha256": "fd31a2bee61bb9ba96b650581e694c477cd8d060cd820472a27c96ec80bd736c"
+    },
+    "publicationHelper": {
+      "file": "shaders/amd_half_publication_rte.glsl",
+      "bytes": 1146,
+      "sha256": "5eff0205c9ca593639db0b12e828c2d1bd85c6e7d66897c624be9584c8fdd211"
+    },
+    "portableNumeric": {
+      "file": "shaders/portable_numeric.glsl",
+      "bytes": 2964,
+      "sha256": "e38876828aa7a942ea60db4e684b61ff52cfa85d708388eba381f4bb4d61449c"
+    },
+    "commonNumeric": {
+      "file": "shaders/common.glsl",
+      "bytes": 6030,
+      "sha256": "e8b0928a841d31983b0e0a57fa183c77578a8e45a9e83ed4391aad18f515b842"
+    },
+    "diagnosticShader": {
+      "file": "shaders/diagnostic/amd_half_publication_rte.comp",
+      "bytes": 863,
+      "sha256": "e68d46755573f1bfcc8a5255ea74d22c07cda638fdb7cae183f4a55890ae40f9"
+    },
+    "diagnosticForwardingInclude": {
+      "file": "shaders/diagnostic/amd_half_publication_rte.glsl",
+      "bytes": 196,
+      "sha256": "b44d4383c02516f504856933b2e9e4887a8911799f123c5f0fd80830182500f6"
+    },
+    "currentHarnessSource": {
+      "file": "tests/amd_publication_probe.cpp",
+      "bytes": 8989,
+      "sha256": "8f896f295408d7dc42351305d017e1422314b025a4670a506f0861e0754756c3"
+    },
+    "currentProbeBuildScript": {
+      "file": "scripts/probe_amd_publication.ps1",
+      "bytes": 1602,
+      "sha256": "a465c530167b4d4eefb5546631c0f80d2c663f48edbecd5cc18bb0f065611fcf"
+    },
+    "harnessIdentityLimit": "The GPU conversion run preceded a metadata-only validationLayerEnabled report amendment. Original probe EXE hash was not captured; current harness source identity is separately recorded and is not an original executable-byte reproduction claim.",
+    "originalDirectShaderSha256Unchanged": "da5128a97d6799f196bdaf83df3b16c88625415774f8cb3e737d2554d3c647fd"
+  },
+  "commentOnlySourceUpdate": {
+    "scope": "Verified exact byte replacements in comments only; historical source closures and offline reports remain unchanged.",
+    "files": [
+      {
+        "file": "shaders/amd_half_publication_rte.glsl",
+        "frozenSha256": "56f9dedc558fe515b7eeaafa45c6795fb82a8439e45be569e06266a570769c90",
+        "currentSha256": "5eff0205c9ca593639db0b12e828c2d1bd85c6e7d66897c624be9584c8fdd211",
+        "commentLinesChanged": 1
+      },
+      {
+        "file": "shaders/amd_window_register_rte.comp",
+        "frozenSha256": "c17f85c9084556d1d92e46ebf0d9c14a91808e4ce2c4137af971d262e52d780f",
+        "currentSha256": "6a2206473449ad3b0eb0ed1eb02b02da90f657f9b61d04952556abc064e30d30",
+        "commentLinesChanged": 2
+      }
+    ],
+    "compilerByteIdentity": [
+      {
+        "module": "amd_gemm_direct_rte",
+        "currentSourceRebuildSpirvSha256": "f2fe7abcb5a4d714dcd466a9ba96834d54b9160ccb3d20a75e8aeab84f3a8677",
+        "byteMatchesTestedOrAuditedSpirv": true
+      },
+      {
+        "module": "amd_window_register_rte",
+        "currentSourceRebuildSpirvSha256": "9ff6958330657dbf8fe6dbc86d1dd520fb3b0c80e9afbdf39cf78a3995314569",
+        "byteMatchesTestedOrAuditedSpirv": true
+      },
+      {
+        "module": "diagnostic/amd_half_publication_rte",
+        "currentSourceRebuildSpirvSha256": "55bcf47ba89f3aabae3751e8cff78f5b7fa7f8555789a85ad472c477594ab017",
+        "byteMatchesTestedOrAuditedSpirv": true
+      }
+    ],
+    "gpuReexecutedForCommentUpdate": false
+  },
+  "compiler": {
+    "glslangVersion": "16.6.0; SPIR-V 1.6; generator version 11",
+    "glslangSha256": "9643709c02c83e26773f96b6a87f197ab2e84f78be0879ad8fb3619418b5d9ad",
+    "glslangArguments": [
+      "-V",
+      "--target-env",
+      "vulkan1.3",
+      "-Ishaders"
+    ],
+    "rgaRelease": "2.14.2",
+    "rgaCliVersion": "Radeon GPU Analyzer Version: 2.14.2.7 (05/11/2026)",
+    "offlineLlpcVersion": "LLVM version 22.0.0git; Optimized build",
+    "rgaToolManifestSha256": "50d6428e3c997068424b664493bad8be73338e5d459a55123758747c5dc1c265",
+    "rgaSha256": "a3074dfbd9558da11ec3d973192b855b7f73e4bfe70b8d7734c20d13a79a2bc5",
+    "amdllpcSha256": "6a57e7642d9804b54562ea47f562a0f6e0e7c74ccfc62cd04b1759c026b0e51b",
+    "llvmReadobjSha256": "b77b2efb88458d9ef1901c6a07c865e5f961977826f56d3279ffe8aca053fb03",
+    "amdgpuDisassemblerSha256": "894d7fe2137495bc591eeb6d3051865ddac93288b7d0239a67f988eddc588cf8",
+    "offlineCompilerArguments": [
+      "--gfxip=12.0.1",
+      "--subgroup-size=32",
+      "--native-wave-size=32",
+      "--auto-layout-desc",
+      "--include-llvm-ir"
+    ],
+    "analysisScriptSha256": "1f5e0d2cf0ed0cfaac74f383d99499c25d6f6d76527c42529d99058f9e2a58ed"
+  },
+  "conversionProbe": {
+    "gpuExecuted": true,
+    "shaderSpirvSha256": "55bcf47ba89f3aabae3751e8cff78f5b7fa7f8555789a85ad472c477594ab017",
+    "testedFrozenDiagnosticSources": [
+      {
+        "repositoryFileLabel": "shaders/diagnostic/amd_half_publication_rte.glsl",
+        "bytes": 1145,
+        "sha256": "b2ac7c752fbe7f5d26a0e4c4ab899d491d4dce8bf2be8294783fb58c125c1ab5"
+      },
+      {
+        "repositoryFileLabel": "shaders/diagnostic/amd_half_publication_rte.comp",
+        "bytes": 863,
+        "sha256": "e68d46755573f1bfcc8a5255ea74d22c07cda638fdb7cae183f4a55890ae40f9"
+      }
+    ],
+    "testedSourceIdentityScope": "The original conversion run used the recorded diagnostic helper. It was later moved to a shared production include, then comments were updated; both source revisions reproduce the original tested shader bytes.",
+    "sharedHelperSourceReproductionReportSha256": "fc5dde68db757667ca4470e844f55247c9e638dd6ea7ec89b63aa03acf3f6efa",
+    "shaderSourceRebuildByteMatchesTested": true,
+    "probeReportSha256": "090da4b97502a24744b752a80ef1dfc5d09c4686917896ab823e1ed139025e37",
+    "distinctF32Inputs": 1861036,
+    "inputBitPatternSha256": "80d79e8afbafd345a753d6c45b26b81afa564603c6ca2eb7d81308a85b739c05",
+    "exhaustiveAllF32": false,
+    "corpus": [
+      "All 65,536 binary16 input patterns widened to F32, including signed zeros and NaN payload classes.",
+      "Every adjacent finite positive binary16 midpoint, its immediately neighboring F32 bit patterns, and both signs; overflow boundary supplied separately.",
+      "Every 13-bit discarded mantissa and retained-LSB parity for F32 exponents 102..142 at the selected retained-mantissa representatives.",
+      "Explicit subnormal, signed-zero, overflow, Inf/NaN edges and 262,144 seeded F32 patterns; duplicates removed."
+    ],
+    "oracle": "src/numeric.h IEEE binary16 RNE; existing GLSL roundF16 independently compared. Inf/NaN F32 publication returns original bits.",
+    "mismatches": {
+      "candidateVsCpu": 0,
+      "baselineVsCpu": 0,
+      "candidateVsBaseline": 0,
+      "rawHalfVsCpuFinite": 0,
+      "rawHalfNanClass": 0,
+      "rejectedPackedVsCpu": 774166
+    },
+    "exactOnRecordedCorpus": true,
+    "rawHalfNaNRule": "NaN class checked; payload preservation is not required across F32-to-F16 conversion. Widened publication preserves original Inf/NaN F32 input bits.",
+    "downstreamE4M3SaturationChanged": false,
+    "packedPathScope": "774,166 differences expose rejected packHalf2x16 publication in this conversion diagnostic; that path is not selected and this count is not a frame-quality metric.",
+    "validationLayerEnabled": false,
+    "validationNote": "VK_LAYER_KHRONOS_validation was unavailable. Explicit validation attempt refused before dispatch; successful GPU probe used driver debug messenger."
+  },
+  "targetGemmOfflineAudit": {
+    "shader": "amd_gemm_direct_rte",
+    "inputSpirvSha256": "f2fe7abcb5a4d714dcd466a9ba96834d54b9160ccb3d20a75e8aeab84f3a8677",
+    "testedFrozenSourceClosure": [
+      {
+        "repositoryFileLabel": "shaders/amd_gemm_direct_rte.comp",
+        "sha256": "fd31a2bee61bb9ba96b650581e694c477cd8d060cd820472a27c96ec80bd736c"
+      },
+      {
+        "repositoryFileLabel": "shaders/amd_half_publication_rte.glsl",
+        "sha256": "56f9dedc558fe515b7eeaafa45c6795fb82a8439e45be569e06266a570769c90"
+      },
+      {
+        "repositoryFileLabel": "shaders/common.glsl",
+        "sha256": "e8b0928a841d31983b0e0a57fa183c77578a8e45a9e83ed4391aad18f515b842"
+      },
+      {
+        "repositoryFileLabel": "shaders/portable_numeric.glsl",
+        "sha256": "e38876828aa7a942ea60db4e684b61ff52cfa85d708388eba381f4bb4d61449c"
+      }
+    ],
+    "sourceIdentityScope": "All 32 offline analyses and the independent audit used this frozen source closure. Current production source differs only in the separately verified helper comment; current glslang output matches the audited module bytes.",
+    "sourceRebuildByteMatchesProductionSpirv": true,
+    "geometry": {
+      "validWidth": 1707,
+      "validHeight": 960,
+      "paddedWidth": 1728,
+      "paddedHeight": 960
+    },
+    "policy": {
+      "gemm": "direct-rte",
+      "arithmetic": "k16",
+      "tileN": 16,
+      "stageK": 16,
+      "hardwarePublicationFlag": false,
+      "actualPublication": "explicit scalar RTE16; distinct from rejected packed half conversion"
+    },
+    "specializations": 32,
+    "coveredGemmDispatchesPerFrame": 358,
+    "graphDispatchesPerFrame": 513,
+    "threeFrozenAlpha3TargetProfileGraphsMatch": true,
+    "profileUse": "Frozen alpha3 Direct target profiles establish shape coverage only; this document does not publish or compare their timings.",
+    "profileSha256": [
+      "a1b064ee5378072ccc276fd1eaea4c5c1699355b7f2f7ffbf7f8133af06d5d57",
+      "e8e5b6dd81d11bf777c5eab0b123b1089119faf3c80a3c6878b61d56f2375301",
+      "e4f2850916802292b44461c1b5f59f840e02db34ca0bb7c9926b58c29754ad06"
+    ],
+    "originalSpecializationEvidence": {
+      "file": "docs/performance/rga-final-q32-rx9070xt-20261002.json",
+      "sha256": "91bc38c28b2bbaf5b4426c1b568552dfecac739ef4d67ab990d254392a2cdc95"
+    },
+    "offlineSummarySha256": "a532b8f059411bbf930dde30084bbcdd89c1d42d043d8cd9eac7a1439a0e1a06",
+    "independentAuditSha256": "de65a5c0be0c3e42497e661cc0197de69f145e3d5b9ae70f237a09892634193c",
+    "artifactHashChecks": 320,
+    "sourceClosureHashChecks": 128,
+    "waveSize": 32,
+    "threads": 128,
+    "ldsBytes": 4096,
+    "deviceLdsLimitBytes": 32768,
+    "allFitDeviceLdsLimit": true,
+    "allScratchBytesZero": true,
+    "allReportedSpillsZero": true,
+    "registerRanges": {
+      "vgprs": [
+        30,
+        45
+      ],
+      "sgprs": [
+        31,
+        46
+      ]
+    },
+    "scalarF32ToF16StaticCountRange": [
+      9,
+      65
+    ],
+    "scalarF16ToF32StaticCountRange": [
+      8,
+      67
+    ],
+    "wmmaStaticCountRange": [
+      1,
+      8
+    ],
+    "allPackedRtzCountsZero": true,
+    "floatMode": 192,
+    "staticInstructionScope": "Static code counts only, including epilogues. K128 emits eight WMMA instructions while larger K cases retain loops; these are not dynamic execution counts.",
+    "gpuExecutedForOfflineAudit": false,
+    "installedDriverIsaInspected": false,
+    "records": [
+      {"name":"gemm-k32-f24-p0-n16-stage16-k16","specialization":{"0":32,"2":24,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":10,"vgprs":33,"sgprs":31,"scalarF32ToF16StaticCount":17,"scalarF16ToF32StaticCount":17,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":2,"analysisSha256":"382254622f926acd18ee4884252a3dea7c94677fdc1b94507261ac3e785cb05a","specializedSpirvSha256":"640fc223de06b7394053c32188132ffbf7526f58b046f0be82152211914a247f","elfSha256":"1ce662439926490fdc8530127a63c3c3c7d4e91d634f53d2569a94dcb369b8d1","isaSha256":"52b16a5c4e04aacd4069b1ad8ce0765bf397b88445440f5e68dc389cd4846d19"},
+      {"name":"gemm-k128-f35-p0-n16-stage16-k16","specialization":{"0":128,"2":35,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":3,"vgprs":39,"sgprs":46,"scalarF32ToF16StaticCount":65,"scalarF16ToF32StaticCount":67,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":8,"analysisSha256":"48d202d3a1a719b699ec16dc323a1619fca3d2a8679078603f8941ed88e3f255","specializedSpirvSha256":"15a58c7dc03dff4d909e7437b385d7b8b062afe5211de8ac039fa6861e2f85a7","elfSha256":"f4e2b08b342e9ae758712b24b5bd1205e49e2a77bd865fdc528a43fc5e071138","isaSha256":"85ecaf44812c075b7a1b4b6d4b6fa2bace0b15b78efcf295ca5c591772f81e39"},
+      {"name":"gemm-k32-f0-p0-n16-stage16-k16","specialization":{"0":32,"2":0,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":10,"vgprs":34,"sgprs":31,"scalarF32ToF16StaticCount":17,"scalarF16ToF32StaticCount":16,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":2,"analysisSha256":"7380c99c44cf1fae2c0dadfeaf4705ba99510100dfdd1b7244dca25ce195f375","specializedSpirvSha256":"ead734ea52f2e1bf5ebc4e0bdf54271c1967f4ddc532e92dff9e9c26ddf97ecc","elfSha256":"7ab871619e088774ddb83446789942dd7dbc1923aed6a9abd7a47b1481b6aafc","isaSha256":"989d540320b4beb99e0298a9a33f8d6ded6731c7b9ac95965eb3b1d4f5fc2218"},
+      {"name":"gemm-k32-f35-p0-n16-stage16-k16","specialization":{"0":32,"2":35,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":2,"vgprs":34,"sgprs":46,"scalarF32ToF16StaticCount":17,"scalarF16ToF32StaticCount":19,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":2,"analysisSha256":"3f793dcc32aa8e70918151751011207395685e3f442e1969bf45063b3d045e95","specializedSpirvSha256":"6e3af50017d3ce44163f791cceca354cf27a71136801dae94910f0fe349024f3","elfSha256":"1500b8c5002bee21164514e16c8f9dd1e65dce7901a6081d6e39a1bd7ab49e0d","isaSha256":"c4996515456ccb541a9dc3f48ebb25a54f2bb2e6e74ce56b74199dced635239f"},
+      {"name":"gemm-k128-f99-p0-n16-stage16-k16","specialization":{"0":128,"2":99,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":20,"vgprs":38,"sgprs":45,"scalarF32ToF16StaticCount":65,"scalarF16ToF32StaticCount":66,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":8,"analysisSha256":"dd5a454f76b525835564aed52a70ea1c119a2a25345fdd379e7f1d1fa5db6943","specializedSpirvSha256":"3d6263aa4817973163933c16598de0b7e61e988115071c79a6e4180c51132cbc","elfSha256":"8601a135b69921c462b3ec1e7772f48aecb59c5bc813d924dd02b9c919ee580c","isaSha256":"37b48e6bfbf3fb05c0745a46bdb28953c48df5c3809fe420b958ba60be636060"},
+      {"name":"gemm-k32-f19-p0-n16-stage16-k16","specialization":{"0":32,"2":19,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":7,"vgprs":33,"sgprs":41,"scalarF32ToF16StaticCount":17,"scalarF16ToF32StaticCount":19,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":2,"analysisSha256":"20e8b23b51721c20adc9ec7a152a2ffdba6ee1c9eb4e253ac73603dc60d12c83","specializedSpirvSha256":"b4a93e4d92a50cfbbca6a1169e099e10ec19bf4074ecf3b13df403bc270e78f4","elfSha256":"a5020a6e36a82c34c2e1778f96ae0f8cffa4342a22cea11613ac9e3e98742f92","isaSha256":"0467e16f67965c7e87178cc889e1b93f7aadb48a59b5dd91a4dd0aeee0d1af18"},
+      {"name":"gemm-k32-f16-p0-n16-stage16-k16","specialization":{"0":32,"2":16,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":1,"vgprs":33,"sgprs":31,"scalarF32ToF16StaticCount":17,"scalarF16ToF32StaticCount":17,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":2,"analysisSha256":"49c84f71fb314ece6684ec38db0e615b2f5fdacfe5264484155f8f25cc1cbe6f","specializedSpirvSha256":"f2fe7abcb5a4d714dcd466a9ba96834d54b9160ccb3d20a75e8aeab84f3a8677","elfSha256":"7c66a3924755daa21ca838451fa3c049102c2dae2e48c190adf2656b6689558b","isaSha256":"609ee0b431e2e6cab2405bdd20230c2d17b980e00d681a145f5f98095429bb23"},
+      {"name":"gemm-k64-f152-p0-n16-stage16-k16","specialization":{"0":64,"2":152,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":8,"vgprs":37,"sgprs":33,"scalarF32ToF16StaticCount":33,"scalarF16ToF32StaticCount":33,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":4,"analysisSha256":"0cd2008fd17f10feedc26fd89725894f0c8285b688aaace0434e750cf5e48802","specializedSpirvSha256":"0ef155efbbaf61a05a0fecb4e5bf59cb6805a7ec78170c5e3d86bbc99731724c","elfSha256":"06746faec1b09c32991a75349ae28b59775ac8333b6e7207e4e395902505b45b","isaSha256":"63596c0c98de53911300c49144939dce51bb64c4b6d4915e62249203858b6a56"},
+      {"name":"gemm-k128-f16-p0-n16-stage16-k16","specialization":{"0":128,"2":16,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":37,"vgprs":37,"sgprs":33,"scalarF32ToF16StaticCount":65,"scalarF16ToF32StaticCount":65,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":8,"analysisSha256":"b0a1ea8a35b9b23eaf3fd1555fe9f624be6b748de2ef7319eb461ea137a82b50","specializedSpirvSha256":"1450629a47a08a667361a0bea01411077e8d5217a3de82ce2cf31e442286977a","elfSha256":"c6204198f1731639e875123d82bcad21a5ce7aa16dc92d3cc1ba8412d4084628","isaSha256":"7a7cd37a297398ac75481febe360633ea1ba2e05789775c53502eda84dfd453c"},
+      {"name":"gemm-k64-f99-p0-n16-stage16-k16","specialization":{"0":64,"2":99,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":9,"vgprs":38,"sgprs":45,"scalarF32ToF16StaticCount":33,"scalarF16ToF32StaticCount":34,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":4,"analysisSha256":"e321c78e741f72f1648c4f0d2d721e5f64efb44e9072b2a614c85c46c5032d27","specializedSpirvSha256":"6f3420f3c98877eb80f961afdb3c8cc385f42e526a3d4bc6e97b646546152a0a","elfSha256":"82574deba934ca3e062e26cea5f44e4e724b116ecef39ab68b19e18a7a16b065","isaSha256":"ca9ec2052e0101329559c62a623635fbdbd2d6ffb9763ad6605ff6bffee1db3b"},
+      {"name":"gemm-k64-f0-p0-n16-stage16-k16","specialization":{"0":64,"2":0,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":9,"vgprs":37,"sgprs":33,"scalarF32ToF16StaticCount":33,"scalarF16ToF32StaticCount":32,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":4,"analysisSha256":"ce86e61dcda51db29efc2e0b0753d95c079f18fd510010fee424364e939ef837","specializedSpirvSha256":"4a674a642f23023042dac0a652b03d631daf7027f560436ae10f63ade16c32ec","elfSha256":"d6bc68e8dcfac00c41cb80d6e88010543dbe2acee6eb77ffba062314de2cceaa","isaSha256":"aa962ef346f6cf7af7eead8a1546e21261172b69972da0836cfccf228449aca7"},
+      {"name":"gemm-k64-f83-p0-n16-stage16-k16","specialization":{"0":64,"2":83,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":7,"vgprs":38,"sgprs":40,"scalarF32ToF16StaticCount":33,"scalarF16ToF32StaticCount":34,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":4,"analysisSha256":"b91f603f308ff876d5f565b821fa623a6185c81c62cd507304463a31afde63b1","specializedSpirvSha256":"b27ef041b14ae491595aae00129dfc1f621417f329f845efd400cb4115528a56","elfSha256":"aadf5e2a41b37339a1b9cffa7d25b44c5b6a7a3417c1d42c2e5d99a30591980e","isaSha256":"375e83c1b31723d15cb36d50184e5e69b300d1c46c42e5fb2336f122cd064d8d"},
+      {"name":"gemm-k64-f16-p0-n16-stage16-k16","specialization":{"0":64,"2":16,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":1,"vgprs":37,"sgprs":33,"scalarF32ToF16StaticCount":33,"scalarF16ToF32StaticCount":33,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":4,"analysisSha256":"6032faa470745345f818a355b1fa1ad368433b0c9a95481662c09fec04cf3494","specializedSpirvSha256":"778aefbf111ab0e156f06da59dd35f13e1b33311aba85fa50a160eeaeb90d3cf","elfSha256":"bfc789482d6ab1f85b7a87e49742d491dfa3b5dff6d049d5f76e8d89c66166e3","isaSha256":"672003b9646bf271fdde237d5f36948a06693a026c4c1074979627fb90d14ec2"},
+      {"name":"gemm-k128-f152-p0-n16-stage16-k16","specialization":{"0":128,"2":152,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":12,"vgprs":37,"sgprs":33,"scalarF32ToF16StaticCount":65,"scalarF16ToF32StaticCount":65,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":8,"analysisSha256":"1f66cbbeeac7493311725b485447a9c7360ef806a84319937e88f24f46e74643","specializedSpirvSha256":"ccb43cbaccbbf9536d23d46a2e7f9e551147c34db24f3c6ab2db7a5116be7f1c","elfSha256":"ad712b1822b45b764b9783fc0e596c45be0fa66300750503bf2adf76972abfaa","isaSha256":"1c6b3f5a7ca496daea8e746185b7a201cba81d660cae80bac7e961b4ba8283d7"},
+      {"name":"gemm-k128-f0-p0-n16-stage16-k16","specialization":{"0":128,"2":0,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":13,"vgprs":37,"sgprs":33,"scalarF32ToF16StaticCount":65,"scalarF16ToF32StaticCount":64,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":8,"analysisSha256":"0ed67f751ca86774031a0344ba088ff85f497dd3730b9ad984e93390a63d933e","specializedSpirvSha256":"57c08348bf13fae9cd040f950a4a37d60524d0811360f9ba17ee77a98c65b71f","elfSha256":"eea34ce74f274df9f68c1e0929be648ae54a6320d184ff3a952a6e993e22a103","isaSha256":"6f387ca64f944d3e77e6c9151ef06d1b1fe4207ce6a35994c2c9b53e1bc114b8"},
+      {"name":"gemm-k128-f83-p0-n16-stage16-k16","specialization":{"0":128,"2":83,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":11,"vgprs":38,"sgprs":40,"scalarF32ToF16StaticCount":65,"scalarF16ToF32StaticCount":66,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":8,"analysisSha256":"9ad7e082261efdfb453c284dc678f6024ecfc38b676cad390968af97e354eca3","specializedSpirvSha256":"51f2b58801ac83fff5b4abe0a7fee7afc352c1280c8248013e960813dc62a5c4","elfSha256":"f9b214ac534e9abe5bde6807dfbd6edef485200eff11150a8949e71e9faa08fe","isaSha256":"53de6e0128c4b60cf48e418650ddcf736b8f8f0d19da79a63fef5c20c7a1809e"},
+      {"name":"gemm-k256-f152-p0-n16-stage16-k16","specialization":{"0":256,"2":152,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":16,"vgprs":30,"sgprs":31,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":9,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"4c43051b039adb5a53219186fcc48c4883fec478fd80e041eaa467a1fcc63b5d","specializedSpirvSha256":"fd7cab3771210cf83e29b9d92d48dd446bd14a88b692a647672f3fedf8077950","elfSha256":"2adf0a7973813b223aaaf773d583409732c0dae62cabed58f674742b3ae948e2","isaSha256":"96dd4b4aa72677e40175111e32256e6d15f0068f848bd0688915939a28d16d50"},
+      {"name":"gemm-k256-f99-p0-n16-stage16-k16","specialization":{"0":256,"2":99,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":17,"vgprs":31,"sgprs":45,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":10,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"8a0f4813de71928516a9071a684ad0d1659025acdc35c3264dc6eb51f97fc899","specializedSpirvSha256":"7c3ce9204a13eb51d86f2a2cdb358bd4c70dfc6f971bacc2733bee45cf68561e","elfSha256":"59d70b1afc3763c4b381d363679c1cc81ab607929862f22c9903737c9d74d390","isaSha256":"0fe6b5e3d9a2f038b2436c3ea0641968fec88a57697294ca893e59645a66c782"},
+      {"name":"gemm-k256-f0-p0-n16-stage16-k16","specialization":{"0":256,"2":0,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":17,"vgprs":30,"sgprs":32,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":8,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"8f2d6eea9622bf445cd3aa5ae0a619ca2294c9962e07c68c3f93dfe921187702","specializedSpirvSha256":"9f7c7caeda56f9d629c08cded97d08296a6e11e1f8e85bad92b17906b7cb43e4","elfSha256":"723c45269b9d9300dac92f095ca7ebe55a2dab3634d192b1a28793976bbc5b8b","isaSha256":"a6285de2bd2c3f0d637c8a70a6230f67e998bbe9e42650b18cdeee5629d61a25"},
+      {"name":"gemm-k256-f83-p0-n16-stage16-k16","specialization":{"0":256,"2":83,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":15,"vgprs":31,"sgprs":40,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":10,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"86fee7b4e2a039b4844a607100eb858d7d3377102adedb541fe7c3b4448ecf4b","specializedSpirvSha256":"df79bae450c09fcd9e2db94c9bfa9c3dcaa9393d48ca195173c35cb5d274b92d","elfSha256":"c9d7fb94114ea9164a44ea7b4c76119c1c74718013fc77645b70ce37cdf27b2e","isaSha256":"7fe9486c6262c9621d0b76ee3f0af494fa53d2cef95fd9633b5f56071231ef0c"},
+      {"name":"gemm-k256-f16-p0-n16-stage16-k16","specialization":{"0":256,"2":16,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":17,"vgprs":30,"sgprs":32,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":9,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"87249b68e7ea66f7b462c5db27fb3af82f18b072e0b62da1de2ce7216746773b","specializedSpirvSha256":"ffc111bbd83327635e7d4419b7a6754031e55388a1bd0ca2539aefdb5bf38d74","elfSha256":"2e501ab9f00c7812ea02f0f29a58c8eed766bd49295283e17ce9a59940fb6861","isaSha256":"cc44cccd0283beacdc557c91844e243f83408fab66136d708925edf75781a874"},
+      {"name":"gemm-k512-f16-p0-n16-stage16-k16","specialization":{"0":512,"2":16,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":17,"vgprs":30,"sgprs":32,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":9,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"dfc8411ce1355ab245da21dfb1deccc02a7a843152abad2b90ce1d107b30d642","specializedSpirvSha256":"6658b3fda734e5bc9309bedeb48cf63c7d45b8fabb5fde687e6c31f0d7a807fb","elfSha256":"097ca8d20d5f253b1067eb583f99a9db4697820b73d059a35571414983122e58","isaSha256":"33c0b421511fc5abe1dcdaf09ea5413a68a451c8564dd1abb27404dd6b3de093"},
+      {"name":"gemm-k64-f24-p0-n16-stage16-k16","specialization":{"0":64,"2":24,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":16,"vgprs":37,"sgprs":33,"scalarF32ToF16StaticCount":33,"scalarF16ToF32StaticCount":33,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":4,"analysisSha256":"39500ba73462542ebbe90f11cad71313fd1032e787ad040f3367db122dde6ea2","specializedSpirvSha256":"bdc017486421b80ecbaf80663e65ab45d99933336b09cca257d224db2614be00","elfSha256":"d20dceb10e2477f21ead0e0eec35bbcf2d9f8913b017515ed561dcefd6562b22","isaSha256":"c3683c85b2227bd547b7795bebe883af3fec4db366c5c8bc6de36210d88ce51d"},
+      {"name":"gemm-k512-f83-p0-n16-stage16-k16","specialization":{"0":512,"2":83,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":31,"vgprs":31,"sgprs":40,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":10,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"55261c1a5ef23a0da50bbfc3e2b04a18ab922a1284b07a7a090ccdeb3110674d","specializedSpirvSha256":"eb110eeae856100d95f4a8c118e8c7bd61be1117acff3da41291c8a629f2cc9f","elfSha256":"ea7eeb876f86d4e21ae5778efc1c7c35e7c3575ab024c1e69e7ef56d7fdfe414","isaSha256":"49043f7cf9a8a3615104214d59e2a2b36f81a5111dce2f449605e386058b6955"},
+      {"name":"gemm-k512-f0-p0-n16-stage16-k16","specialization":{"0":512,"2":0,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":17,"vgprs":30,"sgprs":32,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":8,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"05d6c03add744375d42472add42f2b586b4ca9ccf9d6140d605b4111df3f6ae0","specializedSpirvSha256":"855e9168a9cc3ac35f7d479e3b9378a41bc2a57ba6974b157f7afa8547d84e86","elfSha256":"e9f4edaa37cf3d2f1c254296682d9c895b7e66ed598417e506e8ed1967299e19","isaSha256":"6e82d9788a2b1a5cd76b8b46450d52375fc3c2b132b539748af6f1380ab7c76b"},
+      {"name":"gemm-k512-f99-p0-n16-stage16-k16","specialization":{"0":512,"2":99,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":1,"vgprs":31,"sgprs":45,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":10,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"2291a13433d8aad3ffbb8f5910ceb8fb8fe9688618174307e0237552788ac7f8","specializedSpirvSha256":"470bcbe5319eb035098ef3643b0659ae883c5911a9b36bc7ac99d911180e8a4d","elfSha256":"3f856be5ec633c9c2414c6189d59c05c03e9228d5bba590599243942deeb44ee","isaSha256":"40ffd1da810f298e9922b558190309e72f22d908152b8433e7cb97312fac3a72"},
+      {"name":"gemm-k1024-f24-p0-n16-stage16-k16","specialization":{"0":1024,"2":24,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":8,"vgprs":30,"sgprs":32,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":9,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"6b4999c4ed24d85dd9a57a258f9b630eb9da18bc72bb11a954e3f367e4573a6a","specializedSpirvSha256":"54065fffb6fda8a5d64c3f37e3b8d6f7fc9a18d8d9f8b609d05ae81594068f7e","elfSha256":"f7c598d124125bb322557da04d07d5ef6d98c2462e9b7f8cdd43b6bcc420ed9e","isaSha256":"b3bd9e8716b0461fa400156a82a8e1ee7ddd9b594c2f9a9675d661f057b2b9ab"},
+      {"name":"gemm-k4096-f83-p1024-n16-stage16-k16","specialization":{"0":4096,"2":83,"3":1024,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":8,"vgprs":45,"sgprs":40,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":10,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"e5b074698f1ea74242b13faaa90a91506eab6b52716bf5b78b7f7ba54075cb26","specializedSpirvSha256":"ea20c0e0e80a7a8deb3c75e5ae0567d363f0ff8c2ca509c4a812fb3181226c72","elfSha256":"4ed065db8b953c0a6de38f4424913658db33eed0778c1fd7408f1e356ddd4b17","isaSha256":"44836d7e2ebaebec25ee533fe62477580c10e80e7886cc0efd2d4a2281697b08"},
+      {"name":"gemm-k1024-f0-p512-n16-stage16-k16","specialization":{"0":1024,"2":0,"3":512,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":8,"vgprs":44,"sgprs":33,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":8,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"9cb40051374f38aad08ff727f5a4b95123f336b24100d05d62ca1eb6eaf56ea1","specializedSpirvSha256":"a58393daf62b4b6ee1b2d75aaea764821d855f97d9e5875a67f084ce8619bc8a","elfSha256":"4cf0f7a8c75bba8dd051285dc597aabd578e9b571ea2cec39810250f850d675a","isaSha256":"b5ec5f0899ef7297b0f3e3518a5971a056fb23b1136553086d242813c648695b"},
+      {"name":"gemm-k1024-f83-p256-n16-stage16-k16","specialization":{"0":1024,"2":83,"3":256,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":8,"vgprs":45,"sgprs":40,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":10,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"ef95603be4ad1c06d2e0ac70b9bdf47d9f373ce668a61886bd69af01781e2d3f","specializedSpirvSha256":"5c46db18d2fe046043fbb044f766e137c12dabcae21f2f888b92464a0295fe6f","elfSha256":"7013476d1cd2a92b7aa6e55e651548f5aea81fd899e5d979a959f59d4ba60d22","isaSha256":"d81b5dbca5fbffa25de8180c4b64365977f036e4344a22be7d9c10c3c7e62b75"},
+      {"name":"gemm-k1024-f0-p256-n16-stage16-k16","specialization":{"0":1024,"2":0,"3":256,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":1,"vgprs":44,"sgprs":33,"scalarF32ToF16StaticCount":9,"scalarF16ToF32StaticCount":8,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":1,"analysisSha256":"eaffd6551687ffb41f4a061a651a3be9eb7a833c8bd6a71af1e9d590106091b2","specializedSpirvSha256":"6342642f08a281559fbb2b6d4a19f1e35bf0c5c2533cbab6284dbfb5738e8b78","elfSha256":"ee118db04dccd4fee424f883795aa3e0dda66458b67ccd7eb701ed5da5150253","isaSha256":"9cdfe4923e4e0a2a2dcf79df512fa76793c78ed70935ef21898a32639f0d6daf"},
+      {"name":"gemm-k32-f3-p0-n16-stage16-k16","specialization":{"0":32,"2":3,"3":0,"10":16,"11":16,"12":16,"13":false},"matchedDispatches":1,"vgprs":33,"sgprs":40,"scalarF32ToF16StaticCount":17,"scalarF16ToF32StaticCount":18,"packedRtzF32ToF16StaticCount":0,"fp8WmmaStaticCount":2,"analysisSha256":"458cef9492c4cc48c695c4c4d9b23530694dc06371ed4916fd865cc21bb621bf","specializedSpirvSha256":"95009cab0c38f43436190eeb7b4cf7095fca5a047cd90deab79a4036d2b67c77","elfSha256":"ced221a9f7f3266bdc3017b7ec14553f0de66f1b6783c1c11c2262a7fd05a8a0","isaSha256":"32b440dd03b171b0fb3eadf40602242ba4145fc48d295ae1acd049fd86c99958"}
+    ]
+  },
+  "registerRteAttentionOfflineSupplement": {
+    "scope": "Verified source/SPIR-V and Q16/Q32 offline resource reports only; excludes GPU operator/model/timing/default evidence.",
+    "currentProductionSource": {
+      "file": "shaders/amd_window_register_rte.comp",
+      "bytes": 9762,
+      "sha256": "6a2206473449ad3b0eb0ed1eb02b02da90f657f9b61d04952556abc064e30d30"
+    },
+    "testedFrozenSourceClosure": [
+      {
+        "repositoryFileLabel": "shaders/amd_window_register_rte.comp",
+        "sha256": "c17f85c9084556d1d92e46ebf0d9c14a91808e4ce2c4137af971d262e52d780f"
+      },
+      {
+        "repositoryFileLabel": "shaders/portable_numeric.glsl",
+        "sha256": "e38876828aa7a942ea60db4e684b61ff52cfa85d708388eba381f4bb4d61449c"
+      },
+      {
+        "repositoryFileLabel": "shaders/common.glsl",
+        "sha256": "e8b0928a841d31983b0e0a57fa183c77578a8e45a9e83ed4391aad18f515b842"
+      },
+      {
+        "repositoryFileLabel": "shaders/amd_half_publication_rte.glsl",
+        "sha256": "56f9dedc558fe515b7eeaafa45c6795fb82a8439e45be569e06266a570769c90"
+      }
+    ],
+    "sourceIdentityScope": "Q16/Q32 offline reports retain their frozen source hashes. Current window and shared-helper comments differ; current glslang output matches the audited module bytes.",
+    "inputSpirvSha256": "9ff6958330657dbf8fe6dbc86d1dd520fb3b0c80e9afbdf39cf78a3995314569",
+    "sourceRebuildByteMatchesInputSpirv": true,
+    "sharedHelperMatchesGemmHelper": true,
+    "gpuEvidenceIncluded": false,
+    "releaseOrDefaultQualifiedByThisSupplement": false,
+    "records": [
+      {
+        "queryRows": 16,
+        "publicationInterval": 16,
+        "resources": {
+          "vgprSpills": 0,
+          "staticScratchInstructionCount": 0,
+          "sgprSpills": 0,
+          "wavefrontSize": 32,
+          "threadgroupDimensions": [
+            128,
+            1,
+            1
+          ],
+          "scratchBytes": 0,
+          "ldsBytes": 9728,
+          "sgprs": 26,
+          "vgprs": 35
+        },
+        "matrixInstructions": [
+          {
+            "staticCount": 6,
+            "instruction": "v_wmma_f32_16x16x16_fp8_fp8"
+          }
+        ],
+        "analysisSha256": "f097905dc9cd728fc204f98f7078c9c9fde94dcace0c3c63f6ccf6367008a1de",
+        "specializedSpirvSha256": "60fc5954a6333aefc4106b2da80de94d13ea4aee94765db9b4aa2732ae6be263",
+        "elfSha256": "76bf53086dcbe2b44b228bedfc583306c1fb6f152e53ec93a8b66efb26870492",
+        "isaSha256": "e5840d8cd2b66a96c89fc772eb8872890ffcc34f9a4b9ba453e789ff42b62006"
+      },
+      {
+        "queryRows": 32,
+        "publicationInterval": 16,
+        "resources": {
+          "vgprSpills": 0,
+          "staticScratchInstructionCount": 0,
+          "sgprSpills": 0,
+          "wavefrontSize": 32,
+          "threadgroupDimensions": [
+            128,
+            1,
+            1
+          ],
+          "scratchBytes": 0,
+          "ldsBytes": 13312,
+          "sgprs": 29,
+          "vgprs": 38
+        },
+        "matrixInstructions": [
+          {
+            "staticCount": 6,
+            "instruction": "v_wmma_f32_16x16x16_fp8_fp8"
+          }
+        ],
+        "analysisSha256": "8d96978c57351877d56e27f9706dc971ee5f18f652b618de91e329e832d4837b",
+        "specializedSpirvSha256": "9ff6958330657dbf8fe6dbc86d1dd520fb3b0c80e9afbdf39cf78a3995314569",
+        "elfSha256": "a8790b12191c36ae9da8dc630d61da59a7c33e8e84527076d3a94247096eb8b9",
+        "isaSha256": "33bca87575cc673b5d85edc3de366b7c76a95d73934bae688dd580620b39891d"
+      }
+    ]
+  },
+  "boundaries": {
+    "networkTimingEvidenceIncluded": false,
+    "gameEvidenceIncluded": false,
+    "newDefaultClaim": false,
+    "releaseQualificationClaim": false,
+    "installedDriverIsaOrDynamicRgpClaim": false,
+    "proprietaryAssetsIncluded": false,
+    "gameCapturesIncluded": false,
+    "rawGpuInputOutputBuffersIncluded": false,
+    "notes": [
+      "Offline reflected descriptor compilation is not equivalent to installed Windows driver pipelines.",
+      "Register counts alone do not establish occupancy or performance.",
+      "Standalone conversion corpus does not replace complete operator/checkpoint, temporal, bridge, or game qualification."
+    ]
+  },
+  "specifications": [
+    "https://registry.khronos.org/SPIR-V/extensions/KHR/SPV_KHR_float_controls.html",
+    "https://docs.vulkan.org/glslext/latest/glslext/ext/GLSL_EXT_spirv_intrinsics.html"
+  ]
+}

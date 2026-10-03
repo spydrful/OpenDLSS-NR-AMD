@@ -1,0 +1,433 @@
+{
+  "format": "OpenNR-amd-fusion-screen-public-evidence-v1",
+  "observed_date_utc": "2026-10-03",
+  "status": "completed_prescribed_frozen_alpha3_network_protocol_all_three_original_fusion_routes_regressed",
+  "comparison_anchor": "direct32",
+  "scope": "Historical neural-inference-only fusion experiment using immutable alpha 3 Direct/K16/Q32/staged modules and executable; independent of the newer DirectRte/RegisterRte measurements.",
+  "geometry": {
+    "width": 1707,
+    "height": 960,
+    "padded_width": 1728,
+    "padded_height": 960
+  },
+  "frozen_inputs": {
+    "alpha3_package_manifest_sha256": "15decbb890e99eed00e491465feb3ecbdf8a2629c1145155b09d1baa1964cf68",
+    "executable_sha256": "e93b4ac685666f63a79d2003475ace747aba36dbdce4caddf99ee143f1763c13",
+    "baseline_shader_sha256": "9497a10fc30264c5325440f90e1925f0251dc571a1676d2d1ae4aa6b810960ba",
+    "model_manifest_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+    "original_runner_sha256": "cc6813df9d91023622a7161dac0f6146a3d5034a8d781b97f7305899afc717d8",
+    "original_analysis_tools": {
+      "tune_amd.py": "80c8567c547e6104b0c275e91662cac7bb440eecb9fdf70f666c1a7debdb8cb7",
+      "qualify_amd_model.py": "edc0b8ca94b03e7a1396ea01c7a9eff7461981c658867f6b46d414dc7b543f31"
+    },
+    "ffn32_spirv_sha256": "1b4aa577e62bf3ff67b61b6da972b95d91058d7259488d82e1a75dfcf4e14ccc",
+    "qkv32_spirv_sha256": "2dbdfd7e725e2cfd09e8c09e0aa60ce09a487272bc93d47bd328818d5824224b"
+  },
+  "protocol": {
+    "readback": false,
+    "instrumented": false,
+    "warmup_frames_per_run": 5,
+    "measured_frames_per_run": 30,
+    "interleaved_pairs_per_route": 3,
+    "routes": 3,
+    "measured_frames_total": 540,
+    "warmup_frames_total": 90,
+    "candidate_protocols_complete": true,
+    "all_execution_identities_matched_frozen_assets": true
+  },
+  "candidates": [
+    {
+      "route": "ffn-only",
+      "raw_manifest": {
+        "path": "docs/performance/amd-fusion-screen-measurements/ffn-only/interleaved.json",
+        "sha256": "dbc27b05cacbea835d0ef2b2d4fd526a2438b13b9b7dee078e824abd6ba2efd4"
+      },
+      "assessment": {
+        "path": "docs/performance/amd-fusion-screen-measurements/ffn-only/report.json",
+        "sha256": "837289a1ac7213cc0fbeda3d6bc25b39dc541136b7e56a09b9a9c8ba99413a37"
+      },
+      "identities": {
+        "baseline": {
+          "device_id": "1002:7550",
+          "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+          "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+          "shader_sha256": "9497a10fc30264c5325440f90e1925f0251dc571a1676d2d1ae4aa6b810960ba",
+          "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+          "executable_sha256": "e93b4ac685666f63a79d2003475ace747aba36dbdce4caddf99ee143f1763c13"
+        },
+        "candidate": {
+          "device_id": "1002:7550",
+          "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+          "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+          "shader_sha256": "91bc1d67009d9556c14a3afd9be6457751a7ed74fb03e38b1f38975bec0c32b2",
+          "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+          "executable_sha256": "e93b4ac685666f63a79d2003475ace747aba36dbdce4caddf99ee143f1763c13"
+        }
+      },
+      "selections": {
+        "baseline": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "tile_n": 16,
+          "stage_k": 16,
+          "gemm": "direct",
+          "window_queries": 32,
+          "window_layout": "staged",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        },
+        "candidate": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "tile_n": 16,
+          "stage_k": 16,
+          "gemm": "direct",
+          "window_queries": 32,
+          "window_layout": "staged",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": true,
+          "qkv32_fusion": false
+        }
+      },
+      "baseline_ms": {
+        "samples": 90,
+        "mean": 81.05758044429952,
+        "median": 81.06291999667883,
+        "p95": 81.33881600014865,
+        "p99": 81.4281091977656,
+        "min": 80.63192000240088,
+        "max": 81.43320000171661,
+        "standard_deviation": 0.1631299343484799,
+        "coefficient_of_variation": 0.0020125191679090174
+      },
+      "candidate_ms": {
+        "samples": 90,
+        "mean": 99.95872400030494,
+        "median": 99.86154000088573,
+        "p95": 100.65275399684906,
+        "p99": 101.30061079949141,
+        "min": 99.2350800037384,
+        "max": 101.39876000583172,
+        "standard_deviation": 0.3843779726967981,
+        "coefficient_of_variation": 0.003845366940614663
+      },
+      "median_regression_percent": 23.190158959209818,
+      "p95_regression_percent": 23.745044428314642,
+      "protocol_complete": true,
+      "network_regression_gate_passed": false,
+      "performance_promotion_gate_passed": false,
+      "selected_for_default": false,
+      "numerical_candidate_qualification_executed": false
+    },
+    {
+      "route": "qkv-only",
+      "raw_manifest": {
+        "path": "docs/performance/amd-fusion-screen-measurements/qkv-only/interleaved.json",
+        "sha256": "74b3c061b1cde80d63d6df831e795cc713126aeefad69f3e524de5ab2c8c2892"
+      },
+      "assessment": {
+        "path": "docs/performance/amd-fusion-screen-measurements/qkv-only/report.json",
+        "sha256": "4b56aa1fd96b91e0772d8c08cacc02d6015dc272e3bd1b365a528c90feb54460"
+      },
+      "identities": {
+        "baseline": {
+          "device_id": "1002:7550",
+          "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+          "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+          "shader_sha256": "9497a10fc30264c5325440f90e1925f0251dc571a1676d2d1ae4aa6b810960ba",
+          "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+          "executable_sha256": "e93b4ac685666f63a79d2003475ace747aba36dbdce4caddf99ee143f1763c13"
+        },
+        "candidate": {
+          "device_id": "1002:7550",
+          "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+          "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+          "shader_sha256": "15edaa55b2e8210a9f6f30ae03c9013685b864f35b37bf3c9f19912a489cf888",
+          "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+          "executable_sha256": "e93b4ac685666f63a79d2003475ace747aba36dbdce4caddf99ee143f1763c13"
+        }
+      },
+      "selections": {
+        "baseline": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "tile_n": 16,
+          "stage_k": 16,
+          "gemm": "direct",
+          "window_queries": 32,
+          "window_layout": "staged",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        },
+        "candidate": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "tile_n": 16,
+          "stage_k": 16,
+          "gemm": "direct",
+          "window_queries": 32,
+          "window_layout": "staged",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": true
+        }
+      },
+      "baseline_ms": {
+        "samples": 90,
+        "mean": 80.8927555554443,
+        "median": 80.87764000147581,
+        "p95": 81.1537559993565,
+        "p99": 81.5115768019855,
+        "min": 80.44963999837637,
+        "max": 81.96091999858618,
+        "standard_deviation": 0.204897527475653,
+        "coefficient_of_variation": 0.002532952747977725
+      },
+      "candidate_ms": {
+        "samples": 90,
+        "mean": 101.7296044446528,
+        "median": 101.56079999729991,
+        "p95": 102.9211519986391,
+        "p99": 103.35122679598629,
+        "min": 101.03559999912977,
+        "max": 103.40095999836922,
+        "standard_deviation": 0.5050869071241467,
+        "coefficient_of_variation": 0.004964994308996309
+      },
+      "median_regression_percent": 25.573397042058453,
+      "p95_regression_percent": 26.82241349304302,
+      "protocol_complete": true,
+      "network_regression_gate_passed": false,
+      "performance_promotion_gate_passed": false,
+      "selected_for_default": false,
+      "numerical_candidate_qualification_executed": false
+    },
+    {
+      "route": "both",
+      "raw_manifest": {
+        "path": "docs/performance/amd-fusion-screen-measurements/both/interleaved.json",
+        "sha256": "9886904c1bfccc919d791652bef8ddc79188782488b715c0e71e2fee910e7f2d"
+      },
+      "assessment": {
+        "path": "docs/performance/amd-fusion-screen-measurements/both/report.json",
+        "sha256": "2cd81794c5ac9d734d804ac92a5bb25d9498df028f1c1dba6e0405b083c91961"
+      },
+      "identities": {
+        "baseline": {
+          "device_id": "1002:7550",
+          "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+          "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+          "shader_sha256": "9497a10fc30264c5325440f90e1925f0251dc571a1676d2d1ae4aa6b810960ba",
+          "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+          "executable_sha256": "e93b4ac685666f63a79d2003475ace747aba36dbdce4caddf99ee143f1763c13"
+        },
+        "candidate": {
+          "device_id": "1002:7550",
+          "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+          "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+          "shader_sha256": "f09d10ef3ce02923a80f1697857f09380b3aa8b5dc50bf289aca726fdb697f54",
+          "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+          "executable_sha256": "e93b4ac685666f63a79d2003475ace747aba36dbdce4caddf99ee143f1763c13"
+        }
+      },
+      "selections": {
+        "baseline": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "tile_n": 16,
+          "stage_k": 16,
+          "gemm": "direct",
+          "window_queries": 32,
+          "window_layout": "staged",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        },
+        "candidate": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "tile_n": 16,
+          "stage_k": 16,
+          "gemm": "direct",
+          "window_queries": 32,
+          "window_layout": "staged",
+          "fusion": true,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": true,
+          "qkv32_fusion": true
+        }
+      },
+      "baseline_ms": {
+        "samples": 90,
+        "mean": 80.87123644443022,
+        "median": 80.90522000193596,
+        "p95": 81.29231799691915,
+        "p99": 81.50547959774732,
+        "min": 80.0728399977088,
+        "max": 81.5378399938345,
+        "standard_deviation": 0.29941453918236666,
+        "coefficient_of_variation": 0.003702361338176226
+      },
+      "candidate_ms": {
+        "samples": 90,
+        "mean": 122.05615644446678,
+        "median": 121.71942000091076,
+        "p95": 124.08674400113523,
+        "p99": 124.35824679903686,
+        "min": 119.69399999827147,
+        "max": 124.37415999919176,
+        "standard_deviation": 0.8893559066149332,
+        "coefficient_of_variation": 0.007286448570249492
+      },
+      "median_regression_percent": 50.44693036864392,
+      "p95_regression_percent": 52.642644543409276,
+      "protocol_complete": true,
+      "network_regression_gate_passed": false,
+      "performance_promotion_gate_passed": false,
+      "selected_for_default": false,
+      "numerical_candidate_qualification_executed": false
+    }
+  ],
+  "source_provenance": {
+    "summary.json": {
+      "path": "build/performance/fusion-screen-20261002/summary.json",
+      "sha256": "e1b3ad46b6c070d22201650a7336c4b57eec37e8198990ba9c3809bfdfe4b656"
+    },
+    "plan.json": {
+      "path": "build/performance/fusion-screen-20261002/plan.json",
+      "sha256": "61d0f965f83b49d311d45ffc252a6bc02dbbe7bda8f12d53734e23bbf4c4b474"
+    },
+    "cpu-reverification.json": {
+      "path": "build/performance/fusion-screen-20261002/cpu-reverification.json",
+      "sha256": "545257db61b4c1494dd5babb4f86fe7cde70c16000bf53489030adb65538a731"
+    }
+  },
+  "public_export_verification": {
+    "raw_json_files": [
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/ffn-only/interleaved.json",
+        "sha256": "dbc27b05cacbea835d0ef2b2d4fd526a2438b13b9b7dee078e824abd6ba2efd4"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/ffn-only/pair-01-baseline.json",
+        "sha256": "e20cedf4cb3bbd30367d27724333834adf514518108fd82cc80bb26600edf628"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/ffn-only/pair-01-candidate.json",
+        "sha256": "eecb90a2d2b3dffe274a37161d48f6a2d92577f8cacb63a42ef95e137eca3883"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/ffn-only/pair-02-baseline.json",
+        "sha256": "910e86971e3822c1558dce64f7a45ce8761b4d067e316d113bce4acbdf44aa3d"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/ffn-only/pair-02-candidate.json",
+        "sha256": "12a1995d3416061cdba524e30ab2ca669a89643cd74078af22b08e16f96de531"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/ffn-only/pair-03-baseline.json",
+        "sha256": "b22280d02e5db094e9776561fed99c6304029ea70357fd65fee12da76e427643"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/ffn-only/pair-03-candidate.json",
+        "sha256": "7691a9c1d7cb32402a74d3a7b0c68678d8d97001b883598ca6c40f24d25c4dce"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/qkv-only/interleaved.json",
+        "sha256": "74b3c061b1cde80d63d6df831e795cc713126aeefad69f3e524de5ab2c8c2892"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/qkv-only/pair-01-baseline.json",
+        "sha256": "2e351d9d7b0a15d3705370f094307ebe65c2a550594a58d2ae77febde362d942"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/qkv-only/pair-01-candidate.json",
+        "sha256": "e3cc33d41c03f3ca08d842534b7a7c3c43f81d2550dbc991d6b4bc238b4919d5"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/qkv-only/pair-02-baseline.json",
+        "sha256": "c727f8f858794b17fafad30c3cd85f96a0ffbb2da69fe508299bb301d5cf3cf0"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/qkv-only/pair-02-candidate.json",
+        "sha256": "6c4098b1654ff7dc38e5b6673522c5c1da7c9f9f003ff62dfcfe7936873df6a3"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/qkv-only/pair-03-baseline.json",
+        "sha256": "d75b0430a08a80402ade451026d81b2ceb1574db1fc5d98ff03861133e64f906"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/qkv-only/pair-03-candidate.json",
+        "sha256": "461cfe3ee7d021ee45ade68951bddf3127da7b5b2b38c570bc36bfa319647ef1"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/both/interleaved.json",
+        "sha256": "9886904c1bfccc919d791652bef8ddc79188782488b715c0e71e2fee910e7f2d"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/both/pair-01-baseline.json",
+        "sha256": "b3c3f91474e4ce4dfb35cffd3afc6233ab3bd91f9b3172af07415cf3e59dbb85"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/both/pair-01-candidate.json",
+        "sha256": "0023e05055fffdae6d5fd7d2206497660ab5c9c405bc98bc04f69277952ec1a8"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/both/pair-02-baseline.json",
+        "sha256": "f5b8c7dca1138ffc628d111b119a12ffd76922eb3c4f48185923ea77a095b784"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/both/pair-02-candidate.json",
+        "sha256": "dd9996bda4fa4ef54b53feec05c0f48a4c79f1da7b0151efe311c7a4b6135dab"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/both/pair-03-baseline.json",
+        "sha256": "be238e759697824f3a6497d29aa1d0c2268399fc85c4b726e597c7a30a663b5c"
+      },
+      {
+        "path": "docs/performance/amd-fusion-screen-measurements/both/pair-03-candidate.json",
+        "sha256": "aac8ef4486ab46d475075da6aec8704eb548a7cb0e0f2616dc459c4d66d91a13"
+      }
+    ],
+    "raw_files_byte_identical": true,
+    "public_reanalysis_matches_private_statistics_gates_and_identities": true,
+    "analysis_tool": {
+      "path": "tools/tune_amd.py",
+      "sha256": "b879434a2e220c27a946b719ae0688ee9d489433bb54248fb7b4d0af7c59d54f"
+    },
+    "raw_json_bytes": 65535
+  },
+  "delivery_policy": {
+    "ffn32_fusion_enabled": false,
+    "qkv32_fusion_enabled": false,
+    "current_rte_default_fusion_off_verified": true,
+    "nr_enabled_by_default": false,
+    "game_fps_measured": false,
+    "release_qualified": false
+  },
+  "limitations": [
+    "The losing routes use the existing amd_ffn32/amd_qkv32 fused kernels. These measurements do not establish that future DirectRte/RegisterRte fusion kernels cannot improve performance.",
+    "The three baselines belong to their own interleaved experiments and must not be substituted for the newer RTE candidate baseline.",
+    "No additional GPU or strict numerical qualification was run for candidates failing the performance gate.",
+    "No NVIDIA DLLs, model weights, or game captures are included in this scalar/raw-timestamp export."
+  ]
+}

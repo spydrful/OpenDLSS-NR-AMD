@@ -1,0 +1,203 @@
+{
+  "format": "OpenNR-amd-performance-v1",
+  "comparison_anchor": "direct32",
+  "source_manifest": "D:\\amd\\docs\\performance\\amd-fusion-screen-measurements\\both\\interleaved.json",
+  "source_sha256": "9886904c1bfccc919d791652bef8ddc79188782488b715c0e71e2fee910e7f2d",
+  "source_records": [
+    {
+      "path": "pair-01-baseline.json",
+      "sha256": "b3c3f91474e4ce4dfb35cffd3afc6233ab3bd91f9b3172af07415cf3e59dbb85"
+    },
+    {
+      "path": "pair-01-candidate.json",
+      "sha256": "0023e05055fffdae6d5fd7d2206497660ab5c9c405bc98bc04f69277952ec1a8"
+    },
+    {
+      "path": "pair-02-baseline.json",
+      "sha256": "f5b8c7dca1138ffc628d111b119a12ffd76922eb3c4f48185923ea77a095b784"
+    },
+    {
+      "path": "pair-02-candidate.json",
+      "sha256": "dd9996bda4fa4ef54b53feec05c0f48a4c79f1da7b0151efe311c7a4b6135dab"
+    },
+    {
+      "path": "pair-03-baseline.json",
+      "sha256": "be238e759697824f3a6497d29aa1d0c2268399fc85c4b726e597c7a30a663b5c"
+    },
+    {
+      "path": "pair-03-candidate.json",
+      "sha256": "aac8ef4486ab46d475075da6aec8704eb548a7cb0e0f2616dc459c4d66d91a13"
+    }
+  ],
+  "command": "bench",
+  "instrumented": false,
+  "pairs": 3,
+  "geometry": {
+    "width": 1707,
+    "height": 960,
+    "padded_width": 1728,
+    "padded_height": 960
+  },
+  "identities": {
+    "baseline": {
+      "device_id": "1002:7550",
+      "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+      "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+      "shader_sha256": "9497a10fc30264c5325440f90e1925f0251dc571a1676d2d1ae4aa6b810960ba",
+      "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+      "executable_sha256": "e93b4ac685666f63a79d2003475ace747aba36dbdce4caddf99ee143f1763c13"
+    },
+    "candidate": {
+      "device_id": "1002:7550",
+      "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+      "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+      "shader_sha256": "f09d10ef3ce02923a80f1697857f09380b3aa8b5dc50bf289aca726fdb697f54",
+      "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+      "executable_sha256": "e93b4ac685666f63a79d2003475ace747aba36dbdce4caddf99ee143f1763c13"
+    }
+  },
+  "selections": {
+    "baseline": {
+      "kernels": "optimized",
+      "arithmetic": "k16",
+      "tile_n": 16,
+      "stage_k": 16,
+      "gemm": "direct",
+      "window_queries": 32,
+      "window_layout": "staged",
+      "fusion": false,
+      "expert_fusion": false,
+      "block_fusion": false,
+      "hardware_publication": false,
+      "ffn32_fusion": false,
+      "qkv32_fusion": false
+    },
+    "candidate": {
+      "kernels": "optimized",
+      "arithmetic": "k16",
+      "tile_n": 16,
+      "stage_k": 16,
+      "gemm": "direct",
+      "window_queries": 32,
+      "window_layout": "staged",
+      "fusion": true,
+      "expert_fusion": false,
+      "block_fusion": false,
+      "hardware_publication": false,
+      "ffn32_fusion": true,
+      "qkv32_fusion": true
+    }
+  },
+  "baseline_ms": {
+    "samples": 90,
+    "mean": 80.87123644443022,
+    "median": 80.90522000193596,
+    "p95": 81.29231799691915,
+    "p99": 81.50547959774732,
+    "min": 80.0728399977088,
+    "max": 81.5378399938345,
+    "standard_deviation": 0.29941453918236666,
+    "coefficient_of_variation": 0.003702361338176226
+  },
+  "candidate_ms": {
+    "samples": 90,
+    "mean": 122.05615644446678,
+    "median": 121.71942000091076,
+    "p95": 124.08674400113523,
+    "p99": 124.35824679903686,
+    "min": 119.69399999827147,
+    "max": 124.37415999919176,
+    "standard_deviation": 0.8893559066149332,
+    "coefficient_of_variation": 0.007286448570249492
+  },
+  "interleaved_pairs": [
+    {
+      "pair": 0,
+      "baseline": {
+        "samples": 30,
+        "mean": 80.65261466701826,
+        "median": 80.70535999909043,
+        "p95": 81.1259880002588,
+        "p99": 81.14567640416324,
+        "min": 80.0728399977088,
+        "max": 81.15288000553846,
+        "standard_deviation": 0.32116755175754635,
+        "coefficient_of_variation": 0.003982109607772993
+      },
+      "candidate": {
+        "samples": 30,
+        "mean": 122.09458799958229,
+        "median": 121.73124000057578,
+        "p95": 124.03902799673378,
+        "p99": 124.26706439867615,
+        "min": 120.98931999504566,
+        "max": 124.35627999901772,
+        "standard_deviation": 0.8986251754460325,
+        "coefficient_of_variation": 0.007360073776972873
+      }
+    },
+    {
+      "pair": 1,
+      "baseline": {
+        "samples": 30,
+        "mean": 80.90810666705171,
+        "median": 80.91322000324726,
+        "p95": 81.10803199894727,
+        "p99": 81.15528600141405,
+        "min": 80.65427999943495,
+        "max": 81.17344000190496,
+        "standard_deviation": 0.13270699128686958,
+        "coefficient_of_variation": 0.0016402187216291884
+      },
+      "candidate": {
+        "samples": 30,
+        "mean": 122.06647066722313,
+        "median": 121.69025999680161,
+        "p95": 123.89614799879492,
+        "p99": 124.36704919852316,
+        "min": 121.09124000370502,
+        "max": 124.37415999919176,
+        "standard_deviation": 0.8442043743356239,
+        "coefficient_of_variation": 0.006915939895051842
+      }
+    },
+    {
+      "pair": 2,
+      "baseline": {
+        "samples": 30,
+        "mean": 81.05298799922069,
+        "median": 81.03191999718547,
+        "p95": 81.46220399923622,
+        "p99": 81.52729559510946,
+        "min": 80.4563599973917,
+        "max": 81.5378399938345,
+        "standard_deviation": 0.25690257772030844,
+        "coefficient_of_variation": 0.003169563319772721
+      },
+      "candidate": {
+        "samples": 30,
+        "mean": 122.00741066659491,
+        "median": 121.71978000178933,
+        "p95": 123.952338001132,
+        "p99": 124.20019480213523,
+        "min": 119.69399999827147,
+        "max": 124.23380000144243,
+        "standard_deviation": 0.9212459149541973,
+        "coefficient_of_variation": 0.007550737368500112
+      }
+    }
+  ],
+  "network_source_manifest": null,
+  "network_evidence": null,
+  "network_median_ratio": 1.5044693036864392,
+  "network_p95_ratio": 1.5264264454340928,
+  "protocol_complete": true,
+  "network_regression_gate_passed": false,
+  "default_performance_eligible": false,
+  "operators": [],
+  "limitations": [
+    "Network timestamps exclude D3D12 bridge, FSR and presentation; no game FPS is inferred.",
+    "Profile instrumentation timings are kept separate from ordinary benchmark timings.",
+    "Performance eligibility alone does not qualify arithmetic, temporal behavior or release readiness."
+  ]
+}

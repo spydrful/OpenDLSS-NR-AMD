@@ -1,30 +1,30 @@
 # Install the RX 9070 XT alpha
 
-This guide covers the **v0.1.0-alpha.3** development package for
-Cyberpunk 2077 on Windows. The existing
-[alpha 2 download](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.2)
-and [its installation guide](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.2/docs/INSTALL.md)
+This guide covers the **v0.1.0-alpha.4** development package for Cyberpunk 2077
+on Windows. The existing
+[alpha 3 download](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.3)
+and [its installation guide](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/INSTALL.md)
 remain available unchanged for that older package.
 
-The guarded direct-GEMM network benchmark measures **119.143 → 81.049 ms
-median**, a **31.97%** reduction against the qualified shared-GEMM/Q32 anchor,
-at 1707 x 960 input (1728 x 960 padded). It passes the prescribed three
-interleaved pairs of 30 frames after five warmups per run. This is network-only
-GPU timing, excluding the bridge, FSR and game. It does not establish game FPS
-or the 8 ms NR-plus-bridge target. See the
-[GEMM continuation](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/amd-gemm-delivery.md) for strict outputs and identities.
-Performance and game-quality gates remain unmet. NR ships **disabled**, using
-K16 publication arithmetic; enable it deliberately for testing.
+The new preserving RTE kernels measure **82.225 → 58.527 ms median**, a
+**28.82%** improvement against immutable alpha 3 Direct/Q32/K16 at 1707×960
+input, padded to 1728×960. Three interleaved pairs use five warmups and 30 measured
+frames per run. This is **network-only** GPU timing, excluding the bridge, FSR
+and game; it establishes neither game FPS nor the 8 ms NR-plus-bridge target.
+See the [RTE delivery record](amd-rte-delivery.md) and
+[scalar evidence](performance/rte-kernels-rx9070xt-20261003.json).
+Performance and broad game-quality gates remain unmet. NR ships **disabled**,
+using preserving K16 publication arithmetic; enable it deliberately for testing.
 
-Three warmed alpha 3 game benchmarks per condition average **97.12 FPS NR off /
-10.69 FPS NR on**. Pooled complete NR-on frame times are **93.495 ms median /
-95.063 ms P95 / 95.979 ms P99**. Separate asynchronous runtime brackets have
-NR-plus-bridge medians **85.844–85.948 ms**. See the
-[alpha 3 game record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/performance/cyberpunk-alpha3-20261002.json); runtime jobs
-are not joined to game presents. Frame generation and AFMF were observed off;
-the unchanged driver FSR upscaling override leaves its effective version
-independently unverified. Ten-minute active gameplay, broad temporal review and
-scene-linear highlight acceptance remain incomplete.
+**Alpha 4 game FPS has not been measured.** Historical alpha 3 benchmarks averaged
+**97.12 FPS NR off / 10.69 FPS NR on**; those values belong to the
+[alpha 3 game record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/performance/cyberpunk-alpha3-20261002.json).
+Replaying the existing SDR frames preserves their outputs but adds no new
+scene or visual coverage. Ten-minute active gameplay, broad temporal review and
+scene-linear highlight acceptance remain incomplete; existing HDR reference-quality
+failures are unchanged. The new preview has not been installed into the game;
+Windows UI activation/recovery failed before that step and game settings remain
+unchanged.
 
 ## Requirements
 
@@ -43,8 +43,9 @@ scene-linear highlight acceptance remain incomplete.
 
 ## Download and check the package
 
-1. Open the [v0.1.0-alpha.3 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.3).
-   Download **OpenNR-AMD-v0.1.0-alpha.3-rx9070xt.zip** and its **.zip.sha256** asset.
+1. Open the
+   [v0.1.0-alpha.4 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.4).
+   Download **OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip** and its **.zip.sha256** asset.
    GitHub's automatic **Source code** archives do not contain the built DLLs.
 2. Compare the ZIP's SHA-256 with the sidecar, then extract it to a writable
    folder, for example `D:\OpenNR-AMD-alpha`. Keep this package for removal.
@@ -54,9 +55,9 @@ scene-linear highlight acceptance remain incomplete.
 For example, in the download folder:
 
 ```powershell
-Get-FileHash './OpenNR-AMD-v0.1.0-alpha.3-rx9070xt.zip' -Algorithm SHA256
-Get-Content './OpenNR-AMD-v0.1.0-alpha.3-rx9070xt.zip.sha256'
-Expand-Archive './OpenNR-AMD-v0.1.0-alpha.3-rx9070xt.zip' -DestinationPath 'D:\OpenNR-AMD-alpha'
+Get-FileHash './OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip' -Algorithm SHA256
+Get-Content './OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip.sha256'
+Expand-Archive './OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip' -DestinationPath 'D:\OpenNR-AMD-alpha'
 ```
 
 The installer also validates the package's managed payload hashes. Do not edit
@@ -134,23 +135,27 @@ replay modes; broad scene coverage and motion/face/ghosting review remain
 incomplete. Unresolved
 scene-linear highlight failures are documented in
 the [validation record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.2/docs/rx9070xt-validation.md).
-The [GEMM continuation record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/amd-gemm-delivery.md) documents the new direct
-kernel measurements and preservation checks. The
+The [RTE delivery record](amd-rte-delivery.md) documents the current kernels,
+ordinary network measurements and preservation checks. The
+[alpha 3 GEMM record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/amd-gemm-delivery.md)
+retains the prior release's evidence. The
 [alpha 2 performance record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.2/docs/amd-performance-implementation.md)
 retains its historical identities.
 
 ## Diagnostic kernel selection and measurements
 
-The runtime defaults to `auto` kernel selection and `k16` arithmetic. The alpha 3
-cache contains **46 qualified direct-GEMM records** for the measured target
-geometry: Q32 attention, N16/stage16, K16 publication and all fusion/publication
-experiments off. The automatic cache GPU check selects that actual direct policy.
+The runtime defaults to `auto` kernel selection and `k16` arithmetic. The alpha 4
+cache contains **68 qualified GEMM/attention records** for the measured target
+geometry: Direct-RTE GEMM, Register-RTE Q32 attention, N16/stage16, K16 publication
+and every fusion/packed-publication experiment off. The automatic cache GPU check
+selects this actual policy and reproduces the target output. Requested route
+defaults remain shared/staged before a qualified auto record selects a candidate.
 Auto accepts
 qualified preserving kernels tied to the exact GPU, driver, model and shader
 identities. A packaged `open-nr/shaders/amd-tuning.json`, when present, also binds
 the qualified session geometry. Invalid or stale tuning is rejected; a qualified
 record must also bind its full measured policy, including every fusion and
-publication flag and the actual shared/packed/direct GEMM route. Rejection
+publication flag and the actual GEMM route and attention layout. Rejection
 retains a qualified shared fallback when available.
 If no qualified path fits the device's
 shared-memory limit, inference is refused and the game host bypasses NR.
@@ -161,7 +166,8 @@ The diagnostic CLI exposes these controls:
 | --- | --- | --- |
 | `--amd-kernels` | `auto`, `baseline`, `optimized` | Qualified selection, explicit legacy request, or forced candidate |
 | `--amd-arithmetic` | `k16`, `k32`, `final` | K16 is the alpha default; K32/final alter publication order |
-| `--amd-gemm` | `shared`, `packed`, `direct` | Distinct shared staging, packed staging, or direct operand loads; direct requires stage K16 |
+| `--amd-gemm` | `shared`, `packed`, `direct`, `direct-rte` | Distinct operand routes; both direct routes require stage K16; RTE requires qualified float controls |
+| `--amd-window-layout` | `staged`, `register`, `register-rte` | Register layouts require Q16/Q32 and FP16 accumulators; Register-RTE also requires qualified float controls |
 | `--amd-window-queries` | `16`, `32`, `64` | Queries per compact attention workgroup |
 | `--amd-tile-n`, `--amd-stage-k` | `16`, `32`, `64` | GEMM output tile and staged K width |
 | `--amd-fusion`, `--amd-expert-fusion`, `--amd-block-fusion`, `--amd-hardware-publication` | `0`, `1` | Experimental overrides; default `0` |
@@ -169,30 +175,38 @@ The diagnostic CLI exposes these controls:
 | `--amd-tuning` | JSON path | Explicit qualified tuning file |
 
 The corresponding runtime environment variables are `DLSS5VK_AMD_KERNELS`,
-`DLSS5VK_AMD_ARITHMETIC`, `DLSS5VK_AMD_WINDOW_QUERIES`, `DLSS5VK_AMD_TILE_N`,
+`DLSS5VK_AMD_ARITHMETIC`, `DLSS5VK_AMD_WINDOW_QUERIES`, `DLSS5VK_AMD_WINDOW_LAYOUT`, `DLSS5VK_AMD_TILE_N`,
 `DLSS5VK_AMD_STAGE_K`, `DLSS5VK_AMD_GEMM`, `DLSS5VK_AMD_FUSION`,
 `DLSS5VK_AMD_FFN32_FUSION`, `DLSS5VK_AMD_QKV32_FUSION`, `DLSS5VK_AMD_EXPERT_FUSION`,
 `DLSS5VK_AMD_BLOCK_FUSION`, `DLSS5VK_AMD_HARDWARE_PUBLICATION` and
-`DLSS5VK_AMD_TUNING`. Keep the packaged defaults for game testing. Forced
+`DLSS5VK_AMD_TUNING`. They are read once at session creation. Scalar RTE paths
+require FP16 RTE rounding, denormal preservation and signed-zero/Inf/NaN preservation
+with compatible independence controls; register layouts also require the enumerated
+16×16 FP16 accumulator type. Unsupported forced choices fail visibly.
+Keep the packaged defaults for game testing. Forced
 diagnostic choices bypass auto qualification; `baseline` requires K16, N16/K16,
-64 queries and all overrides off. On RX 9070 XT the resource guard rejects it:
+64 queries, staged attention and all overrides off. On RX 9070 XT the resource guard rejects it:
 legacy attention requires 34,816 bytes and the device exposes 32,768 bytes.
 The original shader and historical evidence remain retained, with no override.
-Use the explicitly labeled `qualified32` comparison anchor for direct GEMM
-measurements: its baseline runs optimized shared GEMM/K16/N16/stage16/Q32 with
-every fusion and hardware-publication override off. The older `compact64`
-anchor runs legal Q64 attention for the separate Q32 experiment; `legacy` names
-the historical over-limit attention. These are diagnostic-tool selections,
-not runtime environment variables.
+Use the explicitly labeled `direct32` anchor for RTE measurements: its baseline
+runs Direct/K16/N16/stage16/Q32/staged with every fusion and packed-publication
+override off. The measured comparison uses immutable alpha 3 binaries and shaders.
+`qualified32` retains the earlier shared-GEMM baseline, `compact64` the earlier
+legal Q64 attention baseline, and `legacy` the historical over-limit attention.
+These are diagnostic-tool selections, not runtime environment variables.
 
 From the extracted package, this collects three interleaved baseline/candidate
-network pairs into a new output directory:
+network pairs into a new output directory. Also extract the unchanged alpha 3
+package to `$alpha3` to reproduce the published immutable-baseline comparison:
 
 ```powershell
+$alpha3 = 'D:\local\OpenNR-AMD-alpha3'
 ./scripts/benchmark_amd.ps1 -Executable './tools/dlss5vk.exe' `
   -ShaderDirectory './payload/open-nr/shaders' -ModelDirectory "$game\open-nr\model" `
-  -OutputDirectory './diagnostics/network-direct' -Kernels optimized -Arithmetic k16 `
-  -Gemm direct -WindowQueries 32 -ComparisonAnchor qualified32 `
+  -BaselineExecutable "$alpha3\tools\dlss5vk.exe" `
+  -BaselineShaderDirectory "$alpha3\payload\open-nr\shaders" `
+  -OutputDirectory './diagnostics/network-rte' -Kernels optimized -Arithmetic k16 `
+  -Gemm direct-rte -WindowLayout register-rte -WindowQueries 32 -ComparisonAnchor direct32 `
   -Width 1707 -Height 960 -Warmup 5 -Frames 30 -Pairs 3
 ```
 
@@ -207,9 +221,11 @@ ordinary timing evidence. Model-only throughput must not be reported as game FPS
 quality before generating tuning JSON. Synthetic model preservation does not
 establish game quality or original NVIDIA parity. Follow the performance record
 for building and freezing the current shaders, `amdcheck`, modelcheck,
-qualification and tuning commands. New direct-GEMM comparisons pass
-`--comparison-anchor qualified32` to the strict qualification and tuning tools;
-actual selected policies and execution identities must match throughout.
+qualification and tuning commands. New RTE comparisons pass
+`--comparison-anchor direct32` to the strict qualification and tuning tools;
+actual selected policies and execution identities must match throughout. The
+[RTE delivery recipe](amd-rte-delivery.md) also shows how to supply the frozen
+alpha 3 executable and shaders for the published comparison.
 
 `scripts/analyze_amd_shaders.ps1 -FetchTool` optionally downloads the pinned
 portable Radeon GPU Analyzer compiler using `scripts/rga_tool_manifest.json`.
@@ -283,7 +299,7 @@ or delete original backups to bypass the check.
 
 | Symptom | Next step |
 | --- | --- |
-| Very low FPS with NR enabled | Clear **Enable NR**. Three warmed alpha 3 NR-on benchmarks average 10.69 FPS; the gameplay performance budget remains unmet. |
+| Very low FPS with NR enabled | Clear **Enable NR**. Alpha 4 game FPS is unmeasured; historical alpha 3 NR-on averaged 10.69 FPS. The gameplay budget remains unmet. |
 | Missing `MSVCP140` / `VCRUNTIME140` dependency | Install the current Microsoft Visual C++ v14 **x64** Redistributable linked above. |
 | Model import rejected | Check the complete DLL hash above and choose a new destination; unsupported containers are rejected. |
 | No Insert overlay | Confirm installation targeted the folder containing `Cyberpunk2077.exe`; inspect existing proxy/mod conflicts and the host log. |

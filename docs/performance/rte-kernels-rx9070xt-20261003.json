@@ -1,0 +1,1029 @@
+{
+  "format": "OpenNR-rte-kernels-delivery-evidence-v1",
+  "observed_date_utc": "2026-10-03",
+  "status": "preserving_target_network_operator_model_native_qualification_complete_game_unmeasured",
+  "comparison_anchor": "direct32",
+  "comparison_anchor_scope": "Preserving Direct/K16/N16/stage16/Q32/staged policy, additionally pinned here to published immutable alpha 3 executable and loaded shader identities.",
+  "geometry": {
+    "width": 1707,
+    "height": 960,
+    "padded_width": 1728,
+    "padded_height": 960
+  },
+  "identities": {
+    "baseline": {
+      "device_id": "1002:7550",
+      "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+      "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+      "shader_sha256": "9497a10fc30264c5325440f90e1925f0251dc571a1676d2d1ae4aa6b810960ba",
+      "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+      "executable_sha256": "e93b4ac685666f63a79d2003475ace747aba36dbdce4caddf99ee143f1763c13"
+    },
+    "candidate": {
+      "device_id": "1002:7550",
+      "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+      "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+      "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+      "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+      "executable_sha256": "f29be529e14a4b896b7ab4424d7618b5b6dce3aa6c8d2156f17fca6fdfca1f0f"
+    }
+  },
+  "selections": {
+    "baseline": {
+      "kernels": "optimized",
+      "arithmetic": "k16",
+      "tile_n": 16,
+      "stage_k": 16,
+      "gemm": "direct",
+      "window_queries": 32,
+      "window_layout": "staged",
+      "fusion": false,
+      "expert_fusion": false,
+      "block_fusion": false,
+      "hardware_publication": false,
+      "ffn32_fusion": false,
+      "qkv32_fusion": false
+    },
+    "candidate": {
+      "kernels": "optimized",
+      "arithmetic": "k16",
+      "tile_n": 16,
+      "stage_k": 16,
+      "gemm": "direct-rte",
+      "window_queries": 32,
+      "window_layout": "register-rte",
+      "fusion": false,
+      "expert_fusion": false,
+      "block_fusion": false,
+      "hardware_publication": false,
+      "ffn32_fusion": false,
+      "qkv32_fusion": false
+    }
+  },
+  "baseline_release_identity": {
+    "path": "docs/performance/alpha3-release-identities.json",
+    "sha256": "a22be4b03de966e2347a4c6049df59ed6dd63f7d2865b4c5905b5d8594e18990"
+  },
+  "ordinary_timing": {
+    "scope": "neural-inference-only",
+    "source_manifest": {
+      "path": "docs/performance/rte-kernels-measurements/bench/interleaved.json",
+      "sha256": "4c7768d0927ccc372c7d81f539e7c3c4d4d472becc97a9dab31d70f45df51cd3"
+    },
+    "assessment": {
+      "path": "docs/performance/rte-kernels-measurements/bench/report.json",
+      "sha256": "d088e4b2a04cdf44b85b30e86ceb956fcb72be6379145d0e925cf0cf0163eaf4"
+    },
+    "private_assessment": {
+      "path": "build/performance/post-alpha3-20261002/paired-production/performance.json",
+      "sha256": "4d6cb29c39d7c3b339352d439154677314e76352e23fc28526628e4a6f978fff"
+    },
+    "warmup_frames_per_run": 5,
+    "measured_frames_per_run": 30,
+    "interleaved_pairs": 3,
+    "readback": false,
+    "instrumented": false,
+    "baseline_ms": {
+      "samples": 90,
+      "mean": 82.188681332767,
+      "median": 82.22474000230432,
+      "p95": 82.51312200240791,
+      "p99": 82.56017999589443,
+      "min": 81.56335999816656,
+      "max": 82.6260399967432,
+      "standard_deviation": 0.24348335545460717,
+      "coefficient_of_variation": 0.0029624925416285412
+    },
+    "candidate_ms": {
+      "samples": 90,
+      "mean": 58.500376000006995,
+      "median": 58.52740000188351,
+      "p95": 58.88390600346029,
+      "p99": 58.99357399642467,
+      "min": 57.993680000305176,
+      "max": 58.99659999459982,
+      "standard_deviation": 0.25366862624443387,
+      "coefficient_of_variation": 0.00433618796303811
+    },
+    "median_improvement_fraction": 0.2882020666742966,
+    "p95_improvement_fraction": 0.2863691910513102,
+    "protocol_complete": true,
+    "network_regression_gate_passed": true,
+    "performance_promotion_gate_passed": true
+  },
+  "profile": {
+    "scope": "instrumented per-dispatch GPU timestamps; ordinary benchmark supplies complete-inference gates",
+    "source_manifest": {
+      "path": "docs/performance/rte-kernels-measurements/profile/interleaved.json",
+      "sha256": "5cf6bb6fb218d8edd6b080fab7fc9db7cab28fa6c108630f08f22d83f7fd027f"
+    },
+    "assessment": {
+      "path": "docs/performance/rte-kernels-measurements/profile/report.json",
+      "sha256": "a99cc2944d32df847582148dc6d5785cef4d047405f29bd80d3852bb8fa65a5e"
+    },
+    "private_assessment": {
+      "path": "build/performance/post-alpha3-20261002/paired-profile/paired-assessment.json",
+      "sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b"
+    },
+    "readback": false,
+    "instrumented": true,
+    "dispatches_per_frame": 513,
+    "shape_groups": 91,
+    "eligible_shape_groups": 68,
+    "baseline_ms": {
+      "samples": 90,
+      "mean": 82.45251022254428,
+      "median": 82.4753599986434,
+      "p95": 82.90145599581301,
+      "p99": 83.0368912035972,
+      "min": 81.77312000095844,
+      "max": 83.05996000021696,
+      "standard_deviation": 0.3174048227276183,
+      "coefficient_of_variation": 0.0038495471134950723
+    },
+    "candidate_ms": {
+      "samples": 90,
+      "mean": 58.508673333625,
+      "median": 58.54670000076294,
+      "p95": 58.81014399491251,
+      "p99": 58.95051199711859,
+      "min": 57.870719999074936,
+      "max": 59.0779599994421,
+      "standard_deviation": 0.22127949931617316,
+      "coefficient_of_variation": 0.0037819948173222996
+    },
+    "family_sum_method": "Sum all dispatch frame_ms samples within each family for each actual frame, concatenate the three runs per condition, then compute median/p95/p99; independently minimized dispatch spans are not used.",
+    "family_sums": [
+      {
+        "family": "convert",
+        "dispatches_per_frame": 1,
+        "baseline_ms": {
+          "samples": 90,
+          "median": 0.30254000425338745,
+          "p95": 0.3240019991993904,
+          "p99": 0.3385867994278669
+        },
+        "candidate_ms": {
+          "samples": 90,
+          "median": 0.28943999856710434,
+          "p95": 0.32371799983084204,
+          "p99": 0.32811200089752673
+        },
+        "median_improvement_fraction": 0.0433000776826572
+      },
+      {
+        "family": "downsample2x",
+        "dispatches_per_frame": 6,
+        "baseline_ms": {
+          "samples": 90,
+          "median": 0.25714000687003136,
+          "p95": 0.30522799156606195,
+          "p99": 0.35470719054341315
+        },
+        "candidate_ms": {
+          "samples": 90,
+          "median": 0.25087999925017357,
+          "p95": 0.30346799269318575,
+          "p99": 0.3497963874787092
+        },
+        "median_improvement_fraction": 0.024344743923966017
+      },
+      {
+        "family": "f16_gemm",
+        "dispatches_per_frame": 2,
+        "baseline_ms": {
+          "samples": 90,
+          "median": 3.2112599946558475,
+          "p95": 3.3697360008955,
+          "p99": 3.3785408048331735
+        },
+        "candidate_ms": {
+          "samples": 90,
+          "median": 3.2646600008010864,
+          "p95": 3.424150002747774,
+          "p99": 3.497403596192598
+        },
+        "median_improvement_fraction": -0.016628988694190605
+      },
+      {
+        "family": "fp8_gemm",
+        "dispatches_per_frame": 358,
+        "baseline_ms": {
+          "samples": 90,
+          "median": 49.734660010784864,
+          "p95": 50.12616001069546,
+          "p99": 50.20357634663582
+        },
+        "candidate_ms": {
+          "samples": 90,
+          "median": 39.03941998630762,
+          "p95": 39.42665002644062,
+          "p99": 39.52507438868284
+        },
+        "median_improvement_fraction": 0.21504600659093687
+      },
+      {
+        "family": "global_attention",
+        "dispatches_per_frame": 8,
+        "baseline_ms": {
+          "samples": 90,
+          "median": 2.2734000012278557,
+          "p95": 2.374506003409624,
+          "p99": 2.43296839594841
+        },
+        "candidate_ms": {
+          "samples": 90,
+          "median": 2.3021600022912025,
+          "p95": 2.4710040006786587,
+          "p99": 2.4911999994516374
+        },
+        "median_improvement_fraction": -0.012650655866901506
+      },
+      {
+        "family": "global_normalize",
+        "dispatches_per_frame": 8,
+        "baseline_ms": {
+          "samples": 90,
+          "median": 0.04829999431967735,
+          "p95": 0.049581991881132124,
+          "p99": 0.04993761353194714
+        },
+        "candidate_ms": {
+          "samples": 90,
+          "median": 0.0488399975001812,
+          "p95": 0.050119996070861816,
+          "p99": 0.05726200148463246
+        },
+        "median_improvement_fraction": -0.011180191387390126
+      },
+      {
+        "family": "postBlend",
+        "dispatches_per_frame": 1,
+        "baseline_ms": {
+          "samples": 90,
+          "median": 0.311659999191761,
+          "p95": 0.3887100003659725,
+          "p99": 0.46077040389180185
+        },
+        "candidate_ms": {
+          "samples": 90,
+          "median": 0.31096000224351883,
+          "p95": 0.39665599949657915,
+          "p99": 0.4673935967683792
+        },
+        "median_improvement_fraction": 0.0022460275622714354
+      },
+      {
+        "family": "upsampleResidual",
+        "dispatches_per_frame": 5,
+        "baseline_ms": {
+          "samples": 90,
+          "median": 0.11086000129580498,
+          "p95": 0.12349400110542771,
+          "p99": 0.16930199958384037
+        },
+        "candidate_ms": {
+          "samples": 90,
+          "median": 0.11126000806689262,
+          "p95": 0.11772199943661689,
+          "p99": 0.2612115967273712
+        },
+        "median_improvement_fraction": -0.003608215464659059
+      },
+      {
+        "family": "window_attention",
+        "dispatches_per_frame": 62,
+        "baseline_ms": {
+          "samples": 90,
+          "median": 21.511839993298054,
+          "p95": 21.82428798377514,
+          "p99": 21.936756813526152
+        },
+        "candidate_ms": {
+          "samples": 90,
+          "median": 8.012199986726046,
+          "p95": 8.258365966007114,
+          "p99": 8.337261229678989
+        },
+        "median_improvement_fraction": 0.6275446456824604
+      },
+      {
+        "family": "window_normalize",
+        "dispatches_per_frame": 62,
+        "baseline_ms": {
+          "samples": 90,
+          "median": 4.634499989449978,
+          "p95": 4.779056013002991,
+          "p99": 4.837431986182928
+        },
+        "candidate_ms": {
+          "samples": 90,
+          "median": 4.809099968522787,
+          "p95": 4.985266005247832,
+          "p99": 5.08658041074872
+        },
+        "median_improvement_fraction": -0.03767396255696842
+      }
+    ],
+    "operator_improvement_ranges": [
+      {
+        "family": "convert",
+        "shape_groups": 1,
+        "matched_all_runs": 1,
+        "eligible_groups": 0,
+        "improvement_fraction_min": 0.0433000776826572,
+        "improvement_fraction_max": 0.0433000776826572
+      },
+      {
+        "family": "downsample2x",
+        "shape_groups": 6,
+        "matched_all_runs": 6,
+        "eligible_groups": 0,
+        "improvement_fraction_min": -0.023254907311748285,
+        "improvement_fraction_max": 0.03392321671655241
+      },
+      {
+        "family": "f16_gemm",
+        "shape_groups": 2,
+        "matched_all_runs": 2,
+        "eligible_groups": 0,
+        "improvement_fraction_min": -0.0274118925588811,
+        "improvement_fraction_max": 0.0010896778558665554
+      },
+      {
+        "family": "fp8_gemm",
+        "shape_groups": 46,
+        "matched_all_runs": 46,
+        "eligible_groups": 46,
+        "improvement_fraction_min": 0.061934152070208026,
+        "improvement_fraction_max": 0.6350999549469656
+      },
+      {
+        "family": "global_attention",
+        "shape_groups": 1,
+        "matched_all_runs": 1,
+        "eligible_groups": 0,
+        "improvement_fraction_min": -0.012650655866901506,
+        "improvement_fraction_max": -0.012650655866901506
+      },
+      {
+        "family": "global_normalize",
+        "shape_groups": 1,
+        "matched_all_runs": 1,
+        "eligible_groups": 0,
+        "improvement_fraction_min": -0.011180191387390126,
+        "improvement_fraction_max": -0.011180191387390126
+      },
+      {
+        "family": "postBlend",
+        "shape_groups": 1,
+        "matched_all_runs": 1,
+        "eligible_groups": 0,
+        "improvement_fraction_min": 0.0022460275622714354,
+        "improvement_fraction_max": 0.0022460275622714354
+      },
+      {
+        "family": "upsampleResidual",
+        "shape_groups": 5,
+        "matched_all_runs": 5,
+        "eligible_groups": 0,
+        "improvement_fraction_min": -0.012833569031450276,
+        "improvement_fraction_max": 0.0
+      },
+      {
+        "family": "window_attention",
+        "shape_groups": 22,
+        "matched_all_runs": 22,
+        "eligible_groups": 22,
+        "improvement_fraction_min": 0.49351351999596016,
+        "improvement_fraction_max": 0.674764164892651
+      },
+      {
+        "family": "window_normalize",
+        "shape_groups": 6,
+        "matched_all_runs": 6,
+        "eligible_groups": 0,
+        "improvement_fraction_min": -0.06762779296312815,
+        "improvement_fraction_max": 0.012491225960438723
+      }
+    ]
+  },
+  "strict_preservation": {
+    "source": {
+      "path": "build/performance/post-alpha3-20261002/qualified/qualification.json",
+      "sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4"
+    },
+    "reverified_from_private_artifacts": true,
+    "passed": true,
+    "operators": {
+      "operators": 660,
+      "checks": 862,
+      "mismatchedChecks": 0,
+      "comparedBytes": 14123008,
+      "validationErrors": 0,
+      "coverage": [
+        "tails",
+        "shifted-windows",
+        "channel-families",
+        "broadcasts",
+        "split-k",
+        "residuals",
+        "activation",
+        "padding",
+        "conversion-edge-cases"
+      ],
+      "fixture_sha256": "d0cf7fadf561eaaf78b9dd513a93420734ec70954075bfb8698e4875fe15cf24"
+    },
+    "suites": [
+      {
+        "suite": "operators",
+        "source": {
+          "path": "build/performance/post-alpha3-20261002/qualified/operators/manifest.json",
+          "sha256": "46c3aee14b000a6ae8791a261241de467bad906fb9f238ff623f1d526c10256c"
+        },
+        "passed": true,
+        "model_free": true,
+        "checks": 862,
+        "exact_checks": 862,
+        "compared_bytes": 14123008
+      },
+      {
+        "suite": "model320",
+        "source": {
+          "path": "build/performance/post-alpha3-20261002/qualified/model320-exact.json",
+          "sha256": "eadf7e94f59437b5d0888288c8f0b3b612304a376195412fd803634b1fcd138c"
+        },
+        "passed": true,
+        "model_free": false,
+        "checks": 77,
+        "exact_checks": 77,
+        "compared_bytes": 25505792,
+        "resolution": [
+          320,
+          320
+        ],
+        "padded_resolution": [
+          320,
+          320
+        ],
+        "input_features_sha256": "1a09245b6546256949a1aa62a53f224137df8028e64b06eedf8ceca0f90e8f85",
+        "capture_production_equal": true
+      },
+      {
+        "suite": "target",
+        "source": {
+          "path": "build/performance/post-alpha3-20261002/qualified/target-exact.json",
+          "sha256": "259595c59d43eb8c44b3c1ebd4e6550b92be3041c96ff70e55475810020e074b"
+        },
+        "passed": true,
+        "model_free": false,
+        "checks": 2,
+        "exact_checks": 2,
+        "compared_bytes": 79626240,
+        "resolution": [
+          1707,
+          960
+        ],
+        "padded_resolution": [
+          1728,
+          960
+        ],
+        "input_features_sha256": "773cbb394e47214c5c5a969438e426db08d3b1ce1ff8dc218cdaa981b54cf119",
+        "capture_production_equal": true
+      }
+    ],
+    "model320_scope": "All 75 model checkpoints, F32 head, production/decomposed head equality.",
+    "target_scope": "Target F32 head plus production/decomposed head equality; all 75 target boundaries were not exported.",
+    "input_scope": "Identical generated fixedpoint proxy inputs, controls, seed and reset history. These are not captured gameplay or original NVIDIA parity evidence.",
+    "nvidia_parity_established": false
+  },
+  "native_harness": {
+    "model320": {
+      "source": {
+        "path": "build/performance/post-alpha3-20261002/interop-production.log",
+        "sha256": "a4b5290ae68f8108a25c5cfd1bc9c99410f2eeb3ea237f4c6b1c7caae68a8161"
+      },
+      "resolution": [
+        320,
+        320
+      ],
+      "model_frames": 8,
+      "passed": true,
+      "imported_binary_abi_lifecycle_passed": true,
+      "finite_private_outputs_alpha_preserved": true,
+      "timestamp_observations": {
+        "inference_ms": {
+          "samples": 7,
+          "median": 6.654,
+          "p95": 6.9747,
+          "min": 6.174,
+          "max": 7.041
+        },
+        "neural_with_bridge_ms": {
+          "samples": 7,
+          "median": 8.273,
+          "p95": 8.5439,
+          "min": 6.381,
+          "max": 8.564
+        }
+      },
+      "allocated_neural_bytes": 149123072,
+      "timing_scope": "Seven frame 2..8 GPU observations rounded to three decimals in a readback/validation harness; not the warmed interleaved performance protocol."
+    },
+    "target": {
+      "source": {
+        "path": "build/performance/post-alpha3-20261002/interop-target-production.log",
+        "sha256": "fc8737a52dcfe403509da4c8f2c7bcf823264056c70ab864c1bd5b3714d4fb20"
+      },
+      "resolution": [
+        1707,
+        960
+      ],
+      "model_frames": 8,
+      "passed": true,
+      "imported_binary_abi_lifecycle_passed": true,
+      "finite_private_outputs_alpha_preserved": true,
+      "timestamp_observations": {
+        "inference_ms": {
+          "samples": 7,
+          "median": 58.927,
+          "p95": 59.1952,
+          "min": 57.165,
+          "max": 59.2
+        },
+        "neural_with_bridge_ms": {
+          "samples": 7,
+          "median": 61.858,
+          "p95": 61.988,
+          "min": 58.571,
+          "max": 61.994
+        }
+      },
+      "allocated_neural_bytes": 2383296512,
+      "timing_scope": "Seven frame 2..8 GPU observations rounded to three decimals in a readback/validation harness; not the warmed interleaved performance protocol."
+    },
+    "eight_slot_ownership": {
+      "resolution": [
+        320,
+        320
+      ],
+      "frames_in_flight": 8,
+      "passed": true,
+      "ordered_continuous": true,
+      "cancel_gap_reset": true,
+      "descriptor_lifetimes": true,
+      "immutable_prepared_jitter": true,
+      "enqueue_seed_history_ancestry": true,
+      "serialized_prefetched_output_byte_equal": true,
+      "scope": "Source-included production runtime ownership test fixed at 320x320. The separate imported DLL ABI/capacity/lifecycle and eight actual target frames do not establish a target-resolution eight-prefetched-output equality test."
+    },
+    "runtime_binary_at_export": {
+      "path": "build/performance/post-alpha3-20261002/qualified-production/game/OpenNrRuntime.dll",
+      "sha256": "ba0a318fd5567fcf1b95cf594608ff23cb0b40b37eee0a1d2736b5b017a2a388"
+    },
+    "harness_binary_at_export": {
+      "path": "build/performance/post-alpha3-20261002/qualified-production/interop/interop_selftest.exe",
+      "sha256": "cfd02c6c185cffaf57e0aff070c4861eb99c770b875fd03bcdc15556f4ea5116"
+    },
+    "binary_hash_scope": "Current tested files hashed at export; native text logs do not contain a separate before/after executable inventory."
+  },
+  "limited_game_sequence": {
+    "source": {
+      "path": "build/performance/post-alpha3-20261002/replay/byte-proof.json",
+      "sha256": "014fec978d2e212f7a8d3ab34187db0316514153ff2319955bbf2c423f3b1d29"
+    },
+    "frames": 8,
+    "history_modes": [
+      "identical",
+      "evolved"
+    ],
+    "byte_checks": 80,
+    "compared_bytes": 2107883520,
+    "byte_identical_to_immutable_alpha3": true,
+    "reference_reused": true,
+    "quality": [
+      {
+        "history_mode": "identical",
+        "frames": 8,
+        "source": {
+          "path": "build/performance/post-alpha3-20261002/replay/identical-quality.json",
+          "sha256": "55f7052b625ac25dfe096418feb516323450ed81ae319b11b221588a88db17da"
+        },
+        "minimum_psnr_db": 51.3295936042437,
+        "minimum_ssim": 0.9997919965770828,
+        "fixed_data_range": 1.0,
+        "thresholds_passed": true
+      },
+      {
+        "history_mode": "evolved",
+        "frames": 8,
+        "source": {
+          "path": "build/performance/post-alpha3-20261002/replay/evolved-quality.json",
+          "sha256": "9b5e46f22f0cf7dc887e2685029ac7b946591c1bdb69865a0c3bacf585aad932"
+        },
+        "minimum_psnr_db": 50.52490896979673,
+        "minimum_ssim": 0.9996756772778758,
+        "fixed_data_range": 1.0,
+        "thresholds_passed": true
+      }
+    ],
+    "scope": "Existing eight-frame SDR alley capture only, using the same frozen reference frames. Full motion, face, moving-object, disocclusion, exposure, HDR and camera-cut review remains incomplete.",
+    "performance_representative": false,
+    "human_motion_review_completed": false
+  },
+  "synthetic_preservation": {
+    "source": {
+      "path": "build/performance/post-alpha3-20261002/synthetic/byte-proof.json",
+      "sha256": "f4eb70ed4d2cae5b40963fa556458e72d97fed4834465cc8284a4612db1394af"
+    },
+    "byte_checks": 36,
+    "compared_bytes": 98304096,
+    "passed": true,
+    "scope": "Existing SDR and HDR reset/temporal/camera-reset F32 buffers compared byte-for-byte to immutable alpha 3. Existing HDR reference-quality failures remain unchanged.",
+    "scene_quality_accepted": false
+  },
+  "qualified_auto_selection": {
+    "cache": {
+      "path": "docs/performance/rx9070xt-26.9.1-rte-k16.json",
+      "sha256": "4037216e4127c19281ddc0f986afc2118af49f125d2e3886648b6c7804deaefe"
+    },
+    "qualified_records": 68,
+    "generated_private_cache": {
+      "path": "build/performance/post-alpha3-20261002/qualified/tuning.json",
+      "sha256": "4037216e4127c19281ddc0f986afc2118af49f125d2e3886648b6c7804deaefe"
+    },
+    "target_report": {
+      "path": "build/performance/post-alpha3-20261002/qualified/auto-target/modelcheck-report.json",
+      "sha256": "4a79f4f33f39a741d2c886ffe95bb4ee7fdd8d3ac9913047d12a98d4a3999bbe"
+    },
+    "selected": {
+      "kernels": "optimized",
+      "arithmetic": "k16",
+      "tile_n": 16,
+      "stage_k": 16,
+      "window_queries": 32,
+      "gemm": "direct-rte",
+      "window_layout": "register-rte",
+      "fusion": false,
+      "expert_fusion": false,
+      "ffn32_fusion": false,
+      "qkv32_fusion": false,
+      "block_fusion": false,
+      "hardware_publication": false
+    },
+    "head_composition_capture_strict_passed": true,
+    "nr_enabled_by_default": false,
+    "cpu_policy_proof": {
+      "path": "build/fusion-policy-cpu/d2ecfdf7d63345ac95f68a2c95ffb452/verification.json",
+      "sha256": "e7a39612b258cc6d5b28b2b311a69e86aeb2fc000c7e71393d7654578c073bcf",
+      "passed": true,
+      "gpu_execution": false,
+      "checks": {
+        "amd_config_tests": 155,
+        "amd_selection_tests": 217
+      },
+      "audited_tuning_sha256": "4037216e4127c19281ddc0f986afc2118af49f125d2e3886648b6c7804deaefe",
+      "full_policy_and_records_checked": true
+    },
+    "requested_kernels": "auto",
+    "target_execution_log": {
+      "path": "build/performance/post-alpha3-20261002/auto-target.log",
+      "sha256": "6fb6382b3864276f08996b9317f33e71f63668c12dc3066e424f4592807f2cbf"
+    }
+  },
+  "installed_driver_resources": {
+    "source": {
+      "path": "docs/performance/rte-kernels-measurements/shaderinfo-production.log",
+      "sha256": "1dac644dfff4427011bd20dca35feab56b9c594bf59d54b674b4be3f7d8c6406"
+    },
+    "scope": "Vulkan pipeline-executable statistics from the installed AMD 26.9.1 LLPC driver at actual target geometry and selected production modules.",
+    "pipelines": [
+      {
+        "pipeline_family": "gemm_f16",
+        "specializations": 2,
+        "statistic_ranges": {
+          "numUsedVgprs": [
+            26,
+            27
+          ],
+          "numUsedSgprs": [
+            30,
+            40
+          ],
+          "ldsSizePerLocalWorkGroup": [
+            0,
+            0
+          ],
+          "ldsUsageSizeInBytes": [
+            0,
+            0
+          ],
+          "scratchMemUsageInBytes": [
+            0,
+            0
+          ]
+        },
+        "driver_executable_subgroup_sizes_as_reported": [
+          128
+        ],
+        "requested_subgroup_sizes": [
+          0
+        ]
+      },
+      {
+        "pipeline_family": "gemm_fp8_optimized",
+        "specializations": 32,
+        "statistic_ranges": {
+          "numUsedVgprs": [
+            30,
+            45
+          ],
+          "numUsedSgprs": [
+            31,
+            46
+          ],
+          "ldsSizePerLocalWorkGroup": [
+            4096,
+            4096
+          ],
+          "ldsUsageSizeInBytes": [
+            4096,
+            4096
+          ],
+          "scratchMemUsageInBytes": [
+            0,
+            0
+          ]
+        },
+        "driver_executable_subgroup_sizes_as_reported": [
+          128
+        ],
+        "requested_subgroup_sizes": [
+          32
+        ]
+      },
+      {
+        "pipeline_family": "global_attend",
+        "specializations": 1,
+        "statistic_ranges": {
+          "numUsedVgprs": [
+            39,
+            39
+          ],
+          "numUsedSgprs": [
+            31,
+            31
+          ],
+          "ldsSizePerLocalWorkGroup": [
+            12288,
+            12288
+          ],
+          "ldsUsageSizeInBytes": [
+            12288,
+            12288
+          ],
+          "scratchMemUsageInBytes": [
+            0,
+            0
+          ]
+        },
+        "driver_executable_subgroup_sizes_as_reported": [
+          128
+        ],
+        "requested_subgroup_sizes": [
+          32
+        ]
+      },
+      {
+        "pipeline_family": "global_normalize",
+        "specializations": 1,
+        "statistic_ranges": {
+          "numUsedVgprs": [
+            16,
+            16
+          ],
+          "numUsedSgprs": [
+            18,
+            18
+          ],
+          "ldsSizePerLocalWorkGroup": [
+            0,
+            0
+          ],
+          "ldsUsageSizeInBytes": [
+            0,
+            0
+          ],
+          "scratchMemUsageInBytes": [
+            0,
+            0
+          ]
+        },
+        "driver_executable_subgroup_sizes_as_reported": [
+          256
+        ],
+        "requested_subgroup_sizes": [
+          0
+        ]
+      },
+      {
+        "pipeline_family": "ops",
+        "specializations": 4,
+        "statistic_ranges": {
+          "numUsedVgprs": [
+            9,
+            18
+          ],
+          "numUsedSgprs": [
+            10,
+            26
+          ],
+          "ldsSizePerLocalWorkGroup": [
+            0,
+            0
+          ],
+          "ldsUsageSizeInBytes": [
+            0,
+            0
+          ],
+          "scratchMemUsageInBytes": [
+            0,
+            0
+          ]
+        },
+        "driver_executable_subgroup_sizes_as_reported": [
+          256
+        ],
+        "requested_subgroup_sizes": [
+          0
+        ]
+      },
+      {
+        "pipeline_family": "window_attend_optimized",
+        "specializations": 1,
+        "statistic_ranges": {
+          "numUsedVgprs": [
+            38,
+            38
+          ],
+          "numUsedSgprs": [
+            29,
+            29
+          ],
+          "ldsSizePerLocalWorkGroup": [
+            13312,
+            13312
+          ],
+          "ldsUsageSizeInBytes": [
+            13312,
+            13312
+          ],
+          "scratchMemUsageInBytes": [
+            0,
+            0
+          ]
+        },
+        "driver_executable_subgroup_sizes_as_reported": [
+          128
+        ],
+        "requested_subgroup_sizes": [
+          32
+        ]
+      },
+      {
+        "pipeline_family": "window_normalize",
+        "specializations": 1,
+        "statistic_ranges": {
+          "numUsedVgprs": [
+            16,
+            16
+          ],
+          "numUsedSgprs": [
+            18,
+            18
+          ],
+          "ldsSizePerLocalWorkGroup": [
+            0,
+            0
+          ],
+          "ldsUsageSizeInBytes": [
+            0,
+            0
+          ],
+          "scratchMemUsageInBytes": [
+            0,
+            0
+          ]
+        },
+        "driver_executable_subgroup_sizes_as_reported": [
+          256
+        ],
+        "requested_subgroup_sizes": [
+          0
+        ]
+      }
+    ],
+    "resource_field_interpretation": "Executable subgroup values are retained verbatim; requested subgroup specialization is a separate field. This resource query is not driver ISA inspection or dynamic matrix-instruction delivery evidence.",
+    "driver_isa_inspected": false,
+    "rgp_capture_completed": false,
+    "offline_rga_evidence_separate": {
+      "path": "docs/performance/post-alpha3-publication-rte-evidence.json",
+      "sha256": "4b9ca49ec86ccad929fd4fff43a9ac2330207605c78b8d9210d12ff5b90815ea"
+    },
+    "executable_sha256": "f29be529e14a4b896b7ab4424d7618b5b6dce3aa6c8d2156f17fca6fdfca1f0f",
+    "loaded_shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96"
+  },
+  "release_gates": {
+    "nr_plus_bridge_8ms_met": false,
+    "complete_game_benchmarks_measured": false,
+    "game_fps_measured": false,
+    "full_scene_quality_met": false,
+    "human_temporal_review_completed": false,
+    "ten_minute_active_gameplay_completed": false,
+    "new_alpha_release_published": false,
+    "nr_enabled_by_default": false
+  },
+  "export_verification": {
+    "raw_files_byte_identical": true,
+    "private_scalar_stats_gates_identities_match": true,
+    "raw_json_files": [
+      {
+        "path": "docs/performance/rte-kernels-measurements/bench/interleaved.json",
+        "sha256": "4c7768d0927ccc372c7d81f539e7c3c4d4d472becc97a9dab31d70f45df51cd3"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/bench/pair-01-baseline.json",
+        "sha256": "679839e58dc05bf4597b1394cb4a8732f7fc97e032f67563e2e8a8afbabf9585"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/bench/pair-01-candidate.json",
+        "sha256": "c8a7ba081ff7dbe89e0acaac9e436d4ebb55349b8cc562e1234c2c678baec8c6"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/bench/pair-02-baseline.json",
+        "sha256": "7f419b504c586f95149d5867e23972d64483b3df60c2a0a860abbdea42654f03"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/bench/pair-02-candidate.json",
+        "sha256": "dcf05b7bb113c026d157f7b0f66c2433a2f89190bc04a892d40fe7f03074815e"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/bench/pair-03-baseline.json",
+        "sha256": "902a99128644e1e9adce7b5b3f8f5263a15cc9428cb2f99bc8c0be133d9aacd4"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/bench/pair-03-candidate.json",
+        "sha256": "fd27160be5f4d097f77be1238bda0793178da7c43c7893e88303c26f2c2ae691"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/profile/interleaved.json",
+        "sha256": "5cf6bb6fb218d8edd6b080fab7fc9db7cab28fa6c108630f08f22d83f7fd027f"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/profile/pair-01-baseline.json",
+        "sha256": "4799ce49b5058bddd6e793f4f9f0af5395b3486a5cd5606d07463d1f97ca1ddf"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/profile/pair-01-candidate.json",
+        "sha256": "99298dabab3bc00cf329354445d435751af8f58c1c7a32a021785f098c013517"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/profile/pair-02-baseline.json",
+        "sha256": "df9de5aa31708c343db53c38309e7652b9b01de52ec7ff2c352d67a254918c6f"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/profile/pair-02-candidate.json",
+        "sha256": "9b806d0c981c72dec7a9c9e1aa2497555e525aa4d3e74c1e052b75e43ea4eb1e"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/profile/pair-03-baseline.json",
+        "sha256": "16a063121bc1b84710ccdcc116d0abb2c9bc70563ebbc36fc264b167af2c405e"
+      },
+      {
+        "path": "docs/performance/rte-kernels-measurements/profile/pair-03-candidate.json",
+        "sha256": "51cad1019b644859c82cc1ef94615ddf3e083473cae87d42aaebf9886d514389"
+      }
+    ],
+    "analysis_tool": {
+      "path": "tools/tune_amd.py",
+      "sha256": "b879434a2e220c27a946b719ae0688ee9d489433bb54248fb7b4d0af7c59d54f"
+    },
+    "analysis_reproduction": [
+      "python tools/tune_amd.py analyze docs/performance/rte-kernels-measurements/bench/interleaved.json --comparison-anchor direct32 --output NEW_BENCH_REPORT.json",
+      "python tools/tune_amd.py analyze docs/performance/rte-kernels-measurements/profile/interleaved.json --network-manifest docs/performance/rte-kernels-measurements/bench/interleaved.json --comparison-anchor direct32 --output NEW_PROFILE_REPORT.json"
+    ],
+    "excluded": [
+      "NVIDIA DLLs",
+      "extracted weights",
+      "game captures",
+      "model activation buffers",
+      "pipeline-cache binaries"
+    ]
+  },
+  "limitations": [
+    "No inference throughput figure is presented as complete game FPS.",
+    "Native harness GPU timestamps include neural work and the measured bridge span, but exclude a complete Cyberpunk frame and use a distinct diagnostic protocol.",
+    "Numerical preserving qualification and limited sequence checks do not establish full HDR/highlight quality, visual motion acceptance, or release readiness.",
+    "No executable/source reproduction claim is made from current source comments; measured binary and loaded shader hashes identify tested artifacts."
+  ]
+}

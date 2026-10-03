@@ -7,3 +7,9 @@
 # Frozen measurement journals and tuning proofs contain byte-specific SHA-256
 # identities. Preserve their recorded bytes across checkout and source archives.
 docs/performance/**/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# These qualified source and driver-statistic files have recorded byte hashes.
+# Retain their CRLF bytes, including the driver's final blank line.
+shaders/amd_gemm_direct_rte.comp -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+shaders/amd_window_register_rte.comp -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+docs/performance/rte-kernels-measurements/shaderinfo-production.log -text whitespace=blank-at-eol,space-before-tab,cr-at-eol,-blank-at-eof

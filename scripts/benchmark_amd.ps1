@@ -4,15 +4,18 @@ param(
     [Parameter(Mandatory = $true)][string]$OutputDirectory,
     [string]$Executable = (Join-Path (Split-Path -Parent $PSScriptRoot) 'build\dlss5vk.exe'),
     [string]$ShaderDirectory,
+    [string]$BaselineExecutable,
+    [string]$BaselineShaderDirectory,
     [string]$Python = 'python',
     [ValidateSet('bench', 'profile')][string]$Mode = 'bench',
     [ValidateSet('auto', 'baseline', 'optimized')][string]$Kernels = 'optimized',
     [ValidateSet('k16', 'k32', 'final')][string]$Arithmetic = 'k16',
-    [ValidateSet('shared','packed','direct')][string]$Gemm = 'shared',
+    [ValidateSet('shared','packed','direct','direct-rte')][string]$Gemm = 'shared',
     [ValidateSet(16, 32, 64)][int]$TileN = 16,
     [ValidateSet(16, 32, 64)][int]$StageK = 16,
     [ValidateSet(16,32,64)][int]$WindowQueries = 64,
-    [ValidateSet('legacy', 'compact64', 'qualified32')][string]$ComparisonAnchor = 'legacy',
+    [ValidateSet('staged','register','register-rte')][string]$WindowLayout = 'staged',
+    [ValidateSet('legacy', 'compact64', 'qualified32', 'direct32')][string]$ComparisonAnchor = 'legacy',
     [ValidateRange(1, 32768)][int]$Width = 1707,
     [ValidateRange(1, 32768)][int]$Height = 960,
     [ValidateRange(0, 10000)][int]$Warmup = 5,
@@ -34,11 +37,14 @@ $taskArguments = @(
     '--output', $OutputDirectory, '--mode', $Mode, '--kernels', $Kernels,
     '--arithmetic', $Arithmetic, '--gemm', $Gemm, '--tile-n', "$TileN", '--stage-k', "$StageK",
     '--window-queries',"$WindowQueries",
+    '--window-layout', $WindowLayout,
     '--comparison-anchor', $ComparisonAnchor,
     '--width', "$Width", '--height', "$Height", '--warmup', "$Warmup",
     '--frames', "$Frames", '--pairs', "$Pairs", '--timeout', "$TimeoutSeconds"
 )
 if ($ShaderDirectory) { $taskArguments += @('--shaders', $ShaderDirectory) }
+if ($BaselineExecutable) { $taskArguments += @('--baseline-executable', $BaselineExecutable) }
+if ($BaselineShaderDirectory) { $taskArguments += @('--baseline-shaders', $BaselineShaderDirectory) }
 if ($AllowArithmeticChange) { $taskArguments += '--allow-arithmetic-change' }
 if ($Fusion) { $taskArguments += '--fusion' }
 if ($Ffn32Fusion -ne 'inherit') { $taskArguments += $(if ($Ffn32Fusion -eq '1') { '--ffn32-fusion' } else { '--no-ffn32-fusion' }) }

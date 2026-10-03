@@ -1,0 +1,3186 @@
+{
+  "format": "OpenNR-amd-tuning-v1",
+  "comparison_anchor": "direct32",
+  "records": [
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 448,
+          "N": 1024,
+          "K": 1024,
+          "batches": 1,
+          "flags": 83,
+          "partition": 256
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.1207375751866483,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 448,
+          "N": 3072,
+          "K": 1024,
+          "batches": 1,
+          "flags": 0,
+          "partition": 512
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.25843066179941065,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 448,
+          "N": 4096,
+          "K": 1024,
+          "batches": 1,
+          "flags": 24,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.3513084580546557,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 448,
+          "N": 512,
+          "K": 1024,
+          "batches": 1,
+          "flags": 0,
+          "partition": 256
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.4127790484547461,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 25920,
+          "N": 128,
+          "K": 128,
+          "batches": 1,
+          "flags": 83,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.34985924910440236,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 25920,
+          "N": 128,
+          "K": 128,
+          "batches": 1,
+          "flags": 99,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.3241977494090852,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 25920,
+          "N": 128,
+          "K": 128,
+          "batches": 4,
+          "flags": 152,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.2977236206240329,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 6480,
+          "N": 256,
+          "K": 128,
+          "batches": 1,
+          "flags": 16,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.39445287593577116,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1658880,
+          "N": 32,
+          "K": 128,
+          "batches": 1,
+          "flags": 35,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.11772502454406342,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 414720,
+          "N": 32,
+          "K": 128,
+          "batches": 1,
+          "flags": 35,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.10123418210221202,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 414720,
+          "N": 32,
+          "K": 128,
+          "batches": 1,
+          "flags": 99,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.225605162045606,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 103680,
+          "N": 32,
+          "K": 128,
+          "batches": 2,
+          "flags": 16,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.26678930567139225,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 25920,
+          "N": 32,
+          "K": 128,
+          "batches": 4,
+          "flags": 16,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.22281741291164636,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 6480,
+          "N": 32,
+          "K": 128,
+          "batches": 8,
+          "flags": 16,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.3485639094275075,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 25920,
+          "N": 384,
+          "K": 128,
+          "batches": 1,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.43461043176023484,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 25920,
+          "N": 64,
+          "K": 128,
+          "batches": 1,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6350999549469656,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 6480,
+          "N": 128,
+          "K": 256,
+          "batches": 1,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.12987005329402423,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 6480,
+          "N": 128,
+          "K": 256,
+          "batches": 8,
+          "flags": 152,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.28519275716392634,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 6480,
+          "N": 256,
+          "K": 256,
+          "batches": 1,
+          "flags": 83,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.16705937382588454,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 6480,
+          "N": 256,
+          "K": 256,
+          "batches": 1,
+          "flags": 99,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.1551618288151262,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1792,
+          "N": 512,
+          "K": 256,
+          "batches": 1,
+          "flags": 16,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.16944011032719708,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1792,
+          "N": 64,
+          "K": 256,
+          "batches": 8,
+          "flags": 16,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.3622529165559274,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 6480,
+          "N": 768,
+          "K": 256,
+          "batches": 1,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.29711593387663904,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1658880,
+          "N": 128,
+          "K": 32,
+          "batches": 1,
+          "flags": 24,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.13946333681928136,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 414720,
+          "N": 128,
+          "K": 32,
+          "batches": 1,
+          "flags": 24,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.11088920584034656,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 414720,
+          "N": 32,
+          "K": 32,
+          "batches": 1,
+          "flags": 19,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.12818750422595515,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1658880,
+          "N": 32,
+          "K": 32,
+          "batches": 1,
+          "flags": 3,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.09480099025324729,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1658880,
+          "N": 32,
+          "K": 32,
+          "batches": 1,
+          "flags": 35,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.061934152070208026,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 414720,
+          "N": 32,
+          "K": 32,
+          "batches": 1,
+          "flags": 35,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.07336684935653837,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 103680,
+          "N": 64,
+          "K": 32,
+          "batches": 1,
+          "flags": 16,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.26564352405395997,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1658880,
+          "N": 96,
+          "K": 32,
+          "batches": 1,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.21581624671369537,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 414720,
+          "N": 96,
+          "K": 32,
+          "batches": 1,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.2442499235721256,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 448,
+          "N": 1024,
+          "K": 4096,
+          "batches": 1,
+          "flags": 83,
+          "partition": 1024
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.11462027421042464,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 448,
+          "N": 1024,
+          "K": 512,
+          "batches": 1,
+          "flags": 16,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.1811145653664481,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1792,
+          "N": 1536,
+          "K": 512,
+          "batches": 1,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.3072018814756152,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1792,
+          "N": 256,
+          "K": 512,
+          "batches": 1,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.12222233063013277,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1792,
+          "N": 512,
+          "K": 512,
+          "batches": 1,
+          "flags": 16,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.12248130572752391,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1792,
+          "N": 512,
+          "K": 512,
+          "batches": 1,
+          "flags": 83,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.1942572301507537,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1792,
+          "N": 512,
+          "K": 512,
+          "batches": 1,
+          "flags": 99,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.35795460829235826,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 25920,
+          "N": 128,
+          "K": 64,
+          "batches": 1,
+          "flags": 16,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6044519772425578,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 103680,
+          "N": 128,
+          "K": 64,
+          "batches": 2,
+          "flags": 152,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.19279860496037526,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 103680,
+          "N": 192,
+          "K": 64,
+          "batches": 1,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.3784740747021734,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 1792,
+          "N": 256,
+          "K": 64,
+          "batches": 8,
+          "flags": 24,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.13722245617899254,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 103680,
+          "N": 32,
+          "K": 64,
+          "batches": 1,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.3539284193034248,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 103680,
+          "N": 64,
+          "K": 64,
+          "batches": 1,
+          "flags": 83,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.23332011920311446,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "fp8_gemm",
+        "shape": {
+          "rows": 103680,
+          "N": 64,
+          "K": 64,
+          "batches": 1,
+          "flags": 99,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_gemm_direct_rte",
+      "tile_n": 16,
+      "stage_k": 16,
+      "qualified": true,
+      "operator_improvement_fraction": 0.23802977779672663,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 1658880,
+          "N": 64,
+          "K": 32,
+          "batches": 1,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6386507570975181,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 414720,
+          "N": 64,
+          "K": 32,
+          "batches": 1,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.62215920554816,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 414720,
+          "N": 64,
+          "K": 32,
+          "batches": 1,
+          "flags": 262144,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6246955578717437,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 1658880,
+          "N": 64,
+          "K": 32,
+          "batches": 1,
+          "flags": 262148,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6372856481371625,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 414720,
+          "N": 64,
+          "K": 32,
+          "batches": 1,
+          "flags": 262148,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6223906127742598,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 414720,
+          "N": 64,
+          "K": 32,
+          "batches": 1,
+          "flags": 4,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.622307849140304,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 1792,
+          "N": 64,
+          "K": 32,
+          "batches": 16,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.5100238872017651,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 1792,
+          "N": 64,
+          "K": 32,
+          "batches": 16,
+          "flags": 262144,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.5307733051537221,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 1792,
+          "N": 64,
+          "K": 32,
+          "batches": 16,
+          "flags": 262148,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.5128446645089427,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 1792,
+          "N": 64,
+          "K": 32,
+          "batches": 16,
+          "flags": 4,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.49351351999596016,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 103680,
+          "N": 64,
+          "K": 32,
+          "batches": 2,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6385581488947346,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 103680,
+          "N": 64,
+          "K": 32,
+          "batches": 2,
+          "flags": 262144,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6366979635987069,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 103680,
+          "N": 64,
+          "K": 32,
+          "batches": 2,
+          "flags": 262148,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6319838748580096,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 103680,
+          "N": 64,
+          "K": 32,
+          "batches": 2,
+          "flags": 4,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6316900350286152,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 25920,
+          "N": 64,
+          "K": 32,
+          "batches": 4,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.64830789914308,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 25920,
+          "N": 64,
+          "K": 32,
+          "batches": 4,
+          "flags": 262144,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6453064726770765,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 25920,
+          "N": 64,
+          "K": 32,
+          "batches": 4,
+          "flags": 262148,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.631146776587336,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 25920,
+          "N": 64,
+          "K": 32,
+          "batches": 4,
+          "flags": 4,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6386888023203547,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 6480,
+          "N": 64,
+          "K": 32,
+          "batches": 8,
+          "flags": 0,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.674764164892651,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 6480,
+          "N": 64,
+          "K": 32,
+          "batches": 8,
+          "flags": 262144,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6291189091437464,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 6480,
+          "N": 64,
+          "K": 32,
+          "batches": 8,
+          "flags": 262148,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6319694408022913,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    },
+    {
+      "key": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "family": "window_attention",
+        "shape": {
+          "rows": 6480,
+          "N": 64,
+          "K": 32,
+          "batches": 8,
+          "flags": 4,
+          "partition": 0
+        }
+      },
+      "comparison_anchor": "direct32",
+      "variant": "amd_window_register_rte",
+      "tile_n": 64,
+      "stage_k": 16,
+      "window_queries": 32,
+      "qualified": true,
+      "operator_improvement_fraction": 0.6719428476297524,
+      "network_median_ratio": 0.7117979333257034,
+      "network_p95_ratio": 0.7136308089486898,
+      "evidence": {
+        "performance_report_sha256": "8873da8463e103f44c4eb5b19d7e98c10cbfa308c83c2398c700c8a676d04c1b",
+        "qualification_report_sha256": "9e85546c08837718aaa400a0e1727e2dfa20fd4c03f74de877e902014be288f4",
+        "selected": {
+          "kernels": "optimized",
+          "arithmetic": "k16",
+          "gemm": "direct-rte",
+          "tile_n": 16,
+          "stage_k": 16,
+          "window_queries": 32,
+          "window_layout": "register-rte",
+          "fusion": false,
+          "expert_fusion": false,
+          "block_fusion": false,
+          "hardware_publication": false,
+          "ffn32_fusion": false,
+          "qkv32_fusion": false
+        }
+      }
+    }
+  ],
+  "identity": {
+    "device_id": "1002:7550",
+    "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+    "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+    "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+    "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+  },
+  "geometry": {
+    "width": 1707,
+    "height": 960,
+    "padded_width": 1728,
+    "padded_height": 960
+  },
+  "optimized_default_eligible": true,
+  "default_selection": {
+    "kernels": "optimized",
+    "arithmetic": "k16",
+    "tile_n": 16,
+    "stage_k": 16,
+    "gemm": "direct-rte",
+    "window_queries": 32,
+    "window_layout": "register-rte",
+    "fusion": false,
+    "expert_fusion": false,
+    "block_fusion": false,
+    "hardware_publication": false,
+    "ffn32_fusion": false,
+    "qkv32_fusion": false
+  },
+  "fallback": "qualified preserving baseline; invalid/missing records never select experimental arithmetic"
+}

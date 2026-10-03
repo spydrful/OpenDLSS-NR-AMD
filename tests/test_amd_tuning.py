@@ -137,7 +137,7 @@ class AmdTuningTests(unittest.TestCase):
         legacy = self.record("candidate")["selected"]
         self.assertEqual(tune.selected_policy(legacy)["gemm"], "shared")
         self.assertTrue(tune.evidence_equal(legacy, {**legacy, "gemm": "shared"}))
-        for gemm in ("packed", "direct"):
+        for gemm in ("packed", "direct", "direct-rte"):
             selected = tune.selected_policy({**legacy, "gemm": gemm})
             self.assertEqual(selected["gemm"], gemm)
             self.assertFalse(tune.evidence_equal(legacy, selected))
@@ -147,7 +147,43 @@ class AmdTuningTests(unittest.TestCase):
         for stage in (32, 64):
             with self.subTest(stage=stage), self.assertRaisesRegex(ValueError, "direct GEMM requires stage_k=16"):
                 tune.selected_policy({**legacy, "gemm": "direct", "stage_k": stage})
+            with self.subTest(stage=stage), self.assertRaisesRegex(ValueError, "direct GEMM requires stage_k=16"):
+                tune.selected_policy({**legacy, "gemm": "direct-rte", "stage_k": stage})
             self.assertEqual(tune.selected_policy({**legacy, "gemm": "packed", "stage_k": stage})["stage_k"], stage)
+        with self.assertRaisesRegex(ValueError, "scalar RTE"):
+            tune.selected_policy({**legacy, "gemm": "direct-rte", "hardware_publication": True})
+
+    def test_window_layout_requires_explicit_register_geometry_and_binds_legacy(self):
+        legacy = self.record("candidate")["selected"]
+        self.assertEqual(tune.selected_policy(legacy)["window_layout"], "staged")
+        self.assertTrue(tune.evidence_equal(legacy, {**legacy, "window_layout": "staged"}))
+        registered = tune.selected_policy({**legacy, "window_queries": 32, "window_layout": "register"})
+        self.assertEqual(registered["window_layout"], "register")
+        self.assertFalse(tune.evidence_equal(legacy, registered))
+        for layout in ("register", "register-rte"):
+            for queries in (16, 32):
+                selected = tune.selected_policy({**legacy, "window_queries": queries, "window_layout": layout})
+                self.assertEqual(selected["window_queries"], queries)
+                self.assertEqual(selected["window_layout"], layout)
+            with self.assertRaisesRegex(ValueError, "optimized Q16/Q32"):
+                tune.selected_policy({**legacy, "window_queries": 64, "window_layout": layout})
+            with self.assertRaisesRegex(ValueError, "optimized Q16/Q32"):
+                tune.selected_policy({**legacy, "kernels": "baseline", "window_queries": 32, "window_layout": layout})
+        rte = tune.selected_policy({**legacy, "window_queries": 32, "window_layout": "register-rte"})
+        self.assertFalse(tune.evidence_equal(registered, rte))
+        for layout in ("REGISTER", "", None, 1, []):
+            with self.subTest(layout=layout), self.assertRaisesRegex(ValueError, "window_layout"):
+                tune.selected_policy({**legacy, "window_layout": layout})
+        with self.assertRaisesRegex(ValueError, "optimized Q16/Q32"):
+            tune.selected_policy({**legacy, "window_queries": 64, "window_layout": "register"})
+        with self.assertRaisesRegex(ValueError, "optimized Q16/Q32"):
+            tune.selected_policy({**legacy, "kernels": "baseline", "window_queries": 32, "window_layout": "register"})
+
+    def test_direct32_anchor_cannot_inherit_register_attention_baseline(self):
+        def override(value, role, pair):
+            if role == "baseline": value["selected"]["window_layout"] = "register"
+        with self.assertRaisesRegex(ValueError, "direct32 preserving"):
+            tune.analyze(self.direct32_pairs(extra=override), comparison_anchor="direct32")
 
     def test_collect_gemm_is_explicit_and_anchor_always_shared(self):
         model = self.root / "model"; model.mkdir()
@@ -470,6 +506,276 @@ class AmdTuningTests(unittest.TestCase):
         self.assertTrue(all(tune.preserving_baseline(value, "qualified32") for value in calls[::2]))
         self.assertTrue(all(value["window_queries"] == 32 and value["tile_n"] == 32 for value in calls[1::2]))
         self.assertEqual(tune.read_json(manifest)["comparison_anchor"], "qualified32")
+
+    def direct32_pairs(self, mode="bench", extra=None):
+        def direct(value, role, pair):
+            value["selected"]["gemm"] = "direct"
+            if "dispatches" in value:
+                value["dispatches"][0]["variant"] = "amd_gemm_direct"
+            if extra: extra(value, role, pair)
+        path = self.qualified32_pairs(mode, direct)
+        value = tune.read_json(path); value["comparison_anchor"] = "direct32"
+        path.write_text(json.dumps(value), encoding="utf-8")
+        return path
+
+    def register_artifacts(self, layout):
+        gemm = "direct-rte" if layout == "register-rte" else "direct"
+        window_variant = "amd_window_register_rte" if layout == "register-rte" else "amd_window_register"
+        def policy(value, role, pair):
+            candidate = role == "candidate"
+            value["selected"].update(tile_n=16, gemm=gemm if candidate else "direct",
+                                     window_layout=layout if candidate else "staged")
+            if "dispatches" in value:
+                dispatch = value["dispatches"][0]
+                dispatch.update(tile_n=16, variant=tune.GEMM_VARIANTS[value["selected"]["gemm"]])
+                window = copy.deepcopy(dispatch)
+                window.update(family="window_attention", tile_n=64, stage_k=16,
+                              variant=window_variant if candidate else "amd_window_small",
+                              geometry={"tile_m":32})
+                window["shape"].update(N=64, K=32)
+                value["dispatches"].append(window)
+        network = self.direct32_pairs(extra=policy)
+        profile = self.direct32_pairs("profile", extra=policy)
+        performance = self.write("register-performance.json", tune.analyze(
+            profile, network_manifest=network, comparison_anchor="direct32"))
+        paths = self.exact_suites()
+        for path in paths:
+            value = tune.read_json(path); value["comparison_anchor"] = "direct32"
+            value["baseline_selected"].update(kernels="optimized", gemm="direct", window_queries=32,
+                                              window_layout="staged")
+            value["selected"].update(kernels="optimized", gemm=gemm, window_queries=32,
+                                     window_layout=layout)
+            path.write_text(json.dumps(value), encoding="utf-8")
+        qualification = self.write("register-qualification.json", tune.qualify(argparse.Namespace(
+            exact=paths, sequence=[], arithmetic="k16", comparison_anchor="direct32")))
+        return performance, qualification
+
+    def test_register_profiles_require_explicit_query_geometry(self):
+        for layout, variant in (("register", "amd_window_register"),
+                                ("register-rte", "amd_window_register_rte")):
+            value = self.record("candidate", "profile")
+            value["selected"].update(gemm="direct", window_queries=32, window_layout=layout)
+            value["dispatches"][0].update(family="window_attention", variant=variant, tile_n=64)
+            with self.subTest(layout=layout), self.assertRaisesRegex(ValueError, "record actual geometry.tile_m"):
+                tune.benchmark(self.write("register-missing.json", value))
+
+    def test_register_profiles_reject_tampered_query_geometry(self):
+        for layout, variant in (("register", "amd_window_register"),
+                                ("register-rte", "amd_window_register_rte")):
+            for queries in (16, 64, True, "32"):
+                value = self.record("candidate", "profile")
+                value["selected"].update(gemm="direct", window_queries=32, window_layout=layout)
+                value["dispatches"][0].update(family="window_attention", variant=variant, tile_n=64,
+                                              geometry={"tile_m":queries})
+                with self.subTest(layout=layout, queries=queries), self.assertRaisesRegex(ValueError, "geometry.tile_m"):
+                    tune.benchmark(self.write("register-tampered.json", value))
+
+    def test_register_profiles_accept_actual_q16_and_q32(self):
+        for layout, variant in (("register", "amd_window_register"),
+                                ("register-rte", "amd_window_register_rte")):
+            for queries in (16, 32):
+                value = self.record("candidate", "profile")
+                value["selected"].update(gemm="direct", window_queries=queries, window_layout=layout)
+                value["dispatches"][0].update(family="window_attention", variant=variant, tile_n=64,
+                                              geometry={"tile_m":queries})
+                parsed = tune.benchmark(self.write("register-valid.json", value))
+                with self.subTest(layout=layout, queries=queries):
+                    self.assertEqual(parsed["dispatches"][0]["geometry"]["tile_m"], queries)
+
+    def test_tuning_generates_actual_register_and_rte_module_names(self):
+        for layout, variant in (("register", "amd_window_register"),
+                                ("register-rte", "amd_window_register_rte")):
+            performance, qualification = self.register_artifacts(layout)
+            result = tune.tuning(performance, qualification, "direct32")
+            records = {record["variant"]:record for record in result["records"]}
+            with self.subTest(layout=layout):
+                self.assertIn(variant, records)
+                self.assertEqual(records[variant]["window_queries"], 32)
+                self.assertEqual(records[variant]["evidence"]["selected"]["window_layout"], layout)
+                self.assertTrue(result["optimized_default_eligible"])
+                if layout == "register-rte": self.assertIn("amd_gemm_direct_rte", records)
+
+    def test_tuning_rejects_missing_or_tampered_register_query_geometry(self):
+        for layout in ("register", "register-rte"):
+            performance, qualification = self.register_artifacts(layout)
+            original = tune.read_json(performance)
+            for queries in (None, 16, 64, True):
+                report = copy.deepcopy(original)
+                window = next(operator for operator in report["operators"] if operator["family"] == "window_attention")
+                variant = window["candidate_variants"][0]
+                if queries is None: variant.pop("window_queries")
+                else: variant["window_queries"] = queries
+                performance.write_text(json.dumps(report), encoding="utf-8")
+                # Reach the generation guard independently of raw-file reanalysis,
+                # whose own malformed-profile rejection is covered above.
+                with self.subTest(layout=layout, queries=queries), mock.patch.object(tune, "analyze", return_value=report):
+                    with self.assertRaisesRegex(ValueError, "query geometry does not match"):
+                        tune.tuning(performance, qualification, "direct32")
+
+    def test_collect_register_and_rte_preserves_named_policies_and_direct32_baseline(self):
+        model = self.root / "register-model"; model.mkdir()
+        baseline_shaders = self.root / "register-baseline-shaders"; baseline_shaders.mkdir()
+        for layout in ("register", "register-rte"):
+            gemm = "direct-rte" if layout == "register-rte" else "direct"
+            args = argparse.Namespace(executable=Path(sys.executable), baseline_executable=Path(sys.executable),
+                                      model=model, shaders=None, baseline_shaders=baseline_shaders,
+                                      output=self.root / ("register-out-" + layout), mode="profile", kernels="optimized",
+                                      arithmetic="k16", gemm=gemm, tile_n=16, stage_k=16, width=1707, height=960,
+                                      warmup=5, frames=30, pairs=3, timeout=60, allow_arithmetic_change=False,
+                                      window_queries=32, window_layout=layout, comparison_anchor="direct32", fusion=False)
+            calls = []
+            def child(command, **kwargs):
+                role = "baseline" if len(calls) % 2 == 0 else "candidate"
+                actual_gemm = command[command.index("--amd-gemm") + 1]
+                actual_layout = command[command.index("--amd-window-layout") + 1]
+                self.assertEqual(actual_gemm, "direct" if role == "baseline" else gemm)
+                self.assertEqual(actual_layout, "staged" if role == "baseline" else layout)
+                self.assertEqual(kwargs["env"]["DLSS5VK_AMD_GEMM"], actual_gemm)
+                self.assertEqual(kwargs["env"]["DLSS5VK_AMD_WINDOW_LAYOUT"], actual_layout)
+                value = self.record(role, "profile")
+                value["selected"].update(kernels="optimized", gemm=actual_gemm, window_queries=32,
+                                          window_layout=actual_layout, **{key:False for key in tune.FUSION_KEYS})
+                value["dispatches"][0]["variant"] = tune.GEMM_VARIANTS[actual_gemm]
+                window = copy.deepcopy(value["dispatches"][0])
+                window.update(family="window_attention", tile_n=64, geometry={"tile_m":32},
+                              variant="amd_window_small" if role == "baseline" else
+                              "amd_window_register_rte" if layout == "register-rte" else "amd_window_register")
+                window["shape"].update(N=64, K=32)
+                value["dispatches"].append(window)
+                Path(command[command.index("--json") + 1]).write_text(json.dumps(value), encoding="utf-8")
+                calls.append(command)
+                return subprocess.CompletedProcess(command, 0)
+            with mock.patch.object(tune.subprocess, "run", side_effect=child): manifest = tune.collect(args)
+            with self.subTest(layout=layout):
+                self.assertEqual(len(calls), 6)
+                self.assertEqual(tune.read_json(manifest)["comparison_anchor"], "direct32")
+
+    def test_direct32_anchor_measures_incremental_gain_from_alpha3_policy(self):
+        report = tune.analyze(self.direct32_pairs(), comparison_anchor="direct32")
+        self.assertEqual(report["selections"]["baseline"]["gemm"], "direct")
+        self.assertEqual(report["network_median_ratio"], .9)
+        self.assertTrue(report["default_performance_eligible"])
+
+    def test_direct32_anchor_rejects_shared_or_unrecorded_baseline_route(self):
+        for missing in (False, True):
+            def wrong(value, role, pair):
+                if role == "baseline":
+                    if missing: value["selected"].pop("gemm")
+                    else: value["selected"]["gemm"] = "shared"
+            with self.assertRaisesRegex(ValueError, "direct32 preserving"):
+                tune.analyze(self.direct32_pairs(extra=wrong), comparison_anchor="direct32")
+
+    def test_collect_direct32_forces_direct_baseline_and_disables_fusion_overrides(self):
+        model = self.root / "direct32-model"; model.mkdir()
+        baseline_shaders = self.root / "direct32-baseline-shaders"; baseline_shaders.mkdir()
+        args = argparse.Namespace(executable=Path(sys.executable), baseline_executable=Path(sys.executable),
+                                  baseline_shaders=baseline_shaders, model=model, shaders=None,
+                                  output=self.root / "direct32-out", mode="bench", kernels="optimized", arithmetic="k16",
+                                  gemm="direct", tile_n=32, stage_k=16, width=1707, height=960, warmup=5, frames=30,
+                                  pairs=3, timeout=60, allow_arithmetic_change=False, window_queries=32,
+                                  comparison_anchor="direct32", fusion=True)
+        calls = []
+        def child(command, **kwargs):
+            role = "baseline" if len(calls) % 2 == 0 else "candidate"
+            selected = {"kernels": command[command.index("--amd-kernels") + 1], "arithmetic": "k16",
+                        "gemm": command[command.index("--amd-gemm") + 1],
+                        "tile_n": int(command[command.index("--amd-tile-n") + 1]),
+                        "stage_k": int(command[command.index("--amd-stage-k") + 1]),
+                        "window_queries": int(command[command.index("--amd-window-queries") + 1]),
+                        **{key: kwargs["env"]["DLSS5VK_AMD_" + key.upper()] == "1" for key in tune.FUSION_KEYS}}
+            self.assertEqual(kwargs["env"]["DLSS5VK_AMD_GEMM"], "direct")
+            calls.append(selected)
+            value = self.record(role); value["selected"] = selected
+            Path(command[command.index("--json") + 1]).write_text(json.dumps(value), encoding="utf-8")
+            return subprocess.CompletedProcess(command, 0)
+        with mock.patch.object(tune.subprocess, "run", side_effect=child): manifest = tune.collect(args)
+        self.assertTrue(all(tune.preserving_baseline(value, "direct32") for value in calls[::2]))
+        self.assertTrue(all(value["fusion"] for value in calls[1::2]))
+        self.assertEqual(tune.read_json(manifest)["comparison_anchor"], "direct32")
+        self.assertIn("policy", tune.read_json(manifest)["comparison_anchor_scope"])
+        self.assertIn("independent release-identity proof", tune.read_json(manifest)["comparison_anchor_scope"])
+
+    def test_collect_direct32_rejects_implicit_baseline_before_output_or_child(self):
+        model = self.root / "explicit-baseline-model"; model.mkdir()
+        baseline_shaders = self.root / "explicit-baseline-shaders"; baseline_shaders.mkdir()
+        for missing in ("baseline_executable", "baseline_shaders", "both"):
+            args = argparse.Namespace(executable=Path(sys.executable), model=model, shaders=None,
+                                      output=self.root / ("missing-" + missing), comparison_anchor="direct32",
+                                      baseline_executable=Path(sys.executable), baseline_shaders=baseline_shaders)
+            if missing == "both":
+                del args.baseline_executable; del args.baseline_shaders
+            else:
+                setattr(args, missing, None)
+            with self.subTest(missing=missing), mock.patch.object(tune.subprocess, "run") as child:
+                with self.assertRaisesRegex(ValueError, "requires explicit --baseline-executable and --baseline-shaders"):
+                    tune.collect(args)
+                child.assert_not_called()
+                self.assertFalse(args.output.exists())
+
+    def test_collect_binds_frozen_baseline_and_candidate_tools_and_shader_paths(self):
+        model = self.root / "two-model"; model.mkdir()
+        baseline_exe = self.root / "frozen.exe"; baseline_exe.write_bytes(b"frozen binary fixture")
+        baseline_shaders = self.root / "old-shaders"; baseline_shaders.mkdir()
+        candidate_shaders = self.root / "new-shaders"; candidate_shaders.mkdir()
+        args = argparse.Namespace(executable=Path(sys.executable), baseline_executable=baseline_exe,
+                                  model=model, shaders=candidate_shaders, baseline_shaders=baseline_shaders,
+                                  output=self.root / "two-out", mode="bench", kernels="optimized", arithmetic="k16",
+                                  gemm="direct", tile_n=16, stage_k=16, width=1707, height=960, warmup=5, frames=30,
+                                  pairs=3, timeout=60, allow_arithmetic_change=False, window_queries=32,
+                                  comparison_anchor="direct32", fusion=False)
+        calls = []
+        def child(command, **kwargs):
+            role = "baseline" if len(calls) % 2 == 0 else "candidate"
+            expected_exe = baseline_exe if role == "baseline" else Path(sys.executable)
+            expected_shaders = baseline_shaders if role == "baseline" else candidate_shaders
+            self.assertEqual(command[0], str(expected_exe.resolve()))
+            self.assertEqual(kwargs["cwd"], str(expected_exe.resolve().parent))
+            self.assertEqual(command[command.index("--shaders") + 1], str(expected_shaders.resolve()))
+            value = self.record(role)
+            value["selected"].update(kernels="optimized", gemm="direct", window_queries=32,
+                                      **{key: False for key in tune.FUSION_KEYS})
+            Path(command[command.index("--json") + 1]).write_text(json.dumps(value), encoding="utf-8")
+            calls.append(command)
+            return subprocess.CompletedProcess(command, 0)
+        with mock.patch.object(tune.subprocess, "run", side_effect=child): manifest = tune.collect(args)
+        records = tune.read_json(manifest)["runs"]
+        self.assertTrue(all(item["executable_sha256"] == tune.sha256(baseline_exe) for item in records[::2]))
+        self.assertTrue(all(item["executable_sha256"] == tune.sha256(Path(sys.executable)) for item in records[1::2]))
+
+    def test_collect_rejects_replaced_frozen_executable_after_child(self):
+        executable = self.root / "mutable.exe"; executable.write_bytes(b"initial binary fixture")
+        model = self.root / "mutable-model"; model.mkdir()
+        baseline_shaders = self.root / "mutable-baseline-shaders"; baseline_shaders.mkdir()
+        args = argparse.Namespace(executable=executable, baseline_executable=executable,
+                                  baseline_shaders=baseline_shaders, model=model, shaders=None,
+                                  output=self.root / "mutable-out", mode="bench", kernels="optimized", arithmetic="k16",
+                                  gemm="direct", tile_n=16, stage_k=16, width=1707, height=960, warmup=5, frames=30,
+                                  pairs=3, timeout=60, allow_arithmetic_change=False, window_queries=32,
+                                  comparison_anchor="direct32", fusion=False)
+        def child(command, **kwargs):
+            executable.write_bytes(b"changed after child")
+            return subprocess.CompletedProcess(command, 0)
+        with mock.patch.object(tune.subprocess, "run", side_effect=child):
+            with self.assertRaisesRegex(ValueError, "baseline executable changed during collection"):
+                tune.collect(args)
+        self.assertFalse((args.output / "interleaved.json").exists())
+
+    def test_direct32_anchor_binds_profile_and_all_exact_suites(self):
+        network, profile = self.direct32_pairs(), self.direct32_pairs("profile")
+        performance = self.write("direct32-performance.json", tune.analyze(
+            profile, network_manifest=network, comparison_anchor="direct32"))
+        paths = self.exact_suites()
+        for path in paths:
+            value = tune.read_json(path); value["comparison_anchor"] = "direct32"
+            value["selected"].update(kernels="optimized", gemm="direct", window_queries=32, tile_n=32)
+            value["baseline_selected"].update(kernels="optimized", gemm="direct", window_queries=32)
+            path.write_text(json.dumps(value), encoding="utf-8")
+        qualification = self.write("direct32-qualification.json", tune.qualify(argparse.Namespace(
+            exact=paths, sequence=[], arithmetic="k16", comparison_anchor="direct32")))
+        result = tune.tuning(performance, qualification, "direct32")
+        self.assertEqual(result["comparison_anchor"], "direct32")
+        self.assertEqual(result["records"][0]["comparison_anchor"], "direct32")
+        self.assertEqual(result["records"][0]["evidence"]["selected"]["gemm"], "direct")
 
     def test_legacy_historical_report_remains_accepted_without_anchor_fields(self):
         report = self.assessed_profile()

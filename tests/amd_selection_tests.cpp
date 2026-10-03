@@ -176,7 +176,7 @@ int main(int argc,char** argv){
     auto legacyBoth=record();field(legacyBoth,"fusion").boolean=true;
     const auto legacyPolicy=amd::tuningPolicy(legacyBoth,requested,1728,960,true);
     expect(legacyPolicy.ffn32Enabled() && legacyPolicy.qkv32Enabled(),"legacy shorthand no longer selects both routes");
-    for(const char* gemmMode:{"packed","direct"}){
+    for(const char* gemmMode:{"packed","direct","direct-rte"}){
       auto alternative=bound;
       alternative.object.at("default_selection").object["gemm"]=json::parse(std::string("\"")+gemmMode+"\"");
       for(auto& op:alternative.object.at("records").array)op.object.at("evidence").object.at("selected")=alternative["default_selection"];
@@ -194,9 +194,13 @@ int main(int argc,char** argv){
       auto wrongGemmVariant=alternative;wrongGemmVariant.object.at("records").array[1].object.at("variant").string="amd_gemm_optimized";
       rejects([&]{validate(wrongGemmVariant);},"shared GEMM dispatch record qualified non-shared policy");
       selection.current()=policy;selection.restart();expect(selection.current().gemm==amd::Gemm::Shared,"restart inherited prior tuned GEMM");
-      if(std::string(gemmMode)=="direct")for(const auto stage:{32u,64u}){
+      if(policy.directOperands())for(const auto stage:{32u,64u}){
         auto invalidStage=alternative;number(field(invalidStage,"stage_k"),stage);
         rejects([&]{validate(invalidStage);},"direct tuning claimed nonexistent larger staging");
+      }
+      if(policy.gemm==amd::Gemm::DirectRte){
+        auto packedRounding=alternative;field(packedRounding,"hardware_publication").boolean=true;
+        rejects([&]{validate(packedRounding);},"scalar RTE tuning was mislabeled as packed publication");
       }
     }
     for(const char* bad:{"DIRECT","optimized",""}){
@@ -205,6 +209,62 @@ int main(int argc,char** argv){
     }
     auto scalarGemm=bound;number(scalarGemm.object.at("default_selection").object["gemm"],0);
     rejects([&]{validate(scalarGemm);},"non-string GEMM tuning policy accepted");
+    // Prior immutable caches omit window_layout and retain staged semantics.
+    expect(amd::windowLayoutPolicy(bound["default_selection"])==amd::WindowLayout::Staged,
+           "missing legacy attention layout did not resolve to staged");
+    auto explicitStaged=bound;explicitStaged.object.at("default_selection").object["window_layout"]=json::parse(R"("staged")");
+    validate(explicitStaged);expect(true,"explicit staged default no longer accepts equivalent legacy staged proof");
+    for(const char* layout:{"register","register-rte"})for(const uint32_t queries:{16u,32u}){
+      const auto expected=amd::Options::parseWindowLayout(layout);
+      const char* shader=expected==amd::WindowLayout::Register ? "amd_window_register" : "amd_window_register_rte";
+      auto reg=bound;reg.object.at("default_selection").object["window_layout"]=json::parse(std::string("\"")+layout+"\"");
+      number(field(reg,"window_queries"),queries);
+      for(auto& op:reg.object.at("records").array)op.object.at("evidence").object.at("selected")=reg["default_selection"];
+      reg.object.at("records").array[0].object.at("variant").string=shader;
+      number(reg.object.at("records").array[0].object.at("window_queries"),queries);
+      validate(reg);const auto policy=amd::tuningPolicy(reg,requested,1728,960,true);
+      expect(policy.windowLayout==expected && policy.windowQueries==queries &&
+             std::string(policy.windowShaderName())==shader,"qualified register attention layout/module was not selected");
+      expect(amd::tuningPolicy(reg,policy,1728,960,false).windowLayout==expected,
+             "matching forced register attention evidence was rejected");
+      amd::Selection explicitLayout(policy);expect(explicitLayout.forced(),"forced register layout became automatic");
+      auto staged=policy;staged.windowLayout=amd::WindowLayout::Staged;
+      rejects([&]{(void)amd::tuningPolicy(reg,staged,1728,960,false);},"register tuning replaced a forced staged layout");
+      auto old=bound;number(field(old,"window_queries"),queries);
+      rejects([&]{(void)amd::tuningPolicy(old,policy,1728,960,false);},"legacy staged tuning replaced a forced register layout");
+      auto missingDefault=reg;missingDefault.object.at("default_selection").object.erase("window_layout");
+      rejects([&]{validate(missingDefault);},"register proof qualified a missing/default staged layout");
+      for(size_t op=0;op<reg.object.at("records").array.size();++op){
+        auto missingProof=reg;missingProof.object.at("records").array[op].object.at("evidence").object.at("selected").object.erase("window_layout");
+        rejects([&]{validate(missingProof);},"register layout inherited missing legacy staged operator proof");
+        auto otherProof=reg;otherProof.object.at("records").array[op].object.at("evidence").object.at("selected").object.at("window_layout").string="staged";
+        rejects([&]{validate(otherProof);},"another attention layout's operator proof qualified register");
+        auto otherRegister=reg;otherRegister.object.at("records").array[op].object.at("evidence").object.at("selected").object.at("window_layout").string=expected==amd::WindowLayout::Register ? "register-rte" : "register";
+        rejects([&]{validate(otherRegister);},"another register publication policy qualified this layout");
+        auto scalarProof=reg;number(scalarProof.object.at("records").array[op].object.at("evidence").object.at("selected").object.at("window_layout"),0);
+        rejects([&]{validate(scalarProof);},"non-string layout in operator proof was accepted");
+      }
+      auto oldVariant=reg;oldVariant.object.at("records").array[0].object.at("variant").string="amd_window_small";
+      rejects([&]{validate(oldVariant);},"staged shader variant qualified register attention");
+      auto otherVariant=reg;otherVariant.object.at("records").array[0].object.at("variant").string=expected==amd::WindowLayout::Register ? "amd_window_register_rte" : "amd_window_register";
+      rejects([&]{validate(otherVariant);},"another register shader variant qualified this layout");
+      auto wrongQueries=reg;number(wrongQueries.object.at("records").array[0].object.at("window_queries"),queries==16?32:16);
+      rejects([&]{validate(wrongQueries);},"register shader inherited another query specialization's dispatch proof");
+      selection.current()=policy;selection.restart();
+      expect(selection.current().windowLayout==amd::WindowLayout::Staged && selection.current().windowQueries==64,
+             "restart inherited prior tuned register layout");
+    }
+    for(const char* layout:{"register","register-rte"}){
+      auto register64=bound;register64.object.at("default_selection").object["window_layout"]=json::parse(std::string("\"")+layout+"\"");
+      number(field(register64,"window_queries"),64);
+      rejects([&]{validate(register64);},"register tuning claimed an unsupported Q64 shader");
+    }
+    for(const char* bad:{"REGISTER","packed",""," register"}){
+      auto invalidLayout=bound;invalidLayout.object.at("default_selection").object["window_layout"]=json::parse(std::string("\"")+bad+"\"");
+      rejects([&]{validate(invalidLayout);},"invalid attention layout tuning policy accepted");
+    }
+    auto scalarLayout=bound;number(scalarLayout.object.at("default_selection").object["window_layout"],0);
+    rejects([&]{validate(scalarLayout);},"non-string attention layout tuning policy accepted");
     if(argc>1){
       std::ifstream input(argv[1],std::ios::binary);if(!input)throw std::runtime_error("cannot read existing audited tuning fixture");
       const auto audited=json::parse(std::string((std::istreambuf_iterator<char>(input)),{}));
