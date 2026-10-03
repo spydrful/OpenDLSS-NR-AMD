@@ -1,0 +1,518 @@
+{
+  "source": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical-sequence.json",
+  "frames": [
+    {
+      "reference": "D:\\amd\\build\\performance\\post-alpha3-20261002\\replay\\identical\\candidate\\frame-7085\\recorded-scene-linear-rgb.pfm",
+      "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7085\\recorded-scene-linear-rgb.pfm",
+      "width": 1707,
+      "height": 960,
+      "channels": 3,
+      "peak": 1.0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_absolute_error": 0.0,
+      "different_samples": 0,
+      "psnr_db": null,
+      "exact": true,
+      "ssim": 1.0,
+      "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+      "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak",
+      "capture_metadata": {
+        "frame_id": 7085,
+        "sequence_id": "sequence-25172-41276609-1",
+        "seed": 1246,
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "input_sha256": "5aa03934a78f20f21d44ec5285372f67e2cce727494c80a4c21d76db8d616277",
+        "controls": {
+          "automatic_mask": 1,
+          "style": 0,
+          "tone": 1,
+          "structure": 1,
+          "skin": -1,
+          "paper_white": 1,
+          "intensity": 1,
+          "blend_scale": 0.739746094,
+          "history_strength": 1,
+          "enabled": 1,
+          "color_strength": 1,
+          "max_ratio": 4
+        },
+        "render_resolution": [
+          1707,
+          960
+        ],
+        "output_resolution": [
+          1707,
+          960
+        ],
+        "pipeline_point": "pre-fsr",
+        "color_space": "scene-linear",
+        "pre_exposure": 1,
+        "exposure_scale": 1,
+        "jitter": [
+          -0.46875,
+          -0.092592597
+        ],
+        "motion_scale": [
+          1707,
+          960
+        ],
+        "reset": false,
+        "history_frame_ids": [
+          7084
+        ]
+      },
+      "thresholds_passed": true
+    },
+    {
+      "reference": "D:\\amd\\build\\performance\\post-alpha3-20261002\\replay\\identical\\candidate\\frame-7086\\recorded-scene-linear-rgb.pfm",
+      "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7086\\recorded-scene-linear-rgb.pfm",
+      "width": 1707,
+      "height": 960,
+      "channels": 3,
+      "peak": 1.0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_absolute_error": 0.0,
+      "different_samples": 0,
+      "psnr_db": null,
+      "exact": true,
+      "ssim": 1.0,
+      "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+      "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak",
+      "capture_metadata": {
+        "frame_id": 7086,
+        "sequence_id": "sequence-25172-41276609-1",
+        "seed": 1247,
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "input_sha256": "5e105b1ada81328865f114302344fa916d6883d2732a57a78bf82b26f7217cd2",
+        "controls": {
+          "automatic_mask": 1,
+          "style": 0,
+          "tone": 1,
+          "structure": 1,
+          "skin": -1,
+          "paper_white": 1,
+          "intensity": 1,
+          "blend_scale": 0.739746094,
+          "history_strength": 1,
+          "enabled": 1,
+          "color_strength": 1,
+          "max_ratio": 4
+        },
+        "render_resolution": [
+          1707,
+          960
+        ],
+        "output_resolution": [
+          1707,
+          960
+        ],
+        "pipeline_point": "pre-fsr",
+        "color_space": "scene-linear",
+        "pre_exposure": 1,
+        "exposure_scale": 1,
+        "jitter": [
+          0.03125,
+          -0.42592597
+        ],
+        "motion_scale": [
+          1707,
+          960
+        ],
+        "reset": false,
+        "history_frame_ids": [
+          7085
+        ]
+      },
+      "thresholds_passed": true
+    },
+    {
+      "reference": "D:\\amd\\build\\performance\\post-alpha3-20261002\\replay\\identical\\candidate\\frame-7087\\recorded-scene-linear-rgb.pfm",
+      "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7087\\recorded-scene-linear-rgb.pfm",
+      "width": 1707,
+      "height": 960,
+      "channels": 3,
+      "peak": 1.0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_absolute_error": 0.0,
+      "different_samples": 0,
+      "psnr_db": null,
+      "exact": true,
+      "ssim": 1.0,
+      "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+      "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak",
+      "capture_metadata": {
+        "frame_id": 7087,
+        "sequence_id": "sequence-25172-41276609-1",
+        "seed": 1248,
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "input_sha256": "3b94aaf1ad760a48c6816ef2992a84e9118a3d31e2dbd5456d6944e7965c17e3",
+        "controls": {
+          "automatic_mask": 1,
+          "style": 0,
+          "tone": 1,
+          "structure": 1,
+          "skin": -1,
+          "paper_white": 1,
+          "intensity": 1,
+          "blend_scale": 0.739746094,
+          "history_strength": 1,
+          "enabled": 1,
+          "color_strength": 1,
+          "max_ratio": 4
+        },
+        "render_resolution": [
+          1707,
+          960
+        ],
+        "output_resolution": [
+          1707,
+          960
+        ],
+        "pipeline_point": "pre-fsr",
+        "color_space": "scene-linear",
+        "pre_exposure": 1,
+        "exposure_scale": 1,
+        "jitter": [
+          -0.21875,
+          0.42592591
+        ],
+        "motion_scale": [
+          1707,
+          960
+        ],
+        "reset": false,
+        "history_frame_ids": [
+          7086
+        ]
+      },
+      "thresholds_passed": true
+    },
+    {
+      "reference": "D:\\amd\\build\\performance\\post-alpha3-20261002\\replay\\identical\\candidate\\frame-7088\\recorded-scene-linear-rgb.pfm",
+      "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7088\\recorded-scene-linear-rgb.pfm",
+      "width": 1707,
+      "height": 960,
+      "channels": 3,
+      "peak": 1.0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_absolute_error": 0.0,
+      "different_samples": 0,
+      "psnr_db": null,
+      "exact": true,
+      "ssim": 1.0,
+      "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+      "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak",
+      "capture_metadata": {
+        "frame_id": 7088,
+        "sequence_id": "sequence-25172-41276609-1",
+        "seed": 1249,
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "input_sha256": "a4b60c8bc5515b1a8506ccd7f408d6eceb3bcc3413354cdbc6e167d8a36db6ea",
+        "controls": {
+          "automatic_mask": 1,
+          "style": 0,
+          "tone": 1,
+          "structure": 1,
+          "skin": -1,
+          "paper_white": 1,
+          "intensity": 1,
+          "blend_scale": 0.739746094,
+          "history_strength": 1,
+          "enabled": 1,
+          "color_strength": 1,
+          "max_ratio": 4
+        },
+        "render_resolution": [
+          1707,
+          960
+        ],
+        "output_resolution": [
+          1707,
+          960
+        ],
+        "pipeline_point": "pre-fsr",
+        "color_space": "scene-linear",
+        "pre_exposure": 1,
+        "exposure_scale": 1,
+        "jitter": [
+          0,
+          0.166666657
+        ],
+        "motion_scale": [
+          1707,
+          960
+        ],
+        "reset": false,
+        "history_frame_ids": [
+          7087
+        ]
+      },
+      "thresholds_passed": true
+    },
+    {
+      "reference": "D:\\amd\\build\\performance\\post-alpha3-20261002\\replay\\identical\\candidate\\frame-7089\\recorded-scene-linear-rgb.pfm",
+      "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7089\\recorded-scene-linear-rgb.pfm",
+      "width": 1707,
+      "height": 960,
+      "channels": 3,
+      "peak": 1.0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_absolute_error": 0.0,
+      "different_samples": 0,
+      "psnr_db": null,
+      "exact": true,
+      "ssim": 1.0,
+      "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+      "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak",
+      "capture_metadata": {
+        "frame_id": 7089,
+        "sequence_id": "sequence-25172-41276609-1",
+        "seed": 1250,
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "input_sha256": "e0d917375a11ddb2809153cbfa054af8727b76827cc11b986b780ae9084c4ead",
+        "controls": {
+          "automatic_mask": 1,
+          "style": 0,
+          "tone": 1,
+          "structure": 1,
+          "skin": -1,
+          "paper_white": 1,
+          "intensity": 1,
+          "blend_scale": 0.739746094,
+          "history_strength": 1,
+          "enabled": 1,
+          "color_strength": 1,
+          "max_ratio": 4
+        },
+        "render_resolution": [
+          1707,
+          960
+        ],
+        "output_resolution": [
+          1707,
+          960
+        ],
+        "pipeline_point": "pre-fsr",
+        "color_space": "scene-linear",
+        "pre_exposure": 1,
+        "exposure_scale": 1,
+        "jitter": [
+          -0.25,
+          -0.166666687
+        ],
+        "motion_scale": [
+          1707,
+          960
+        ],
+        "reset": false,
+        "history_frame_ids": [
+          7088
+        ]
+      },
+      "thresholds_passed": true
+    },
+    {
+      "reference": "D:\\amd\\build\\performance\\post-alpha3-20261002\\replay\\identical\\candidate\\frame-7090\\recorded-scene-linear-rgb.pfm",
+      "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7090\\recorded-scene-linear-rgb.pfm",
+      "width": 1707,
+      "height": 960,
+      "channels": 3,
+      "peak": 1.0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_absolute_error": 0.0,
+      "different_samples": 0,
+      "psnr_db": null,
+      "exact": true,
+      "ssim": 1.0,
+      "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+      "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak",
+      "capture_metadata": {
+        "frame_id": 7090,
+        "sequence_id": "sequence-25172-41276609-1",
+        "seed": 1251,
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "input_sha256": "c0ea79e14874a61a3ed54a65261ccf0785015aa5a244d8eea04b4d2bb31e8e03",
+        "controls": {
+          "automatic_mask": 1,
+          "style": 0,
+          "tone": 1,
+          "structure": 1,
+          "skin": -1,
+          "paper_white": 1,
+          "intensity": 1,
+          "blend_scale": 0.739746094,
+          "history_strength": 1,
+          "enabled": 1,
+          "color_strength": 1,
+          "max_ratio": 4
+        },
+        "render_resolution": [
+          1707,
+          960
+        ],
+        "output_resolution": [
+          1707,
+          960
+        ],
+        "pipeline_point": "pre-fsr",
+        "color_space": "scene-linear",
+        "pre_exposure": 1,
+        "exposure_scale": 1,
+        "jitter": [
+          0.25,
+          0.388888896
+        ],
+        "motion_scale": [
+          1707,
+          960
+        ],
+        "reset": false,
+        "history_frame_ids": [
+          7089
+        ]
+      },
+      "thresholds_passed": true
+    },
+    {
+      "reference": "D:\\amd\\build\\performance\\post-alpha3-20261002\\replay\\identical\\candidate\\frame-7091\\recorded-scene-linear-rgb.pfm",
+      "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7091\\recorded-scene-linear-rgb.pfm",
+      "width": 1707,
+      "height": 960,
+      "channels": 3,
+      "peak": 1.0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_absolute_error": 0.0,
+      "different_samples": 0,
+      "psnr_db": null,
+      "exact": true,
+      "ssim": 1.0,
+      "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+      "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak",
+      "capture_metadata": {
+        "frame_id": 7091,
+        "sequence_id": "sequence-25172-41276609-1",
+        "seed": 1252,
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "input_sha256": "fbd33fe9f09058eb9daba1031a905cc82e5a6d16f61190c6f1b091e6f57765ad",
+        "controls": {
+          "automatic_mask": 1,
+          "style": 0,
+          "tone": 1,
+          "structure": 1,
+          "skin": -1,
+          "paper_white": 1,
+          "intensity": 1,
+          "blend_scale": 0.739746094,
+          "history_strength": 1,
+          "enabled": 1,
+          "color_strength": 1,
+          "max_ratio": 4
+        },
+        "render_resolution": [
+          1707,
+          960
+        ],
+        "output_resolution": [
+          1707,
+          960
+        ],
+        "pipeline_point": "pre-fsr",
+        "color_space": "scene-linear",
+        "pre_exposure": 1,
+        "exposure_scale": 1,
+        "jitter": [
+          -0.375,
+          0.0555555224
+        ],
+        "motion_scale": [
+          1707,
+          960
+        ],
+        "reset": false,
+        "history_frame_ids": [
+          7090
+        ]
+      },
+      "thresholds_passed": true
+    },
+    {
+      "reference": "D:\\amd\\build\\performance\\post-alpha3-20261002\\replay\\identical\\candidate\\frame-7092\\recorded-scene-linear-rgb.pfm",
+      "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7092\\recorded-scene-linear-rgb.pfm",
+      "width": 1707,
+      "height": 960,
+      "channels": 3,
+      "peak": 1.0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_absolute_error": 0.0,
+      "different_samples": 0,
+      "psnr_db": null,
+      "exact": true,
+      "ssim": 1.0,
+      "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+      "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak",
+      "capture_metadata": {
+        "frame_id": 7092,
+        "sequence_id": "sequence-25172-41276609-1",
+        "seed": 1253,
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "input_sha256": "8d4a1353dd5a564e6ccbb419584d1c1a15244ee469658553c84bff5de26e3dc0",
+        "controls": {
+          "automatic_mask": 1,
+          "style": 0,
+          "tone": 1,
+          "structure": 1,
+          "skin": -1,
+          "paper_white": 1,
+          "intensity": 1,
+          "blend_scale": 0.739746094,
+          "history_strength": 1,
+          "enabled": 1,
+          "color_strength": 1,
+          "max_ratio": 4
+        },
+        "render_resolution": [
+          1707,
+          960
+        ],
+        "output_resolution": [
+          1707,
+          960
+        ],
+        "pipeline_point": "pre-fsr",
+        "color_space": "scene-linear",
+        "pre_exposure": 1,
+        "exposure_scale": 1,
+        "jitter": [
+          0.125,
+          -0.277777791
+        ],
+        "motion_scale": [
+          1707,
+          960
+        ],
+        "reset": false,
+        "history_frame_ids": [
+          7091
+        ]
+      },
+      "thresholds_passed": true
+    }
+  ],
+  "frame_count": 8,
+  "capture_metadata_verified": true,
+  "minimum_ssim": 1.0,
+  "thresholds": {
+    "min_psnr_db": 40,
+    "max_mae": null,
+    "min_ssim": 0.99
+  },
+  "thresholds_passed": true
+}

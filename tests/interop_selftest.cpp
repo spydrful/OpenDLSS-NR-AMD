@@ -831,7 +831,22 @@ void queuedRuntimePoolCases(ID3D12Device* device, ID3D12CommandQueue* queue, con
   const char* configuredAssets = getenv("OPEN_NR_RUNTIME_ASSETS");
   const auto assets = configuredAssets && *configuredAssets ? std::filesystem::path(configuredAssets) : repository / "build/synthetic-runtime-assets/open-nr";
   AssetEnvironment environment(assets.wstring());
-  constexpr uint32_t width = 320, height = 320, count = kRuntimeFrameSlots;
+  // Use the same requested geometry as the DLL lifecycle case above. With no
+  // extent selection this remains the historical 320x320 pool test.
+  auto setting = [](const char* name, uint32_t fallback, uint32_t minimum, uint32_t maximum) {
+    const char* value = getenv(name); if (!value || !*value) return fallback;
+    char* end = nullptr; const unsigned long parsed = strtoul(value, &end, 10);
+    expect(end && !*end && parsed >= minimum && parsed <= maximum, "invalid pool test extent setting");
+    return static_cast<uint32_t>(parsed);
+  };
+  const uint32_t width = setting("OPEN_NR_RUNTIME_WIDTH", 320, 192, 3840);
+  const uint32_t height = setting("OPEN_NR_RUNTIME_HEIGHT", 320, 128, 2160);
+  const uint32_t resizeWidth = width == 192 ? 160 : 192, resizeHeight = height == 128 ? 96 : 128;
+  constexpr uint32_t count = kRuntimeFrameSlots;
+  static_assert(count == 8, "the bounded pool qualification requires eight live slots");
+  const auto geometry = nr::Geometry::fromValid(width, height);
+  printf("interop source-included production eight-slot pool: requested %ux%u, padded %ux%u, %u slots; synthetic diagnostic readback, excluded from performance results\n",
+         width, height, geometry.fullWidth, geometry.fullHeight, count);
   std::vector<std::array<uint16_t, 4>> colors(width * height);
   std::vector<std::array<uint16_t, 2>> motion(width * height);
   for (uint32_t y = 0; y < height; ++y) for (uint32_t x = 0; x < width; ++x)
@@ -866,6 +881,9 @@ void queuedRuntimePoolCases(ID3D12Device* device, ID3D12CommandQueue* queue, con
       parameters.flags = LMXXF_NR_FRAME_FLAG_TEMPORAL | LMXXF_NR_FRAME_FLAG_STRENGTH; parameters.passes = 1;
       auto& frame = frames[index]; success(api.lifecycle.PrepareFrame(session.pointer, &parameters, &frame.job), "pool frame prepare");
       auto& job = *static_cast<Job*>(frame.job.handle);
+      expect(job.params.width == width && job.params.height == height &&
+             job.params.fullWidth == geometry.fullWidth && job.params.fullHeight == geometry.fullHeight,
+             "prepared pool job does not use requested runtime geometry");
       expect(job.params.historyValid == 0 && job.params.seed == 0, "preparation prematurely publishes temporal controls");
       if (job.packedConsecutive) {
         expect(index && job.pack.jitterDeltaX == -1.0f / 8 && job.pack.jitterDeltaY == float(int((index - 1) % 3) - int(index % 3)) / 16,
@@ -875,6 +893,7 @@ void queuedRuntimePoolCases(ID3D12Device* device, ID3D12CommandQueue* queue, con
       success(api.lifecycle.RecordInputs(session.pointer, frame.job.handle, frame.producer.list.Get()), "pool record inputs");
       success(api.lifecycle.RecordOutputs(session.pointer, frame.job.handle, frame.consumer.list.Get()), "pool record outputs");
       auto output = static_cast<ID3D12Resource*>(frame.job.private_output); const auto desc = output->GetDesc(); UINT rows; UINT64 rowBytes, total;
+      expect(desc.Width == width && desc.Height == height, "pool output texture does not use requested runtime geometry");
       device->GetCopyableFootprints(&desc, 0, 1, 0, &frame.footprint, &rows, &rowBytes, &total);
       frame.readback = testBuffer(device, total, D3D12_HEAP_TYPE_READBACK, D3D12_RESOURCE_STATE_COPY_DEST);
       transition(frame.consumer.list.Get(), output, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_SOURCE);
@@ -883,7 +902,19 @@ void queuedRuntimePoolCases(ID3D12Device* device, ID3D12CommandQueue* queue, con
       frame.consumer.list->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
       transition(frame.consumer.list.Get(), output, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
     };
-    if (prefetched) for (uint32_t index = 0; index < count; ++index) prepare(index);
+    if (prefetched) {
+      for (uint32_t index = 0; index < count; ++index) prepare(index);
+      // This assertion happens before any queue submission, cancellation or
+      // retirement: every prepared job owns a distinct live runtime slot.
+      for (uint32_t index = 0; index < count; ++index) {
+        const auto& job = sourceSession.jobs[index];
+        expect(job && frames[index].job.handle == job.get() &&
+               job->state == LMXXF_NR_JOB_CONSUMER_COMPLETE && !job->vulkanSubmitted && !job->retired,
+               "prefetched pool did not retain eight distinct live prepared slots");
+      }
+      printf("interop source-included pool %s %ux%u: eight distinct live prepared slots verified before submission\n",
+             edges ? "cancel/gap/reset" : "ordered continuous", width, height);
+    }
     struct Gate { ComPtr<ID3D12Fence> fence; ~Gate(){ if(fence)fence->Signal(1); } } gate;
     if (prefetched) { check(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&gate.fence)), "eight-slot queue gate"); check(queue->Wait(gate.fence.Get(), 1), "gate eight live frame submissions"); }
     for (uint32_t index = 0; index < count; ++index) {
@@ -925,7 +956,7 @@ void queuedRuntimePoolCases(ID3D12Device* device, ID3D12CommandQueue* queue, con
       frames[1].consumer.submit(queue); success(api.lifecycle.Retire(session.pointer, frames[1].job.handle), "post-decline retire"); success(api.lifecycle.Drain(session.pointer), "post-decline drain");
     }
     LmxxfNrFrameInfo resized{sizeof(LmxxfNrFrameInfo)}; resized.frame_id = sourceSession.lastPreparedFrame + 1;
-    resized.color_width = 192; resized.color_height = 128; resized.motion_width = width; resized.motion_height = height;
+    resized.color_width = resizeWidth; resized.color_height = resizeHeight; resized.motion_width = width; resized.motion_height = height;
     resized.color = color.texture.Get(); resized.motion = velocity.texture.Get(); resized.color_state = resized.motion_state = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
     resized.motion_scale_x = resized.motion_scale_y = resized.transfer_strength = resized.color_strength = resized.model_scale = 1;
     resized.flags = LMXXF_NR_FRAME_FLAG_TEMPORAL | LMXXF_NR_FRAME_FLAG_STRENGTH; resized.passes = 1;
@@ -939,7 +970,10 @@ void queuedRuntimePoolCases(ID3D12Device* device, ID3D12CommandQueue* queue, con
   for (bool edges : {false, true}) {
     const auto serialized = run(false, edges), prefetched = run(true, edges);
     expect(serialized == prefetched, "multiple prepared frames changed temporal results versus serialized preparation/enqueue");
-    printf("interop production eight-slot pool %s: immutable prepared jitter, enqueue-time seed/history, eight independent descriptor lifetimes, serialized/prefetched exact output equality PASS\n", edges ? "cancel/gap/reset" : "ordered continuous");
+    const uint32_t comparedFrames = edges ? count - 1 : count;
+    printf("interop source-included production eight-slot pool %s %ux%u (padded %ux%u): immutable prepared jitter, enqueue-time seed/history, eight independent descriptor lifetimes, serialized/prefetched exact output equality %u frames/%llu bytes PASS\n",
+           edges ? "cancel/gap/reset" : "ordered continuous", width, height, geometry.fullWidth, geometry.fullHeight,
+           comparedFrames, (unsigned long long)(uint64_t(comparedFrames) * width * height * 8));
   }
 }
 #if defined(NR_HOST_BINDINGS_SELFTEST)

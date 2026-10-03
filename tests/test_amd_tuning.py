@@ -106,6 +106,8 @@ class AmdTuningTests(unittest.TestCase):
         if value.get("model_free"):
             value["checks"] = len(value["pairs"])
             value["operators"] += len(cases)
+        if value["selected"]["gemm"] in tune.EXTENDED_GEMMS:
+            self.add_prototype_evidence(value,window_padding=False)
         return value
 
     def add_raw_overdispatch_evidence(self, value, buffers=True):
@@ -122,6 +124,37 @@ class AmdTuningTests(unittest.TestCase):
             if value.get("model_free"):
                 value["checks"] = len(value["pairs"])
                 value["operators"] += 3
+        return value
+
+    def add_prototype_evidence(self, value, window_padding=True):
+        for field, marker, tuples in (("extended_paired",tune.PAIRED_COVERAGE,tune.PAIRED_CASES),
+                                      ("extended_window_padding",tune.WINDOW_PADDING_COVERAGE,tune.WINDOW_PADDING_CASES)):
+            if field in value or (field=="extended_window_padding" and not window_padding):
+                continue
+            cases = []
+            for values in tuples:
+                if field == "extended_paired":
+                    K,N,rows,flags,partition,batches = values
+                    name = f"gemm-paired-K{K}-N{N}-R{rows}-F{flags}-P{partition}-B{batches}"
+                    case = dict(name=name,K=K,N=N,rows=rows,flags=flags,partition=partition,batches=batches)
+                    allocation = ((rows+63)//64)*64*(32+batches*N)
+                    sizes = {name:allocation*(1 if flags & 16 else 2)}
+                    if flags & 32: sizes[name+"-dual"] = allocation
+                else:
+                    width,height,heads,sx,sy = values
+                    name = f"window-{width}x{height}-H{heads}-S{sx}x{sy}"
+                    case = dict(name=name,width=width,height=height,heads=heads,shiftX=sx,shiftY=sy)
+                    sizes = {name:((width*height+63)//64)*64*heads*32}
+                cases.append(case)
+                for buffer_name,size in sizes.items():
+                    filename=buffer_name+".u8"
+                    (self.root/filename).write_bytes(bytes([0xA5])*size)
+                    value["pairs"].append(dict(name=buffer_name,baseline=filename,candidate=filename))
+            value["coverage"].append(marker)
+            value[field] = dict(coverage_marker=marker,case_count=len(cases),cases=cases)
+            if value.get("model_free"):
+                value["checks"] = len(value["pairs"])
+                value["operators"] += len(cases)
         return value
 
     def test_complete_protocol_and_statistics(self):
@@ -199,7 +232,7 @@ class AmdTuningTests(unittest.TestCase):
         registered = tune.selected_policy({**legacy, "window_queries": 32, "window_layout": "register"})
         self.assertEqual(registered["window_layout"], "register")
         self.assertFalse(tune.evidence_equal(legacy, registered))
-        for layout in ("register", "register-rte"):
+        for layout in ("register", "register-rte", "arena-rte"):
             for queries in (16, 32):
                 selected = tune.selected_policy({**legacy, "window_queries": queries, "window_layout": layout})
                 self.assertEqual(selected["window_queries"], queries)
@@ -1540,6 +1573,204 @@ class AmdTuningTests(unittest.TestCase):
             self.assertIn("alpha 4",manifest["comparison_anchor_scope"])
             self.assertIn("independent release-identity proof",manifest["comparison_anchor_scope"])
             self.assertTrue(all(run["executable_sha256"]==tune.sha256(baseline_exe) for run in manifest["runs"][::2]))
+
+    def prototype_artifacts(self, gemm="direct-rte-pair", layout="arena-rte"):
+        def policy(value,role,pair):
+            candidate=role=="candidate"
+            value["selected"].update(tile_n=16,window_layout=layout if candidate else "register-rte")
+            if "dispatches" in value:
+                dispatch=value["dispatches"][0];dispatch["tile_n"]=16
+                window=copy.deepcopy(dispatch)
+                window.update(family="window_attention",variant=tune.window_variant(value["selected"]),
+                    tile_n=64,geometry={"threads":128,"required_subgroup_size":32,"tile_m":32})
+                window["shape"].update(N=64,K=32)
+                value["dispatches"].append(window)
+        network=self.rte32_pairs(candidate_gemm=gemm,extra=policy)
+        profile=self.rte32_pairs("profile",candidate_gemm=gemm,extra=policy)
+        performance=self.write("prototype-performance.json",tune.analyze(profile,network_manifest=network,comparison_anchor="rte32"))
+        exact=self.exact_suites()
+        for path in exact:
+            value=tune.read_json(path);value["comparison_anchor"]="rte32"
+            value["baseline_selected"].update(kernels="optimized",gemm="direct-rte",window_queries=32,window_layout="register-rte")
+            value["selected"].update(kernels="optimized",gemm=gemm,window_queries=32,window_layout=layout)
+            if value["suite"]=="operators":
+                if gemm in tune.EXTENDED_GEMMS:
+                    self.add_vit_evidence(value);self.add_raw_overdispatch_evidence(value)
+                self.add_prototype_evidence(value)
+            path.write_text(json.dumps(value),encoding="utf-8")
+        qualification=self.write("prototype-qualification.json",tune.qualify(argparse.Namespace(
+            exact=exact,sequence=[],arithmetic="k16",comparison_anchor="rte32")))
+        return performance,qualification,exact
+
+    def test_pair_selector_requires_n16_and_staging_without_changing_arithmetic_modes(self):
+        policy={**self.record("candidate")["selected"],"gemm":"direct-rte-pair"}
+        for arithmetic in ("k16","k32","final"):
+            self.assertEqual(tune.selected_policy({**policy,"arithmetic":arithmetic})["gemm"],"direct-rte-pair")
+        for tile in (32,64):
+            with self.subTest(tile=tile),self.assertRaisesRegex(ValueError,"tile_n=16"):
+                tune.selected_policy({**policy,"tile_n":tile})
+        for stage in (32,64):
+            with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,"stage_k=16"):
+                tune.selected_policy({**policy,"stage_k":stage})
+        with self.assertRaisesRegex(ValueError,"scalar RTE"):
+            tune.selected_policy({**policy,"hardware_publication":True})
+
+    def test_arena_profile_requires_actual_module_wave_and_query_geometry(self):
+        for queries in (16,32):
+            value=self.record("candidate","profile")
+            value["selected"].update(window_layout="arena-rte",window_queries=queries)
+            dispatch=value["dispatches"][0]
+            dispatch.update(family="window_attention",variant="amd_window_arena_rte",tile_n=64,
+                geometry={"threads":128,"required_subgroup_size":32,"tile_m":queries})
+            self.assertEqual(tune.benchmark(self.write("arena-profile.json",value))["selected"]["window_layout"],"arena-rte")
+            for field in ("tile_m","threads","required_subgroup_size","variant"):
+                for missing in (True,False):
+                    altered=copy.deepcopy(value);entry=altered["dispatches"][0]
+                    target=entry if field=="variant" else entry["geometry"]
+                    if missing:target.pop(field)
+                    else:target[field]="amd_window_register_rte" if field=="variant" else 64
+                    with self.subTest(queries=queries,field=field,missing=missing),self.assertRaises(ValueError):
+                        tune.benchmark(self.write("arena-malformed.json",altered))
+
+    def test_pair_profile_requires_actual_module_resources(self):
+        value=self.record("candidate","profile")
+        value["selected"]["gemm"]="direct-rte-pair"
+        value["dispatches"][0].update(variant="amd_gemm_direct_rte_pair",
+            geometry={"threads":128,"required_subgroup_size":32,"tile_m":64})
+        self.assertEqual(tune.benchmark(self.write("pair-profile.json",value))["selected"]["gemm"],"direct-rte-pair")
+        for field in ("threads","required_subgroup_size","tile_m","variant","tile_n","stage_k"):
+            altered=copy.deepcopy(value);entry=altered["dispatches"][0]
+            target=entry["geometry"] if field in ("threads","required_subgroup_size","tile_m") else entry
+            target[field]="amd_gemm_direct_rte_epilogue" if field=="variant" else 64 if field=="required_subgroup_size" else 32
+            with self.subTest(field=field),self.assertRaisesRegex(ValueError,"module/resources"):
+                tune.benchmark(self.write("pair-malformed.json",altered))
+
+    def test_prototype_tuning_binds_separate_modules_and_unchanged_alpha4_anchor(self):
+        for gemm,layout in (("direct-rte-pair","register-rte"),("direct-rte","arena-rte"),("direct-rte-pair","arena-rte")):
+            performance,qualification,_=self.prototype_artifacts(gemm,layout)
+            result=tune.tuning(performance,qualification,"rte32")
+            self.assertEqual(result["default_selection"]["gemm"],gemm)
+            self.assertEqual(result["default_selection"]["window_layout"],layout)
+            variants={entry["variant"] for entry in result["records"]}
+            if gemm=="direct-rte-pair": self.assertIn(tune.GEMM_VARIANTS[gemm],variants)
+            if layout=="arena-rte": self.assertIn(tune.window_variant(result["default_selection"]),variants)
+            report=tune.read_json(performance)
+            self.assertTrue(tune.preserving_baseline(report["selections"]["baseline"],"rte32"))
+            for family,wrong in (("fp8_gemm","amd_gemm_direct_rte_epilogue"),
+                                 ("window_attention","amd_window_register")):
+                altered=copy.deepcopy(report)
+                operator=next(entry for entry in altered["operators"] if entry["family"]==family)
+                operator["candidate_variants"][0]["variant"]=wrong
+                operator["performance_eligible"]=True
+                performance.write_text(json.dumps(altered),encoding="utf-8")
+                with self.subTest(gemm=gemm,layout=layout,family=family),mock.patch.object(tune,"analyze",return_value=altered):
+                    with self.assertRaisesRegex(ValueError,"dispatch variant"):
+                        tune.tuning(performance,qualification,"rte32")
+                performance.write_text(json.dumps(report),encoding="utf-8")
+
+    def test_prototype_operator_extensions_require_executed_shapes_and_full_buffers(self):
+        _,_,exact=self.prototype_artifacts()
+        path=exact[0];original=tune.read_json(path)
+        self.assertTrue(tune.exact_manifest(path,"rte32")["passed"])
+        for field,marker in (("extended_paired",tune.PAIRED_COVERAGE),("extended_window_padding",tune.WINDOW_PADDING_COVERAGE)):
+            mutations=[("missing",lambda value:value.pop(field)),
+                ("marker",lambda value:value["coverage"].remove(marker)),
+                ("count",lambda value:value[field].update(case_count=True)),
+                ("duplicate",lambda value:value[field]["cases"].__setitem__(1,copy.deepcopy(value[field]["cases"][0]))),
+                ("shape",lambda value:value[field]["cases"][0].update(**({"K":128} if field=="extended_paired" else {"width":2}))),
+                ("missing-buffer",lambda value:value["pairs"].__setitem__(slice(None),[pair for pair in value["pairs"] if pair["name"]!=value[field]["cases"][0]["name"]])),
+                ("allocation",lambda value:next(pair for pair in value["pairs"] if pair["name"]==value[field]["cases"][0]["name"]).update(candidate="cand.u8"))]
+            for label,mutate in mutations:
+                value=copy.deepcopy(original);mutate(value)
+                path.write_text(json.dumps(value),encoding="utf-8")
+                with self.subTest(field=field,mutation=label),self.assertRaisesRegex(ValueError,"paired-preload|thin-window"):
+                    tune.exact_manifest(path,"rte32")
+        value=copy.deepcopy(original)
+        dual=next(case["name"]+"-dual" for case in value["extended_paired"]["cases"] if case["flags"]&32)
+        value["pairs"]=[pair for pair in value["pairs"] if pair["name"]!=dual]
+        with self.assertRaisesRegex(ValueError,"paired-preload.*allocation"):
+            tune.exact_manifest(self.write("pair-missing-dual.json",value),"rte32")
+
+    def test_repaired_init_epilogue_pair_reject_historical_880_operator_scope(self):
+        for gemm in sorted(tune.EXTENDED_GEMMS):
+            _,_,exact=self.prototype_artifacts(gemm,"register-rte")
+            value=tune.read_json(exact[0])
+            self.assertTrue(tune.exact_manifest(exact[0],"rte32")["passed"])
+            value.pop("extended_paired")
+            value["coverage"].remove(tune.PAIRED_COVERAGE)
+            value["pairs"]=[pair for pair in value["pairs"] if not pair["name"].startswith("gemm-paired-")]
+            with self.subTest(gemm=gemm),self.assertRaisesRegex(ValueError,"requires paired-preload"):
+                tune.exact_manifest(self.write("historical-880.json",value),"rte32")
+
+    def test_prototype_selectors_reject_unsafe_geometry_before_children_or_output(self):
+        for action in (tune.collect,tune.replay_sequence):
+            for gemm,tile,layout,queries in (("direct-rte-pair",32,"arena-rte",32),
+                                            ("direct-rte",16,"arena-rte",64)):
+                args=argparse.Namespace(gemm=gemm,tile_n=tile,stage_k=16,window_layout=layout,window_queries=queries,
+                    kernels="optimized",arithmetic="k16",allow_arithmetic_change=False,
+                    output=self.root/(action.__name__+gemm),comparison_anchor="legacy")
+                with self.subTest(action=action.__name__,gemm=gemm),mock.patch.object(tune.subprocess,"run") as child:
+                    with self.assertRaisesRegex(ValueError,"tile_n=16|optimized Q16/Q32"):
+                        action(args)
+                    child.assert_not_called();self.assertFalse(args.output.exists())
+
+    def test_pair_arena_collection_keeps_frozen_baseline_and_actual_environment(self):
+        model=self.root/"prototype-model";model.mkdir()
+        shaders=self.root/"prototype-baseline";shaders.mkdir()
+        args=argparse.Namespace(executable=Path(sys.executable),baseline_executable=Path(sys.executable),
+            model=model,shaders=shaders,baseline_shaders=shaders,output=self.root/"prototype-collect",
+            mode="profile",kernels="optimized",arithmetic="k16",gemm="direct-rte-pair",tile_n=16,stage_k=16,
+            width=1707,height=960,warmup=5,frames=30,pairs=3,timeout=60,allow_arithmetic_change=False,
+            window_queries=32,window_layout="arena-rte",comparison_anchor="rte32")
+        calls=[]
+        def child(command,**kwargs):
+            candidate=bool(len(calls)%2);role="candidate" if candidate else "baseline"
+            value=self.record(role,"profile")
+            value["selected"].update(kernels="optimized",gemm="direct-rte-pair" if candidate else "direct-rte",
+                window_layout="arena-rte" if candidate else "register-rte",window_queries=32,
+                **{key:False for key in tune.FUSION_KEYS})
+            policy=tune.selected_policy(value["selected"])
+            value["dispatches"][0].update(variant=tune.GEMM_VARIANTS[policy["gemm"]],
+                geometry={"threads":128,"required_subgroup_size":32,"tile_m":64})
+            self.assertEqual(command[command.index("--amd-gemm")+1],policy["gemm"])
+            self.assertEqual(kwargs["env"]["DLSS5VK_AMD_WINDOW_LAYOUT"],policy["window_layout"])
+            Path(command[command.index("--json")+1]).write_text(json.dumps(value),encoding="utf-8")
+            calls.append(policy);return subprocess.CompletedProcess(command,0)
+        with mock.patch.object(tune.subprocess,"run",side_effect=child):manifest=tune.collect(args)
+        self.assertTrue(all(tune.preserving_baseline(policy,"rte32") for policy in calls[::2]))
+        self.assertTrue(all(policy["gemm"]=="direct-rte-pair" and policy["window_layout"]=="arena-rte" for policy in calls[1::2]))
+        self.assertEqual(tune.read_json(manifest)["runs"][1]["environment"]["DLSS5VK_AMD_GEMM"],"direct-rte-pair")
+
+    def test_pair_arena_replay_binds_actual_policy_in_both_history_modes(self):
+        directory=self.capture_sequence_fixture();model=self.root/"prototype-replay-model";model.mkdir()
+        args=argparse.Namespace(capture_sequence=directory,executable=Path(sys.executable),model=model,
+            shaders=None,game_shaders=None,output=self.root/"prototype-replay",history_mode="both",
+            kernels="optimized",arithmetic="k16",gemm="direct-rte-pair",window_layout="arena-rte",window_queries=32,
+            tile_n=16,stage_k=16,timeout=30,reference_backend="reference",coverage=["sdr"],
+            allow_nongame=False,allow_arithmetic_change=False)
+        calls=[]
+        def child(command,**kwargs):
+            destination=Path(command[command.index("--fixture")+1]);destination.mkdir()
+            capture=tune.read_json(Path(command[command.index("--recorded-frame")+1])/"manifest.json")
+            environment=kwargs["env"];candidate=environment["DLSS5VK_AMD_GEMM"]=="direct-rte-pair"
+            self.assertEqual(environment["DLSS5VK_AMD_WINDOW_LAYOUT"],"arena-rte" if candidate else "staged")
+            selected=tune.selected_policy({**self.record("candidate")["selected"],
+                "kernels":"optimized" if candidate else "baseline",
+                "gemm":"direct-rte-pair" if candidate else "shared",
+                "window_layout":"arena-rte" if candidate else "staged","window_queries":32 if candidate else 64})
+            frame=capture["frame_id"];mode=command[command.index("--history-mode")+1]
+            report=dict(sourceFrameId=frame,historyMode=mode,seed=frame,reset=frame==0,
+                historyFrameIds=[] if frame==0 else [frame-1],identity=self.identity(),selected=selected)
+            (destination/"manifest.json").write_text(json.dumps(report),encoding="utf-8")
+            pixels=array.array("f",[2.0,.5,-.1]*121);sign=b"-1\n" if sys.byteorder=="little" else b"1\n"
+            (destination/"recorded-scene-linear-rgb.pfm").write_bytes(b"PF\n11 11\n"+sign+pixels.tobytes())
+            calls.append((mode,candidate));return subprocess.CompletedProcess(command,0)
+        with mock.patch.object(tune.subprocess,"run",side_effect=child):result=tune.replay_sequence(args)
+        self.assertTrue(result["thresholds_passed"]);self.assertEqual(len(calls),8)
+        for mode in ("identical","evolved"):
+            value=tune.read_json(args.output/(mode+"-sequence.json"))
+            self.assertEqual(value["selected"]["gemm"],"direct-rte-pair")
+            self.assertEqual(value["selected"]["window_layout"],"arena-rte")
 
 
 if __name__ == "__main__":

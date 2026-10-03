@@ -533,6 +533,29 @@ class ModelQualificationTests(unittest.TestCase):
         self.assertFalse(result["passed"]);self.assertEqual(result["mismatchedChecks"],2)
         self.assertEqual(result["selected"]["arithmetic"],"k16")
 
+    def test_pair_arena_model_proof_preserves_separate_selected_identities(self):
+        self.fixtures();self.rte32_anchor("direct-rte-pair")
+        for path in (self.candidate/"manifest.json",self.candidate/"modelcheck-report.json",self.candidate_benchmark):
+            self.mutate(path,lambda value:value["selected"].update(window_layout="arena-rte"))
+        result=self.run_qualification(comparison_anchor="rte32")
+        self.assertTrue(result["passed"]);self.assertEqual(result["checks"],77)
+        self.assertEqual(result["selected"]["gemm"],"direct-rte-pair")
+        self.assertEqual(result["selected"]["window_layout"],"arena-rte")
+        self.assertEqual(result["baseline_selected"]["gemm"],"direct-rte")
+        self.assertEqual(result["baseline_selected"]["window_layout"],"register-rte")
+        self.assertTrue(qualification._protocol.exact_manifest(self.output,"rte32")["passed"])
+
+    def test_pair_arena_predecessor_capture_cannot_qualify_new_policy(self):
+        self.fixtures();self.rte32_anchor("direct-rte-pair")
+        for path in (self.candidate/"manifest.json",self.candidate/"modelcheck-report.json",self.candidate_benchmark):
+            self.mutate(path,lambda value:value["selected"].update(window_layout="arena-rte"))
+        for key,old in (("gemm","direct-rte-epilogue"),("window_layout","register-rte")):
+            self.mutate(self.candidate/"manifest.json",lambda value:value["selected"].update({key:old}))
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,"selected policy differs from benchmark"):
+                self.run_qualification(comparison_anchor="rte32")
+            self.assertFalse(self.output.exists())
+            self.mutate(self.candidate/"manifest.json",lambda value:value["selected"].update(gemm="direct-rte-pair",window_layout="arena-rte"))
+
 
 if __name__ == "__main__":
     unittest.main()

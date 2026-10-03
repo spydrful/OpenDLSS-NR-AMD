@@ -1,22 +1,26 @@
 # Install the RX 9070 XT alpha
 
-This guide covers the **v0.1.0-alpha.4** development package for Cyberpunk 2077
-on Windows. The existing
+This guide covers the **v0.1.0-alpha.5** development package for
+Cyberpunk 2077 on Windows. The existing
+[alpha 4 download](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.4)
+and [its installation guide](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.4/docs/INSTALL.md),
 [alpha 3 download](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.3)
 and [its installation guide](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/INSTALL.md)
-remain available unchanged for that older package.
+remain available unchanged for those older packages.
 
-The new preserving RTE kernels measure **82.225 → 58.527 ms median**, a
-**28.82%** improvement against immutable alpha 3 Direct/Q32/K16 at 1707×960
+The opt-in repaired Pair/Arena kernels measure **58.685 → 50.501 ms median**, a
+**13.95%** improvement against frozen published alpha 4 Direct-RTE/Register-RTE at 1707×960
 input, padded to 1728×960. Three interleaved pairs use five warmups and 30 measured
 frames per run. This is **network-only** GPU timing, excluding the bridge, FSR
 and game; it establishes neither game FPS nor the 8 ms NR-plus-bridge target.
-See the [RTE delivery record](amd-rte-delivery.md) and
-[scalar evidence](performance/rte-kernels-rx9070xt-20261003.json).
+See the [Pair/Arena delivery record](amd-pair-arena-delivery.md) and
+[scalar evidence](performance/pair-arena-rx9070xt-20261003.json).
 Performance and broad game-quality gates remain unmet. NR ships **disabled**,
-using preserving K16 publication arithmetic; enable it deliberately for testing.
+using preserving K16 publication arithmetic and the retained qualified auto
+cache. Pair/Arena is an additional explicit selection; installing alpha 5 does
+not activate those kernels automatically.
 
-**Alpha 4 game FPS has not been measured.** Historical alpha 3 benchmarks averaged
+**Alpha 5 game FPS has not been measured.** Historical alpha 3 benchmarks averaged
 **97.12 FPS NR off / 10.69 FPS NR on**; those values belong to the
 [alpha 3 game record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/performance/cyberpunk-alpha3-20261002.json).
 Replaying the existing SDR frames preserves their outputs but adds no new
@@ -44,8 +48,8 @@ unchanged.
 ## Download and check the package
 
 1. Open the
-   [v0.1.0-alpha.4 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.4).
-   Download **OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip** and its **.zip.sha256** asset.
+   [v0.1.0-alpha.5 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.5)
+   Download **OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip** and its **.zip.sha256** asset.
    GitHub's automatic **Source code** archives do not contain the built DLLs.
 2. Compare the ZIP's SHA-256 with the sidecar, then extract it to a writable
    folder, for example `D:\OpenNR-AMD-alpha`. Keep this package for removal.
@@ -55,9 +59,9 @@ unchanged.
 For example, in the download folder:
 
 ```powershell
-Get-FileHash './OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip' -Algorithm SHA256
-Get-Content './OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip.sha256'
-Expand-Archive './OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip' -DestinationPath 'D:\OpenNR-AMD-alpha'
+Get-FileHash './OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip' -Algorithm SHA256
+Get-Content './OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip.sha256'
+Expand-Archive './OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip' -DestinationPath 'D:\OpenNR-AMD-alpha'
 ```
 
 The installer also validates the package's managed payload hashes. Do not edit
@@ -135,16 +139,48 @@ replay modes; broad scene coverage and motion/face/ghosting review remain
 incomplete. Unresolved
 scene-linear highlight failures are documented in
 the [validation record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.2/docs/rx9070xt-validation.md).
-The [RTE delivery record](amd-rte-delivery.md) documents the current kernels,
+The [Pair/Arena delivery record](amd-pair-arena-delivery.md) documents the current opt-in kernels,
 ordinary network measurements and preservation checks. The
 [alpha 3 GEMM record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/amd-gemm-delivery.md)
 retains the prior release's evidence. The
 [alpha 2 performance record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.2/docs/amd-performance-implementation.md)
 retains its historical identities.
 
+## Optional Pair/Arena selection
+
+Keep the normal auto selection for the existing qualified cache. To test the
+new Pair/Arena route, first close the game and start it directly from a fresh
+PowerShell window with these **process-only** selections. They select kernels
+without enabling NR; use Insert → Neural → Enable NR deliberately afterward.
+
+```powershell
+$game = 'C:\Program Files (x86)\GOG Galaxy\Games\Cyberpunk 2077\bin\x64'
+$nrPolicy = @{
+  DLSS5VK_AMD_KERNELS = 'optimized'; DLSS5VK_AMD_ARITHMETIC = 'k16'
+  DLSS5VK_AMD_GEMM = 'direct-rte-pair'; DLSS5VK_AMD_WINDOW_LAYOUT = 'arena-rte'
+  DLSS5VK_AMD_TILE_N = '16'; DLSS5VK_AMD_STAGE_K = '16'; DLSS5VK_AMD_WINDOW_QUERIES = '32'
+  DLSS5VK_AMD_FUSION = '0'; DLSS5VK_AMD_FFN32_FUSION = '0'; DLSS5VK_AMD_QKV32_FUSION = '0'
+  DLSS5VK_AMD_EXPERT_FUSION = '0'; DLSS5VK_AMD_BLOCK_FUSION = '0'
+  DLSS5VK_AMD_HARDWARE_PUBLICATION = '0'
+}
+foreach ($name in $nrPolicy.Keys) {
+  [Environment]::SetEnvironmentVariable($name, $nrPolicy[$name], 'Process')
+}
+[Environment]::SetEnvironmentVariable('DLSS5VK_AMD_TUNING', $null, 'Process')
+& "$game\Cyberpunk2077.exe"
+```
+
+Use the game's executable directly: an already-running launcher may not inherit
+this window's environment. Verify `direct-rte-pair`, `arena-rte`, K16/N16/stage16/Q32
+in `open-nr/runtime.log`. Unsupported forced choices fail visibly and the game
+host bypasses NR. These variables are read once when the session is created;
+restart the game after changing them. To revert, close the game and this
+PowerShell window, then launch normally. No persistent system variables or
+packaged tuning files are changed. Use Enable NR to disable the effect immediately.
+
 ## Diagnostic kernel selection and measurements
 
-The runtime defaults to `auto` kernel selection and `k16` arithmetic. The alpha 4
+The runtime defaults to `auto` kernel selection and `k16` arithmetic. The retained alpha 4
 cache contains **68 qualified GEMM/attention records** for the measured target
 geometry: Direct-RTE GEMM, Register-RTE Q32 attention, N16/stage16, K16 publication
 and every fusion/packed-publication experiment off. The automatic cache GPU check
@@ -166,8 +202,8 @@ The diagnostic CLI exposes these controls:
 | --- | --- | --- |
 | `--amd-kernels` | `auto`, `baseline`, `optimized` | Qualified selection, explicit legacy request, or forced candidate |
 | `--amd-arithmetic` | `k16`, `k32`, `final` | K16 is the alpha default; K32/final alter publication order |
-| `--amd-gemm` | `shared`, `packed`, `direct`, `direct-rte` | Distinct operand routes; both direct routes require stage K16; RTE requires qualified float controls |
-| `--amd-window-layout` | `staged`, `register`, `register-rte` | Register layouts require Q16/Q32 and FP16 accumulators; Register-RTE also requires qualified float controls |
+| `--amd-gemm` | `shared`, `packed`, `direct`, `direct-rte`, `direct-rte-init`, `direct-rte-epilogue`, `direct-rte-pair` | Direct routes require stage K16; Pair additionally requires N16; RTE requires float controls |
+| `--amd-window-layout` | `staged`, `register`, `register-rte`, `arena-rte` | Register/Arena require Q16/Q32 and FP16 accumulators; RTE layouts also require float controls |
 | `--amd-window-queries` | `16`, `32`, `64` | Queries per compact attention workgroup |
 | `--amd-tile-n`, `--amd-stage-k` | `16`, `32`, `64` | GEMM output tile and staged K width |
 | `--amd-fusion`, `--amd-expert-fusion`, `--amd-block-fusion`, `--amd-hardware-publication` | `0`, `1` | Experimental overrides; default `0` |
@@ -181,13 +217,18 @@ The corresponding runtime environment variables are `DLSS5VK_AMD_KERNELS`,
 `DLSS5VK_AMD_BLOCK_FUSION`, `DLSS5VK_AMD_HARDWARE_PUBLICATION` and
 `DLSS5VK_AMD_TUNING`. They are read once at session creation. Scalar RTE paths
 require FP16 RTE rounding, denormal preservation and signed-zero/Inf/NaN preservation
-with compatible independence controls; register layouts also require the enumerated
-16×16 FP16 accumulator type. Unsupported forced choices fail visibly.
+with compatible independence controls; register/arena layouts also require the enumerated
+16×16 FP16 accumulator type. Pair/Epilogue additionally require F32 signed-zero/Inf/NaN
+preservation. Unsupported forced choices fail visibly.
 Keep the packaged defaults for game testing. Forced
 diagnostic choices bypass auto qualification; `baseline` requires K16, N16/K16,
 64 queries, staged attention and all overrides off. On RX 9070 XT the resource guard rejects it:
 legacy attention requires 34,816 bytes and the device exposes 32,768 bytes.
 The original shader and historical evidence remain retained, with no override.
+Use `rte32` for new Pair/Arena comparisons, supplying the frozen alpha 4
+executable and shaders explicitly. Its baseline is Direct-RTE/N16/stage16/Q32,
+Register-RTE, K16 and all experiments off. The
+[Pair/Arena recipe](amd-pair-arena-delivery.md#reproduce-or-opt-in) shows exact commands.
 Use the explicitly labeled `direct32` anchor for RTE measurements: its baseline
 runs Direct/K16/N16/stage16/Q32/staged with every fusion and packed-publication
 override off. The measured comparison uses immutable alpha 3 binaries and shaders.
@@ -299,7 +340,7 @@ or delete original backups to bypass the check.
 
 | Symptom | Next step |
 | --- | --- |
-| Very low FPS with NR enabled | Clear **Enable NR**. Alpha 4 game FPS is unmeasured; historical alpha 3 NR-on averaged 10.69 FPS. The gameplay budget remains unmet. |
+| Very low FPS with NR enabled | Clear **Enable NR**. Alpha 5 game FPS is unmeasured; historical alpha 3 NR-on averaged 10.69 FPS. The gameplay budget remains unmet. |
 | Missing `MSVCP140` / `VCRUNTIME140` dependency | Install the current Microsoft Visual C++ v14 **x64** Redistributable linked above. |
 | Model import rejected | Check the complete DLL hash above and choose a new destination; unsupported containers are rejected. |
 | No Insert overlay | Confirm installation targeted the folder containing `Cyberpunk2077.exe`; inspect existing proxy/mod conflicts and the host log. |

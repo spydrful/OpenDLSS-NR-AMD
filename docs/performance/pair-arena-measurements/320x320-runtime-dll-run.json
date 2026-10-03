@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\interop\\interop_selftest.exe",
+    "D:\\amd"
+  ],
+  "overrides": {
+    "DLSS5VK_BACKEND": "amd",
+    "DLSS5VK_CHAIN": "0",
+    "DLSS5VK_VALIDATION": "0",
+    "DLSS5VK_DEBUG": "0",
+    "DLSS5VK_AMD_KERNELS": "optimized",
+    "DLSS5VK_AMD_ARITHMETIC": "k16",
+    "DLSS5VK_AMD_TILE_N": "16",
+    "DLSS5VK_AMD_STAGE_K": "16",
+    "DLSS5VK_AMD_GEMM": "direct-rte-pair",
+    "DLSS5VK_AMD_WINDOW_QUERIES": "32",
+    "DLSS5VK_AMD_WINDOW_LAYOUT": "arena-rte",
+    "DLSS5VK_AMD_FUSION": "0",
+    "DLSS5VK_AMD_FFN32_FUSION": "0",
+    "DLSS5VK_AMD_QKV32_FUSION": "0",
+    "DLSS5VK_AMD_EXPERT_FUSION": "0",
+    "DLSS5VK_AMD_BLOCK_FUSION": "0",
+    "DLSS5VK_AMD_HARDWARE_PUBLICATION": "0",
+    "OPEN_NR_RUNTIME_DLL": "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\OpenNrRuntime.dll",
+    "OPEN_NR_RUNTIME_SELFTEST": "1",
+    "OPEN_NR_RUNTIME_ASSETS": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-runtime-validation\\assets\\open-nr",
+    "OPEN_NR_RUNTIME_FRAMES": "8",
+    "OPEN_NR_RUNTIME_TRACE_SELFTEST": "1",
+    "OPEN_NR_RUNTIME_WIDTH": "320",
+    "OPEN_NR_RUNTIME_HEIGHT": "320"
+  },
+  "exit_code": 0,
+  "executable_sha256": "18429d89231be627b7d1862195d09800ec51a5290460fcd310920908fb1bcb85",
+  "runtime_sha256": "a34b12793524766382bda7d9680ab83e24ac61d0077087831064526980218d38",
+  "eight_live_slot_geometry": [
+    320,
+    320
+  ],
+  "requested_geometry_frames_serial": true,
+  "performance_representative": false,
+  "game_fps_measured": false
+}

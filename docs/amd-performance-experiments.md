@@ -3,11 +3,14 @@
 These development experiments investigate FP8 GEMM tiling, accumulator
 initialization and SiLU publication on the RX 9070 XT. They retain the native
 Vulkan graph, K16 accumulation publication, model loader and D3D12 bridge.
-The final epilogue candidate improves ordinary target network median by
+The historical third-revision epilogue candidate improved ordinary target
+network median by
 **3.9344%**, from **58.668700 to 56.360420 ms** against the frozen alpha 4 policy.
-It passes the completed strict comparisons but falls below the **5% default
-promotion gate**. The published default, tuning cache and release remain alpha 4;
-NR remains disabled by default. No alpha 5 publication follows from this result.
+It passed the then-current 880-check suite but failed a subsequently added
+partition case described below. Its timing also falls below the **5% default
+promotion gate**. The qualified auto policy and tuning cache remain from alpha 4;
+NR remains disabled by default. These historical results do not qualify the
+current repaired modules.
 
 The baseline is the published
 [alpha 4 source at `df300456a2497fa4af6cedccc440c48eea56daa8`](https://github.com/spydrful/OpenDLSS-NR-AMD/tree/df300456a2497fa4af6cedccc440c48eea56daa8),
@@ -22,16 +25,117 @@ The separate
 binds the completed comparisons to their actual executable, shader modules,
 source, driver, model and policy. Network GPU timestamps exclude the D3D12 bridge,
 FSR, game and presentation. They establish no new game FPS or NR-plus-bridge
-budget result.
+budget result. The [paired-GEMM and attention-arena continuation](amd-pair-arena-delivery.md)
+and [separate scalar evidence](performance/pair-arena-rx9070xt-20261003.json)
+track the repaired source and new named experiments. Earlier public JSON and
+its hashes remain unchanged.
 
-## Final ordinary timing
+## Expanded-suite erratum
 
-The final third-revision CLI uses `direct-rte-epilogue`, K16 publication,
+The expanded **724-operator / 934-check** suite adds paired-preload boundaries,
+eight-batch GEMMs and thin-window padding. It exposes a valid partitioned case
+missing from the earlier suite: **K192, N48, 63 rows, flags 0, partition 96,
+two batches**. The historical third-revision Init and Epilogue modules and the
+initial Pair module each differ from alpha 4 by **10,477 bytes** in that case.
+The prior 880-check, model and replay matches remain accurate for their tested
+inputs; they are insufficient evidence for this broader operator contract.
+
+The repair retains the original shared-memory accumulator initializer for
+every partitioned operator. The runtime-zero shortcut is now restricted to
+**non-residual, unpartitioned K ≤512** operators. Ordered K16 matrix operations
+and publication locations stay in place. Current Init, Epilogue and Pair modules
+require fresh expanded operator and model evidence; their new source and shader
+identities cannot inherit the historical proof. The published alpha 4 Direct-RTE
+module, Register-RTE attention, qualified cache and release are unchanged.
+
+Current qualification tools require the new paired-preload regression evidence
+for **Init, Epilogue and Pair** operator proofs. Older 880-check experimental
+reports stay archived with their original hashes but are rejected as
+insufficient for new qualification. Earlier published Direct-RTE evidence and
+the alpha 4 default cache retain their existing contract. Arena proofs also
+require executed thin-window padding cases and full output allocations.
+
+The new explicit `direct-rte-pair` selector stages two ordered K16 operand
+fragments for K >128 and currently requires N16/stage16. `arena-rte` reuses shared
+storage for scores, weights and output scratch and supports Q16/Q32. Its declared
+per-workgroup shared storage is **6,656 / 9,216 bytes**, respectively, compared
+with Register-RTE's **9,728 / 13,312 bytes**. These declarations and offline
+resource counts establish no occupancy or speed improvement by themselves.
+These selectors remain explicit experiments while the remaining qualification
+and release gates are completed.
+
+## Repaired Pair/Arena result
+
+The repaired `direct-rte-pair` / `arena-rte` Q32 candidate uses K16 publication,
+N16/stage16, with all fusion and packed publication off. Against the frozen
+alpha 4 Direct-RTE/Register-RTE Q32 policy, ordinary network timings at
+**1707×960**, padded to **1728×960**, are:
+
+| Ordinary network GPU timing | Frozen alpha 4 | Repaired Pair/Arena Q32 |
+| --- | ---: | ---: |
+| Median | 58.684860 ms | 50.500780 ms |
+| P95 | 58.922124 ms | 50.689466 ms |
+| P99 | 59.053322 ms | 50.815118 ms |
+| Mean | 58.662694 ms | 50.471625 ms |
+| Coefficient of variation | 0.3556% | 0.3275% |
+
+Three interleaved pairs each use five warmup and 30 measured frames: **90
+samples per condition**, with image readback and dispatch instrumentation off.
+Median improvement is **13.9458%**. Pooled and every paired median/P95 pass the
+no-greater-than-2% regression gate, and this ordinary result exceeds the 5%
+performance threshold. It does not complete the remaining promotion or release
+gates. The new CLI identity begins `d6ffdde4`; its complete identities and raw
+measurement hashes belong to the separate Pair/Arena scalar record.
+
+Four repaired configurations pass **724 operators / 934 byte checks /
+15,264,768 bytes each**: Init and Epilogue with Arena-RTE Q32, and Pair with
+Arena-RTE Q16 and Q32. The Pair/Arena Q32 model comparison matches all **75
+checkpoints and the F32 head at 320×320**. Target head and capture reproduction
+are exact; this does not compare all 75 target intermediates or establish game
+quality. The formal decomposed proof passes **77 checks at 320×320** and
+**two checks at target resolution**. Separate profiles report actual per-frame
+family medians **38.932560 → 32.151100 ms GEMM** and **7.983360 → 6.479880 ms
+window attention**. Twenty-five of 46 GEMM groups and all 22 attention groups
+meet the 5% operator improvement gate. These instrumented profiles remain
+separate from the ordinary timing above.
+
+The 1080p comparison uses valid 1920×1080, padded to 1920×1152, and the same
+five-warmup, three-pair, 30-frame protocol.
+Ordinary network median is **78.576060 → 68.383780 ms**, P95
+**78.956024 → 68.760702 ms** and P99 **79.028253 → 68.861261 ms**. It supplies
+external-comparison geometry timing and establishes no additional 1080p quality
+or game-FPS result.
+
+Native DLL ABI/lifecycle tests pass with eight sequential requested frames at
+320×320 and the full target. The additional **source-included production-pool
+harness** verifies eight distinct live prepared slots at **1707×960**, padded
+to 1728×960, before submission. Serialized/prefetched output matches for eight
+ordered frames (**104,878,080 bytes**) and seven output frames after a
+cancel/gap/reset (**91,768,320 bytes**). Those tests retain GPU queue ordering;
+they do not establish parallel inference, game performance or production-game
+VRAM usage.
+
+Bounded replay of eight existing SDR game frames passes **80 raw byte checks /
+2,107,883,520 bytes**, plus **16 exact composed RGB comparisons**, in identical
+and independently evolved history modes. Evolved history starts from reset and
+uses each variant's own outputs; its original-capture equality flags are false
+as expected. Exact inter-variant equality does not claim original ancestry for
+that mode. Synthetic SDR/HDR reset, temporal and camera-reset cases also match
+the prior AMD K16 route; absolute-reference highlight failures remain unresolved.
+
+Alpha 5 includes Pair/Arena as opt-in selections. The published
+alpha 4 artifacts, qualified auto cache, K16 defaults and NR-disabled setting
+stay unchanged. There is no new game FPS, bridge/VRAM result, broad temporal
+review, 8 ms budget or 60 FPS claim.
+
+## Historical third-revision timing
+
+The historical third-revision CLI uses `direct-rte-epilogue`, K16 publication,
 N16/stage16 and Register-RTE Q32 attention. All fusion and packed-publication
 experiments remain off. Valid input is **1707×960**, padded to **1728×960**, on
 Windows 11, RX 9070 XT, Adrenalin **26.9.1 (LLPC)** and Vulkan **1.4.349**.
 
-| Ordinary network GPU timing | Frozen alpha 4 | Final epilogue candidate |
+| Ordinary network GPU timing | Frozen alpha 4 | Historical v3 epilogue |
 | --- | ---: | ---: |
 | Median | 58.668700 ms | 56.360420 ms |
 | P95 | 58.984608 ms | 56.686794 ms |
@@ -45,10 +149,10 @@ yielding **90 retained samples per condition**. Image readback and per-dispatch
 instrumentation are off. Candidate/baseline ratios are **0.960655682 median** and
 **0.961043837 P95**: improvements of **3.9344%** and **3.8956%**, respectively.
 The no-greater-than-2% complete-inference regression gate passes, while the
-at-least-5% default improvement gate fails. The candidate remains an explicit
-development selection.
+at-least-5% default improvement gate fails. The expanded partition failure
+independently rejects that historical module as a preserving replacement.
 
-The final CLI SHA-256 is
+The historical third-revision CLI SHA-256 is
 `f8cb189a7c8ae97c6d2f6ced5fef644f2adbd73ceaa88c012ca1bb4d38fdb845`;
 its selected shader identity is
 `9929119ef659f9f389bcd26c0396567e609efdb5ebd32a90c9c20e5a66a72026`.
@@ -79,17 +183,19 @@ cause of the rejected N32 or earlier SiLU discrepancies.
 | Global N32 using the frozen Direct-RTE module | 162 of 862 byte checks fail, including 18,057 differing bytes in E4 overflow cases | Reject as a preserving replacement despite the complete timing protocol's 7.0744% median improvement |
 | Constant-zero accumulator initialization, first revision | 161 failed checks at N16 and 324 at N32 | Reject both variants |
 | Runtime-zero initialization, second revision | All 862 operator checks pass; the 320×320 model first differs at block 31 | Operator coverage is insufficient to promote this variant |
-| Runtime-zero initialization limited to non-residual operators with K ≤512, third revision | Initialization-only and corrected epilogue variants each pass the extended operator suite, 320×320 checkpoints and target head/proxy/capture comparisons | Retain explicit development routes; final epilogue timing misses default promotion |
+| Runtime-zero initialization limited to non-residual operators with K ≤512, third revision | Both variants pass the then-current 880-check suite and recorded model/replay inputs, but fail the added K192/P96/two-batch case by 10,477 bytes | Historical proof is incomplete for the expanded contract; repair partition initialization and requalify |
 
 The rejected N32 timing uses the full three-pair, five-warmup, 30-measured-frame
 protocol: **59.189400 → 55.002080 ms median**. Its strict failures prevent preserving
 promotion. Earlier short screens remain separately labeled in the evidence.
 
-The limited initialization path retains the original shared-memory seed for
-residual operators and K >512. Its shortcut receives the positive-zero bit
+The repaired initialization path retains the original shared-memory seed for
+residual operators, every partitioned operator and K >512. Its remaining
+shortcut receives the positive-zero bit
 pattern through a uniform push constant, rather than a compile-time matrix
 constructor. Ordered K16 operations, partition reduction and publication
-locations remain unchanged. The second revision's model failure is retained as
+locations remain unchanged in source. The second revision's model failure is
+retained as
 evidence that the original operator suite did not cover every model condition.
 
 The global N32 profile identifies operator improvement in only 19 of 46 measured
@@ -160,17 +266,19 @@ actual selected variants before measuring. Keep old rejected artifacts and raw
 results. Performance collection and instrumented profiling use separate runs;
 ordinary timing has image readback and dispatch instrumentation disabled.
 
-Initialization-only and corrected epilogue variants each pass **674 operators /
+Historical third-revision initialization-only and corrected epilogue variants
+each passed **674 operators /
 880 strict byte checks / 14,332,928 bytes**, with zero mismatches. Coverage includes
 tails, broadcasts, residuals, partitions, activation, padding, half overflow and
 subnormals, signed zeros and E4 saturation. Fourteen added ViT fixtures exercise
 K1024/K4096, partitions, residuals, broadcasts and activation. They extend the
 suite after the second revision passed its original operator tests but failed
-the model.
+the model. They do not include the subsequently failing partition regression
+or qualify the repaired source.
 
-At **320×320**, both variants match all **75 model checkpoints**, the F32 head,
-composition proxy and production/capture head byte for byte. At target geometry,
-both match the **head, composition proxy and production/capture head**; zero
+At **320×320**, both historical variants matched all **75 model checkpoints**,
+the F32 head, composition proxy and production/capture head byte for byte. At
+target geometry, both matched the **head, composition proxy and production/capture head**; zero
 intermediate boundaries were compared there. These use identical synthetic reset
 features. The composition proxy is clamped, truncated-half display-proxy RGB,
 so these comparisons do not establish scene-linear game quality. Selected
@@ -181,7 +289,8 @@ head and bundled baseline/candidate capture-production checks. Its target proof
 passes **two checks**, covering head and capture-production. These synthetic
 proofs apply no image-quality or performance qualification threshold.
 
-The final epilogue replay passes **80 byte checks / 2,107,883,520 bytes** over eight
+The historical third-revision epilogue replay passed **80 byte checks /
+2,107,883,520 bytes** over eight
 existing genuine SDR game frames, in both identical and independently evolved
 histories. It reuses the frozen alpha 4 replay reference and compares the head,
 published history, runtime head and scene-linear RGBA buffers exactly. The
@@ -192,7 +301,7 @@ uses each variant's own preceding outputs. Evolved replay therefore does not
 claim the original captured ancestry. This bounded replay adds no new game
 capture, broad motion review or original NVIDIA parity.
 
-The native runtime harness passes at **320×320 and 1707×960 with eight requested
+The historical native runtime harness passed at **320×320 and 1707×960 with eight requested
 production frames**. Those requested frames run sequentially. Its separate
 eight-slot ownership tests at **320×320** prepare simultaneous slots and check
 ordered/prefetched output equality, cancellation, gap/reset, history ancestry
@@ -215,6 +324,15 @@ their composed-frame quality gate is PSNR ≥40 dB and SSIM ≥0.99 on every mat
 unclamped scene-linear RGB frame with fixed data range 1.0. Existing broad
 temporal review and HDR-highlight quality limits remain outstanding.
 
+The incremental K32 and final-publication screen compares against the same
+AMD K16 route using unclamped scene-linear RGB and data range 1.0. Three SDR
+reset/temporal/camera-reset cases pass for each policy. All three HDR-highlight
+cases fail for each: the worst K32 result is **35.3022 dB / 0.985854 SSIM**, and
+the worst final-publication result is **34.8592 dB / 0.985200 SSIM**. Both miss the
+40 dB / 0.99 gate. This is a bounded synthetic incremental comparison and does
+not replace absolute-reference or broad game quality validation. Neither
+arithmetic policy is promoted.
+
 ## Reproduce the development route
 
 Use the Windows toolchain prerequisites in [AMD.md](AMD.md#build-and-local-checks).
@@ -231,7 +349,13 @@ $model = 'D:\local\open-nr\model'
 ./scripts/build_interop.ps1 -OutputDirectory $candidate
 ```
 
-Force the tested epilogue route for diagnostics. `direct-rte-init` selects the
+Current source includes the partition repair and new named experiments; the
+commands below do not reproduce the historical third-revision module bytes or
+timing above. Record current identities and run the expanded suite before
+assessing the result. The paired/arena delivery record provides the separate
+candidate policy and its evidence.
+
+Force the epilogue route for diagnostics. `direct-rte-init` selects the
 initialization-only experiment; `direct-rte` selects the published baseline
 module. Use new absent fixture directories and keep all output under `build/`:
 

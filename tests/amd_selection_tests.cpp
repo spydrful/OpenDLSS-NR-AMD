@@ -176,7 +176,7 @@ int main(int argc,char** argv){
     auto legacyBoth=record();field(legacyBoth,"fusion").boolean=true;
     const auto legacyPolicy=amd::tuningPolicy(legacyBoth,requested,1728,960,true);
     expect(legacyPolicy.ffn32Enabled() && legacyPolicy.qkv32Enabled(),"legacy shorthand no longer selects both routes");
-    for(const char* gemmMode:{"packed","direct","direct-rte","direct-rte-init","direct-rte-epilogue"}){
+    for(const char* gemmMode:{"packed","direct","direct-rte","direct-rte-init","direct-rte-epilogue","direct-rte-pair"}){
       auto alternative=bound;
       alternative.object.at("default_selection").object["gemm"]=json::parse(std::string("\"")+gemmMode+"\"");
       for(auto& op:alternative.object.at("records").array)op.object.at("evidence").object.at("selected")=alternative["default_selection"];
@@ -209,6 +209,10 @@ int main(int argc,char** argv){
           auto wider=alternative;number(field(wider,"tile_n"),tile);
           for(auto& op:wider.object.at("records").array)op.object.at("evidence").object.at("selected")=wider["default_selection"];
           number(wider.object.at("records").array[1].object.at("tile_n"),tile);
+          if(policy.gemm==amd::Gemm::DirectRtePair && tile!=16){
+            rejects([&]{validate(wider);},"pair tuning claimed an unqualified wider tile");
+            continue;
+          }
           validate(wider);const auto selected=amd::tuningPolicy(wider,requested,1728,960,true);
           expect(selected.gemm==policy.gemm && selected.tileN==tile && selected.stageK==16,
                  "qualified scalar RTE tile experiment changed module or staging");
@@ -228,9 +232,9 @@ int main(int argc,char** argv){
            "missing legacy attention layout did not resolve to staged");
     auto explicitStaged=bound;explicitStaged.object.at("default_selection").object["window_layout"]=json::parse(R"("staged")");
     validate(explicitStaged);expect(true,"explicit staged default no longer accepts equivalent legacy staged proof");
-    for(const char* layout:{"register","register-rte"})for(const uint32_t queries:{16u,32u}){
+    for(const char* layout:{"register","register-rte","arena-rte"})for(const uint32_t queries:{16u,32u}){
       const auto expected=amd::Options::parseWindowLayout(layout);
-      const char* shader=expected==amd::WindowLayout::Register ? "amd_window_register" : "amd_window_register_rte";
+      const char* shader=expected==amd::WindowLayout::ArenaRte ? "amd_window_arena_rte" : expected==amd::WindowLayout::Register ? "amd_window_register" : "amd_window_register_rte";
       auto reg=bound;reg.object.at("default_selection").object["window_layout"]=json::parse(std::string("\"")+layout+"\"");
       number(field(reg,"window_queries"),queries);
       for(auto& op:reg.object.at("records").array)op.object.at("evidence").object.at("selected")=reg["default_selection"];
@@ -262,13 +266,18 @@ int main(int argc,char** argv){
       rejects([&]{validate(oldVariant);},"staged shader variant qualified register attention");
       auto otherVariant=reg;otherVariant.object.at("records").array[0].object.at("variant").string=expected==amd::WindowLayout::Register ? "amd_window_register_rte" : "amd_window_register";
       rejects([&]{validate(otherVariant);},"another register shader variant qualified this layout");
+      if(expected==amd::WindowLayout::ArenaRte || expected==amd::WindowLayout::RegisterRte){
+        auto siblingRte=reg;siblingRte.object.at("records").array[0].object.at("variant").string=
+            expected==amd::WindowLayout::ArenaRte ? "amd_window_register_rte" : "amd_window_arena_rte";
+        rejects([&]{validate(siblingRte);},"another RTE layout module qualified this attention variant");
+      }
       auto wrongQueries=reg;number(wrongQueries.object.at("records").array[0].object.at("window_queries"),queries==16?32:16);
       rejects([&]{validate(wrongQueries);},"register shader inherited another query specialization's dispatch proof");
       selection.current()=policy;selection.restart();
       expect(selection.current().windowLayout==amd::WindowLayout::Staged && selection.current().windowQueries==64,
              "restart inherited prior tuned register layout");
     }
-    for(const char* layout:{"register","register-rte"}){
+    for(const char* layout:{"register","register-rte","arena-rte"}){
       auto register64=bound;register64.object.at("default_selection").object["window_layout"]=json::parse(std::string("\"")+layout+"\"");
       number(field(register64,"window_queries"),64);
       rejects([&]{validate(register64);},"register tuning claimed an unsupported Q64 shader");

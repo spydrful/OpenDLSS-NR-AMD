@@ -63,6 +63,9 @@ int main() {
     expect(defaults.windowLayout==amd::WindowLayout::Staged && std::string(defaults.windowLayoutName())=="staged" &&
            std::string(defaults.windowShaderName())=="amd_window_optimized","default attention layout/module changed");
     expect(!defaults.registerWindowOperands() && !defaults.requiresRtePublication(),"default policy gained register or RTE requirements");
+    expect(!defaults.requiresFloat32SignedZeroInfNan(),"default policy gained FP32 epilogue controls");
+    expect(uint32_t(amd::Gemm::DirectRteEpilogue)==5 && uint32_t(amd::WindowLayout::RegisterRte)==2,
+           "appended selectors changed existing enum identities");
 
     set("DLSS5VK_AMD_KERNELS", "optimized");
     set("DLSS5VK_AMD_ARITHMETIC", "k32");
@@ -95,52 +98,58 @@ int main() {
     clear();set("DLSS5VK_AMD_FFN32_FUSION","1");const auto independent=amd::Options::fromEnvironment();
     set("DLSS5VK_AMD_FFN32_FUSION","0");set("DLSS5VK_AMD_QKV32_FUSION","1");
     expect(independent.ffn32Enabled() && !independent.qkv32Enabled(),"environment changes mutated an independent session snapshot");
-    for(const auto& [name,mode,shader]:std::vector<std::tuple<const char*,amd::Gemm,const char*>>{{"shared",amd::Gemm::Shared,"amd_gemm_optimized"},{"packed",amd::Gemm::Packed,"amd_gemm_packed"},{"direct",amd::Gemm::Direct,"amd_gemm_direct"},{"direct-rte",amd::Gemm::DirectRte,"amd_gemm_direct_rte"},{"direct-rte-init",amd::Gemm::DirectRteInit,"amd_gemm_direct_rte_init"},{"direct-rte-epilogue",amd::Gemm::DirectRteEpilogue,"amd_gemm_direct_rte_epilogue"}}){
+    for(const auto& [name,mode,shader]:std::vector<std::tuple<const char*,amd::Gemm,const char*>>{{"shared",amd::Gemm::Shared,"amd_gemm_optimized"},{"packed",amd::Gemm::Packed,"amd_gemm_packed"},{"direct",amd::Gemm::Direct,"amd_gemm_direct"},{"direct-rte",amd::Gemm::DirectRte,"amd_gemm_direct_rte"},{"direct-rte-init",amd::Gemm::DirectRteInit,"amd_gemm_direct_rte_init"},{"direct-rte-epilogue",amd::Gemm::DirectRteEpilogue,"amd_gemm_direct_rte_epilogue"},{"direct-rte-pair",amd::Gemm::DirectRtePair,"amd_gemm_direct_rte_pair"}}){
       clear();set("DLSS5VK_AMD_GEMM",name);const auto selected=amd::Options::fromEnvironment();
       expect(selected.gemm==mode && std::string(selected.gemmName())==name && std::string(selected.gemmShaderName())==shader,
              "GEMM selector/name/shader identity differed");
-      const bool rte=mode==amd::Gemm::DirectRte || mode==amd::Gemm::DirectRteInit || mode==amd::Gemm::DirectRteEpilogue;
+      const bool rte=mode==amd::Gemm::DirectRte || mode==amd::Gemm::DirectRteInit || mode==amd::Gemm::DirectRteEpilogue || mode==amd::Gemm::DirectRtePair;
       expect(selected.requiresRtePublication()==rte,"GEMM policy lost its independent RTE capability requirement");
+      expect(selected.requiresFloat32SignedZeroInfNan()==(mode==amd::Gemm::DirectRteEpilogue || mode==amd::Gemm::DirectRtePair),
+             "GEMM epilogue lost its FP32 control requirement");
       expect(selected.directOperands()==(mode==amd::Gemm::Direct || rte),"direct GEMM policy gained operand staging");
       set("DLSS5VK_AMD_GEMM","shared");expect(selected.gemm==mode,"an existing GEMM selection changed with the environment");
     }
     for(const char* stage:{"32","64"}){
-      for(const char* name:{"direct","direct-rte","direct-rte-init","direct-rte-epilogue"}){
+      for(const char* name:{"direct","direct-rte","direct-rte-init","direct-rte-epilogue","direct-rte-pair"}){
         clear();set("DLSS5VK_AMD_GEMM",name);set("DLSS5VK_AMD_STAGE_K",stage);
         rejects([]{(void)amd::Options::fromEnvironment();},"direct GEMM falsely accepted nonexistent staging");
       }
       set("DLSS5VK_AMD_GEMM","packed");expect(amd::Options::fromEnvironment().stageK==uint32_t(std::stoi(stage)),"packed GEMM staging was restricted");
     }
-    for(const char* name:{"direct-rte","direct-rte-init","direct-rte-epilogue"}){
+    for(const char* name:{"direct-rte","direct-rte-init","direct-rte-epilogue","direct-rte-pair"}){
       clear();set("DLSS5VK_AMD_GEMM",name);set("DLSS5VK_AMD_HARDWARE_PUBLICATION","1");
       rejects([]{(void)amd::Options::fromEnvironment();},"scalar RTE was mislabeled as packed hardware publication");
       for(const char* tile:{"16","32","64"}){
         clear();set("DLSS5VK_AMD_GEMM",name);set("DLSS5VK_AMD_TILE_N",tile);
+        if(std::string(name)=="direct-rte-pair" && std::string(tile)!="16"){
+          rejects([]{(void)amd::Options::fromEnvironment();},"pair GEMM accepted an unqualified wider tile");
+          continue;
+        }
         const auto candidate=amd::Options::fromEnvironment();
         expect(candidate.tileN==uint32_t(std::stoi(tile)) && candidate.stageK==16 && !candidate.hardwarePublication,
                "scalar RTE tile experiment changed staging or packed publication");
       }
     }
 
-    for(const char* layout:{"register","register-rte"})for(const char* queries:{"16","32"})for(const char* arithmetic:{"k16","k32","final"}){
+    for(const char* layout:{"register","register-rte","arena-rte"})for(const char* queries:{"16","32"})for(const char* arithmetic:{"k16","k32","final"}){
       clear();set("DLSS5VK_AMD_WINDOW_QUERIES",queries);set("DLSS5VK_AMD_ARITHMETIC",arithmetic);
       const auto staged=amd::Options::fromEnvironment();
       expect(staged.windowLayout==amd::WindowLayout::Staged && std::string(staged.windowShaderName())=="amd_window_small",
              "legacy small-query attention no longer selects its original module");
       set("DLSS5VK_AMD_WINDOW_LAYOUT",layout);const auto reg=amd::Options::fromEnvironment();
       const auto expected=amd::Options::parseWindowLayout(layout);
-      const char* shader=expected==amd::WindowLayout::Register ? "amd_window_register" : "amd_window_register_rte";
+      const char* shader=expected==amd::WindowLayout::ArenaRte ? "amd_window_arena_rte" : expected==amd::WindowLayout::Register ? "amd_window_register" : "amd_window_register_rte";
       expect(reg.windowLayout==expected && std::string(reg.windowLayoutName())==layout &&
              std::string(reg.windowShaderName())==shader && reg.windowQueries==uint32_t(std::stoi(queries)),
              "register attention selector lost its layout/module/query geometry");
-      expect(reg.registerWindowOperands() && reg.requiresRtePublication()==(expected==amd::WindowLayout::RegisterRte),
+      expect(reg.registerWindowOperands() && reg.requiresRtePublication()==(expected==amd::WindowLayout::RegisterRte || expected==amd::WindowLayout::ArenaRte),
              "attention policy lost its independent storage or RTE capability requirement");
       expect(reg.arithmetic==staged.arithmetic,"window layout changed the selected arithmetic policy");
       set("DLSS5VK_AMD_WINDOW_LAYOUT","staged");set("DLSS5VK_AMD_WINDOW_QUERIES","64");
       expect(reg.windowLayout==expected && std::string(reg.windowShaderName())==shader,
              "process edits mutated an existing window-layout session snapshot");
     }
-    for(const char* layout:{"register","register-rte"}){
+    for(const char* layout:{"register","register-rte","arena-rte"}){
       clear();set("DLSS5VK_AMD_WINDOW_LAYOUT",layout);
       rejects([]{(void)amd::Options::fromEnvironment();},"register attention accepted an unsupported Q64 specialization");
     }
@@ -152,6 +161,17 @@ int main() {
     const auto independentRte=amd::Options::fromEnvironment();
     expect(independentRte.gemm==amd::Gemm::Direct && independentRte.windowLayout==amd::WindowLayout::RegisterRte && independentRte.requiresRtePublication(),
            "RTE attention depended on a GEMM RTE override for its capability gate");
+    clear();set("DLSS5VK_AMD_GEMM","direct-rte-pair");set("DLSS5VK_AMD_WINDOW_LAYOUT","arena-rte");set("DLSS5VK_AMD_WINDOW_QUERIES","32");
+    const auto pairArena=amd::Options::fromEnvironment();
+    expect(pairArena.gemm==amd::Gemm::DirectRtePair && pairArena.windowLayout==amd::WindowLayout::ArenaRte &&
+           pairArena.directOperands() && pairArena.registerWindowOperands() && pairArena.requiresRtePublication() &&
+           pairArena.requiresFloat32SignedZeroInfNan() && pairArena.tileN==16 && pairArena.stageK==16,
+           "combined pair/arena policy lost its independent numerical/resource requirements");
+    for(const char* arithmetic:{"k32","final"}){
+      set("DLSS5VK_AMD_ARITHMETIC",arithmetic);const auto experiment=amd::Options::fromEnvironment();
+      expect(experiment.arithmetic!=amd::Arithmetic::K16 && experiment.gemm==amd::Gemm::DirectRtePair && experiment.windowLayout==amd::WindowLayout::ArenaRte,
+             "pair/arena erased an explicitly selected arithmetic experiment");
+    }
 
     struct Invalid { const char* name; const char* value; };
     for (const auto& item : std::vector<Invalid>{{"DLSS5VK_AMD_KERNELS", "AUTO"}, {"DLSS5VK_AMD_ARITHMETIC", "fp16"},
@@ -171,7 +191,8 @@ int main() {
         {"DLSS5VK_AMD_BLOCK_FUSION", "1"}, {"DLSS5VK_AMD_HARDWARE_PUBLICATION", "1"},
         {"DLSS5VK_AMD_GEMM","packed"},{"DLSS5VK_AMD_GEMM","direct"},{"DLSS5VK_AMD_GEMM","direct-rte"},
         {"DLSS5VK_AMD_GEMM","direct-rte-init"},{"DLSS5VK_AMD_GEMM","direct-rte-epilogue"},
-        {"DLSS5VK_AMD_WINDOW_LAYOUT","register"},{"DLSS5VK_AMD_WINDOW_LAYOUT","register-rte"}}) {
+        {"DLSS5VK_AMD_GEMM","direct-rte-pair"},
+        {"DLSS5VK_AMD_WINDOW_LAYOUT","register"},{"DLSS5VK_AMD_WINDOW_LAYOUT","register-rte"},{"DLSS5VK_AMD_WINDOW_LAYOUT","arena-rte"}}) {
       clear(); set("DLSS5VK_AMD_KERNELS", "baseline"); set(item.name, item.value);
       rejects([] { (void)amd::Options::fromEnvironment(); }, "frozen baseline accepted an arithmetic/kernel override");
     }

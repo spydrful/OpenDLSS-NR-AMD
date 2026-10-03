@@ -7,25 +7,32 @@ patched OptiScaler host connects D3D12 resources to Vulkan through shared GPU
 buffers and fences. The AMD path requires no CUDA, PTX, DXVK or Proton.
 
 **Status: development alpha; performance and broad game-quality gates remain
-unmet. NR ships disabled.** Alpha 4 reduces ordinary target-resolution
-network inference from **82.225 to 58.527 ms median**, a **28.82%** improvement
-against the immutable alpha 3 Direct/Q32/K16 baseline. It preserves the tested
-AMD output bytes. These are network-only GPU timings, excluding the bridge,
+unmet. NR ships disabled.** Alpha 5 adds opt-in Pair GEMM and Arena attention,
+reducing ordinary target-resolution inference from **58.685 to 50.501 ms median**,
+a **13.95%** improvement against frozen alpha 4 Direct-RTE/Register-RTE.
+The tested AMD output bytes match. The existing qualified auto cache stays
+unchanged; Pair/Arena requires an explicit selection. These are network-only
+GPU timings, excluding the bridge,
 FSR and game. The **8 ms NR-plus-bridge** and **16.67 ms / 60 real FPS** targets
 remain unmet.
 
 Download the development package:
-[RX 9070 XT alpha 4](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.4).
-See the [alpha 4 release notes](docs/releases/v0.1.0-alpha.4.md),
-[installation guide](docs/INSTALL.md), [RTE kernel delivery record](docs/amd-rte-delivery.md)
-and [measured evidence](docs/performance/rte-kernels-rx9070xt-20261003.json).
-The [publication identities](docs/performance/alpha4-release-identities.json)
+[RX 9070 XT alpha 5](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.5).
+See the [alpha 5 release notes](docs/releases/v0.1.0-alpha.5.md),
+[installation and optional-selection guide](docs/INSTALL.md),
+[Pair/Arena delivery record](docs/amd-pair-arena-delivery.md)
+and [measured evidence](docs/performance/pair-arena-rx9070xt-20261003.json).
+The earlier [alpha 4 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.4)
+remains unchanged. Its [publication identities](docs/performance/alpha4-release-identities.json)
 record the verified source tag, GitHub asset hashes and corresponding-source checks.
+Expanded strict checks, bounded replay and native lifecycle tests pass,
+including a separate full-target eight-live-slot harness. Broad game-quality
+and complete-game performance gates remain unmet.
 The [published alpha 3](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.3)
 and [its installation guide](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/INSTALL.md)
 remain unchanged and available.
 
-**Alpha 4 game FPS has not been measured.** Historical alpha 3 Cyberpunk benchmarks
+**Alpha 5 game FPS has not been measured.** Historical alpha 3 Cyberpunk benchmarks
 average **97.12 FPS NR off / 10.69 FPS NR on**; those values do not describe the
 new runtime. New complete game benchmarks, ten minutes of active gameplay and
 broad temporal review remain pending. [Alpha 3 game evidence](docs/performance/cyberpunk-alpha3-20261002.json)
@@ -77,7 +84,7 @@ See [AMD arithmetic and optimization notes](docs/amd-numerics.md) and the
 
 ## Measured progress
 
-The current preserving comparison uses Windows 11, RX 9070 XT and Adrenalin
+The published alpha 4 preserving comparison uses Windows 11, RX 9070 XT and Adrenalin
 26.9.1 (LLPC), valid **1707×960** input and **1728×960** padded model geometry.
 Both conditions use K16 publication, N16/stage16 and Q32 attention, with fusion
 and packed hardware-publication experiments off. The new route combines scalar
@@ -163,9 +170,9 @@ and the [GEMM continuation](docs/amd-gemm-delivery.md).
 
 ## Install the alpha
 
-1. Download **OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip**
+1. Download **OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip**
    and its **.zip.sha256** from the
-   [alpha 4 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.4).
+   [alpha 5 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.5).
    Check the ZIP hash, extract it to a writable folder and open **PowerShell 7**
    in the folder containing `package-manifest.json`. GitHub's automatic
    **Source code** archives do not include built DLLs.
@@ -188,7 +195,9 @@ write permission is required; elevate that PowerShell window if needed.
 4. Launch with **FSR Quality**, ray tracing and frame generation off. NR ships
    **disabled**, with K16 publication arithmetic. Press **Insert → Neural →
    Enable NR** to opt in. Performance remains far outside the gameplay budget;
-   the new runtime has no measured game FPS yet. Historical alpha 3 NR-on
+   alpha 5 has no measured game FPS yet. The optional Pair/Arena selection is
+   documented in the [installation guide](docs/INSTALL.md#optional-pairarena-selection).
+   Historical alpha 3 NR-on
    benchmarks average 10.69 FPS. Use the checkbox to disable it; zero effect
    strength still runs NR.
 5. To remove, close the game and run:
@@ -255,9 +264,10 @@ do not match the qualified model identity used by auto selection.
 
 The CLI also accepts `--amd-window-queries 16|32|64`, `--amd-tile-n 16|32|64`,
 `--amd-stage-k 16|32|64`,
-`--amd-gemm shared|packed|direct|direct-rte|direct-rte-init|direct-rte-epilogue`,
-`--amd-window-layout staged|register|register-rte`, and `--amd-tuning <path>`.
-Direct GEMM routes require stage K16. Register attention layouts require Q16 or
+`--amd-gemm shared|packed|direct|direct-rte|direct-rte-init|direct-rte-epilogue|direct-rte-pair`,
+`--amd-window-layout staged|register|register-rte|arena-rte`, and `--amd-tuning <path>`.
+Direct GEMM routes require stage K16; the experimental Pair route also requires
+N16. Register and arena attention layouts require Q16 or
 Q32 and enumerated FP16 accumulator support. RTE routes additionally require
 FP16 RTE rounding, denormal preservation and signed-zero/Inf/NaN float controls.
 `DLSS5VK_AMD_WINDOW_LAYOUT` and `DLSS5VK_AMD_GEMM` are read once at session creation;
@@ -270,16 +280,22 @@ publication order and remains experimental; alpha auto selections use `k16`.
 These choices also have `DLSS5VK_AMD_*` environment equivalents in
 [amd_config.h](src/amd_config.h).
 
-Current source builds add `direct-rte-init` and `direct-rte-epilogue` as opt-in,
-unpromoted diagnostic GEMM routes. They retain K16 publication; the tested policy
-is N16/stage16/Q32 with Register-RTE attention. Fusion and packed hardware
-publication are off. The epilogue additionally requires F32 signed-zero/Inf/NaN preservation.
+Current source builds add `direct-rte-init`, `direct-rte-epilogue` and
+`direct-rte-pair` as opt-in GEMM routes, plus `arena-rte` attention.
+Preserving comparisons use K16 publication, N16/stage16/Q32, with fusion and
+packed hardware publication off. Epilogue and Pair additionally require F32
+signed-zero/Inf/NaN preservation. The expanded suite found a partition-reset
+failure in earlier experimental modules; current source retains the original
+initializer for every partitioned operator and requires fresh qualification.
 These routes do not change the published alpha 4 release or qualified cache.
 For new comparisons, use `--comparison-anchor rte32` with explicit frozen
 published alpha 4 executable and shader inputs: Direct-RTE/K16/N16/stage16/Q32,
 Register-RTE, all fusion and packed publication off. See the
 [post-alpha-4 experiments](docs/amd-performance-experiments.md) for the actual
-variant identities, rejected candidates and qualification scope.
+variant identities, rejected candidates and qualification scope. The
+[Pair/Arena continuation](docs/amd-pair-arena-delivery.md) and
+[separate evidence](docs/performance/pair-arena-rx9070xt-20261003.json) track the
+new repaired modules; they do not revise earlier release measurements.
 
 Use `scripts/benchmark_amd.ps1 -ComparisonAnchor direct32 -Gemm direct-rte -WindowLayout register-rte -WindowQueries 32`
 to reproduce the published alpha 4 versus alpha 3 interleaved ordinary `bench`
@@ -366,14 +382,33 @@ completes three paired protocols: FFN-only, QKV-only and both increase inference
 median **23.19%, 25.57% and 50.45%**. Those original-route results are separate
 from the newer RTE measurements; redesigned RTE fusion requires fresh evidence.
 
-The latest source-only epilogue candidate measures **58.6687 → 56.36042 ms**
+The historical third-revision epilogue candidate measures **58.6687 → 56.36042 ms**
 ordinary target-inference median against frozen published alpha 4, a **3.934%**
-improvement below the **5% default-promotion gate**. It passes the extended
-**674 operators / 880 strict byte checks**, all 75 model checkpoints and the F32
-head at 320×320, target output and existing SDR replay. Global N32 remains
-rejected because strict overflow outputs differ. The
-[experiment record](docs/amd-performance-experiments.md) separates this evidence
-from published release results; no release, cache or default has changed.
+improvement below the **5% default-promotion gate**. Its then-current
+**674 operators / 880 strict byte checks**, recorded model output and SDR replay
+passed. The expanded 934-check suite subsequently exposed **10,477 differing
+bytes** in a valid K192/P96/two-batch operator in Init, Epilogue and initial Pair.
+Those historical checks are insufficient for the broader contract; the repaired
+modules receive new identities and fresh qualification. Global N32 remains
+rejected because strict overflow outputs differ. K32/final publication also
+fails the incremental synthetic HDR quality gate. The
+[experiment record](docs/amd-performance-experiments.md) separates this historical
+evidence from published release results; earlier releases and the qualified
+auto cache/default remain unchanged.
+
+The repaired Pair/Arena Q32 route measures **58.684860 → 50.500780 ms** ordinary
+network median, a **13.9458%** improvement over frozen alpha 4 using three
+interleaved pairs of 30 frames after five warmups. Readback and instrumentation
+are off. Its new **724 operators / 934 strict checks / 15,264,768 bytes** pass,
+as do all 75 checkpoints plus the head at 320×320 and target head/capture
+reproduction. Separate profiles report actual per-frame family medians of
+**38.933 → 32.151 ms GEMM** and **7.983 → 6.480 ms attention**; ordinary runs
+supply the performance gate. Replay of eight existing SDR game frames passes
+80 raw byte checks in both history modes. Native DLL lifecycle checks pass;
+a separate source-included production-pool harness verifies eight live prepared
+slots at the full target resolution, including ordered and cancel/reset paths.
+Broad scene-quality review and complete game measurements remain pending. The
+published alpha 4 package and qualified cache remain unchanged.
 
 1. Improve the now-dominant FP8 matrix family, then remaining window-attention
    cost and fusion. Preserve publication boundaries and compare every change

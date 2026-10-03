@@ -82,7 +82,7 @@ Kernels::Kernels(vk::Context& context, const std::string& shaderDirectory)
       if (amdOptimized_) {
         check(!options.requiresRtePublication() || context_.capabilities().halfPublicationRte,
               "AMD scalar RTE publication requires independent FP16 RTE, denorm and signed-zero/Inf/NaN controls");
-        check(options.gemm != amd::Gemm::DirectRteEpilogue || context_.capabilities().float32SignedZeroInfNan,
+        check(!options.requiresFloat32SignedZeroInfNan() || context_.capabilities().float32SignedZeroInfNan,
               "AMD scalar RTE epilogue requires FP32 signed-zero/Inf/NaN controls");
         check(!options.registerWindowOperands() || context_.capabilities().fp16Accumulator16,
               "AMD register attention requires subgroup 16x16 FP16 accumulator support");
@@ -178,7 +178,7 @@ bool Kernels::amdBlock32Enabled() const { return context_.isAmd() && amdOptimize
 void Kernels::loadAmdOptimizedModules() {
   check(!amdPolicy_.requiresRtePublication() || context_.capabilities().halfPublicationRte,
         "AMD scalar RTE publication requires independent FP16 RTE, denorm and signed-zero/Inf/NaN controls");
-  check(amdPolicy_.gemm != amd::Gemm::DirectRteEpilogue || context_.capabilities().float32SignedZeroInfNan,
+  check(!amdPolicy_.requiresFloat32SignedZeroInfNan() || context_.capabilities().float32SignedZeroInfNan,
         "AMD scalar RTE epilogue requires FP32 signed-zero/Inf/NaN controls");
   check(!amdPolicy_.registerWindowOperands() || context_.capabilities().fp16Accumulator16,
         "AMD register attention requires subgroup 16x16 FP16 accumulator support");
@@ -218,6 +218,21 @@ std::string Kernels::loadedShaderSetHash(const std::vector<std::string>& names) 
     hashes.emplace_back(name,found->second->sha256);
   }
   return shader_identity::aggregate(std::move(hashes));
+}
+
+Kernels::NativeGemmFp8Module Kernels::diagnosticNativeGemmFp8Module() const {
+  check(nativePortable(), "native FP8 module diagnostic requires a native backend");
+  const bool optimized = context_.isAmd() && amdOptimized_;
+  const char* key = optimized ? "gemm_fp8_optimized" : "gemm_fp8";
+  const std::string sourceName = optimized ? amdPolicy_.gemmShaderName() :
+      context_.isAmd() ? "amd_gemm" : "portable_gemm";
+  const auto selected = modules_.find(key);
+  const auto cached = sourceModules_.find(sourceName);
+  check(selected != modules_.end() && selected->second != VK_NULL_HANDLE,
+        "selected native FP8 module is unavailable");
+  check(cached != sourceModules_.end() && cached->second->module == selected->second &&
+        !cached->second->sha256.empty(), "selected native FP8 module identity is unavailable");
+  return {selected->second, sourceName, cached->second->sha256};
 }
 
 void Kernels::loadAmdTuning() {
@@ -789,6 +804,7 @@ void Kernels::nativeGemmFp8(VkCommandBuffer commands, const GemmFp8Args& a) {
     const uint32_t operandLds = policy.directOperands() ? 0u : (64u + tileN) * stageK;
     check(operandLds + 64u * tileN * 4u <= context_.maxComputeSharedMemory(), "AMD GEMM variant exceeds shared-memory limit");
     check(!policy.directOperands() || stageK == 16u, "direct AMD GEMM requires K16 operand loads");
+    check(policy.gemm != amd::Gemm::DirectRtePair || tileN == 16u, "pair AMD GEMM requires N16 output tiles");
     constants.add(10, policy.publicationInterval()); constants.add(11, tileN); constants.add(12, stageK);
     constants.add(13, policy.hardwarePublication ? 1u : 0u);
   }

@@ -15,10 +15,15 @@ inline constexpr uint32_t kCompact64WindowLdsBytes =
 
 inline uint32_t windowLdsBytes(bool optimized, uint32_t queryRows,
                                WindowLayout layout = WindowLayout::Staged) {
+  if (layout != WindowLayout::Staged && layout != WindowLayout::Register &&
+      layout != WindowLayout::RegisterRte && layout != WindowLayout::ArenaRte)
+    throw std::runtime_error("invalid AMD attention layout");
   if (layout != WindowLayout::Staged && (!optimized || (queryRows != 16 && queryRows != 32)))
     throw std::runtime_error("register AMD attention requires optimized Q16 or Q32");
   if (!optimized) return kLegacyWindowLdsBytes;
   if (queryRows == 64) return kCompact64WindowLdsBytes;
+  if (layout == WindowLayout::ArenaRte)
+    return 2u * 2048u + queryRows * (32u + 128u);
   if (queryRows == 16 || queryRows == 32)
     return queryRows * 32u + 2u * 2048u + queryRows * 64u +
         2u * queryRows * 64u + (layout != WindowLayout::Staged ? 2u : 4u) * 1024u;

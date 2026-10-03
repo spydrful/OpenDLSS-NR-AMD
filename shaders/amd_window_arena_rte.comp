@@ -1,0 +1,230 @@
+#version 460
+#extension GL_EXT_float_e4m3 : require
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_KHR_shader_subgroup_basic : require
+#extension GL_KHR_shader_subgroup_shuffle : require
+#extension GL_GOOGLE_include_directive : require
+#define NR_AMD_HARDWARE_NUMERIC 1
+#define DLSS_E4M3_HW 1
+#include "portable_numeric.glsl"
+#include "amd_half_publication_rte.glsl"
+
+// Isolated AMD arena-RTE attention experiment; original AMD code under MIT.
+// No qualification, runtime selection or performance claim attaches to this module.
+// Reuse one uint LDS arena for packed half scores, packed E4 weights, then half
+// output scratch. Full workgroup barriers protect every phase transition.
+// KHR cooperative-matrix load/store supports differing array/component types;
+// offsets and strides below use uint-word units, not matrix-component units.
+// Spec: https://github.khronos.org/Vulkan-Site/glslext/latest/glslext/khr/GLSL_KHR_cooperative_matrix.html
+// Requires independent FP16 RTE, denorm and signed-zero/Inf/NaN controls.
+// One four-wave32 workgroup computes 16 or 32 queries of an 8x8 window.
+// K/V remain all 64 keys in the model's physical key order. Query batches
+// duplicate their K/V staging to reduce LDS per workgroup. This standalone
+// variant leaves the staged Q16/Q32 and 64-query helpers unchanged.
+layout(local_size_x = 128) in;
+layout(constant_id = 10) const uint NR_AS_ROUND_INTERVAL = 16u;
+layout(constant_id = 14) const uint NR_AS_QUERY_ROWS = 32u;
+layout(push_constant) uniform Push {
+  uint width, height, channels, heads, shiftX, shiftY, windowsX, windowCount;
+} pc;
+// Transfer four unchanged E4 bytes at a time. All head/channel strides are
+// multiples of 32 bytes; clipping happens before any global word load.
+layout(std430, binding = 0) readonly buffer Qkv { uint qkvWords[]; };
+layout(std430, binding = 1) readonly buffer Prior { float16_t prior[]; };
+layout(std430, binding = 5) writeonly buffer Output { uint8_t attended[]; };
+
+// Declared LDS Q16: 512 + 2048 + 2048 + 2048 = 6656 bytes.
+// Declared LDS Q32: 1024 + 2048 + 2048 + 4096 = 9216 bytes.
+// This is a per-workgroup allocation; occupancy and speed are unmeasured.
+// The arena initially stores two half score bits per uint. After every score
+// reader completes, it stores four E4 weight bytes per uint. After every W*V
+// reader completes, it stores two output half bits per uint. No numerical
+// conversion or implementation-dependent matrix fragment mapping is used.
+shared uint nrAsQs[NR_AS_QUERY_ROWS * 8u];
+shared uint nrAsKs[512], nrAsVs[512];
+shared uint nrAsArena[NR_AS_QUERY_ROWS * 32u];
+
+#define NR_AS_ACC coopmat<float, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>
+#define NR_AS_HALF_ACC coopmat<float16_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>
+#define NR_AS_MA coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseA>
+#define NR_AS_MB coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseB>
+
+// The prescribed exponent approximation, with only its scalar half
+// publication replaced by the qualified explicit-RTE helper. Its constants,
+// clamp, FP16 bit transform and final score publication are unchanged.
+float nrAsWindowExpRte(float score) {
+  float x = clamp(nrHalfPublishRte(fma(score, 0.044921875, 1.30078125)), 1.03125, 1.5693359375);
+  return float(f16FromBits(((f16Bits(float16_t(x)) << 5u) + 0x8000u) & 0xffffu));
+}
+
+uint nrAsUntile(uint token) {
+  uint tile = token >> 4u, local = token & 15u;
+  return ((tile >> 1u) * 4u + (local >> 2u)) * 8u +
+         (tile & 1u) * 4u + (local & 3u);
+}
+
+bool nrAsPublishAccumulator(uint completed, uint depth) {
+  return completed == depth || NR_AS_ROUND_INTERVAL == 16u ||
+         (NR_AS_ROUND_INTERVAL == 32u && (completed & 31u) == 0u);
+}
+
+void nrAsWaveBarrier() {
+  subgroupMemoryBarrierShared();
+  subgroupBarrier();
+}
+
+float nrAsArenaHalf(uint halfIndex) {
+  uint word = nrAsArena[halfIndex >> 1u];
+  return float(f16FromBits(word >> ((halfIndex & 1u) * 16u)));
+}
+
+// The eight lanes of one query retain the baseline half-addition order.
+// Lane zero gathers the even/odd parity chains before reciprocal publication;
+// the XOR broadcasts deliver that same reciprocal to all eight owners.
+float nrAsReciprocal(uint row, uint lane) {
+  uint k = row * 64u + lane;
+  float a = nrHalfPublishRte(nrAsArenaHalf(k) + nrAsArenaHalf(k + 8u));
+  float b = nrHalfPublishRte(nrAsArenaHalf(k + 16u) + nrAsArenaHalf(k + 24u));
+  float c = nrHalfPublishRte(nrAsArenaHalf(k + 32u) + nrAsArenaHalf(k + 40u));
+  float d = nrHalfPublishRte(nrAsArenaHalf(k + 48u) + nrAsArenaHalf(k + 56u));
+  float piece = nrHalfPublishRte(nrHalfPublishRte(nrHalfPublishRte(a + b) + c) + d);
+  float p2 = subgroupShuffleXor(piece, 2u);
+  float p4 = subgroupShuffleXor(piece, 4u);
+  float p6 = subgroupShuffleXor(piece, 6u);
+  float parity = nrHalfPublishRte(nrHalfPublishRte(nrHalfPublishRte(piece + p2) + p4) + p6);
+  float even = subgroupShuffleXor(parity, lane);
+  float odd = subgroupShuffleXor(parity, lane ^ 1u);
+  float reciprocal = 0.0;
+  if (lane == 0u) reciprocal = nrHalfPublishRte(1.0 / nrHalfPublishRte(even + odd));
+  return subgroupShuffleXor(reciprocal, lane);
+}
+
+void nrAsCompute(uint head, uint queryBase, int wx, int wy) {
+  uint wave = gl_SubgroupID, lane = gl_SubgroupInvocationID;
+  barrier();
+
+  // Each QK tile keeps the same two ordered K16 matrix products as the
+  // 64-query implementation, seeded by its absolute learned-prior row.
+  for (uint tile = wave; tile < (NR_AS_QUERY_ROWS / 16u) * 4u; tile += 4u) {
+    uint qt = tile / 4u, kt = tile % 4u;
+    // The learned prior is already half-published. Load the typed half tile
+    // directly and convert each accumulator component exactly to float; this
+    // removes the scalar prior-to-LDS round trip and its wave barrier without
+    // assuming a vendor-specific fragment-to-coordinate mapping.
+    NR_AS_HALF_ACC priorAcc;
+    uint priorOffset = head * 4096u + (queryBase + qt * 16u) * 64u + kt * 16u;
+    coopMatLoad(priorAcc, prior, priorOffset, 64u, gl_CooperativeMatrixLayoutRowMajor);
+    NR_AS_ACC acc = NR_AS_ACC(priorAcc);
+    for (uint kb = 0u; kb < 32u; kb += 16u) {
+      NR_AS_MA a; NR_AS_MB b;
+      coopMatLoad(a, nrAsQs, qt * 128u + kb / 4u, 8u, gl_CooperativeMatrixLayoutRowMajor);
+      coopMatLoad(b, nrAsKs, kt * 128u + kb / 4u, 8u, gl_CooperativeMatrixLayoutColumnMajor);
+      acc = coopMatMulAdd(a, b, acc);
+      if (nrAsPublishAccumulator(kb + 16u, 32u))
+        for (uint i = 0u; i < acc.length(); ++i) acc[i] = nrHalfPublishRte(acc[i]);
+    }
+    // Apply the unchanged exponent component-wise while the completed,
+    // half-published accumulator remains in registers. The typed half store
+    // publishes exactly the same scores in the same physical key locations.
+    for (uint i = 0u; i < acc.length(); ++i) acc[i] = nrAsWindowExpRte(acc[i]);
+    NR_AS_HALF_ACC scoreAcc = NR_AS_HALF_ACC(acc);
+    coopMatStore(scoreAcc, nrAsArena, qt * 512u + kt * 8u, 32u,
+                 gl_CooperativeMatrixLayoutRowMajor);
+  }
+  barrier();
+
+  uint component = lane & 7u;
+  // Each query still has eight owners and the exact existing reciprocal tree.
+  // Contiguous four-key groups affect publication ownership only. Each thread
+  // retains its two/four packed words until all score readers have finished.
+  uint publishedWords[(NR_AS_QUERY_ROWS / 16u) * 2u];
+  for (uint batch = 0u; batch < NR_AS_QUERY_ROWS / 16u; ++batch) {
+    uint row = wave * 4u + lane / 8u + batch * 16u;
+    float reciprocal = nrAsReciprocal(row, component);
+    for (uint group = 0u; group < 2u; ++group) {
+      uint firstKey = component * 4u + group * 32u;
+      uint packed = 0u;
+      for (uint byte = 0u; byte < 4u; ++byte) {
+        uint code = nrPublishE4(nrHalfPublishRte(
+            nrAsArenaHalf(row * 64u + firstKey + byte) * reciprocal));
+        packed |= code << (byte * 8u);
+      }
+      publishedWords[batch * 2u + group] = packed;
+    }
+  }
+  barrier(); // Scores are dead only after all reciprocal/publication readers.
+  for (uint batch = 0u; batch < NR_AS_QUERY_ROWS / 16u; ++batch) {
+    uint row = wave * 4u + lane / 8u + batch * 16u;
+    for (uint group = 0u; group < 2u; ++group)
+      nrAsArena[row * 16u + component + group * 8u] = publishedWords[batch * 2u + group];
+  }
+  barrier(); // Publish every packed E4 word before the W*V matrix loads.
+
+  // Valid Q16/Q32 have at most one output tile per wave. Inactive Q16 waves
+  // participate in the full barrier before the arena becomes output scratch.
+  uint tile = wave;
+  bool activeOutput = tile < (NR_AS_QUERY_ROWS / 16u) * 2u;
+  uint qt = tile / 2u, ct = tile % 2u;
+  NR_AS_ACC outputAccFloat = NR_AS_ACC(0.0);
+  if (activeOutput) {
+    for (uint kb = 0u; kb < 64u; kb += 16u) {
+      NR_AS_MA a; NR_AS_MB b;
+      coopMatLoad(a, nrAsArena, qt * 256u + kb / 4u, 16u, gl_CooperativeMatrixLayoutRowMajor);
+      coopMatLoad(b, nrAsVs, kb * 8u + ct * 4u, 8u, gl_CooperativeMatrixLayoutRowMajor);
+      outputAccFloat = coopMatMulAdd(a, b, outputAccFloat);
+      if (nrAsPublishAccumulator(kb + 16u, 64u))
+        for (uint i = 0u; i < outputAccFloat.length(); ++i) outputAccFloat[i] = nrHalfPublishRte(outputAccFloat[i]);
+    }
+  }
+  barrier(); // No wave may overwrite weights while another wave still reads.
+  if (activeOutput) {
+    NR_AS_HALF_ACC outputAcc = NR_AS_HALF_ACC(outputAccFloat);
+    uint scratchWordBase = wave * 128u;
+    coopMatStore(outputAcc, nrAsArena, scratchWordBase, 8u, gl_CooperativeMatrixLayoutRowMajor);
+    nrAsWaveBarrier();
+    for (uint i = lane; i < 256u; i += 32u) {
+      uint query = queryBase + qt * 16u + i / 16u;
+      uint channel = ct * 16u + i % 16u;
+      int x = wx + int(query % 8u), y = wy + int(query / 8u);
+      if (x >= 0 && y >= 0 && x < int(pc.width) && y < int(pc.height)) {
+        uint offset = (uint(y) * pc.width + uint(x)) * pc.channels + head * 32u + channel;
+        attended[offset] = uint8_t(nrPublishE4(nrAsArenaHalf(scratchWordBase * 2u + i)));
+      }
+    }
+    nrAsWaveBarrier();
+  }
+
+}
+
+void main() {
+  uint thread = gl_LocalInvocationID.x, head = gl_WorkGroupID.x;
+  uint queryBatches = 64u / NR_AS_QUERY_ROWS;
+  uint batchWindow = gl_WorkGroupID.y + gl_WorkGroupID.z * 65535u;
+  uint window = batchWindow / queryBatches;
+  if (head >= pc.heads || window >= pc.windowCount) return;
+  uint queryBase = (batchWindow % queryBatches) * NR_AS_QUERY_ROWS;
+  int wx = int((window % pc.windowsX) * 8u) - int(pc.shiftX);
+  int wy = int((window / pc.windowsX) * 8u) - int(pc.shiftY);
+
+  for (uint i = thread; i < NR_AS_QUERY_ROWS * 8u; i += 128u) {
+    uint query = queryBase + i / 8u, word = i % 8u;
+    int x = wx + int(query % 8u), y = wy + int(query / 8u);
+    nrAsQs[i] = 0u;
+    if (x >= 0 && y >= 0 && x < int(pc.width) && y < int(pc.height)) {
+      uint base = ((uint(y) * pc.width + uint(x)) * pc.channels * 3u + head * 96u) / 4u;
+      nrAsQs[i] = qkvWords[base + word];
+    }
+  }
+  for (uint i = thread; i < 512u; i += 128u) {
+    uint key = nrAsUntile(i / 8u), word = i % 8u;
+    int x = wx + int(key % 8u), y = wy + int(key / 8u);
+    nrAsKs[i] = 0u; nrAsVs[i] = 0u;
+    if (x >= 0 && y >= 0 && x < int(pc.width) && y < int(pc.height)) {
+      uint base = ((uint(y) * pc.width + uint(x)) * pc.channels * 3u + head * 96u) / 4u;
+      nrAsKs[i] = qkvWords[base + 8u + word];
+      nrAsVs[i] = qkvWords[base + 16u + word];
+    }
+  }
+  nrAsCompute(head, queryBase, wx, wy);
+}

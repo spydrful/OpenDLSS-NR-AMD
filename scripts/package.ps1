@@ -144,7 +144,7 @@ foreach ($taskNotice in @('LICENSE', 'NOTICE', 'tools\MODEL_IMPORTER_NOTICE.txt'
   Copy-Item -LiteralPath (Join-Path $taskRoot $taskNotice) -Destination $taskStage
 }
 if (Test-Path -LiteralPath $taskInstallGuide -PathType Leaf) { Copy-Item -LiteralPath $taskInstallGuide -Destination (Join-Path $taskStage 'INSTALL.md') }
-foreach ($taskGuide in @('amd-performance-implementation.md', 'amd-performance-research.md', 'amd-gemm-delivery.md', 'amd-rte-delivery.md')) {
+foreach ($taskGuide in @('amd-performance-implementation.md', 'amd-performance-research.md', 'amd-gemm-delivery.md', 'amd-rte-delivery.md', 'amd-performance-experiments.md', 'amd-pair-arena-delivery.md')) {
   $taskGuideSource = Join-Path $taskRoot ('docs\' + $taskGuide)
   if (Test-Path -LiteralPath $taskGuideSource -PathType Leaf) { Copy-Item -LiteralPath $taskGuideSource -Destination $taskStage }
 }
@@ -225,24 +225,27 @@ $taskReadme = @'
 OpenNR-AMD development validation package
 
 This build has unmet performance and matched-image quality release gates.
-The current source's preserving Direct-RTE GEMM and Register-RTE Q32 attention
-measured 58.527 ms network median against the immutable alpha 3 Direct/staged
-Q32 baseline's 82.225 ms (28.82% improvement), at 1707x960 input (1728x960 padded).
+The opt-in preserving Pair GEMM and Arena Q32 attention measured 50.501 ms
+network median against frozen published alpha 4 Direct-RTE/Register-RTE's
+58.685 ms (13.95% improvement), at 1707x960 input (1728x960 padded).
 This comparison used three interleaved pairs, five warmups and 30 measured
 frames per run, without readback or per-dispatch profiling. It measures
-network-only GPU time; current RTE game performance and NR+bridge time remain
+network-only GPU time; current game performance and NR+bridge time remain
 unmeasured. The historical alpha 3 game benchmarks averaged 97.12 FPS with NR
 off and 10.69 FPS with NR on across three warmed passes per condition. Those
 results identify the earlier alpha 3 Direct-GEMM runtime, not the current RTE
 source. The 8 ms NR+bridge and 60 rendered FPS NR-on targets remain unmet.
-See amd-rte-delivery.md for current kernel evidence and
+See amd-pair-arena-delivery.md for current opt-in kernel evidence and
 rx9070xt-validation.md for recorded game settings, hashes and limits.
 Broad temporal/image quality validation and ten minutes of active gameplay
 remain pending.
 
 Start with INSTALL.md for prerequisites, installation, local model import,
 enabling NR and reversible removal. The generated default OptiScaler.ini has
-NR disabled (Enabled=false), with K16 publication arithmetic. To opt in after importing the model, open Insert
+NR disabled (Enabled=false), with K16 publication arithmetic and the retained
+qualified auto cache. Pair/Arena is explicit opt-in; INSTALL.md describes
+process-only selection and reversal. Installing this package does not select
+Pair/Arena automatically. To enable NR after importing the model, open Insert
 -> Neural -> Enable NR. Setting effect strengths to zero still runs inference.
 Auto kernel selection requires matched device/driver/model/shader identities.
 An optional shaders/amd-tuning.json also binds qualified session geometry.
@@ -251,19 +254,20 @@ layout selectors; missing or inconsistent policy evidence rejects old caches
 and auto keeps the qualified legal preserving fallback. Scalar RTE modules
 require independent FP16 rounding-to-nearest-even, denorm preservation and
 signed-zero/Inf/NaN controls; register attention also requires compatible FP16
-matrix accumulators. Unsupported forced selections fail visibly. Auto tuning
+matrix accumulators. Pair/Epilogue additionally require F32 signed-zero/Inf/NaN
+preservation. Unsupported forced selections fail visibly. Auto tuning
 records that exceed capabilities or resource limits fall back safely.
 If no qualified path fits GPU resource limits,
 inference is refused and the game host bypasses NR. A custom INI or explicit
 environment overrides can change packaged defaults.
 
 Diagnostic selectors expose baseline/optimized/auto kernels, Q16/Q32/Q64 window
-queries, --amd-gemm shared|packed|direct|direct-rte and
---amd-window-layout staged|register|register-rte, GEMM tile/staging choices,
+queries, --amd-gemm shared|packed|direct|direct-rte|direct-rte-init|direct-rte-epilogue|direct-rte-pair
+and --amd-window-layout staged|register|register-rte|arena-rte, GEMM tile/staging choices,
 experimental fusion/publication overrides and qualified tuning. Corresponding
 process selections include DLSS5VK_AMD_GEMM and DLSS5VK_AMD_WINDOW_LAYOUT and
-are read once at session creation. Direct GEMM requires stage K16; register
-attention requires Q16 or Q32. Scalar RTE is distinct from the rejected packed
+are read once at session creation. Direct GEMM requires stage K16; Pair also
+requires N16. Register/Arena attention requires Q16 or Q32. Scalar RTE is distinct from the rejected packed
 half-publication override; direct-rte requires that override off. K32/final
 arithmetic is experimental and is not an alpha auto default.
 scripts/benchmark_amd.ps1 and tools/tune_amd.py save paired ordinary

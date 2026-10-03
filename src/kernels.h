@@ -79,6 +79,14 @@ class Kernels {
   const char* selectedKernelMode() const { return amdOptimized_ ? "optimized" : "baseline"; }
   const std::string& shaderSha256() const { return shaderHash_; }
   const std::string& baselineShaderSha256() const { return baselineShaderHash_; }
+  // Read-only diagnostic view of the module selected by native FP8 dispatch.
+  // The handle is borrowed from this Kernels instance; callers must not destroy
+  // it. Identity comes from the same cached bytes as the selected shader set.
+  struct NativeGemmFp8Module {
+    VkShaderModule module = VK_NULL_HANDLE;
+    std::string sourceName, sha256;
+  };
+  NativeGemmFp8Module diagnosticNativeGemmFp8Module() const;
   std::string deviceId() const;
   std::string driverId() const;
   const amd::Options& amdPolicy() const { return amdPolicy_; }

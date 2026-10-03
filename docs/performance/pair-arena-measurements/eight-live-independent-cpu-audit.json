@@ -1,0 +1,44 @@
+{
+  "format": "OpenNR-target-eight-live-independent-cpu-audit-v1",
+  "gpu_execution_by_auditor": false,
+  "passed": true,
+  "run_identity_sha256": "ff78f708f79a94738280898a36a692b360d34696705ce36dc668451f8b3a70f8",
+  "private_log_sha256": "d99534356d37e2d95107162d7e4238de004527feeaf8240a76cb95ca52f6c36c",
+  "harness_build_proof_sha256": "718b9c51eb74d4ea93666f39b3afb79142ae6537b6be6f6a7c4b8df4a3f84db8",
+  "harness_executable_sha256": "54fe6a00caa06f51fd7a5177e7501adb47e372cbbd2fc231d3db3b9574819067",
+  "harness_source_sha256": "5f0126fb96452f9c70034e9accfde1b4fc8e1c45e5bc80f8c63376504aaeb349",
+  "runtime_sha256": "a34b12793524766382bda7d9680ab83e24ac61d0077087831064526980218d38",
+  "named2_cli_sha256": "d6ffdde401a08a3e85dd1dcea4c141ded8be103921c9cf330d21f5f31dedb0cd",
+  "source_closure": "All named2-build source hashes remain identical except separately rebuilt interop test; eight declared harness build inputs verified",
+  "requested_geometry": [
+    1707,
+    960
+  ],
+  "padded_geometry": [
+    1728,
+    960
+  ],
+  "frame_slots": 8,
+  "cases": [
+    {
+      "mode": "ordered continuous",
+      "eight_live_slots_before_submission": true,
+      "compared_frames": 8,
+      "compared_bytes": 104878080,
+      "serialized_prefetched_byte_exact": true
+    },
+    {
+      "mode": "cancel/gap/reset",
+      "eight_live_slots_before_submission": true,
+      "compared_frames": 7,
+      "compared_bytes": 91768320,
+      "serialized_prefetched_byte_exact": true
+    }
+  ],
+  "original_native_modules_unchanged": 27,
+  "game_modules_unchanged": 2,
+  "diagnostic_readback": true,
+  "performance_representative": false,
+  "game_fps_measured": false,
+  "pool_scope": "Source-included production runtime pool; DLL serial lifecycle cases share the same diagnostic harness"
+}

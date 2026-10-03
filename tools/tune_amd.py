@@ -30,6 +30,16 @@ VIT_CASES = ((1024,16,1,0,256,1), (1024,48,63,0,512,1), (1024,128,73,24,0,1),
              (1024,48,73,35,512,1), (1024,128,63,16,0,1), (4096,16,1,83,1024,1),
              (4096,48,63,99,1024,1), (4096,128,73,0,1024,1), (4096,48,73,24,1024,1),
              (1024,48,63,152,256,2), (4096,16,73,163,1024,2))
+PAIRED_COVERAGE = "paired-preload-k160-k544-batch8-v1"
+PAIRED_CASES = ((160,16,1,0,0,1),(160,48,73,24,0,1),(160,48,63,83,32,2),
+                (160,48,129,99,160,2),(160,48,73,35,32,3),(160,16,73,152,0,8),
+                (192,48,63,0,96,2),(192,48,73,163,32,8),(256,64,73,16,0,8),
+                (256,128,73,152,0,8),(256,48,129,83,32,8),(512,48,73,24,0,8),
+                (544,48,1,0,32,1),(544,48,73,99,544,2))
+WINDOW_PADDING_COVERAGE = "window-thin-padding-v1"
+WINDOW_PADDING_CASES = tuple((width,height,heads,sx,sy)
+                            for width,height in ((1,1),(1,9),(9,1))
+                            for heads in (1,2,4) for sx in (0,4) for sy in (0,4))
 SCENE_COVERAGE = {"sdr", "hdr-highlights", "motion", "faces", "moving-objects",
                   "disocclusion", "exposure-changes", "camera-cuts"}
 MODEL_CHECKPOINTS = {f"block-{i}" for i in range(70)} | {
@@ -39,13 +49,17 @@ FUSION_KEYS = (*LEGACY_FUSION_KEYS, "ffn32_fusion", "qkv32_fusion")
 SELECTION_KEYS = ("kernels", "arithmetic", "gemm", "tile_n", "stage_k", "window_queries", "window_layout", *FUSION_KEYS)
 GEMM_VARIANTS = {"shared": "amd_gemm_optimized", "packed": "amd_gemm_packed", "direct": "amd_gemm_direct",
                  "direct-rte": "amd_gemm_direct_rte", "direct-rte-init": "amd_gemm_direct_rte_init",
-                 "direct-rte-epilogue": "amd_gemm_direct_rte_epilogue"}
-DIRECT_GEMMS = {"direct", "direct-rte", "direct-rte-init", "direct-rte-epilogue"}
+                 "direct-rte-epilogue": "amd_gemm_direct_rte_epilogue",
+                 "direct-rte-pair": "amd_gemm_direct_rte_pair"}
+DIRECT_GEMMS = {"direct", "direct-rte", "direct-rte-init", "direct-rte-epilogue", "direct-rte-pair"}
 SCALAR_RTE_GEMMS = DIRECT_GEMMS - {"direct"}
+EXTENDED_GEMMS = {"direct-rte-init", "direct-rte-epilogue", "direct-rte-pair"}
+WINDOW_LAYOUTS = {"staged": None, "register": "amd_window_register",
+                  "register-rte": "amd_window_register_rte", "arena-rte": "amd_window_arena_rte"}
 COMPARISON_ANCHORS = ("legacy", "compact64", "qualified32", "direct32", "rte32")
 ACCELERATED_VARIANTS = {
     "fp8_gemm": set(GEMM_VARIANTS.values()),
-    "window_attention": {"amd_window_optimized", "amd_window_small", "amd_window_register", "amd_window_register_rte"},
+    "window_attention": {"amd_window_optimized", "amd_window_small", *filter(None, WINDOW_LAYOUTS.values())},
     "ffn": {"amd_ffn32"}, "qkv_attention": {"amd_qkv32"},
     "expert_ffn": {"amd_expert_ffn"}, "c32_block": {"amd_block32"},
 }
@@ -114,8 +128,10 @@ def selected_policy(value, *, explicit_flags=False) -> dict:
             raise ValueError(f"selected.{key} must be 16, 32 or 64")
     if result["gemm"] in DIRECT_GEMMS and result["stage_k"] != 16:
         raise ValueError("direct GEMM requires stage_k=16")
-    if result["window_layout"] not in ("staged", "register", "register-rte"):
-        raise ValueError("selected.window_layout must be staged, register or register-rte")
+    if result["gemm"] == "direct-rte-pair" and result["tile_n"] != 16:
+        raise ValueError("direct-rte-pair currently requires tile_n=16")
+    if type(result["window_layout"]) is not str or result["window_layout"] not in WINDOW_LAYOUTS:
+        raise ValueError("selected.window_layout must be " + ", ".join(WINDOW_LAYOUTS))
     if result["window_layout"] != "staged" and (result["window_queries"] == 64 or result["kernels"] == "baseline"):
         raise ValueError("register attention requires optimized Q16/Q32")
     for key in LEGACY_FUSION_KEYS:
@@ -134,6 +150,43 @@ def selected_policy(value, *, explicit_flags=False) -> dict:
     if result["gemm"] in SCALAR_RTE_GEMMS and result["hardware_publication"]:
         raise ValueError("scalar RTE GEMM requires packed hardware publication off")
     return {key: result[key] for key in SELECTION_KEYS}
+
+
+def window_variant(policy: dict) -> str:
+    """Name the actual module; new layouts never inherit a predecessor's name."""
+    return WINDOW_LAYOUTS[policy["window_layout"]] or ("amd_window_optimized" if policy["window_queries"] == 64 else "amd_window_small")
+
+
+def extended_operator_evidence(value: dict, reports: list[dict], field: str, marker: str,
+                               cases: dict, sizes: dict, *, required: bool, label: str) -> dict:
+    """Require shape metadata and full executed buffers for an extension claim."""
+    evidence = value.get(field)
+    coverage = value.get("coverage", [])
+    if required and (marker not in coverage or not isinstance(evidence, dict)):
+        raise ValueError(f"new operator proof requires {label} coverage")
+    if evidence is None and marker not in coverage:
+        return {}
+    if (value["suite"] != "operators" or not isinstance(evidence, dict)
+            or evidence.get("coverage_marker") != marker or marker not in coverage
+            or type(evidence.get("case_count")) is not int or evidence["case_count"] != len(cases)
+            or not isinstance(evidence.get("cases"), list) or len(evidence["cases"]) != len(cases)):
+        raise ValueError(f"{label} execution metadata is incomplete")
+    actual = {}
+    for case in evidence["cases"]:
+        if (not isinstance(case, dict) or type(case.get("name")) is not str
+                or case["name"] not in cases or case["name"] in actual
+                or any(type(case.get(key)) is not type(item) or case[key] != item
+                       for key, item in cases[case["name"]].items())):
+            raise ValueError(f"{label} case shape/flags/partition/batches mismatch")
+        actual[case["name"]] = case
+    if actual != cases:
+        raise ValueError(f"{label} case coverage is incomplete")
+    actual_pairs = {entry["name"]: entry for entry in reports}
+    for name, size in sizes.items():
+        pair = actual_pairs.get(name)
+        if pair is None or pair["baseline_bytes"] != size or pair["candidate_bytes"] != size:
+            raise ValueError(f"{label} executed output/dual tail allocation is missing or mismatched")
+    return {field: evidence}
 
 
 def requested_fusion_policy(args, candidate=True) -> dict:
@@ -273,7 +326,7 @@ def benchmark(path: Path, *, explicit_policy=False) -> dict:
                 raise ValueError("dispatch must name actual variant")
             for name in ("tile_n", "stage_k"):
                 integer(entry.get(name), "dispatch." + name)
-            compact_window = entry["variant"].startswith(("amd_window_small", "amd_window_register"))
+            compact_window = entry["variant"].startswith(("amd_window_small", "amd_window_register", "amd_window_arena"))
             if entry["family"]=="window_attention" or compact_window:
                 geometry=entry.get("geometry",{})
                 if not isinstance(geometry,dict):raise ValueError("window attention geometry must be an object")
@@ -286,7 +339,12 @@ def benchmark(path: Path, *, explicit_policy=False) -> dict:
                     raise ValueError("compact-window geometry.tile_m must be 16 or 32")
                 if queries != value["selected"]["window_queries"]:
                     raise ValueError("window attention geometry.tile_m differs from selected.window_queries")
-            if entry["family"] == "fp8_gemm" and value["selected"]["gemm"] in ("direct-rte-init", "direct-rte-epilogue"):
+                if value["selected"]["window_layout"] == "arena-rte" and (
+                        entry["variant"] != window_variant(value["selected"])
+                        or any(type(geometry.get(key)) is not int or geometry[key] != item
+                               for key, item in {"threads":128,"required_subgroup_size":32}.items())):
+                    raise ValueError("arena attention dispatch module/resources differ from selected policy")
+            if entry["family"] == "fp8_gemm" and value["selected"]["gemm"] in EXTENDED_GEMMS:
                 policy = value["selected"]
                 geometry = entry.get("geometry")
                 required_geometry = {"threads":128, "required_subgroup_size":32, "tile_m":64}
@@ -439,6 +497,12 @@ def collect(args) -> Path:
     requested_gemm = getattr(args, "gemm", "shared")
     if requested_gemm not in GEMM_VARIANTS or (requested_gemm in DIRECT_GEMMS and args.stage_k != 16):
         raise ValueError("GEMM must be " + "|".join(GEMM_VARIANTS) + "; direct requires stage_k=16")
+    if requested_gemm == "direct-rte-pair" and args.tile_n != 16:
+        raise ValueError("direct-rte-pair currently requires tile_n=16")
+    requested_layout = getattr(args, "window_layout", "staged")
+    if type(requested_layout) is not str or requested_layout not in WINDOW_LAYOUTS or (requested_layout != "staged" and
+            (getattr(args,"window_queries",64) not in (16,32) or args.kernels == "baseline")):
+        raise ValueError("register/arena attention requires optimized Q16/Q32 and a valid window layout")
     for name in ("width", "height", "frames", "pairs", "timeout"):
         integer(getattr(args, name), name, 1)
     integer(args.warmup, "warmup")
@@ -559,7 +623,7 @@ def exact_manifest(path: Path, comparison_anchor="legacy") -> dict:
         if any(baseline_identity[k] != ident[k] for k in ("device_id", "driver_id", "baseline_shader_sha256")):
             raise ValueError("operator baseline/candidate device, driver or frozen baseline identity differs")
     raw_overdispatch = value.get("raw_gemm_overdispatch")
-    requires_raw = value["suite"] == "operators" and selected["gemm"] in ("direct-rte-init", "direct-rte-epilogue")
+    requires_raw = value["suite"] == "operators" and selected["gemm"] in EXTENDED_GEMMS
     if requires_raw and not isinstance(raw_overdispatch, dict):
         raise ValueError("new GEMM operator proof requires actual raw_gemm_overdispatch provenance")
     if "raw_gemm_overdispatch" in value:
@@ -601,7 +665,7 @@ def exact_manifest(path: Path, comparison_anchor="legacy") -> dict:
     if value["suite"] == "operators" and not EXACT_COVERAGE.issubset(coverage):
         raise ValueError("operator suite lacks prescribed mode/edge-case coverage")
     extended_vit = value.get("extended_vit")
-    requires_vit = value["suite"] == "operators" and selected["gemm"] in ("direct-rte-init", "direct-rte-epilogue")
+    requires_vit = value["suite"] == "operators" and selected["gemm"] in EXTENDED_GEMMS
     if requires_vit and (VIT_COVERAGE not in coverage or not isinstance(extended_vit, dict)):
         raise ValueError("new GEMM operator proof requires extended ViT K1024/K4096 partition coverage")
     if value["suite"] == "operators" and (extended_vit is not None or VIT_COVERAGE in coverage):
@@ -646,6 +710,24 @@ def exact_manifest(path: Path, comparison_anchor="legacy") -> dict:
         raise ValueError("target suite requires head and capture/production equality at valid resolution 1707x960")
     raw_evidence = {"raw_gemm_overdispatch": raw_overdispatch} if raw_overdispatch is not None else {}
     if extended_vit is not None: raw_evidence["extended_vit"] = extended_vit
+    paired_cases, paired_sizes = {}, {}
+    for K,N,rows,flags,partition,batches in PAIRED_CASES:
+        name = f"gemm-paired-K{K}-N{N}-R{rows}-F{flags}-P{partition}-B{batches}"
+        paired_cases[name] = dict(name=name,K=K,N=N,rows=rows,flags=flags,partition=partition,batches=batches)
+        allocation = ((rows+63)//64)*64*(32+batches*N)
+        paired_sizes[name] = allocation*(1 if flags & 16 else 2)
+        if flags & 32: paired_sizes[name+"-dual"] = allocation
+    raw_evidence.update(extended_operator_evidence(value,reports,"extended_paired",PAIRED_COVERAGE,
+        paired_cases,paired_sizes,required=value["suite"]=="operators" and selected["gemm"] in EXTENDED_GEMMS,
+        label="paired-preload K160/K544/batch8"))
+    window_cases, window_sizes = {}, {}
+    for width,height,heads,sx,sy in WINDOW_PADDING_CASES:
+        name = f"window-{width}x{height}-H{heads}-S{sx}x{sy}"
+        window_cases[name] = dict(name=name,width=width,height=height,heads=heads,shiftX=sx,shiftY=sy)
+        window_sizes[name] = ((width*height+63)//64)*64*heads*32
+    raw_evidence.update(extended_operator_evidence(value,reports,"extended_window_padding",WINDOW_PADDING_COVERAGE,
+        window_cases,window_sizes,required=value["suite"]=="operators" and selected["window_layout"]=="arena-rte",
+        label="thin-window padding"))
     return {**raw_evidence, "suite": value["suite"], "comparison_anchor": anchor, "source_manifest": str(path.resolve()), "source_sha256": sha256(path), "identity": ident,
             "model_free": model_free, "fixture_sha256": fixture_hash, "baseline_identity": baseline_identity,
             "selected": selected, "baseline_selected": baseline_selected,
@@ -788,9 +870,7 @@ def tuning(performance_path: Path, qualification_path: Path, comparison_anchor="
             raise ValueError("GEMM dispatch variant does not match its qualified session policy")
         if operator["family"] == "window_attention":
             policy = selected_policy(report["selections"]["candidate"])
-            expected_window = ("amd_window_register_rte" if policy["window_layout"] == "register-rte" else
-                               "amd_window_register" if policy["window_layout"] == "register" else
-                               "amd_window_optimized" if policy["window_queries"] == 64 else "amd_window_small")
+            expected_window = window_variant(policy)
             if variant["variant"] != expected_window:
                 raise ValueError("attention dispatch variant does not match its qualified session policy")
             if type(variant.get("window_queries")) is not int or variant["window_queries"] != policy["window_queries"]:
@@ -880,6 +960,12 @@ def replay_sequence(args) -> dict:
     requested_gemm=getattr(args,"gemm","shared")
     if requested_gemm not in GEMM_VARIANTS or (requested_gemm in DIRECT_GEMMS and args.stage_k!=16):
         raise ValueError("GEMM must be " + "|".join(GEMM_VARIANTS) + "; direct requires stage_k=16")
+    if requested_gemm == "direct-rte-pair" and args.tile_n != 16:
+        raise ValueError("direct-rte-pair currently requires tile_n=16")
+    requested_layout = getattr(args, "window_layout", "staged")
+    if type(requested_layout) is not str or requested_layout not in WINDOW_LAYOUTS or (requested_layout != "staged" and
+            (getattr(args,"window_queries",64) not in (16,32) or args.kernels == "baseline")):
+        raise ValueError("register/arena attention requires optimized Q16/Q32 and a valid window layout")
     frames=captured_sequence(args.capture_sequence.resolve(strict=True),args.allow_nongame)
     executable=args.executable.resolve(strict=True);model=args.model.resolve(strict=True)
     args.output.mkdir(parents=True,exist_ok=False);output=args.output.resolve()
@@ -993,7 +1079,7 @@ def main() -> int:
     collect_parser.add_argument("--tile-n", type=int, choices=(16, 32, 64), default=16)
     collect_parser.add_argument("--stage-k", type=int, choices=(16, 32, 64), default=16)
     collect_parser.add_argument("--window-queries",type=int,choices=(16,32,64),default=64)
-    collect_parser.add_argument("--window-layout",choices=("staged","register","register-rte"),default="staged")
+    collect_parser.add_argument("--window-layout",choices=tuple(WINDOW_LAYOUTS),default="staged")
     collect_parser.add_argument("--allow-arithmetic-change", action="store_true")
     for flag in LEGACY_FUSION_KEYS:
         collect_parser.add_argument("--" + flag.replace("_","-"),action="store_true")
@@ -1036,7 +1122,7 @@ def main() -> int:
     replay_parser.add_argument("--tile-n",type=int,choices=(16,32,64),default=16)
     replay_parser.add_argument("--stage-k",type=int,choices=(16,32,64),default=16)
     replay_parser.add_argument("--window-queries",type=int,choices=(16,32,64),default=64)
-    replay_parser.add_argument("--window-layout",choices=("staged","register","register-rte"),default="staged")
+    replay_parser.add_argument("--window-layout",choices=tuple(WINDOW_LAYOUTS),default="staged")
     replay_parser.add_argument("--timeout",type=int,default=900)
     replay_parser.add_argument("--coverage",choices=sorted(SCENE_COVERAGE),action="append",default=[])
     replay_parser.add_argument("--allow-nongame",action="store_true")

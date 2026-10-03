@@ -1,0 +1,1006 @@
+{
+  "format": "OpenNR-pair-arena-alpha4-scene-preservation-v1",
+  "checks": [
+    {
+      "file": "identical\\candidate\\frame-7085\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "3c7274863f7aae3116c31c7594ec738350efa3a9599283658a50a3d4a38d572b",
+      "baseline_sha256": "3c7274863f7aae3116c31c7594ec738350efa3a9599283658a50a3d4a38d572b",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7085\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "e53bcd970495b6ee7cd105b04eb2b4edfdad1fcf286b179e6c9e1669dda3f0b2",
+      "baseline_sha256": "e53bcd970495b6ee7cd105b04eb2b4edfdad1fcf286b179e6c9e1669dda3f0b2",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7085\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "3c7274863f7aae3116c31c7594ec738350efa3a9599283658a50a3d4a38d572b",
+      "baseline_sha256": "3c7274863f7aae3116c31c7594ec738350efa3a9599283658a50a3d4a38d572b",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7085\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "3a43f670cdd97b2e576dc82b1780eea7983fa930c270f24824077cfc6821b222",
+      "baseline_sha256": "3a43f670cdd97b2e576dc82b1780eea7983fa930c270f24824077cfc6821b222",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7085\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "3a43f670cdd97b2e576dc82b1780eea7983fa930c270f24824077cfc6821b222",
+      "baseline_sha256": "3a43f670cdd97b2e576dc82b1780eea7983fa930c270f24824077cfc6821b222",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7086\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "cd8dbe80ab83c9ab9c950090dab023ecd86fe130036360d2e5ad8a38da300f8d",
+      "baseline_sha256": "cd8dbe80ab83c9ab9c950090dab023ecd86fe130036360d2e5ad8a38da300f8d",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7086\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "baba89b24107007273fd6b1b6f9132b6d7b515f5eed60169657bb4356550077f",
+      "baseline_sha256": "baba89b24107007273fd6b1b6f9132b6d7b515f5eed60169657bb4356550077f",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7086\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "cd8dbe80ab83c9ab9c950090dab023ecd86fe130036360d2e5ad8a38da300f8d",
+      "baseline_sha256": "cd8dbe80ab83c9ab9c950090dab023ecd86fe130036360d2e5ad8a38da300f8d",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7086\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "326b59384336432b3992ebddbd0e5f6145b22b4cd05f3d61b1f411a34e3946f2",
+      "baseline_sha256": "326b59384336432b3992ebddbd0e5f6145b22b4cd05f3d61b1f411a34e3946f2",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7086\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "326b59384336432b3992ebddbd0e5f6145b22b4cd05f3d61b1f411a34e3946f2",
+      "baseline_sha256": "326b59384336432b3992ebddbd0e5f6145b22b4cd05f3d61b1f411a34e3946f2",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7087\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "e81260f9137e7df4c36846628ef414f7b222f9dbeb711b32aa81004ae6641a4f",
+      "baseline_sha256": "e81260f9137e7df4c36846628ef414f7b222f9dbeb711b32aa81004ae6641a4f",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7087\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "c3be4527944086db9c720581eb87eb69cfbfc7018224d35713bedcfd1e7459fa",
+      "baseline_sha256": "c3be4527944086db9c720581eb87eb69cfbfc7018224d35713bedcfd1e7459fa",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7087\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "e81260f9137e7df4c36846628ef414f7b222f9dbeb711b32aa81004ae6641a4f",
+      "baseline_sha256": "e81260f9137e7df4c36846628ef414f7b222f9dbeb711b32aa81004ae6641a4f",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7087\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "66cbc065de88bb9a37625a64e52f41df8639532bac3b21db2fc48293cec28295",
+      "baseline_sha256": "66cbc065de88bb9a37625a64e52f41df8639532bac3b21db2fc48293cec28295",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7087\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "66cbc065de88bb9a37625a64e52f41df8639532bac3b21db2fc48293cec28295",
+      "baseline_sha256": "66cbc065de88bb9a37625a64e52f41df8639532bac3b21db2fc48293cec28295",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7088\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "959ce5de2751f053e4934728cfa744f88d46f585d185ed5815e96afa3d2a0111",
+      "baseline_sha256": "959ce5de2751f053e4934728cfa744f88d46f585d185ed5815e96afa3d2a0111",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7088\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "77fb4fc4f2863bd9bf9ece789a7302a62dc658e6fef6ef075613a7171fde1e9a",
+      "baseline_sha256": "77fb4fc4f2863bd9bf9ece789a7302a62dc658e6fef6ef075613a7171fde1e9a",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7088\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "959ce5de2751f053e4934728cfa744f88d46f585d185ed5815e96afa3d2a0111",
+      "baseline_sha256": "959ce5de2751f053e4934728cfa744f88d46f585d185ed5815e96afa3d2a0111",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7088\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "c7410c599e69e2f548beb56aba6570c504ebbd56a9a116db82d963daef84f069",
+      "baseline_sha256": "c7410c599e69e2f548beb56aba6570c504ebbd56a9a116db82d963daef84f069",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7088\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "c7410c599e69e2f548beb56aba6570c504ebbd56a9a116db82d963daef84f069",
+      "baseline_sha256": "c7410c599e69e2f548beb56aba6570c504ebbd56a9a116db82d963daef84f069",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7089\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "ec001fcae57d09ffcd5810edcffa8ec383f35735544d9c18140038102561c54b",
+      "baseline_sha256": "ec001fcae57d09ffcd5810edcffa8ec383f35735544d9c18140038102561c54b",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7089\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "7027c14917ad24978b78ebb0ec324d6831b1eac22f5bbc105a4478aa0beae85b",
+      "baseline_sha256": "7027c14917ad24978b78ebb0ec324d6831b1eac22f5bbc105a4478aa0beae85b",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7089\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "ec001fcae57d09ffcd5810edcffa8ec383f35735544d9c18140038102561c54b",
+      "baseline_sha256": "ec001fcae57d09ffcd5810edcffa8ec383f35735544d9c18140038102561c54b",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7089\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "605aa699bcdc53ffd3a7b9632c2375880d51764242e2f3043ee407f8408a7ea9",
+      "baseline_sha256": "605aa699bcdc53ffd3a7b9632c2375880d51764242e2f3043ee407f8408a7ea9",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7089\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "605aa699bcdc53ffd3a7b9632c2375880d51764242e2f3043ee407f8408a7ea9",
+      "baseline_sha256": "605aa699bcdc53ffd3a7b9632c2375880d51764242e2f3043ee407f8408a7ea9",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7090\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "6feb152aa97924e3c20e008b19a7374b872e13c8951e4d5c02c8f0731936dbdc",
+      "baseline_sha256": "6feb152aa97924e3c20e008b19a7374b872e13c8951e4d5c02c8f0731936dbdc",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7090\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "7b734e144387270ecf0609cfda09f5f9382fb5076fb5e4f1f0b292d70c5e6992",
+      "baseline_sha256": "7b734e144387270ecf0609cfda09f5f9382fb5076fb5e4f1f0b292d70c5e6992",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7090\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "6feb152aa97924e3c20e008b19a7374b872e13c8951e4d5c02c8f0731936dbdc",
+      "baseline_sha256": "6feb152aa97924e3c20e008b19a7374b872e13c8951e4d5c02c8f0731936dbdc",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7090\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "024efd06d2c34cf9575cd6a991343df639ac3a18c8811ec7e372ffc01add29c0",
+      "baseline_sha256": "024efd06d2c34cf9575cd6a991343df639ac3a18c8811ec7e372ffc01add29c0",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7090\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "024efd06d2c34cf9575cd6a991343df639ac3a18c8811ec7e372ffc01add29c0",
+      "baseline_sha256": "024efd06d2c34cf9575cd6a991343df639ac3a18c8811ec7e372ffc01add29c0",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7091\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "ba5b5fee927e73791cb192700a305ed0a12416bff95181188d16bf82029dfc0f",
+      "baseline_sha256": "ba5b5fee927e73791cb192700a305ed0a12416bff95181188d16bf82029dfc0f",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7091\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "65d14cf9a0effd4e87503840b7d0bb0da9442af9bdaf69b416bf5f2afca02396",
+      "baseline_sha256": "65d14cf9a0effd4e87503840b7d0bb0da9442af9bdaf69b416bf5f2afca02396",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7091\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "ba5b5fee927e73791cb192700a305ed0a12416bff95181188d16bf82029dfc0f",
+      "baseline_sha256": "ba5b5fee927e73791cb192700a305ed0a12416bff95181188d16bf82029dfc0f",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7091\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "3452df7fdff5b5c48a91406fe471a1e4a1643516db4b8fb236d8d8875ee26b03",
+      "baseline_sha256": "3452df7fdff5b5c48a91406fe471a1e4a1643516db4b8fb236d8d8875ee26b03",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7091\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "3452df7fdff5b5c48a91406fe471a1e4a1643516db4b8fb236d8d8875ee26b03",
+      "baseline_sha256": "3452df7fdff5b5c48a91406fe471a1e4a1643516db4b8fb236d8d8875ee26b03",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7092\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "b024afd9892fb9da17a8ee1396c8e796ff6c41d24a3b30b7f834320787f03567",
+      "baseline_sha256": "b024afd9892fb9da17a8ee1396c8e796ff6c41d24a3b30b7f834320787f03567",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7092\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "42076a56f9f2c57888036555826a55dde2872632f0188bf3c0d777e21dafaf88",
+      "baseline_sha256": "42076a56f9f2c57888036555826a55dde2872632f0188bf3c0d777e21dafaf88",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7092\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "b024afd9892fb9da17a8ee1396c8e796ff6c41d24a3b30b7f834320787f03567",
+      "baseline_sha256": "b024afd9892fb9da17a8ee1396c8e796ff6c41d24a3b30b7f834320787f03567",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7092\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "22867c753f34941a0668f415b1595dfbdb5b7a1e2aa9b8cefd282de4223a78f2",
+      "baseline_sha256": "22867c753f34941a0668f415b1595dfbdb5b7a1e2aa9b8cefd282de4223a78f2",
+      "byte_identical": true
+    },
+    {
+      "file": "identical\\candidate\\frame-7092\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "22867c753f34941a0668f415b1595dfbdb5b7a1e2aa9b8cefd282de4223a78f2",
+      "baseline_sha256": "22867c753f34941a0668f415b1595dfbdb5b7a1e2aa9b8cefd282de4223a78f2",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7085\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "82ff97c3cd124085b6eadd3ea8253151cc4dd38fa7b101c4bf78801c00de3324",
+      "baseline_sha256": "82ff97c3cd124085b6eadd3ea8253151cc4dd38fa7b101c4bf78801c00de3324",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7085\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "c82178789c9e0f456047ade080a95117b341215c0231576bec848dd029b72351",
+      "baseline_sha256": "c82178789c9e0f456047ade080a95117b341215c0231576bec848dd029b72351",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7085\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "3c7274863f7aae3116c31c7594ec738350efa3a9599283658a50a3d4a38d572b",
+      "baseline_sha256": "3c7274863f7aae3116c31c7594ec738350efa3a9599283658a50a3d4a38d572b",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7085\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "3a43f670cdd97b2e576dc82b1780eea7983fa930c270f24824077cfc6821b222",
+      "baseline_sha256": "3a43f670cdd97b2e576dc82b1780eea7983fa930c270f24824077cfc6821b222",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7085\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "7f194ee21d1345f8bdbb3a022e47e470ab5d71ffa57e848e4673530152a88679",
+      "baseline_sha256": "7f194ee21d1345f8bdbb3a022e47e470ab5d71ffa57e848e4673530152a88679",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7086\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "996513f7a74e17e48e0f04af1b7b5d250e3b084a42d1379968840ccf21e31c31",
+      "baseline_sha256": "996513f7a74e17e48e0f04af1b7b5d250e3b084a42d1379968840ccf21e31c31",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7086\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "4026b8d69d475679f1ee0d6e328fa466c75dbf1ce6a1dc4ddfd4d414ff2c93ff",
+      "baseline_sha256": "4026b8d69d475679f1ee0d6e328fa466c75dbf1ce6a1dc4ddfd4d414ff2c93ff",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7086\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "cd8dbe80ab83c9ab9c950090dab023ecd86fe130036360d2e5ad8a38da300f8d",
+      "baseline_sha256": "cd8dbe80ab83c9ab9c950090dab023ecd86fe130036360d2e5ad8a38da300f8d",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7086\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "326b59384336432b3992ebddbd0e5f6145b22b4cd05f3d61b1f411a34e3946f2",
+      "baseline_sha256": "326b59384336432b3992ebddbd0e5f6145b22b4cd05f3d61b1f411a34e3946f2",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7086\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "e7435f71cce2fbd73540a62d06a63b969070763022bedf932a3bf7cabc2322ff",
+      "baseline_sha256": "e7435f71cce2fbd73540a62d06a63b969070763022bedf932a3bf7cabc2322ff",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7087\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "682af99acc01592f4ee2962629bc6cffa50b425e0d81841ec1be063e76f1534f",
+      "baseline_sha256": "682af99acc01592f4ee2962629bc6cffa50b425e0d81841ec1be063e76f1534f",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7087\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "8618a8241ed6df431e185998a4c81dcfb69f0ac42d4c831f4fbea76310af2286",
+      "baseline_sha256": "8618a8241ed6df431e185998a4c81dcfb69f0ac42d4c831f4fbea76310af2286",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7087\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "e81260f9137e7df4c36846628ef414f7b222f9dbeb711b32aa81004ae6641a4f",
+      "baseline_sha256": "e81260f9137e7df4c36846628ef414f7b222f9dbeb711b32aa81004ae6641a4f",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7087\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "66cbc065de88bb9a37625a64e52f41df8639532bac3b21db2fc48293cec28295",
+      "baseline_sha256": "66cbc065de88bb9a37625a64e52f41df8639532bac3b21db2fc48293cec28295",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7087\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "350bcf6687974d198ab29531ffc89e5fc8ee51d67d789f67a7103e38b0f086d4",
+      "baseline_sha256": "350bcf6687974d198ab29531ffc89e5fc8ee51d67d789f67a7103e38b0f086d4",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7088\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "f28598df70f98b254cb32ff3e128964eddf68c545b417f3c2198c8141227500d",
+      "baseline_sha256": "f28598df70f98b254cb32ff3e128964eddf68c545b417f3c2198c8141227500d",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7088\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "ed717e09affde54ea58daf9f6ed86ae5c832fcaad84b802c8bedd7f5aaa7f79d",
+      "baseline_sha256": "ed717e09affde54ea58daf9f6ed86ae5c832fcaad84b802c8bedd7f5aaa7f79d",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7088\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "959ce5de2751f053e4934728cfa744f88d46f585d185ed5815e96afa3d2a0111",
+      "baseline_sha256": "959ce5de2751f053e4934728cfa744f88d46f585d185ed5815e96afa3d2a0111",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7088\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "c7410c599e69e2f548beb56aba6570c504ebbd56a9a116db82d963daef84f069",
+      "baseline_sha256": "c7410c599e69e2f548beb56aba6570c504ebbd56a9a116db82d963daef84f069",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7088\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "634242e62ee9254306ec6e94be34b5744766904a930f696a5a76f89aba044a4c",
+      "baseline_sha256": "634242e62ee9254306ec6e94be34b5744766904a930f696a5a76f89aba044a4c",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7089\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "d637853679f0bde6c4392fed81248392e6a05cd2a6fe9f44aad618ab6114cb99",
+      "baseline_sha256": "d637853679f0bde6c4392fed81248392e6a05cd2a6fe9f44aad618ab6114cb99",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7089\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "ceba0ab1a6e60d1625d67ee197aba7ca43214579d07dc1535c4b845d374e4c96",
+      "baseline_sha256": "ceba0ab1a6e60d1625d67ee197aba7ca43214579d07dc1535c4b845d374e4c96",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7089\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "ec001fcae57d09ffcd5810edcffa8ec383f35735544d9c18140038102561c54b",
+      "baseline_sha256": "ec001fcae57d09ffcd5810edcffa8ec383f35735544d9c18140038102561c54b",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7089\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "605aa699bcdc53ffd3a7b9632c2375880d51764242e2f3043ee407f8408a7ea9",
+      "baseline_sha256": "605aa699bcdc53ffd3a7b9632c2375880d51764242e2f3043ee407f8408a7ea9",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7089\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "66514d0d458c2247eba26fb96a82e320f8a605276952c419d5fe086e3040d2ca",
+      "baseline_sha256": "66514d0d458c2247eba26fb96a82e320f8a605276952c419d5fe086e3040d2ca",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7090\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "7e8472fdf3320b7a85c5579834e814798834938b1f48d142d6cbbd07e41c2ef2",
+      "baseline_sha256": "7e8472fdf3320b7a85c5579834e814798834938b1f48d142d6cbbd07e41c2ef2",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7090\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "db1ac18889a9898558e720eca95ace72cd287a850f93bec6faa7cbc563ca1846",
+      "baseline_sha256": "db1ac18889a9898558e720eca95ace72cd287a850f93bec6faa7cbc563ca1846",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7090\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "6feb152aa97924e3c20e008b19a7374b872e13c8951e4d5c02c8f0731936dbdc",
+      "baseline_sha256": "6feb152aa97924e3c20e008b19a7374b872e13c8951e4d5c02c8f0731936dbdc",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7090\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "024efd06d2c34cf9575cd6a991343df639ac3a18c8811ec7e372ffc01add29c0",
+      "baseline_sha256": "024efd06d2c34cf9575cd6a991343df639ac3a18c8811ec7e372ffc01add29c0",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7090\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "a590a25c0ed2f4679c57a5ede12151f09f6668726e0e6a857d70d106b503567a",
+      "baseline_sha256": "a590a25c0ed2f4679c57a5ede12151f09f6668726e0e6a857d70d106b503567a",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7091\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "29858b431e3e6b6c161c1bba87de3144e090616be080a82c1dd233022d78f9e3",
+      "baseline_sha256": "29858b431e3e6b6c161c1bba87de3144e090616be080a82c1dd233022d78f9e3",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7091\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "aab8ddd686a9c6d54c8a582177e902d8b3446804e87fc3dc85de70e7d9845c4b",
+      "baseline_sha256": "aab8ddd686a9c6d54c8a582177e902d8b3446804e87fc3dc85de70e7d9845c4b",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7091\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "ba5b5fee927e73791cb192700a305ed0a12416bff95181188d16bf82029dfc0f",
+      "baseline_sha256": "ba5b5fee927e73791cb192700a305ed0a12416bff95181188d16bf82029dfc0f",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7091\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "3452df7fdff5b5c48a91406fe471a1e4a1643516db4b8fb236d8d8875ee26b03",
+      "baseline_sha256": "3452df7fdff5b5c48a91406fe471a1e4a1643516db4b8fb236d8d8875ee26b03",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7091\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "c4bab2f53a79897b94f393dae37dfe63ad42634079125ad02fda8dc62dbb3720",
+      "baseline_sha256": "c4bab2f53a79897b94f393dae37dfe63ad42634079125ad02fda8dc62dbb3720",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7092\\recorded-head.f32",
+      "bytes": 26542080,
+      "sha256": "16856abf0c83feb14b7c010b92988e877fb418da40ed456f4a428834314a9efe",
+      "baseline_sha256": "16856abf0c83feb14b7c010b92988e877fb418da40ed456f4a428834314a9efe",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7092\\recorded-published-history.f32",
+      "bytes": 26219520,
+      "sha256": "4486595573980a5154f97e2f84d125ce77fd7cf45d3e9b7e3bde0aa51ba1a681",
+      "baseline_sha256": "4486595573980a5154f97e2f84d125ce77fd7cf45d3e9b7e3bde0aa51ba1a681",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7092\\recorded-runtime-head.f32",
+      "bytes": 26542080,
+      "sha256": "b024afd9892fb9da17a8ee1396c8e796ff6c41d24a3b30b7f834320787f03567",
+      "baseline_sha256": "b024afd9892fb9da17a8ee1396c8e796ff6c41d24a3b30b7f834320787f03567",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7092\\recorded-runtime-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "22867c753f34941a0668f415b1595dfbdb5b7a1e2aa9b8cefd282de4223a78f2",
+      "baseline_sha256": "22867c753f34941a0668f415b1595dfbdb5b7a1e2aa9b8cefd282de4223a78f2",
+      "byte_identical": true
+    },
+    {
+      "file": "evolved\\candidate\\frame-7092\\recorded-scene-linear-rgba.f32",
+      "bytes": 26219520,
+      "sha256": "d8344300816e2d169e0c001baaa9f9ed3d4fc066b79bacd721a8412e5f35248e",
+      "baseline_sha256": "d8344300816e2d169e0c001baaa9f9ed3d4fc066b79bacd721a8412e5f35248e",
+      "byte_identical": true
+    }
+  ],
+  "passed": true,
+  "compared_bytes": 2107883520,
+  "reference_reused": true,
+  "performance_representative": false,
+  "executions": [
+    {
+      "mode": "identical",
+      "frame_id": 7085,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7085",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7085-7085-25172-41277250",
+        "--history-mode",
+        "identical"
+      ],
+      "manifest_sha256": "328b5c34bfa89b807c505d0b2a5bdf9fe91ae212e7902b3210ef276064e407aa",
+      "baseline_manifest_sha256": "a7fb42092861de77e937887a4ab3aaf4b5779ce43899024094d83312306d1bfe"
+    },
+    {
+      "mode": "identical",
+      "frame_id": 7086,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7086",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7086-7086-25172-41281218",
+        "--history-mode",
+        "identical"
+      ],
+      "manifest_sha256": "15016f761b1451a2aff81e5623273bb3b997cda4c8ad390c737ae8bf28f33957",
+      "baseline_manifest_sha256": "0826b29fbbd518ac46b7b7591cc65233ce1fd4a3973a8f02bdfdc2363857907b"
+    },
+    {
+      "mode": "identical",
+      "frame_id": 7087,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7087",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7087-7087-25172-41285078",
+        "--history-mode",
+        "identical"
+      ],
+      "manifest_sha256": "9059baac11b9b2d629e976334564526000d6fc5e4266c9f399982e1b0bad4ac6",
+      "baseline_manifest_sha256": "f485259d4fd7fba381c0316df7add4b8b0f6c13fa61cd52a230eed4a02511ea0"
+    },
+    {
+      "mode": "identical",
+      "frame_id": 7088,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7088",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7088-7088-25172-41289203",
+        "--history-mode",
+        "identical"
+      ],
+      "manifest_sha256": "5edb60ade299a930be67023104117a2308a265e6292214fb121aff83ede144b5",
+      "baseline_manifest_sha256": "1fa228834f06d7c17e44ce85d8d57652b2a39bd2ebae2107eeb4619a8846f53c"
+    },
+    {
+      "mode": "identical",
+      "frame_id": 7089,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7089",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7089-7089-25172-41293343",
+        "--history-mode",
+        "identical"
+      ],
+      "manifest_sha256": "c98a38e61db64c3d676dd1b51a8e182525efdf1d6b9c1060e6916b811667b579",
+      "baseline_manifest_sha256": "8df68dabc8e8bfe8abb537c4049fe0b55e40236e1012d170a80faddd57a44d7f"
+    },
+    {
+      "mode": "identical",
+      "frame_id": 7090,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7090",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7090-7090-25172-41297203",
+        "--history-mode",
+        "identical"
+      ],
+      "manifest_sha256": "2cb142c3545912dc881906101c4d65a125e4b6f8c9524595c126ac279f33cf38",
+      "baseline_manifest_sha256": "3d215a9c30e8306d0c56666dda69e90e6c82b4c055ec68813c8a82070be59c66"
+    },
+    {
+      "mode": "identical",
+      "frame_id": 7091,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7091",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7091-7091-25172-41301359",
+        "--history-mode",
+        "identical"
+      ],
+      "manifest_sha256": "3b31b2219cdfa7faad255b44eb7fc4e6db0f2a70714a6ae78cbec23a864d2944",
+      "baseline_manifest_sha256": "18d5125129f2dac0bc861b7515c5c50076e095f994deecfd0cb3c1dc3774c1ff"
+    },
+    {
+      "mode": "identical",
+      "frame_id": 7092,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\identical\\candidate\\frame-7092",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7092-7092-25172-41305281",
+        "--history-mode",
+        "identical"
+      ],
+      "manifest_sha256": "ce7ba388fd12d17e02e29073042d78ffc48428fb7376ef64b085facef1fdce2e",
+      "baseline_manifest_sha256": "81fe4b040cca76ffa3aa8144cf8a1bc57d12bd337b2cc6c59153a8ad05ac7249"
+    },
+    {
+      "mode": "evolved",
+      "frame_id": 7085,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7085",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7085-7085-25172-41277250",
+        "--history-mode",
+        "evolved"
+      ],
+      "manifest_sha256": "7d1b6ee621da6df0e4ae9bf557823d6997054c0578b1899f4b843cb6dda5edbf",
+      "baseline_manifest_sha256": "77528f627efa377d2f955394e034dfc2089798ecaa95381f2fed6739e2e62138"
+    },
+    {
+      "mode": "evolved",
+      "frame_id": 7086,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7086",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7086-7086-25172-41281218",
+        "--history-mode",
+        "evolved",
+        "--previous-replay",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7085"
+      ],
+      "manifest_sha256": "fd9996810430497cb3e741f9ef9a9a6a1800d0d6743415d4e8f95ad8622ad2a4",
+      "baseline_manifest_sha256": "b1e0f9e9e02937eee43c963935d77cced09113c3b55576607be5470c934bda1f"
+    },
+    {
+      "mode": "evolved",
+      "frame_id": 7087,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7087",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7087-7087-25172-41285078",
+        "--history-mode",
+        "evolved",
+        "--previous-replay",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7086"
+      ],
+      "manifest_sha256": "514a41da2427d6d93492e834f2c5088b36120256528404d9d86ce172d74f0924",
+      "baseline_manifest_sha256": "12deb31d755c4f7009d7c16e0f9bb32ac62812c8bead1edb118adeaf3d609742"
+    },
+    {
+      "mode": "evolved",
+      "frame_id": 7088,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7088",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7088-7088-25172-41289203",
+        "--history-mode",
+        "evolved",
+        "--previous-replay",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7087"
+      ],
+      "manifest_sha256": "ad965fd7b989495d67702e9fb147278cfd865b435e23f02a72de86e328ad283c",
+      "baseline_manifest_sha256": "5847f4b81b6c2732a53a14dd02974083c37e0f2fd168bb89e2d7c779fcbab488"
+    },
+    {
+      "mode": "evolved",
+      "frame_id": 7089,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7089",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7089-7089-25172-41293343",
+        "--history-mode",
+        "evolved",
+        "--previous-replay",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7088"
+      ],
+      "manifest_sha256": "4a58d6e5a75ec90ea77f3a6526fcbdcd4c95ebfb9493c7f199f8f8258b2267ce",
+      "baseline_manifest_sha256": "869b41760cc03fa2b8887b22c9b550ea702a218b20e3cc47f5815bd2f320d403"
+    },
+    {
+      "mode": "evolved",
+      "frame_id": 7090,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7090",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7090-7090-25172-41297203",
+        "--history-mode",
+        "evolved",
+        "--previous-replay",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7089"
+      ],
+      "manifest_sha256": "e965a7634d01a7fc0c9c42bc5750fc0e79a1348150153ff53be9532aee31fa06",
+      "baseline_manifest_sha256": "8527afe4d487d4b45d934b3bdca7df24e59d22bcbc2dba6f07c01addaa6a2d2d"
+    },
+    {
+      "mode": "evolved",
+      "frame_id": 7091,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7091",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7091-7091-25172-41301359",
+        "--history-mode",
+        "evolved",
+        "--previous-replay",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7090"
+      ],
+      "manifest_sha256": "52941c3c484294baba95d60e033c497b7246cdce93da537ca3a794d0c17b8f79",
+      "baseline_manifest_sha256": "1fac0bc2f51419d0269169a1ecdc8bcc913cf6a4764f27a68f0298ab6c1d5bac"
+    },
+    {
+      "mode": "evolved",
+      "frame_id": 7092,
+      "argv": [
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe",
+        "compositecheck",
+        "--backend",
+        "amd",
+        "--model",
+        "D:/amd/models/imported/open-nr",
+        "--shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders",
+        "--game-shaders",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders",
+        "--fixture",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7092",
+        "--recorded-frame",
+        "C:\\Program Files (x86)\\GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\open-nr\\captures\\sequence-25172-41276609-1\\frame-7092-7092-25172-41305281",
+        "--history-mode",
+        "evolved",
+        "--previous-replay",
+        "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-replay\\evolved\\candidate\\frame-7091"
+      ],
+      "manifest_sha256": "2660b3e012ba9e892641bd4ddd9a7795abbcdcf9b7c5b7b4ab608544225b5539",
+      "baseline_manifest_sha256": "67825c77afcf4612186e31cedc22ffabb0f2ce58dda57ab8d07f0293aa642406"
+    }
+  ],
+  "artifacts": {
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\dlss5vk.exe": "d6ffdde401a08a3e85dd1dcea4c141ded8be103921c9cf330d21f5f31dedb0cd",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_block32.spv": "e9638615189dfd1dd5cc9620fed839dcb1d0de9daf031e92cd8ac580ed13af5e",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_expert_ffn.spv": "e0e8e15e636cafd2b32d1f3a6237a4134bd46658757ad7886863a111927dbac1",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_ffn32.spv": "1b4aa577e62bf3ff67b61b6da972b95d91058d7259488d82e1a75dfcf4e14ccc",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_gemm_direct_rte_epilogue.spv": "82bdcb6cc9b295578081467c03bfdf017b1f06aab0955326d791c5ef8a685f0f",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_gemm_direct_rte_init.spv": "bf90bffb6b28731566b8c70cf4a75fb091bb60e7ba56cc6503c35a7a89d85c3c",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_gemm_direct_rte_pair.spv": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_gemm_direct_rte.spv": "f2fe7abcb5a4d714dcd466a9ba96834d54b9160ccb3d20a75e8aeab84f3a8677",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_gemm_direct.spv": "f7cb8e5e596fa92792de7b1acc1013d765b1c0cf181d82b08d0e8dc16ed685d9",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_gemm_optimized.spv": "8673dfb3bb0f30d987c44e4d77df3850bcf44818c5b095e0065a1378e6d6fc23",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_gemm_packed.spv": "583da6f979a7bb20ca61b71e3a80b0597167ac41adde9ab8afca6dd59a36d31c",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_gemm.spv": "848a6b21bcf5470ad083d64680cba6dc25c11a6b6b3a286982698eea088c3305",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_global_matrix_optimized.spv": "f5d52ffd0e14da7136bb17b71ee37ced4a029efd8a6d4aa0e68d896b0fcb7626",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_global_matrix.spv": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_global_normalize.spv": "caeb9fbaf68519e06219ee7455a2521f28f5bf9fda6b17bc8e5631763541a8aa",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_global.spv": "733d41fa9b48317e863dfa35a039418f4e950155cff67ecfb6e30a002289901d",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_qkv32.spv": "2dbdfd7e725e2cfd09e8c09e0aa60ce09a487272bc93d47bd328818d5824224b",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_window_arena_rte.spv": "93af10965760ea7b9308f8a3cad63260d035b6dd22d1babbf9223a0195f6b8de",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_window_normalize.spv": "c5c8161b72282e283b5ab108f732a328731da39fb5d02c2500a9230b754fe008",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_window_optimized.spv": "02bd200ba23be279bc1b3f6a4fc998d9648f576c7c940db09db21cfeb9ff7f75",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_window_register_rte.spv": "9ff6958330657dbf8fe6dbc86d1dd520fb3b0c80e9afbdf39cf78a3995314569",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_window_register.spv": "73081387738a6697a27d9559ea4cc76157f39761e85dc841f634499e08338462",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_window_small.spv": "8406622ac4c6162646d3cc3185eaa0a60bbb03443efeca614fa9f644a80faab2",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\amd_window.spv": "76307130e55cb4281ab14c671e1afea404e9df2f83f1c3ade391a7111e0ebf78",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\global_normalize.spv": "a8d7ca16a8020fb8f033c11119540869e2daf680b102d7c1d08771f87aaaa8cd",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\ops.spv": "6fc879c4d5563225548dd40f2050d81dbbda8e61bf0e77408e743bfba712c7f2",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\portable_f16.spv": "843388324a4c1211dca82b2711cc22b4db144e3404b79ab4bb74170ac04fba6b",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\portable_gemm.spv": "c64d7598632790ca581211581994a60ff24b04e3d904cfae0eadf930ea8f7d85",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\portable_global.spv": "b76b366a52de8de92a27a92072ae4e1c3902fee84f9ca649c0ac9f97c3bbb06f",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\portable_window.spv": "4953c2c4f53921b92da407df604cefb44789d00de08ec60d3d0fa736de1ac675",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\preprocess.spv": "3674eed6b58a4c6a3fa868a1628b704b93ebd693d5c81981eddf3f66ee65adba",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\shaders\\window_normalize.spv": "c9218555db0fb623a049b984ec04e82313efeecd89745c020152e82dac18b6ac",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders\\game_composite.spv": "7af79e07a1e56f0916f93038a6068fb5d7bc3ccd2fc28d5e7f7808762c0bb61d",
+    "D:\\amd\\build\\performance\\goal-performance-20261003\\named-build-2\\game\\shaders\\game_preprocess.spv": "ef4acf9c54e25c84bb8898e6a1682d35cedfc3c22cd08d1f35019e915b6f7775"
+  },
+  "identities_unchanged": true
+}

@@ -967,8 +967,9 @@ int runCommand(int argc, char** argv) {
   if (argc >= 2 && !strcmp(argv[1], "bench")) return runBench(argc, argv);
   fprintf(stderr, "usage: dlss5vk info|selftest|amdcheck|modelcheck|compositecheck|parity|verify|bench|profile|shaderinfo [--backend auto|amd|nvidia|reference] ...\n"
       "AMD: --amd-kernels auto|baseline|optimized --amd-arithmetic k16|k32|final --amd-tile-n 16|32|64 --amd-stage-k 16|32|64\n"
-      "     --amd-gemm shared|packed|direct|direct-rte|direct-rte-init|direct-rte-epilogue --amd-fusion 0|1 (both C32 routes)\n"
-      "     --amd-window-queries 16|32|64 --amd-window-layout staged|register|register-rte\n"
+      "     --amd-gemm shared|packed|direct|direct-rte|direct-rte-init|direct-rte-epilogue|direct-rte-pair --amd-fusion 0|1 (both C32 routes)\n"
+      "     --amd-window-queries 16|32|64 --amd-window-layout staged|register|register-rte|arena-rte\n"
+      "     direct-rte-pair requires N16/stageK16; arena-rte requires Q16 or Q32\n"
       "     --amd-ffn32-fusion 0|1 --amd-qkv32-fusion 0|1\n"
       "     --amd-expert-fusion 0|1 --amd-block-fusion 0|1 --amd-hardware-publication 0|1 --amd-tuning path\n");
   return 2;

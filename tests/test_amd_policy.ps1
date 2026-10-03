@@ -6,7 +6,7 @@ if (-not $TuningFile) { $TuningFile = Join-Path $taskRoot 'docs\performance\rx90
 $TuningFile = (Resolve-Path -LiteralPath $TuningFile -ErrorAction Stop).Path
 $taskTuningMetadata = Get-Content -LiteralPath $TuningFile -Raw | ConvertFrom-Json
 $taskExpectedGemm = if ($taskTuningMetadata.default_selection.PSObject.Properties['gemm']) { $taskTuningMetadata.default_selection.gemm } else { 'shared' }
-if ($taskExpectedGemm -notin @('shared','packed','direct','direct-rte','direct-rte-init','direct-rte-epilogue')) { throw 'Audited tuning names an invalid GEMM policy' }
+if ($taskExpectedGemm -notin @('shared','packed','direct','direct-rte','direct-rte-init','direct-rte-epilogue','direct-rte-pair')) { throw 'Audited tuning names an invalid GEMM policy' }
 $taskOutput = Join-Path (Join-Path $taskRoot 'build\fusion-policy-cpu') ([Guid]::NewGuid().ToString('N'))
 $null = New-Item -ItemType Directory -Path $taskOutput -Force
 $taskVcvars = & (Join-Path $taskRoot 'scripts\find_vcvars.ps1')

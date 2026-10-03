@@ -1,0 +1,134 @@
+{
+  "format": "OpenNR-amd-exact-manifest-v1",
+  "suite": "target",
+  "comparison_anchor": "rte32",
+  "identity": {
+    "device_id": "1002:7550",
+    "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+    "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+    "shader_sha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+    "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+  },
+  "baseline_identity": {
+    "device_id": "1002:7550",
+    "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+    "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+    "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+    "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+  },
+  "selected": {
+    "kernels": "optimized",
+    "arithmetic": "k16",
+    "gemm": "direct-rte-pair",
+    "tile_n": 16,
+    "stage_k": 16,
+    "window_queries": 32,
+    "window_layout": "arena-rte",
+    "fusion": false,
+    "expert_fusion": false,
+    "block_fusion": false,
+    "hardware_publication": false,
+    "ffn32_fusion": false,
+    "qkv32_fusion": false
+  },
+  "baseline_selected": {
+    "kernels": "optimized",
+    "arithmetic": "k16",
+    "gemm": "direct-rte",
+    "tile_n": 16,
+    "stage_k": 16,
+    "window_queries": 32,
+    "window_layout": "register-rte",
+    "fusion": false,
+    "expert_fusion": false,
+    "block_fusion": false,
+    "hardware_publication": false,
+    "ffn32_fusion": false,
+    "qkv32_fusion": false
+  },
+  "resolution": [
+    1707,
+    960
+  ],
+  "padded_resolution": [
+    1728,
+    960
+  ],
+  "fixtureRoot": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-final-checks",
+  "fixture_sha256": "773cbb394e47214c5c5a969438e426db08d3b1ce1ff8dc218cdaa981b54cf119",
+  "inputGenerator": "fixedpoint-proxy-clt-noise-v1",
+  "syntheticScene": true,
+  "capturedGameFrames": false,
+  "nvidiaParityEstablished": false,
+  "qualityThresholdApplied": false,
+  "performanceQualified": false,
+  "repeatabilityEvidence": "modelcheck execution report; this tool independently compares exported buffers",
+  "createdUtc": "2026-10-03T20:55:11.974271+00:00",
+  "passed": true,
+  "checks": 2,
+  "mismatchedChecks": 0,
+  "coverage": [
+    "head",
+    "capture-production"
+  ],
+  "captureProductionComponents": {
+    "baseline": {
+      "fixture": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-validation-complete\\target-baseline",
+      "manifest_sha256": "37e41aada1eb9b8865ee481728a2de9e07cd8f7a5adfbff5c925aab5891c62e4",
+      "report_sha256": "7b314aa9c918750bf9995ebcaf3485bed1d83e4c6e74b285d842a0158fb43ab9",
+      "benchmark": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-bench\\pair-01-baseline.json",
+      "benchmark_sha256": "e76e7a1f3b144a4ad471481dec752a6f72c504d182d55de1404b70fce1920079",
+      "input_features_sha256": "773cbb394e47214c5c5a969438e426db08d3b1ce1ff8dc218cdaa981b54cf119",
+      "head_sha256": "6de33ac5afe1f72b26cbb5121d4234095359608308c9b917183217fa0242925d",
+      "captured_head_sha256": "6de33ac5afe1f72b26cbb5121d4234095359608308c9b917183217fa0242925d",
+      "benchmark_resolution": [
+        1707,
+        960
+      ]
+    },
+    "candidate": {
+      "fixture": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-validation-complete\\target-candidate",
+      "manifest_sha256": "47cf7767a88d50e0c4d6ea1ca94cd64e823a990196e9072d6abe43697d53d311",
+      "report_sha256": "dc60a12a1c1a11b2e6b8060a4a2ccc59128d341cb6b65b34fb4d0d81155e3945",
+      "benchmark": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-bench\\pair-01-candidate.json",
+      "benchmark_sha256": "ebcc953df340151f5712d8795c1c1e89d10a661a6c2f394fa41560100ec8d488",
+      "input_features_sha256": "773cbb394e47214c5c5a969438e426db08d3b1ce1ff8dc218cdaa981b54cf119",
+      "head_sha256": "6de33ac5afe1f72b26cbb5121d4234095359608308c9b917183217fa0242925d",
+      "captured_head_sha256": "6de33ac5afe1f72b26cbb5121d4234095359608308c9b917183217fa0242925d",
+      "benchmark_resolution": [
+        1707,
+        960
+      ]
+    }
+  },
+  "pairs": [
+    {
+      "name": "head",
+      "baseline": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-validation-complete\\target-baseline\\head.f32",
+      "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-validation-complete\\target-candidate\\head.f32",
+      "baseline_sha256": "6de33ac5afe1f72b26cbb5121d4234095359608308c9b917183217fa0242925d",
+      "candidate_sha256": "6de33ac5afe1f72b26cbb5121d4234095359608308c9b917183217fa0242925d",
+      "baseline_bytes": 26542080,
+      "candidate_bytes": 26542080,
+      "differentBytes": 0,
+      "exact": true
+    },
+    {
+      "name": "capture-production",
+      "baseline": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-final-checks\\target-qualified-production-heads.bin",
+      "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\named2-final-checks\\target-qualified-captured-heads.bin",
+      "baseline_sha256": "e92ecbe38c72d51dfa4b3c32fcc5213f0dfd5773f41288adc1c2347e3aeb80a3",
+      "candidate_sha256": "e92ecbe38c72d51dfa4b3c32fcc5213f0dfd5773f41288adc1c2347e3aeb80a3",
+      "baseline_bytes": 53084160,
+      "candidate_bytes": 53084160,
+      "differentBytes": 0,
+      "exact": true,
+      "component_order": [
+        "baseline",
+        "candidate"
+      ],
+      "baseline_schedule": "production",
+      "candidate_schedule": "capture"
+    }
+  ]
+}

@@ -159,6 +159,7 @@ struct Results {
   fs::path root;
   std::vector<Pair> pairs;
   uint32_t operators = 0, failures = 0, vitCasesExecuted = 0;
+  uint32_t pairedCasesExecuted = 0, windowPaddingCasesExecuted = 0;
   uint64_t comparedBytes = 0;
   void compare(const std::string& name, const std::vector<uint8_t>& baseline,
                const std::vector<uint8_t>& candidate) {
@@ -211,6 +212,55 @@ std::string vitName(const GemmCase& test) {
   return "gemm-vit-K" + std::to_string(test.K) + "-N" + std::to_string(test.N) +
       "-R" + std::to_string(test.rows) + "-F" + std::to_string(test.flags.value()) +
       "-P" + std::to_string(test.partition.value()) + "-B" + std::to_string(test.batches.value());
+}
+constexpr const char* kPairedCoverage = "paired-preload-k160-k544-batch8-v1";
+const std::array<GemmCase,14>& pairedCases() {
+  // K160 first enters the K32-pair preload loop. K544 first leaves the
+  // small-K runtime-zero seed shortcut. Public FP8 shapes/partitions stay
+  // multiples of 32; odd K16 tails and P16 partitions are unsupported.
+  // B8 cases exercise the actual expert batch family with nonzero input,
+  // weight and output bases. Full allocation comparison includes row/N
+  // canaries, residual formats, activation, broadcasts and dual outputs.
+  static const std::array<GemmCase,14> cases{{
+      {160,16,1,1,0x9070C100u,0,0,1},
+      {160,48,73,1,0x9070C101u,0,24,1},
+      {160,48,63,1,0x9070C102u,32,83,2},
+      {160,48,129,1,0x9070C103u,160,99,2},
+      {160,48,73,1,0x9070C104u,32,35,3},
+      {160,16,73,1,0x9070C105u,0,152,8},
+      {192,48,63,1,0x9070C106u,96,0,2},
+      {192,48,73,1,0x9070C107u,32,163,8},
+      {256,64,73,1,0x9070C108u,0,16,8},
+      {256,128,73,1,0x9070C109u,0,152,8},
+      {256,48,129,1,0x9070C10Au,32,83,8},
+      {512,48,73,1,0x9070C10Bu,0,24,8},
+      {544,48,1,1,0x9070C10Cu,32,0,1},
+      {544,48,73,1,0x9070C10Du,544,99,2}}};
+  return cases;
+}
+std::string pairedName(const GemmCase& test) {
+  return "gemm-paired-K" + std::to_string(test.K) + "-N" + std::to_string(test.N) +
+      "-R" + std::to_string(test.rows) + "-F" + std::to_string(test.flags.value()) +
+      "-P" + std::to_string(test.partition.value()) + "-B" + std::to_string(test.batches.value());
+}
+struct WindowCase { uint32_t width, height, heads, shiftX, shiftY; };
+constexpr const char* kWindowPaddingCoverage = "window-thin-padding-v1";
+const std::vector<WindowCase>& windowPaddingCases() {
+  // Minimal/thin extents leave most query batches and physical keys padded.
+  // Both Q16 and Q32 policies run this same set in independent amdcheck runs.
+  static const std::vector<WindowCase> cases = [] {
+    std::vector<WindowCase> out;
+    for (auto dimensions : {std::array<uint32_t,2>{1,1}, std::array<uint32_t,2>{1,9},
+                            std::array<uint32_t,2>{9,1}})
+      for (uint32_t heads : {1u,2u,4u}) for (uint32_t sx : {0u,4u}) for (uint32_t sy : {0u,4u})
+        out.push_back({dimensions[0],dimensions[1],heads,sx,sy});
+    return out;
+  }();
+  return cases;
+}
+std::string windowName(const WindowCase& test) {
+  return "window-" + std::to_string(test.width) + "x" + std::to_string(test.height) +
+      "-H" + std::to_string(test.heads) + "-S" + std::to_string(test.shiftX) + "x" + std::to_string(test.shiftY);
 }
 struct Output { std::vector<uint8_t> primary, dual; };
 
@@ -288,9 +338,14 @@ Output gemm(Runner& runner, const GemmCase& test, bool overdispatch = false) {
     if(residual)bindings[residualHalf ? 3 : 6]=&res.buffer;
     if(scaled)bindings[4]=&aux.raw;
     const std::string moduleName=policy.gemmShaderName();
-    const auto module=context.loadShaderModule((runner.shaders/(moduleName+".spv")).string());
+    // Borrow the exact selected bytes used by ordinary dispatch and its
+    // aggregate identity. Reopening the path could execute a replacement
+    // shader while the session still reports the originally cached module.
+    const auto module=kernels.diagnosticNativeGemmFp8Module();
+    if(std::string(kernels.selectedKernelMode())!="optimized" || module.sourceName!=moduleName)
+      throw std::runtime_error("raw overdispatch module differs from selected optimized GEMM");
     const std::string pipelineLabel=moduleName+" overdispatch";
-    auto pipeline=context.createComputePipeline(module,specs,pipelineLabel.c_str(),32);
+    auto pipeline=context.createComputePipeline(module.module,specs,pipelineLabel.c_str(),32);
     const auto descriptors=context.allocateSet(bindings);
     vkCmdBindPipeline(commands,VK_PIPELINE_BIND_POINT_COMPUTE,pipeline.pipeline);
     vkCmdBindDescriptorSets(commands,VK_PIPELINE_BIND_POINT_COMPUTE,context.pipelineLayout(),0,1,&descriptors,0,nullptr);
@@ -299,7 +354,8 @@ Output gemm(Runner& runner, const GemmCase& test, bool overdispatch = false) {
     context.computeBarrier(commands);
     context.endAndSubmit(commands,true);
     context.destroyPipeline(pipeline);
-    // loadShaderModule transfers ownership to Context; it releases the module.
+    // Kernels owns the borrowed shader for the session; destroy only the raw
+    // pipeline here. The descriptor set remains owned by Context's pool.
   }
   if (!overdispatch) context.endAndSubmit(commands, true);
   Output result; result.primary = context.download(out.buffer, out.buffer.size);
@@ -423,8 +479,24 @@ void manifest(const Results& results, const Runner& baseline, const Runner& cand
     out << "{\"name\":" << quote(vitName(test)) << ",\"K\":" << test.K << ",\"N\":" << test.N << ",\"rows\":" << test.rows
         << ",\"flags\":" << test.flags.value() << ",\"partition\":" << test.partition.value() << ",\"batches\":" << test.batches.value() << '}';
   }
+  if (results.pairedCasesExecuted != pairedCases().size()) throw std::runtime_error("extended paired preload suite did not finish");
+  out << "]},\n\"extended_paired\":{\"coverage_marker\":" << quote(kPairedCoverage) << ",\"case_count\":" << results.pairedCasesExecuted << ",\"cases\":[";
+  for (size_t i = 0; i < pairedCases().size(); ++i) {
+    const auto& test=pairedCases()[i]; if (i) out << ',';
+    out << "{\"name\":" << quote(pairedName(test)) << ",\"K\":" << test.K << ",\"N\":" << test.N << ",\"rows\":" << test.rows
+        << ",\"flags\":" << test.flags.value() << ",\"partition\":" << test.partition.value() << ",\"batches\":" << test.batches.value() << '}';
+  }
+  if (results.windowPaddingCasesExecuted != windowPaddingCases().size()) throw std::runtime_error("extended window padding suite did not finish");
+  out << "]},\n\"extended_window_padding\":{\"coverage_marker\":" << quote(kWindowPaddingCoverage)
+      << ",\"case_count\":" << results.windowPaddingCasesExecuted << ",\"cases\":[";
+  for (size_t i = 0; i < windowPaddingCases().size(); ++i) {
+    const auto& test=windowPaddingCases()[i]; if (i) out << ',';
+    out << "{\"name\":" << quote(windowName(test)) << ",\"width\":" << test.width << ",\"height\":" << test.height
+        << ",\"heads\":" << test.heads << ",\"shiftX\":" << test.shiftX << ",\"shiftY\":" << test.shiftY << '}';
+  }
   out << "]},\n\"coverage\":[\"tails\",\"shifted-windows\",\"channel-families\",\"broadcasts\",\"split-k\","
-         "\"residuals\",\"activation\",\"padding\",\"conversion-edge-cases\"," << quote(kVitCoverage) << "],\n\"pairs\":[\n";
+         "\"residuals\",\"activation\",\"padding\",\"conversion-edge-cases\"," << quote(kVitCoverage) << ','
+      << quote(kPairedCoverage) << ',' << quote(kWindowPaddingCoverage) << "],\n\"pairs\":[\n";
   for (size_t i = 0; i < results.pairs.size(); ++i) {
     const auto& pair = results.pairs[i];
     if (i) out << ",\n";
@@ -490,6 +562,13 @@ int runAmdKernelPreservation(int argc, char** argv) {
       if (!expected.dual.empty()) results.compare(name+"-dual",expected.dual,actual.dual);
       ++results.operators; ++results.vitCasesExecuted;
     }
+    for (const auto& test : pairedCases()) {
+      const auto expected=gemm(baseline,test), actual=gemm(candidate,test);
+      const auto name=pairedName(test);
+      results.compare(name,expected.primary,actual.primary);
+      if (!expected.dual.empty()) results.compare(name+"-dual",expected.dual,actual.dual);
+      ++results.operators; ++results.pairedCasesExecuted;
+    }
     if(candidate.kernels->amdPolicy().directOperands()) {
       for(uint32_t variant : {0u,3u,5u}) {
         GemmCase test{variant == 5 ? 512u : 32u,48,73,variant,0x90704e11u+variant};
@@ -508,6 +587,12 @@ int runAmdKernelPreservation(int argc, char** argv) {
         auto actual = window(candidate,dimensions[0],dimensions[1],heads,sx,sy);
         results.compare(name,expected,actual); ++results.operators;
       }
+    for (const auto& test : windowPaddingCases()) {
+      auto expected=window(baseline,test.width,test.height,test.heads,test.shiftX,test.shiftY);
+      auto actual=window(candidate,test.width,test.height,test.heads,test.shiftX,test.shiftY);
+      results.compare(windowName(test),expected,actual);
+      ++results.operators; ++results.windowPaddingCasesExecuted;
+    }
     for (uint32_t row : rows) for (uint32_t heads : {1u,2u,4u}) for (bool global : {false,true}) {
       const auto name = std::string(global ? "global" : "window") + "-normalize-R" + std::to_string(row) + "-H" + std::to_string(heads);
       results.compare(name,normalize(baseline,row,heads,global),normalize(candidate,row,heads,global)); ++results.operators;

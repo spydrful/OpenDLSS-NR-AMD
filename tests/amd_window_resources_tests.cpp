@@ -27,7 +27,8 @@ int main() {
     for (const auto& variant : {Variant{false,64,34816}, Variant{true,64,22528},
                                Variant{true,32,15360}, Variant{true,16,11776},
                                Variant{true,32,13312,amd::WindowLayout::Register},Variant{true,16,9728,amd::WindowLayout::Register},
-                               Variant{true,32,13312,amd::WindowLayout::RegisterRte},Variant{true,16,9728,amd::WindowLayout::RegisterRte}}) {
+                               Variant{true,32,13312,amd::WindowLayout::RegisterRte},Variant{true,16,9728,amd::WindowLayout::RegisterRte},
+                               Variant{true,32,9216,amd::WindowLayout::ArenaRte},Variant{true,16,6656,amd::WindowLayout::ArenaRte}}) {
       expect(amd::windowLdsBytes(variant.optimized,variant.queries,variant.layout)==variant.required,
              "attention resource count changed");
       accepted(variant.optimized,variant.queries,variant.required,variant.layout);
@@ -52,7 +53,7 @@ int main() {
            "Q64 was accepted on a smaller device");
     accepted(true,32,18432);accepted(true,16,18432);
     accepted(true,32,13312,amd::WindowLayout::Register);accepted(true,16,9728,amd::WindowLayout::Register);
-    for(const auto layout:{amd::WindowLayout::Register,amd::WindowLayout::RegisterRte}){
+    for(const auto layout:{amd::WindowLayout::Register,amd::WindowLayout::RegisterRte,amd::WindowLayout::ArenaRte}){
       expect(!rejected([&]{amd::requireWindowLds(true,64,UINT32_MAX,"register AMD attention",layout);}).empty(),
              "register Q64 specialization was accepted");
       for(const uint32_t queries:{16u,32u,64u})
@@ -63,6 +64,9 @@ int main() {
       expect(!rejected([&]{amd::requireWindowLds(true,invalid,UINT32_MAX,
                                                 "compact AMD attention");}).empty(),
              "invalid compact query specialization was accepted");
+    expect(!rejected([]{amd::requireWindowLds(true,32,UINT32_MAX,"invalid AMD attention",
+                                            static_cast<amd::WindowLayout>(255));}).empty(),
+           "unknown attention layout inherited another module's LDS budget");
     printf("AMD window resource limits: %u CPU checks PASS\n",checks);
     return 0;
   } catch (const std::exception& error) {

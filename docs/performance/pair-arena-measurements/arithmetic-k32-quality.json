@@ -1,0 +1,380 @@
+{
+  "format": "OpenNR-amd-synthetic-scene-quality-v1",
+  "reference": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k16",
+  "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k32",
+  "source_manifest_sha256": {
+    "reference": "8f492c09ebe4c8ad9dba82a35b87719bd186eab11ac9d5551fe3573f59936da2",
+    "candidate": "f851d3290c8c62c914b7f09b4ab6a46f018c13d4de46d7c2b0c51fb228968465"
+  },
+  "synthetic_scene": true,
+  "captured_game_quality_established": false,
+  "nvidia_parity_established": false,
+  "motion_review_completed": false,
+  "data_range": 1.0,
+  "thresholds": {
+    "min_psnr_db": 40,
+    "min_ssim": 0.99
+  },
+  "identities": {
+    "reference": {
+      "device_id": "1002:7550",
+      "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+      "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+      "shader_sha256": "9929119ef659f9f389bcd26c0396567e609efdb5ebd32a90c9c20e5a66a72026",
+      "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+    },
+    "candidate": {
+      "device_id": "1002:7550",
+      "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+      "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+      "shader_sha256": "b1120fb076e4e2af5fec54a0b55c167f1d3650656b6d34cb15e5f126c99f7067",
+      "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+    }
+  },
+  "selections": {
+    "reference": {
+      "kernels": "optimized",
+      "arithmetic": "k16",
+      "tile_n": 16,
+      "stage_k": 16,
+      "gemm": "direct-rte-epilogue",
+      "window_layout": "register-rte",
+      "window_queries": 32,
+      "fusion": false,
+      "expert_fusion": false,
+      "ffn32_fusion": false,
+      "qkv32_fusion": false,
+      "block_fusion": false,
+      "hardware_publication": false
+    },
+    "candidate": {
+      "kernels": "optimized",
+      "arithmetic": "k32",
+      "tile_n": 16,
+      "stage_k": 16,
+      "gemm": "direct-rte-epilogue",
+      "window_layout": "register-rte",
+      "window_queries": 32,
+      "fusion": false,
+      "expert_fusion": false,
+      "ffn32_fusion": false,
+      "qkv32_fusion": false,
+      "block_fusion": false,
+      "hardware_publication": false
+    }
+  },
+  "actual_kernel_policy_recorded": true,
+  "cases": [
+    {
+      "name": "sdr-reset",
+      "provenance": {
+        "reference": {
+          "hashes": {
+            "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+            "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+            "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+            "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+          },
+          "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+          "minimum_rgb": -5.355104235604813e-07,
+          "maximum_rgb": 0.8283277153968811,
+          "hdr_samples_above_one": 0
+        },
+        "candidate": {
+          "hashes": {
+            "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+            "head.f32": "4af9a9f257c6b1e810b27dfbee6a733d12e95e4da08d5bc17ee726094c367c6a",
+            "scene-linear-rgba.f32": "8ab036030ecd6d834ff6227c0e268065bd81ffa4da01e26a722c4bf2cdef8cfd",
+            "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+          },
+          "pfm_sha256": "0370e1aa9f89284e222c65f8599010f50afb79ead87c2d794b6333cd7a4dd821",
+          "minimum_rgb": -5.569308427766373e-07,
+          "maximum_rgb": 0.832811713218689,
+          "hdr_samples_above_one": 0
+        }
+      },
+      "metrics": {
+        "reference": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k16\\sdr-reset-scene-linear-rgb.pfm",
+        "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k32\\sdr-reset-scene-linear-rgb.pfm",
+        "width": 320,
+        "height": 320,
+        "channels": 3,
+        "peak": 1.0,
+        "mae": 0.002863446128907804,
+        "rmse": 0.003995923592970938,
+        "max_absolute_error": 0.01983952522277832,
+        "different_samples": 306270,
+        "psnr_db": 47.96765649234628,
+        "exact": false,
+        "ssim": 0.9977163698229744,
+        "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+        "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+      },
+      "thresholds_passed": true
+    },
+    {
+      "name": "sdr-temporal",
+      "provenance": {
+        "reference": {
+          "hashes": {
+            "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+            "head.f32": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+            "scene-linear-rgba.f32": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+            "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+          },
+          "pfm_sha256": "b0a78fe51fba21da87a6c76564c6763d202b20ee89dd78aaddee4e33aebb23a1",
+          "minimum_rgb": 0.0021164356730878353,
+          "maximum_rgb": 0.8545121550559998,
+          "hdr_samples_above_one": 0
+        },
+        "candidate": {
+          "hashes": {
+            "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+            "head.f32": "66cbb7034bd2fefbab7ef564e73a9af7dab3421180f95254c1d7ba8ac45dc2f9",
+            "scene-linear-rgba.f32": "89c52de91f129f33cb980e57779011061a4fb83360842a09379ad9b7dfd4f8d0",
+            "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+          },
+          "pfm_sha256": "05c8deb4473db851a484b4e66f21f71752ff9c41dd5fce81a27eee34082161e3",
+          "minimum_rgb": 0.0013257580576464534,
+          "maximum_rgb": 0.8636511564254761,
+          "hdr_samples_above_one": 0
+        }
+      },
+      "metrics": {
+        "reference": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k16\\sdr-temporal-scene-linear-rgb.pfm",
+        "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k32\\sdr-temporal-scene-linear-rgb.pfm",
+        "width": 320,
+        "height": 320,
+        "channels": 3,
+        "peak": 1.0,
+        "mae": 0.005279956750713382,
+        "rmse": 0.007468682617553294,
+        "max_absolute_error": 0.07991677522659302,
+        "different_samples": 306750,
+        "psnr_db": 42.535119911169026,
+        "exact": false,
+        "ssim": 0.9931265645007518,
+        "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+        "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+      },
+      "thresholds_passed": true
+    },
+    {
+      "name": "sdr-camera-reset",
+      "provenance": {
+        "reference": {
+          "hashes": {
+            "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+            "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+            "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+            "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+            "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+            "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+          },
+          "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+          "minimum_rgb": -5.355104235604813e-07,
+          "maximum_rgb": 0.8283277153968811,
+          "hdr_samples_above_one": 0
+        },
+        "candidate": {
+          "hashes": {
+            "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+            "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+            "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+            "head.f32": "4af9a9f257c6b1e810b27dfbee6a733d12e95e4da08d5bc17ee726094c367c6a",
+            "scene-linear-rgba.f32": "8ab036030ecd6d834ff6227c0e268065bd81ffa4da01e26a722c4bf2cdef8cfd",
+            "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+          },
+          "pfm_sha256": "0370e1aa9f89284e222c65f8599010f50afb79ead87c2d794b6333cd7a4dd821",
+          "minimum_rgb": -5.569308427766373e-07,
+          "maximum_rgb": 0.832811713218689,
+          "hdr_samples_above_one": 0
+        }
+      },
+      "metrics": {
+        "reference": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k16\\sdr-camera-reset-scene-linear-rgb.pfm",
+        "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k32\\sdr-camera-reset-scene-linear-rgb.pfm",
+        "width": 320,
+        "height": 320,
+        "channels": 3,
+        "peak": 1.0,
+        "mae": 0.002863446128907804,
+        "rmse": 0.003995923592970938,
+        "max_absolute_error": 0.01983952522277832,
+        "different_samples": 306270,
+        "psnr_db": 47.96765649234628,
+        "exact": false,
+        "ssim": 0.9977163698229744,
+        "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+        "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+      },
+      "thresholds_passed": true
+    },
+    {
+      "name": "hdr-reset",
+      "provenance": {
+        "reference": {
+          "hashes": {
+            "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+            "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+            "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+            "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+          },
+          "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+          "minimum_rgb": 0.0008596715051680803,
+          "maximum_rgb": 17.36393165588379,
+          "hdr_samples_above_one": 161205
+        },
+        "candidate": {
+          "hashes": {
+            "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+            "head.f32": "7613923eaecc0ac4738be792680ae76e03e3c83467731ed380c11fc9c2ceef42",
+            "scene-linear-rgba.f32": "6c6a665f6a9d6c3f6b616bcfaf846dca61d9db88de2a9479464b3da4347be0cc",
+            "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+          },
+          "pfm_sha256": "cc1370ceffe1a312e96814c9062e8d225fd06ba84a745287147bde670f92def9",
+          "minimum_rgb": 0.0017999744741246104,
+          "maximum_rgb": 17.361352920532227,
+          "hdr_samples_above_one": 160881
+        }
+      },
+      "metrics": {
+        "reference": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k16\\hdr-reset-scene-linear-rgb.pfm",
+        "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k32\\hdr-reset-scene-linear-rgb.pfm",
+        "width": 320,
+        "height": 320,
+        "channels": 3,
+        "peak": 1.0,
+        "mae": 0.009744776552471421,
+        "rmse": 0.015404924241575994,
+        "max_absolute_error": 0.3138914108276367,
+        "different_samples": 306957,
+        "psnr_db": 36.24680866235322,
+        "exact": false,
+        "ssim": 0.9924286061541038,
+        "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+        "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+      },
+      "thresholds_passed": false
+    },
+    {
+      "name": "hdr-temporal",
+      "provenance": {
+        "reference": {
+          "hashes": {
+            "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+            "head.f32": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+            "scene-linear-rgba.f32": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+            "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+          },
+          "pfm_sha256": "b05c8fc96152e5127e3c3a8dfbe31f4b2be6a4a5bc1b5d814e67b6af2dc739d3",
+          "minimum_rgb": 0.004615298006683588,
+          "maximum_rgb": 17.782495498657227,
+          "hdr_samples_above_one": 158287
+        },
+        "candidate": {
+          "hashes": {
+            "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+            "head.f32": "43e9aeb894954cda5daa31e986ac129c18c3bef27ab4801b3d8b26fdb0b6de39",
+            "scene-linear-rgba.f32": "71cf1994d2ea6923695636dedbd9714e666835016c897269f17239f9b894d005",
+            "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+          },
+          "pfm_sha256": "8c957f34df1d69eb18bf4d4ec171a5e9deb33d9059b2cd326cdfc4f366eb71a6",
+          "minimum_rgb": 0.005261592101305723,
+          "maximum_rgb": 17.819438934326172,
+          "hdr_samples_above_one": 158313
+        }
+      },
+      "metrics": {
+        "reference": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k16\\hdr-temporal-scene-linear-rgb.pfm",
+        "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k32\\hdr-temporal-scene-linear-rgb.pfm",
+        "width": 320,
+        "height": 320,
+        "channels": 3,
+        "peak": 1.0,
+        "mae": 0.011399470822696761,
+        "rmse": 0.017174704163497773,
+        "max_absolute_error": 0.47400856018066406,
+        "different_samples": 306844,
+        "psnr_db": 35.30221469965296,
+        "exact": false,
+        "ssim": 0.9858543516188076,
+        "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+        "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+      },
+      "thresholds_passed": false
+    },
+    {
+      "name": "hdr-camera-reset",
+      "provenance": {
+        "reference": {
+          "hashes": {
+            "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+            "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+            "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+            "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+            "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+            "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+          },
+          "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+          "minimum_rgb": 0.0008596715051680803,
+          "maximum_rgb": 17.36393165588379,
+          "hdr_samples_above_one": 161205
+        },
+        "candidate": {
+          "hashes": {
+            "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+            "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+            "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+            "head.f32": "7613923eaecc0ac4738be792680ae76e03e3c83467731ed380c11fc9c2ceef42",
+            "scene-linear-rgba.f32": "6c6a665f6a9d6c3f6b616bcfaf846dca61d9db88de2a9479464b3da4347be0cc",
+            "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+          },
+          "pfm_sha256": "cc1370ceffe1a312e96814c9062e8d225fd06ba84a745287147bde670f92def9",
+          "minimum_rgb": 0.0017999744741246104,
+          "maximum_rgb": 17.361352920532227,
+          "hdr_samples_above_one": 160881
+        }
+      },
+      "metrics": {
+        "reference": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k16\\hdr-camera-reset-scene-linear-rgb.pfm",
+        "candidate": "D:\\amd\\build\\performance\\goal-performance-20261003\\arithmetic-scenes\\k32\\hdr-camera-reset-scene-linear-rgb.pfm",
+        "width": 320,
+        "height": 320,
+        "channels": 3,
+        "peak": 1.0,
+        "mae": 0.009744776552471421,
+        "rmse": 0.015404924241575994,
+        "max_absolute_error": 0.3138914108276367,
+        "different_samples": 306957,
+        "psnr_db": 36.24680866235322,
+        "exact": false,
+        "ssim": 0.9924286061541038,
+        "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+        "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+      },
+      "thresholds_passed": false
+    }
+  ],
+  "thresholds_passed": false,
+  "limitations": [
+    "Generated scene regressions preserve HDR values and test reset/temporal composition; they do not establish game motion quality.",
+    "Older fixture manifests omit actual neural kernel identity/policy; raw model/game-shader/input/output hashes remain verified."
+  ]
+}

@@ -1,0 +1,1435 @@
+{
+  "format": "OpenNR-named2-independent-cpu-audit-v1",
+  "gpu_execution": false,
+  "scope": "Private CPU verification of raw equality, timing manifests, installed-driver resource reports and static instruction delivery",
+  "ordinary": {
+    "command": "bench",
+    "instrumented": false,
+    "readback": false,
+    "source_sha256": "9bc9d78791c31640df2352866fbb0eb81cd3a46f4ca34c50276fcca16d0dff93",
+    "identities": {
+      "baseline": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "executable_sha256": "f29be529e14a4b896b7ab4424d7618b5b6dce3aa6c8d2156f17fca6fdfca1f0f"
+      },
+      "candidate": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "executable_sha256": "d6ffdde401a08a3e85dd1dcea4c141ded8be103921c9cf330d21f5f31dedb0cd"
+      }
+    },
+    "selections": {
+      "baseline": {
+        "kernels": "optimized",
+        "arithmetic": "k16",
+        "tile_n": 16,
+        "stage_k": 16,
+        "gemm": "direct-rte",
+        "window_queries": 32,
+        "window_layout": "register-rte",
+        "fusion": false,
+        "expert_fusion": false,
+        "block_fusion": false,
+        "hardware_publication": false,
+        "ffn32_fusion": false,
+        "qkv32_fusion": false
+      },
+      "candidate": {
+        "kernels": "optimized",
+        "arithmetic": "k16",
+        "tile_n": 16,
+        "stage_k": 16,
+        "gemm": "direct-rte-pair",
+        "window_queries": 32,
+        "window_layout": "arena-rte",
+        "fusion": false,
+        "expert_fusion": false,
+        "block_fusion": false,
+        "hardware_publication": false,
+        "ffn32_fusion": false,
+        "qkv32_fusion": false
+      }
+    },
+    "geometry": {
+      "width": 1707,
+      "height": 960,
+      "padded_width": 1728,
+      "padded_height": 960
+    },
+    "baseline_ms": {
+      "samples": 90,
+      "mean": 58.66269422272841,
+      "median": 58.68485999107361,
+      "p95": 58.922123999893664,
+      "p99": 59.05332200855017,
+      "min": 58.09639999270439,
+      "max": 59.08375999331474,
+      "standard_deviation": 0.20859587272163024,
+      "coefficient_of_variation": 0.003555852241113252
+    },
+    "candidate_ms": {
+      "samples": 90,
+      "mean": 50.471624890963234,
+      "median": 50.50077998638153,
+      "p95": 50.68946599662304,
+      "p99": 50.815117981731895,
+      "min": 49.962400019168854,
+      "max": 50.8167200088501,
+      "standard_deviation": 0.16529717088074256,
+      "coefficient_of_variation": 0.0032750515014692626
+    },
+    "improvement_percent": {
+      "median": 13.945811587412727,
+      "p95": 13.972099857237797,
+      "p99": 13.950449774231988
+    }
+  },
+  "instrumented": {
+    "command": "profile",
+    "instrumented": true,
+    "readback": false,
+    "source_sha256": "996c1c9833b09e6650978ad0e6d413847af8ef52edf6693d6e0f75a47a71ace2",
+    "identities": {
+      "baseline": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "63c5e7decfeac23900f1d98a9b1201b79a91e0dcf550079ee1cd0f9b1cd02c96",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "executable_sha256": "f29be529e14a4b896b7ab4424d7618b5b6dce3aa6c8d2156f17fca6fdfca1f0f"
+      },
+      "candidate": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "executable_sha256": "d6ffdde401a08a3e85dd1dcea4c141ded8be103921c9cf330d21f5f31dedb0cd"
+      }
+    },
+    "selections": {
+      "baseline": {
+        "kernels": "optimized",
+        "arithmetic": "k16",
+        "tile_n": 16,
+        "stage_k": 16,
+        "gemm": "direct-rte",
+        "window_queries": 32,
+        "window_layout": "register-rte",
+        "fusion": false,
+        "expert_fusion": false,
+        "block_fusion": false,
+        "hardware_publication": false,
+        "ffn32_fusion": false,
+        "qkv32_fusion": false
+      },
+      "candidate": {
+        "kernels": "optimized",
+        "arithmetic": "k16",
+        "tile_n": 16,
+        "stage_k": 16,
+        "gemm": "direct-rte-pair",
+        "window_queries": 32,
+        "window_layout": "arena-rte",
+        "fusion": false,
+        "expert_fusion": false,
+        "block_fusion": false,
+        "hardware_publication": false,
+        "ffn32_fusion": false,
+        "qkv32_fusion": false
+      }
+    },
+    "geometry": {
+      "width": 1707,
+      "height": 960,
+      "padded_width": 1728,
+      "padded_height": 960
+    },
+    "baseline_ms": {
+      "samples": 90,
+      "mean": 58.35784533321858,
+      "median": 58.404420003294945,
+      "p95": 58.66967199742794,
+      "p99": 58.74677239894867,
+      "min": 57.81108000874519,
+      "max": 58.86855998635292,
+      "standard_deviation": 0.21936831816534394,
+      "coefficient_of_variation": 0.0037590201782257138
+    },
+    "candidate_ms": {
+      "samples": 90,
+      "mean": 50.18843511210547,
+      "median": 50.214780017733574,
+      "p95": 50.50518199056387,
+      "p99": 50.54090078949928,
+      "min": 49.428719997406006,
+      "max": 50.59544000029564,
+      "standard_deviation": 0.19865194719876983,
+      "coefficient_of_variation": 0.003958121960866935
+    },
+    "improvement_percent": {
+      "median": 14.022294862442507,
+      "p95": 13.916031450153666,
+      "p99": 13.968208421261696
+    },
+    "actual_per_frame_dispatch_sums": {
+      "baseline": {
+        "samples": 90,
+        "mean": 58.35784977773825,
+        "median": 58.404420018196106,
+        "p95": 58.66967199742794,
+        "p99": 58.746772402226924,
+        "min": 57.81112000346184,
+        "max": 58.86856001615524,
+        "standard_deviation": 0.21936796718559923,
+        "coefficient_of_variation": 0.003759013877671714
+      },
+      "candidate": {
+        "samples": 90,
+        "mean": 50.18844133350584,
+        "median": 50.214800000190735,
+        "p95": 50.50518199056387,
+        "p99": 50.54090078949928,
+        "min": 49.428719997406006,
+        "max": 50.59544000029564,
+        "standard_deviation": 0.19865335036362528,
+        "coefficient_of_variation": 0.003958149428143411
+      }
+    },
+    "actual_per_frame_family_sums": {
+      "baseline": {
+        "convert": {
+          "dispatches_per_frame": 1,
+          "samples": 90,
+          "mean": 0.2953306651777691,
+          "median": 0.3043600022792816,
+          "p95": 0.3294679969549179,
+          "p99": 0.33254479736089704,
+          "min": 0.25727999210357666,
+          "max": 0.3375999927520752,
+          "standard_deviation": 0.027768481959997805,
+          "coefficient_of_variation": 0.09402505474087174
+        },
+        "downsample2x": {
+          "dispatches_per_frame": 6,
+          "samples": 90,
+          "mean": 0.2569711155361599,
+          "median": 0.2514200210571289,
+          "p95": 0.2955819994211197,
+          "p99": 0.32262874752283094,
+          "min": 0.24508002400398254,
+          "max": 0.39923998713493347,
+          "standard_deviation": 0.019384145002335488,
+          "coefficient_of_variation": 0.07543316672728469
+        },
+        "f16_gemm": {
+          "dispatches_per_frame": 2,
+          "samples": 90,
+          "mean": 3.28185555504428,
+          "median": 3.2323199808597565,
+          "p95": 3.4290979966521262,
+          "p99": 3.4868560135364532,
+          "min": 3.193120002746582,
+          "max": 3.531000018119812,
+          "standard_deviation": 0.08202823358999511,
+          "coefficient_of_variation": 0.024994467981357685
+        },
+        "fp8_gemm": {
+          "dispatches_per_frame": 358,
+          "samples": 90,
+          "mean": 38.91717513336076,
+          "median": 38.932559967041016,
+          "p95": 39.32145598828792,
+          "p99": 39.42609095990658,
+          "min": 38.35624009370804,
+          "max": 39.44236013293266,
+          "standard_deviation": 0.23517328167531462,
+          "coefficient_of_variation": 0.006042917577378793
+        },
+        "global_attention": {
+          "dispatches_per_frame": 8,
+          "samples": 90,
+          "mean": 2.2926546659734512,
+          "median": 2.26761993765831,
+          "p95": 2.471273958683014,
+          "p99": 2.5168351820111274,
+          "min": 2.1963599622249603,
+          "max": 2.5349200069904327,
+          "standard_deviation": 0.08406137035652635,
+          "coefficient_of_variation": 0.03666551775290338
+        },
+        "global_normalize": {
+          "dispatches_per_frame": 8,
+          "samples": 90,
+          "mean": 0.05087910658783383,
+          "median": 0.04870001971721649,
+          "p95": 0.05018201470375061,
+          "p99": 0.1178104758262634,
+          "min": 0.046240001916885376,
+          "max": 0.1557600498199463,
+          "standard_deviation": 0.013474277991590795,
+          "coefficient_of_variation": 0.26482929625208385
+        },
+        "postBlend": {
+          "dispatches_per_frame": 1,
+          "samples": 90,
+          "mean": 0.32084933121999104,
+          "median": 0.3101600110530853,
+          "p95": 0.42348999083042144,
+          "p99": 0.4787455886602402,
+          "min": 0.3073999881744385,
+          "max": 0.48315998911857605,
+          "standard_deviation": 0.03710874603885919,
+          "coefficient_of_variation": 0.11565785690672205
+        },
+        "upsampleResidual": {
+          "dispatches_per_frame": 5,
+          "samples": 90,
+          "mean": 0.11089644398954179,
+          "median": 0.10729999840259552,
+          "p95": 0.12333799749612807,
+          "p99": 0.19255361258983608,
+          "min": 0.10368001461029053,
+          "max": 0.2653200030326843,
+          "standard_deviation": 0.018754338985180856,
+          "coefficient_of_variation": 0.16911578325225202
+        },
+        "window_attention": {
+          "dispatches_per_frame": 62,
+          "samples": 90,
+          "mean": 7.992814647820261,
+          "median": 7.983359977602959,
+          "p95": 8.206476038694381,
+          "p99": 8.35310191422701,
+          "min": 7.7861199378967285,
+          "max": 8.460080027580261,
+          "standard_deviation": 0.1304235249298374,
+          "coefficient_of_variation": 0.016317596575995352
+        },
+        "window_normalize": {
+          "dispatches_per_frame": 62,
+          "samples": 90,
+          "mean": 4.838423113028209,
+          "median": 4.81638003885746,
+          "p95": 5.029723966121674,
+          "p99": 5.1248384770751,
+          "min": 4.6947998106479645,
+          "max": 5.168840020895004,
+          "standard_deviation": 0.10550581428440022,
+          "coefficient_of_variation": 0.021805826365269575
+        }
+      },
+      "candidate": {
+        "convert": {
+          "dispatches_per_frame": 1,
+          "samples": 90,
+          "mean": 0.29314088788297443,
+          "median": 0.30268001556396484,
+          "p95": 0.322243994474411,
+          "p99": 0.33224678426980975,
+          "min": 0.25707998871803284,
+          "max": 0.3339200019836426,
+          "standard_deviation": 0.02523890832375643,
+          "coefficient_of_variation": 0.08609821886680005
+        },
+        "downsample2x": {
+          "dispatches_per_frame": 6,
+          "samples": 90,
+          "mean": 0.2542386690775553,
+          "median": 0.2541399747133255,
+          "p95": 0.25696803629398346,
+          "p99": 0.2732931929826736,
+          "min": 0.247359961271286,
+          "max": 0.2733999788761139,
+          "standard_deviation": 0.003527751895211344,
+          "coefficient_of_variation": 0.013875748752190036
+        },
+        "f16_gemm": {
+          "dispatches_per_frame": 2,
+          "samples": 90,
+          "mean": 3.318984888659583,
+          "median": 3.3029600083827972,
+          "p95": 3.4462839886546135,
+          "p99": 3.5009203881025313,
+          "min": 3.2359199821949005,
+          "max": 3.518400013446808,
+          "standard_deviation": 0.06979622538161429,
+          "coefficient_of_variation": 0.021029389323252518
+        },
+        "fp8_gemm": {
+          "dispatches_per_frame": 358,
+          "samples": 90,
+          "mean": 32.11238309442997,
+          "median": 32.15110011398792,
+          "p95": 32.451991881430146,
+          "p99": 32.5808202496171,
+          "min": 31.375959873199463,
+          "max": 32.73180019855499,
+          "standard_deviation": 0.23686738079734085,
+          "coefficient_of_variation": 0.00737620064200176
+        },
+        "global_attention": {
+          "dispatches_per_frame": 8,
+          "samples": 90,
+          "mean": 2.3292782184150482,
+          "median": 2.30853995680809,
+          "p95": 2.4516839757561684,
+          "p99": 2.541058026254177,
+          "min": 2.1732000410556793,
+          "max": 2.6085200011730194,
+          "standard_deviation": 0.07072140367202141,
+          "coefficient_of_variation": 0.03036193921056954
+        },
+        "global_normalize": {
+          "dispatches_per_frame": 8,
+          "samples": 90,
+          "mean": 0.05062488847308689,
+          "median": 0.0476599782705307,
+          "p95": 0.04932001531124115,
+          "p99": 0.12500561863183968,
+          "min": 0.045360028743743896,
+          "max": 0.2486799955368042,
+          "standard_deviation": 0.021996322144026508,
+          "coefficient_of_variation": 0.4344962094231606
+        },
+        "postBlend": {
+          "dispatches_per_frame": 1,
+          "samples": 90,
+          "mean": 0.3178115583128399,
+          "median": 0.3097800016403198,
+          "p95": 0.36756398826837533,
+          "p99": 0.4292876118421554,
+          "min": 0.3078800141811371,
+          "max": 0.4694800078868866,
+          "standard_deviation": 0.027230836537192542,
+          "coefficient_of_variation": 0.08568233541206732
+        },
+        "upsampleResidual": {
+          "dispatches_per_frame": 5,
+          "samples": 90,
+          "mean": 0.11206711332003276,
+          "median": 0.10799998044967651,
+          "p95": 0.11772198528051374,
+          "p99": 0.18069962561130518,
+          "min": 0.10544002056121826,
+          "max": 0.2717999815940857,
+          "standard_deviation": 0.02003189583865967,
+          "coefficient_of_variation": 0.1787491017231264
+        },
+        "window_attention": {
+          "dispatches_per_frame": 62,
+          "samples": 90,
+          "mean": 6.501480008496179,
+          "median": 6.479880064725876,
+          "p95": 6.733133998513222,
+          "p99": 6.853506937623024,
+          "min": 6.300200045108795,
+          "max": 6.889000117778778,
+          "standard_deviation": 0.1202923297329823,
+          "coefficient_of_variation": 0.01850229941117768
+        },
+        "window_normalize": {
+          "dispatches_per_frame": 62,
+          "samples": 90,
+          "mean": 4.898432006438573,
+          "median": 4.899660050868988,
+          "p95": 5.089842002093792,
+          "p99": 5.174768273532391,
+          "min": 4.716999799013138,
+          "max": 5.175159901380539,
+          "standard_deviation": 0.12205438475098448,
+          "coefficient_of_variation": 0.024917031529794506
+        }
+      }
+    },
+    "independently_minimized_dispatch_spans": {
+      "baseline": {
+        "mean_of_three_sums_ms": 54.68159998456637,
+        "timing_scope": "Each dispatch independently minimizes a different frame; this sum is not an observed complete frame"
+      },
+      "candidate": {
+        "mean_of_three_sums_ms": 47.07158670822779,
+        "timing_scope": "Each dispatch independently minimizes a different frame; this sum is not an observed complete frame"
+      }
+    },
+    "operator_group_counts": {
+      "all": 91,
+      "fp8_gemm": 46,
+      "window_attention": 22
+    },
+    "operator_median_wins_at_least_5_percent": {
+      "all": 47,
+      "fp8_gemm": 25,
+      "window_attention": 22
+    },
+    "fp8_gemm_median_regressions": 8
+  },
+  "driver_gemm": {
+    "private_log_sha256": "b9b9130fc1f7cc80a586e6fbb17d9e4e9975f06c0cd5499b7f675f6ff6960d33",
+    "modules": 34,
+    "records": [
+      {
+        "pipeline_key": "gemm_f16@module<session-owned>@sg0:0=16:1=32:2=32",
+        "requested_required_subgroup_size": 0,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 27,
+          "numUsedSgprs": 40,
+          "ldsSizePerLocalWorkGroup": 0,
+          "ldsUsageSizeInBytes": 0,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {},
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 1,
+          "v_cvt_f32_f16_e32": 34,
+          "v_cvt_i32_f32_e32": 17
+        },
+        "static_instruction_count": 820
+      },
+      {
+        "pipeline_key": "gemm_f16@module<session-owned>@sg0:0=32:1=16:2=256",
+        "requested_required_subgroup_size": 0,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 26,
+          "numUsedSgprs": 30,
+          "ldsSizePerLocalWorkGroup": 0,
+          "ldsUsageSizeInBytes": 0,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {},
+        "static_conversion_instruction_counts": {
+          "v_cvt_f32_f16_e32": 68,
+          "v_cvt_i32_f32_e32": 35
+        },
+        "static_instruction_count": 1397
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=1024:2=0:3=256:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 44,
+          "numUsedSgprs": 33,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 25,
+          "v_cvt_f32_f16_e32": 24
+        },
+        "static_instruction_count": 373
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=1024:2=0:3=512:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 44,
+          "numUsedSgprs": 33,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 25,
+          "v_cvt_f32_f16_e32": 24
+        },
+        "static_instruction_count": 373
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=1024:2=24:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 35,
+          "numUsedSgprs": 32,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 18,
+          "v_cvt_f16_f32_e64": 1,
+          "v_cvt_f32_f16_e32": 20,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 416
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=1024:2=83:3=256:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 45,
+          "numUsedSgprs": 38,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 25,
+          "v_cvt_f32_f16_e32": 27,
+          "v_cvt_f32_fp8_e32": 1,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 415
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=128:2=0:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 36,
+          "numUsedSgprs": 32,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 8
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 65,
+          "v_cvt_f32_f16_e32": 64
+        },
+        "static_instruction_count": 638
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=128:2=152:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 36,
+          "numUsedSgprs": 32,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 8
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 66,
+          "v_cvt_f16_f32_e64": 1,
+          "v_cvt_f32_f16_e32": 68,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 763
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=128:2=16:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 36,
+          "numUsedSgprs": 32,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 8
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 65,
+          "v_cvt_f32_f16_e32": 65,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 652
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=128:2=35:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 39,
+          "numUsedSgprs": 46,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 8
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 65,
+          "v_cvt_f32_f16_e32": 68,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 691
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=128:2=83:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 38,
+          "numUsedSgprs": 37,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 8
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 65,
+          "v_cvt_f32_f16_e32": 67,
+          "v_cvt_f32_fp8_e32": 1,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 697
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=128:2=99:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 38,
+          "numUsedSgprs": 42,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 8
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 65,
+          "v_cvt_f32_f16_e32": 67,
+          "v_cvt_f32_fp8_e32": 1,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 701
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=256:2=0:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 34,
+          "numUsedSgprs": 34,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 16
+        },
+        "static_instruction_count": 272
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=256:2=152:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 34,
+          "numUsedSgprs": 33,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 18,
+          "v_cvt_f16_f32_e64": 1,
+          "v_cvt_f32_f16_e32": 20,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 392
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=256:2=16:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 34,
+          "numUsedSgprs": 34,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 17,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 287
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=256:2=83:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 36,
+          "numUsedSgprs": 38,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 19,
+          "v_cvt_f32_fp8_e32": 1,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 324
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=256:2=99:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 36,
+          "numUsedSgprs": 43,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 19,
+          "v_cvt_f32_fp8_e32": 1,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 330
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=32:2=0:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 33,
+          "numUsedSgprs": 29,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 16
+        },
+        "static_instruction_count": 250
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=32:2=16:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 32,
+          "numUsedSgprs": 29,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 17,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 268
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=32:2=19:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 33,
+          "numUsedSgprs": 38,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 20,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 306
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=32:2=24:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 33,
+          "numUsedSgprs": 29,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 18,
+          "v_cvt_f16_f32_e64": 1,
+          "v_cvt_f32_f16_e32": 20,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 378
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=32:2=35:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 34,
+          "numUsedSgprs": 46,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 20,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 305
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=32:2=3:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 33,
+          "numUsedSgprs": 37,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 19
+        },
+        "static_instruction_count": 287
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=4096:2=83:3=1024:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 45,
+          "numUsedSgprs": 38,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 25,
+          "v_cvt_f32_f16_e32": 27,
+          "v_cvt_f32_fp8_e32": 1,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 418
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=512:2=0:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 34,
+          "numUsedSgprs": 34,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 16
+        },
+        "static_instruction_count": 272
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=512:2=16:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 34,
+          "numUsedSgprs": 34,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 17,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 287
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=512:2=83:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 36,
+          "numUsedSgprs": 38,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 19,
+          "v_cvt_f32_fp8_e32": 1,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 324
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=512:2=99:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 36,
+          "numUsedSgprs": 43,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 2
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 17,
+          "v_cvt_f32_f16_e32": 19,
+          "v_cvt_f32_fp8_e32": 1,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 330
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=64:2=0:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 36,
+          "numUsedSgprs": 32,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 4
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 33,
+          "v_cvt_f32_f16_e32": 32
+        },
+        "static_instruction_count": 384
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=64:2=152:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 36,
+          "numUsedSgprs": 32,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 4
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 34,
+          "v_cvt_f16_f32_e64": 1,
+          "v_cvt_f32_f16_e32": 36,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 509
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=64:2=16:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 36,
+          "numUsedSgprs": 32,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 4
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 33,
+          "v_cvt_f32_f16_e32": 33,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 401
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=64:2=24:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 36,
+          "numUsedSgprs": 32,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 4
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 34,
+          "v_cvt_f16_f32_e64": 1,
+          "v_cvt_f32_f16_e32": 36,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 512
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=64:2=83:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 38,
+          "numUsedSgprs": 37,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 4
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 33,
+          "v_cvt_f32_f16_e32": 35,
+          "v_cvt_f32_fp8_e32": 1,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 443
+      },
+      {
+        "pipeline_key": "gemm_fp8_optimized@module<session-owned>@sg32:0=64:2=99:3=0:10=16:11=16:12=16:13=0",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 38,
+          "numUsedSgprs": 42,
+          "ldsSizePerLocalWorkGroup": 4096,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 4
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 33,
+          "v_cvt_f32_f16_e32": 35,
+          "v_cvt_f32_fp8_e32": 1,
+          "v_cvt_pk_fp8_f32": 1
+        },
+        "static_instruction_count": 447
+      }
+    ],
+    "instruction_count_scope": "Static ISA delivery; not runtime instruction counts",
+    "subgroup_caveat": "Driver executable property reports subgroup=128; pipeline keys request subgroup=32 for native optimized kernels. No claim of wave128 execution.",
+    "spills_caveat": "Driver report has scratch bytes, but does not independently expose spill counts",
+    "all_32_specializations_match_actual_profile": true,
+    "native_fp8_resource_ranges": {
+      "numUsedVgprs": {
+        "min": 32,
+        "max": 45
+      },
+      "numUsedSgprs": {
+        "min": 29,
+        "max": 46
+      },
+      "ldsSizePerLocalWorkGroup": {
+        "min": 4096,
+        "max": 4096
+      },
+      "ldsUsageSizeInBytes": {
+        "min": 4096,
+        "max": 4096
+      },
+      "scratchMemUsageInBytes": {
+        "min": 0,
+        "max": 0
+      }
+    }
+  },
+  "driver_window": {
+    "private_log_sha256": "b5e19c7bcac707bc4c1b3041aaad7c04f210ebd968458eff7242a7d6b2c0d0b7",
+    "modules": 1,
+    "records": [
+      {
+        "pipeline_key": "window_attend_optimized@module<session-owned>@sg32:10=16:14=32",
+        "requested_required_subgroup_size": 32,
+        "driver_header_subgroup": 128,
+        "resources": {
+          "numUsedVgprs": 38,
+          "numUsedSgprs": 29,
+          "ldsSizePerLocalWorkGroup": 9216,
+          "ldsUsageSizeInBytes": 9216,
+          "scratchMemUsageInBytes": 0
+        },
+        "spills": null,
+        "static_matrix_instruction_counts": {
+          "v_wmma_f32_16x16x16_fp8_fp8": 6
+        },
+        "static_conversion_instruction_counts": {
+          "v_cvt_f16_f32_e32": 88,
+          "v_cvt_f32_f16_e32": 121,
+          "v_cvt_pk_fp8_f32": 17
+        },
+        "static_instruction_count": 1431
+      }
+    ],
+    "instruction_count_scope": "Static ISA delivery; not runtime instruction counts",
+    "subgroup_caveat": "Driver executable property reports subgroup=128; pipeline keys request subgroup=32 for native optimized kernels. No claim of wave128 execution.",
+    "spills_caveat": "Driver report has scratch bytes, but does not independently expose spill counts"
+  },
+  "exact_operators": {
+    "direct-rte-init-q32": {
+      "private_report_sha256": "2fff02de1a983d3e04d20330aebca48b7b6d718483ee4a40d765c746e3acbc93",
+      "checks": 934,
+      "compared_bytes": 15264768,
+      "different_bytes": 0,
+      "passed": true,
+      "identity": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "shader_sha256": "56260ea1b692aa3cf4e081aa4fa338025e3db8f529b21c63978e9f489d75e3e0",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "kernels": "optimized",
+        "tile_n": 16,
+        "stage_k": 16,
+        "window_queries": 32,
+        "fusion": false,
+        "ffn32_fusion": false,
+        "qkv32_fusion": false,
+        "gemm": "direct-rte-init",
+        "window_layout": "arena-rte",
+        "expert_fusion": false,
+        "block_fusion": false,
+        "hardware_publication": false,
+        "validationEnabled": false
+      }
+    },
+    "direct-rte-epilogue-q32": {
+      "private_report_sha256": "e7beda83a2c510376629a7cfb1d3ad3b24eed5345c1f13c13d5392a94582c214",
+      "checks": 934,
+      "compared_bytes": 15264768,
+      "different_bytes": 0,
+      "passed": true,
+      "identity": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "shader_sha256": "a7345a09353b70065eba0d08de728979aafafc38f427c7188d0c3957e63bcad2",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "kernels": "optimized",
+        "tile_n": 16,
+        "stage_k": 16,
+        "window_queries": 32,
+        "fusion": false,
+        "ffn32_fusion": false,
+        "qkv32_fusion": false,
+        "gemm": "direct-rte-epilogue",
+        "window_layout": "arena-rte",
+        "expert_fusion": false,
+        "block_fusion": false,
+        "hardware_publication": false,
+        "validationEnabled": false
+      }
+    },
+    "direct-rte-pair-q16": {
+      "private_report_sha256": "b13af939dbcd7ced21da608db9b092af3791185894061a32282aafd95a48a55b",
+      "checks": 934,
+      "compared_bytes": 15264768,
+      "different_bytes": 0,
+      "passed": true,
+      "identity": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "shader_sha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "kernels": "optimized",
+        "tile_n": 16,
+        "stage_k": 16,
+        "window_queries": 16,
+        "fusion": false,
+        "ffn32_fusion": false,
+        "qkv32_fusion": false,
+        "gemm": "direct-rte-pair",
+        "window_layout": "arena-rte",
+        "expert_fusion": false,
+        "block_fusion": false,
+        "hardware_publication": false,
+        "validationEnabled": false
+      }
+    },
+    "direct-rte-pair-q32": {
+      "private_report_sha256": "584c6372e0e7e80e014c8d51cffa81f7c63792427859944fbb7e9a0c049344fe",
+      "checks": 934,
+      "compared_bytes": 15264768,
+      "different_bytes": 0,
+      "passed": true,
+      "identity": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "shader_sha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae",
+        "arithmetic": "k16",
+        "kernels": "optimized",
+        "tile_n": 16,
+        "stage_k": 16,
+        "window_queries": 32,
+        "fusion": false,
+        "ffn32_fusion": false,
+        "qkv32_fusion": false,
+        "gemm": "direct-rte-pair",
+        "window_layout": "arena-rte",
+        "expert_fusion": false,
+        "block_fusion": false,
+        "hardware_publication": false,
+        "validationEnabled": false
+      }
+    }
+  },
+  "model_formal": {
+    "model320": {
+      "private_report_sha256": "774bce00369c65ba877691fe19169e93de31357ef99fdb88c6b6634f4619fdda",
+      "checks": 77,
+      "compared_bytes": 25505792,
+      "different_bytes": 0,
+      "passed": true,
+      "identity": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+      }
+    },
+    "target": {
+      "private_report_sha256": "9510af876ac1e4faf071cc3c8ab26c6a6c59008a5cd12adeefeb11e4a4d4b6bc",
+      "checks": 2,
+      "compared_bytes": 79626240,
+      "different_bytes": 0,
+      "passed": true,
+      "identity": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+      }
+    }
+  },
+  "limitations": [
+    "All timings are neural inference only; no bridge, FSR, presentation or game FPS.",
+    "Instrumented profiling is separate from ordinary benchmark timings.",
+    "Strict model proofs use synthetic features; game sequence and visual review are separate gates.",
+    "No private buffers or ISA text are copied into this scalar audit."
+  ],
+  "passed": true
+}

@@ -10,14 +10,14 @@ $buildRoot = if ($OutputDirectory) { [IO.Path]::GetFullPath($OutputDirectory) } 
 $out = Join-Path $buildRoot 'shaders'
 New-Item -ItemType Directory -Force $out | Out-Null
 $failed = $false
-$nativeNames = @('ops','preprocess','window_normalize','global_normalize','portable_gemm','portable_f16','portable_window','portable_global','amd_gemm','amd_window','amd_global','amd_global_matrix','amd_global_matrix_optimized','amd_window_normalize','amd_global_normalize','amd_gemm_optimized','amd_gemm_packed','amd_gemm_direct','amd_gemm_direct_rte','amd_gemm_direct_rte_init','amd_gemm_direct_rte_epilogue','amd_window_optimized','amd_window_small','amd_window_register','amd_window_register_rte','amd_ffn32','amd_qkv32','amd_expert_ffn','amd_block32')
+$nativeNames = @('ops','preprocess','window_normalize','global_normalize','portable_gemm','portable_f16','portable_window','portable_global','amd_gemm','amd_window','amd_global','amd_global_matrix','amd_global_matrix_optimized','amd_window_normalize','amd_global_normalize','amd_gemm_optimized','amd_gemm_packed','amd_gemm_direct','amd_gemm_direct_rte','amd_gemm_direct_rte_init','amd_gemm_direct_rte_epilogue','amd_gemm_direct_rte_pair','amd_window_optimized','amd_window_small','amd_window_register','amd_window_register_rte','amd_window_arena_rte','amd_ffn32','amd_qkv32','amd_expert_ffn','amd_block32')
 Get-ChildItem (Join-Path $root "shaders\*.comp") | ForEach-Object {
   if ($Backend -in @('amd','reference') -and $_.BaseName -notin $nativeNames) { return }
   if ($Backend -eq 'nvidia' -and ($_.BaseName.StartsWith('amd_') -or $_.BaseName.StartsWith('portable_'))) { return }
   $target = Join-Path $out ($_.BaseName + ".spv")
   & $glslang -V --target-env vulkan1.3 -I"$root\shaders" $_.FullName -o $target
   if ($LASTEXITCODE -ne 0) { $failed = $true }
-  elseif ($_.BaseName -eq 'amd_gemm_direct_rte_epilogue') {
+  elseif ($_.BaseName -in @('amd_gemm_direct_rte_epilogue','amd_gemm_direct_rte_pair')) {
     # glslang retains one intrinsic value per execution-mode enum; the SiLU
     # epilogue requires SignedZeroInfNanPreserve at both F16 and F32 widths.
     $taskClosure = & (Join-Path $PSScriptRoot 'complete_amd_silu_float_controls.ps1') -InputPath $target -OutputPath $target

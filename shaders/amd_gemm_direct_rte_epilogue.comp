@@ -63,9 +63,10 @@ void main() {
   if (rowBase >= pc.rows) return;
   uint inBase = pc.inputColumnBase + ((FLAGS & 128u) != 0u ? 0u : batch * K);
   ACC acc[TILE_N / 16], total[TILE_N / 16];
-  if ((FLAGS & 1u) != 0u || K > 512u) {
-    // Residuals and large-K operators retain the original shared-memory seed.
-    // The runtime-zero shortcut is limited to operator-tested K<=512 shapes.
+  if ((FLAGS & 1u) != 0u || K > 512u || PARTITION != 0u) {
+    // Residual, large-K and partitioned operators retain the original shared
+    // seed. The runtime-zero seed can make LLPC omit a later partition reset;
+    // keep that shortcut limited to non-partitioned, non-residual K<=512.
     for (uint i = thread; i < 64u * TILE_N; i += 128u)
       sc[i] = initial(rowBase + i / TILE_N, colBase + i % TILE_N, batch);
     barrier();
