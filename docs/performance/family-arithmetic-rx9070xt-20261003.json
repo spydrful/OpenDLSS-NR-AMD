@@ -1,0 +1,2392 @@
+{
+  "format": "OpenNR-amd-family-arithmetic-quality-v2",
+  "dateUtc": "2026-10-03",
+  "sourceCommit": "8fb7693ec692c00f5b609daa8a600e55bbe2f8a9",
+  "baselineRelease": "v0.1.0-alpha.5",
+  "executableSha256": "d6ffdde401a08a3e85dd1dcea4c141ded8be103921c9cf330d21f5f31dedb0cd",
+  "modelManifestSha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+  "driverIdentity": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+  "deviceIdentity": "1002:7550",
+  "dimensions": [
+    320,
+    320
+  ],
+  "baseline": {
+    "selected": {
+      "kernels": "optimized",
+      "arithmetic": "k16",
+      "tile_n": 16,
+      "stage_k": 16,
+      "gemm": "direct-rte-pair",
+      "window_layout": "arena-rte",
+      "window_queries": 32,
+      "fusion": false,
+      "expert_fusion": false,
+      "ffn32_fusion": false,
+      "qkv32_fusion": false,
+      "block_fusion": false,
+      "hardware_publication": false
+    },
+    "identity": {
+      "device_id": "1002:7550",
+      "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+      "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+      "shader_sha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+      "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+    },
+    "manifestSha256": "da2f7596e3bdd97b54e91743c1324cd18da5ad9b92d6e115a2669ea3244c602b"
+  },
+  "compiler": {
+    "glslangSha256": "9643709c02c83e26773f96b6a87f197ab2e84f78be0879ad8fb3619418b5d9ad",
+    "targetEnvironment": "vulkan1.3",
+    "floatControlClosure": "same published SiLU closure applied to private fixed-GEMM module"
+  },
+  "thresholds": {
+    "minPsnrDb": 40,
+    "minSsim": 0.99,
+    "dataRange": 1.0,
+    "domain": "unclamped scene-linear RGB",
+    "perFrameRequired": true
+  },
+  "otherPolicies": {
+    "globalAttention": "Exact baseline amd_global_matrix SPV also placed under private amd_global_matrix_optimized filename; requested ID10 ignored by that original module.",
+    "layerBoundaryFormats": "unchanged",
+    "softmaxTree": "unchanged",
+    "exponentApproximation": "unchanged",
+    "fusion": false,
+    "residualPlacement": "unchanged",
+    "splitK": "publication still occurs at every partition end"
+  },
+  "implementation": {
+    "privateOverlays": {
+      "gemm-only": {
+        "pinnedModules": [
+          {
+            "module": "amd_window_arena_rte",
+            "originalSourceSha256": "495535f60edb5d91b30a055276ac47282811d9c1fbaf14c761da56ee35bd5aa6",
+            "privateSourceSha256": "c052c10057c5f74b0f6a85f8fbc52be2e1ac8ea37533ec05193bc43c099b3575",
+            "moduleSha256": "9bcf9b3c92720ecdb62a7ef63ecaac8f9f7c0ea627518ba7e7bc01d1d98bf25d"
+          }
+        ],
+        "modules": {
+          "amd_block32.spv": "e9638615189dfd1dd5cc9620fed839dcb1d0de9daf031e92cd8ac580ed13af5e",
+          "amd_expert_ffn.spv": "e0e8e15e636cafd2b32d1f3a6237a4134bd46658757ad7886863a111927dbac1",
+          "amd_ffn32.spv": "1b4aa577e62bf3ff67b61b6da972b95d91058d7259488d82e1a75dfcf4e14ccc",
+          "amd_gemm.spv": "848a6b21bcf5470ad083d64680cba6dc25c11a6b6b3a286982698eea088c3305",
+          "amd_gemm_direct.spv": "f7cb8e5e596fa92792de7b1acc1013d765b1c0cf181d82b08d0e8dc16ed685d9",
+          "amd_gemm_direct_rte.spv": "f2fe7abcb5a4d714dcd466a9ba96834d54b9160ccb3d20a75e8aeab84f3a8677",
+          "amd_gemm_direct_rte_epilogue.spv": "82bdcb6cc9b295578081467c03bfdf017b1f06aab0955326d791c5ef8a685f0f",
+          "amd_gemm_direct_rte_init.spv": "bf90bffb6b28731566b8c70cf4a75fb091bb60e7ba56cc6503c35a7a89d85c3c",
+          "amd_gemm_direct_rte_pair.spv": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+          "amd_gemm_optimized.spv": "8673dfb3bb0f30d987c44e4d77df3850bcf44818c5b095e0065a1378e6d6fc23",
+          "amd_gemm_packed.spv": "583da6f979a7bb20ca61b71e3a80b0597167ac41adde9ab8afca6dd59a36d31c",
+          "amd_global.spv": "733d41fa9b48317e863dfa35a039418f4e950155cff67ecfb6e30a002289901d",
+          "amd_global_matrix.spv": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+          "amd_global_matrix_optimized.spv": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+          "amd_global_normalize.spv": "caeb9fbaf68519e06219ee7455a2521f28f5bf9fda6b17bc8e5631763541a8aa",
+          "amd_qkv32.spv": "2dbdfd7e725e2cfd09e8c09e0aa60ce09a487272bc93d47bd328818d5824224b",
+          "amd_window.spv": "76307130e55cb4281ab14c671e1afea404e9df2f83f1c3ade391a7111e0ebf78",
+          "amd_window_arena_rte.spv": "9bcf9b3c92720ecdb62a7ef63ecaac8f9f7c0ea627518ba7e7bc01d1d98bf25d",
+          "amd_window_normalize.spv": "c5c8161b72282e283b5ab108f732a328731da39fb5d02c2500a9230b754fe008",
+          "amd_window_optimized.spv": "02bd200ba23be279bc1b3f6a4fc998d9648f576c7c940db09db21cfeb9ff7f75",
+          "amd_window_register.spv": "73081387738a6697a27d9559ea4cc76157f39761e85dc841f634499e08338462",
+          "amd_window_register_rte.spv": "9ff6958330657dbf8fe6dbc86d1dd520fb3b0c80e9afbdf39cf78a3995314569",
+          "amd_window_small.spv": "8406622ac4c6162646d3cc3185eaa0a60bbb03443efeca614fa9f644a80faab2",
+          "global_normalize.spv": "a8d7ca16a8020fb8f033c11119540869e2daf680b102d7c1d08771f87aaaa8cd",
+          "ops.spv": "6fc879c4d5563225548dd40f2050d81dbbda8e61bf0e77408e743bfba712c7f2",
+          "portable_f16.spv": "843388324a4c1211dca82b2711cc22b4db144e3404b79ab4bb74170ac04fba6b",
+          "portable_gemm.spv": "c64d7598632790ca581211581994a60ff24b04e3d904cfae0eadf930ea8f7d85",
+          "portable_global.spv": "b76b366a52de8de92a27a92072ae4e1c3902fee84f9ca649c0ac9f97c3bbb06f",
+          "portable_window.spv": "4953c2c4f53921b92da407df604cefb44789d00de08ec60d3d0fa736de1ac675",
+          "preprocess.spv": "3674eed6b58a4c6a3fa868a1628b704b93ebd693d5c81981eddf3f66ee65adba",
+          "window_normalize.spv": "c9218555db0fb623a049b984ec04e82313efeecd89745c020152e82dac18b6ac"
+        },
+        "effectiveGemm": "requested specialization",
+        "effectiveWindowAttention": "k16",
+        "effectiveGlobalAttention": "k16",
+        "globalAlias": {
+          "runtimeSelectedFilename": "amd_global_matrix_optimized.spv",
+          "actualModule": "unchanged amd_global_matrix.spv",
+          "moduleSha256": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+          "originalSourceSha256": "531f31340825b313c8987f8e1929e7627abc380c2b234385c3deee1fa7394879",
+          "dispatchCompatibility": "both modules use 128threads,16querytile,bindings0/5,three-wordpush,ID0paddedTokens; baseline has no ID10"
+        },
+        "specializationNote": "ID10 ignored in all pinned modules; all-fixed requestedk32/final exact controls must verify the selected global alias."
+      },
+      "window-only": {
+        "pinnedModules": [
+          {
+            "module": "amd_gemm_direct_rte_pair",
+            "originalSourceSha256": "1a802384502a44d329224c27a237bf980c8846f06ea6acf23e82d6acb086c35f",
+            "privateSourceSha256": "4f35acdf4c44ef9824204161a04d9481a01cb16a3b80fbcc7511ac5d75ef5666",
+            "moduleSha256": "4982c7453f2b418ff22dd8cb621592b415a182feb2e1f985d8f31894bd2f9bf4"
+          }
+        ],
+        "modules": {
+          "amd_block32.spv": "e9638615189dfd1dd5cc9620fed839dcb1d0de9daf031e92cd8ac580ed13af5e",
+          "amd_expert_ffn.spv": "e0e8e15e636cafd2b32d1f3a6237a4134bd46658757ad7886863a111927dbac1",
+          "amd_ffn32.spv": "1b4aa577e62bf3ff67b61b6da972b95d91058d7259488d82e1a75dfcf4e14ccc",
+          "amd_gemm.spv": "848a6b21bcf5470ad083d64680cba6dc25c11a6b6b3a286982698eea088c3305",
+          "amd_gemm_direct.spv": "f7cb8e5e596fa92792de7b1acc1013d765b1c0cf181d82b08d0e8dc16ed685d9",
+          "amd_gemm_direct_rte.spv": "f2fe7abcb5a4d714dcd466a9ba96834d54b9160ccb3d20a75e8aeab84f3a8677",
+          "amd_gemm_direct_rte_epilogue.spv": "82bdcb6cc9b295578081467c03bfdf017b1f06aab0955326d791c5ef8a685f0f",
+          "amd_gemm_direct_rte_init.spv": "bf90bffb6b28731566b8c70cf4a75fb091bb60e7ba56cc6503c35a7a89d85c3c",
+          "amd_gemm_direct_rte_pair.spv": "4982c7453f2b418ff22dd8cb621592b415a182feb2e1f985d8f31894bd2f9bf4",
+          "amd_gemm_optimized.spv": "8673dfb3bb0f30d987c44e4d77df3850bcf44818c5b095e0065a1378e6d6fc23",
+          "amd_gemm_packed.spv": "583da6f979a7bb20ca61b71e3a80b0597167ac41adde9ab8afca6dd59a36d31c",
+          "amd_global.spv": "733d41fa9b48317e863dfa35a039418f4e950155cff67ecfb6e30a002289901d",
+          "amd_global_matrix.spv": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+          "amd_global_matrix_optimized.spv": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+          "amd_global_normalize.spv": "caeb9fbaf68519e06219ee7455a2521f28f5bf9fda6b17bc8e5631763541a8aa",
+          "amd_qkv32.spv": "2dbdfd7e725e2cfd09e8c09e0aa60ce09a487272bc93d47bd328818d5824224b",
+          "amd_window.spv": "76307130e55cb4281ab14c671e1afea404e9df2f83f1c3ade391a7111e0ebf78",
+          "amd_window_arena_rte.spv": "93af10965760ea7b9308f8a3cad63260d035b6dd22d1babbf9223a0195f6b8de",
+          "amd_window_normalize.spv": "c5c8161b72282e283b5ab108f732a328731da39fb5d02c2500a9230b754fe008",
+          "amd_window_optimized.spv": "02bd200ba23be279bc1b3f6a4fc998d9648f576c7c940db09db21cfeb9ff7f75",
+          "amd_window_register.spv": "73081387738a6697a27d9559ea4cc76157f39761e85dc841f634499e08338462",
+          "amd_window_register_rte.spv": "9ff6958330657dbf8fe6dbc86d1dd520fb3b0c80e9afbdf39cf78a3995314569",
+          "amd_window_small.spv": "8406622ac4c6162646d3cc3185eaa0a60bbb03443efeca614fa9f644a80faab2",
+          "global_normalize.spv": "a8d7ca16a8020fb8f033c11119540869e2daf680b102d7c1d08771f87aaaa8cd",
+          "ops.spv": "6fc879c4d5563225548dd40f2050d81dbbda8e61bf0e77408e743bfba712c7f2",
+          "portable_f16.spv": "843388324a4c1211dca82b2711cc22b4db144e3404b79ab4bb74170ac04fba6b",
+          "portable_gemm.spv": "c64d7598632790ca581211581994a60ff24b04e3d904cfae0eadf930ea8f7d85",
+          "portable_global.spv": "b76b366a52de8de92a27a92072ae4e1c3902fee84f9ca649c0ac9f97c3bbb06f",
+          "portable_window.spv": "4953c2c4f53921b92da407df604cefb44789d00de08ec60d3d0fa736de1ac675",
+          "preprocess.spv": "3674eed6b58a4c6a3fa868a1628b704b93ebd693d5c81981eddf3f66ee65adba",
+          "window_normalize.spv": "c9218555db0fb623a049b984ec04e82313efeecd89745c020152e82dac18b6ac"
+        },
+        "effectiveGemm": "k16",
+        "effectiveWindowAttention": "requested specialization",
+        "effectiveGlobalAttention": "k16",
+        "globalAlias": {
+          "runtimeSelectedFilename": "amd_global_matrix_optimized.spv",
+          "actualModule": "unchanged amd_global_matrix.spv",
+          "moduleSha256": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+          "originalSourceSha256": "531f31340825b313c8987f8e1929e7627abc380c2b234385c3deee1fa7394879",
+          "dispatchCompatibility": "both modules use 128threads,16querytile,bindings0/5,three-wordpush,ID0paddedTokens; baseline has no ID10"
+        },
+        "specializationNote": "ID10 ignored in all pinned modules; all-fixed requestedk32/final exact controls must verify the selected global alias."
+      },
+      "all-fixed": {
+        "pinnedModules": [
+          {
+            "module": "amd_window_arena_rte",
+            "originalSourceSha256": "495535f60edb5d91b30a055276ac47282811d9c1fbaf14c761da56ee35bd5aa6",
+            "privateSourceSha256": "c052c10057c5f74b0f6a85f8fbc52be2e1ac8ea37533ec05193bc43c099b3575",
+            "moduleSha256": "9bcf9b3c92720ecdb62a7ef63ecaac8f9f7c0ea627518ba7e7bc01d1d98bf25d"
+          },
+          {
+            "module": "amd_gemm_direct_rte_pair",
+            "originalSourceSha256": "1a802384502a44d329224c27a237bf980c8846f06ea6acf23e82d6acb086c35f",
+            "privateSourceSha256": "4f35acdf4c44ef9824204161a04d9481a01cb16a3b80fbcc7511ac5d75ef5666",
+            "moduleSha256": "4982c7453f2b418ff22dd8cb621592b415a182feb2e1f985d8f31894bd2f9bf4"
+          }
+        ],
+        "modules": {
+          "amd_block32.spv": "e9638615189dfd1dd5cc9620fed839dcb1d0de9daf031e92cd8ac580ed13af5e",
+          "amd_expert_ffn.spv": "e0e8e15e636cafd2b32d1f3a6237a4134bd46658757ad7886863a111927dbac1",
+          "amd_ffn32.spv": "1b4aa577e62bf3ff67b61b6da972b95d91058d7259488d82e1a75dfcf4e14ccc",
+          "amd_gemm.spv": "848a6b21bcf5470ad083d64680cba6dc25c11a6b6b3a286982698eea088c3305",
+          "amd_gemm_direct.spv": "f7cb8e5e596fa92792de7b1acc1013d765b1c0cf181d82b08d0e8dc16ed685d9",
+          "amd_gemm_direct_rte.spv": "f2fe7abcb5a4d714dcd466a9ba96834d54b9160ccb3d20a75e8aeab84f3a8677",
+          "amd_gemm_direct_rte_epilogue.spv": "82bdcb6cc9b295578081467c03bfdf017b1f06aab0955326d791c5ef8a685f0f",
+          "amd_gemm_direct_rte_init.spv": "bf90bffb6b28731566b8c70cf4a75fb091bb60e7ba56cc6503c35a7a89d85c3c",
+          "amd_gemm_direct_rte_pair.spv": "4982c7453f2b418ff22dd8cb621592b415a182feb2e1f985d8f31894bd2f9bf4",
+          "amd_gemm_optimized.spv": "8673dfb3bb0f30d987c44e4d77df3850bcf44818c5b095e0065a1378e6d6fc23",
+          "amd_gemm_packed.spv": "583da6f979a7bb20ca61b71e3a80b0597167ac41adde9ab8afca6dd59a36d31c",
+          "amd_global.spv": "733d41fa9b48317e863dfa35a039418f4e950155cff67ecfb6e30a002289901d",
+          "amd_global_matrix.spv": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+          "amd_global_matrix_optimized.spv": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+          "amd_global_normalize.spv": "caeb9fbaf68519e06219ee7455a2521f28f5bf9fda6b17bc8e5631763541a8aa",
+          "amd_qkv32.spv": "2dbdfd7e725e2cfd09e8c09e0aa60ce09a487272bc93d47bd328818d5824224b",
+          "amd_window.spv": "76307130e55cb4281ab14c671e1afea404e9df2f83f1c3ade391a7111e0ebf78",
+          "amd_window_arena_rte.spv": "9bcf9b3c92720ecdb62a7ef63ecaac8f9f7c0ea627518ba7e7bc01d1d98bf25d",
+          "amd_window_normalize.spv": "c5c8161b72282e283b5ab108f732a328731da39fb5d02c2500a9230b754fe008",
+          "amd_window_optimized.spv": "02bd200ba23be279bc1b3f6a4fc998d9648f576c7c940db09db21cfeb9ff7f75",
+          "amd_window_register.spv": "73081387738a6697a27d9559ea4cc76157f39761e85dc841f634499e08338462",
+          "amd_window_register_rte.spv": "9ff6958330657dbf8fe6dbc86d1dd520fb3b0c80e9afbdf39cf78a3995314569",
+          "amd_window_small.spv": "8406622ac4c6162646d3cc3185eaa0a60bbb03443efeca614fa9f644a80faab2",
+          "global_normalize.spv": "a8d7ca16a8020fb8f033c11119540869e2daf680b102d7c1d08771f87aaaa8cd",
+          "ops.spv": "6fc879c4d5563225548dd40f2050d81dbbda8e61bf0e77408e743bfba712c7f2",
+          "portable_f16.spv": "843388324a4c1211dca82b2711cc22b4db144e3404b79ab4bb74170ac04fba6b",
+          "portable_gemm.spv": "c64d7598632790ca581211581994a60ff24b04e3d904cfae0eadf930ea8f7d85",
+          "portable_global.spv": "b76b366a52de8de92a27a92072ae4e1c3902fee84f9ca649c0ac9f97c3bbb06f",
+          "portable_window.spv": "4953c2c4f53921b92da407df604cefb44789d00de08ec60d3d0fa736de1ac675",
+          "preprocess.spv": "3674eed6b58a4c6a3fa868a1628b704b93ebd693d5c81981eddf3f66ee65adba",
+          "window_normalize.spv": "c9218555db0fb623a049b984ec04e82313efeecd89745c020152e82dac18b6ac"
+        },
+        "effectiveGemm": "k16",
+        "effectiveWindowAttention": "k16",
+        "effectiveGlobalAttention": "k16",
+        "globalAlias": {
+          "runtimeSelectedFilename": "amd_global_matrix_optimized.spv",
+          "actualModule": "unchanged amd_global_matrix.spv",
+          "moduleSha256": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+          "originalSourceSha256": "531f31340825b313c8987f8e1929e7627abc380c2b234385c3deee1fa7394879",
+          "dispatchCompatibility": "both modules use 128threads,16querytile,bindings0/5,three-wordpush,ID0paddedTokens; baseline has no ID10"
+        },
+        "specializationNote": "ID10 ignored in all pinned modules; all-fixed requestedk32/final exact controls must verify the selected global alias."
+      }
+    },
+    "logCaveat": "CLI selected arithmetic is requested specialization, not effective per-family policy. Use this record with every generated manifest.",
+    "effectivePolicyIsAuthoritative": true,
+    "publicRuntimeSelectorsAdded": false,
+    "provenanceSha256": "c8de592ecbc7557a5f82bde817db3e060737d3ece3441336e00531bb5012b1fb",
+    "priorInvalidIsolation": {
+      "provenanceSha256": "b3863c970e3af522756b5742c0b5b6164c953a55c10f2c86eae9a8b10fee3a01",
+      "reason": "Requested non-K16 policy selects amd_global_matrix_optimized; original v1 overlay left it relaxed.",
+      "usedForCausalInference": false,
+      "usedForQualification": false,
+      "originalRawRecordsPreserved": true
+    }
+  },
+  "variants": [
+    {
+      "overlay": "all-fixed",
+      "requestedSpecialization": "k32",
+      "effectivePolicy": {
+        "gemm": "k16",
+        "windowAttention": "k16",
+        "globalAttention": "k16; unchanged baseline module"
+      },
+      "identity": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "adbf16559e3bb7ee94f6ef52165261a82e186a95891f334c82f44b8e3294c908",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+      },
+      "gpuExitCode": 0,
+      "qualityExitCode": 0,
+      "qualityGatePassed": true,
+      "resultSha256": "6e63aa8fdd26d388c8b2c00380b96f8580f42faaa48f82f7d6665ce8a263cd5f",
+      "rawQualitySha256": "cd59a77436f92e2c703c7c357b4d3efa32b0c10323fc0756329739889185237e",
+      "rawManifestSha256": "289126afbbb0445e50c53cc99f8b125840e99db981fbfb4479a8d56d273cf610",
+      "gpuLogSha256": "3293859990795e42a3cabda3101f2a89d0a0feb31de340fb919c673f07f7d25f",
+      "cases": [
+        {
+          "name": "sdr-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_absolute_error": 0.0,
+            "different_samples": 0,
+            "psnr_db": null,
+            "exact": true,
+            "ssim": 1.0,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "sdr-temporal",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_absolute_error": 0.0,
+            "different_samples": 0,
+            "psnr_db": null,
+            "exact": true,
+            "ssim": 1.0,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+                "head.f32": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+                "scene-linear-rgba.f32": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+                "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+              },
+              "pfm_sha256": "b0a78fe51fba21da87a6c76564c6763d202b20ee89dd78aaddee4e33aebb23a1",
+              "minimum_rgb": 0.0021164356730878353,
+              "maximum_rgb": 0.8545121550559998,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+                "head.f32": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+                "scene-linear-rgba.f32": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+                "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+              },
+              "pfm_sha256": "b0a78fe51fba21da87a6c76564c6763d202b20ee89dd78aaddee4e33aebb23a1",
+              "minimum_rgb": 0.0021164356730878353,
+              "maximum_rgb": 0.8545121550559998,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "sdr-camera-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_absolute_error": 0.0,
+            "different_samples": 0,
+            "psnr_db": null,
+            "exact": true,
+            "ssim": 1.0,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "hdr-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_absolute_error": 0.0,
+            "different_samples": 0,
+            "psnr_db": null,
+            "exact": true,
+            "ssim": 1.0,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            }
+          }
+        },
+        {
+          "name": "hdr-temporal",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_absolute_error": 0.0,
+            "different_samples": 0,
+            "psnr_db": null,
+            "exact": true,
+            "ssim": 1.0,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+                "head.f32": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+                "scene-linear-rgba.f32": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+                "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+              },
+              "pfm_sha256": "b05c8fc96152e5127e3c3a8dfbe31f4b2be6a4a5bc1b5d814e67b6af2dc739d3",
+              "minimum_rgb": 0.004615298006683588,
+              "maximum_rgb": 17.782495498657227,
+              "hdr_samples_above_one": 158287
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+                "head.f32": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+                "scene-linear-rgba.f32": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+                "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+              },
+              "pfm_sha256": "b05c8fc96152e5127e3c3a8dfbe31f4b2be6a4a5bc1b5d814e67b6af2dc739d3",
+              "minimum_rgb": 0.004615298006683588,
+              "maximum_rgb": 17.782495498657227,
+              "hdr_samples_above_one": 158287
+            }
+          }
+        },
+        {
+          "name": "hdr-camera-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_absolute_error": 0.0,
+            "different_samples": 0,
+            "psnr_db": null,
+            "exact": true,
+            "ssim": 1.0,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            }
+          }
+        }
+      ],
+      "sanityByteChecks": [
+        {
+          "file": "sdr-reset-head.f32",
+          "baselineSha256": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+          "candidateSha256": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-reset-scene-linear-rgba.f32",
+          "baselineSha256": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+          "candidateSha256": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-reset-published-history.f32",
+          "baselineSha256": "e5e1111ffe9ca8c72a9d28168df94d9a543340a8bede9984710d27af3513fef5",
+          "candidateSha256": "e5e1111ffe9ca8c72a9d28168df94d9a543340a8bede9984710d27af3513fef5",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-temporal-head.f32",
+          "baselineSha256": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+          "candidateSha256": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-temporal-scene-linear-rgba.f32",
+          "baselineSha256": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+          "candidateSha256": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-temporal-published-history.f32",
+          "baselineSha256": "bd0050e3c70d7dbd0309e8e5a3c03e0267c373d50881b7b04384c334d1d5c4ec",
+          "candidateSha256": "bd0050e3c70d7dbd0309e8e5a3c03e0267c373d50881b7b04384c334d1d5c4ec",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-camera-reset-head.f32",
+          "baselineSha256": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+          "candidateSha256": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-camera-reset-scene-linear-rgba.f32",
+          "baselineSha256": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+          "candidateSha256": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-camera-reset-published-history.f32",
+          "baselineSha256": "e5e1111ffe9ca8c72a9d28168df94d9a543340a8bede9984710d27af3513fef5",
+          "candidateSha256": "e5e1111ffe9ca8c72a9d28168df94d9a543340a8bede9984710d27af3513fef5",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-reset-head.f32",
+          "baselineSha256": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+          "candidateSha256": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-reset-scene-linear-rgba.f32",
+          "baselineSha256": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+          "candidateSha256": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-reset-published-history.f32",
+          "baselineSha256": "4265299daa3282b16a40a91c4b4727f291007bc68f4687f21dfb5bcd171ec401",
+          "candidateSha256": "4265299daa3282b16a40a91c4b4727f291007bc68f4687f21dfb5bcd171ec401",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-temporal-head.f32",
+          "baselineSha256": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+          "candidateSha256": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-temporal-scene-linear-rgba.f32",
+          "baselineSha256": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+          "candidateSha256": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-temporal-published-history.f32",
+          "baselineSha256": "d073dfccb08cc46732f73897f6b114db8dc423502a756e0281cfa130241b71de",
+          "candidateSha256": "d073dfccb08cc46732f73897f6b114db8dc423502a756e0281cfa130241b71de",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-camera-reset-head.f32",
+          "baselineSha256": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+          "candidateSha256": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-camera-reset-scene-linear-rgba.f32",
+          "baselineSha256": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+          "candidateSha256": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-camera-reset-published-history.f32",
+          "baselineSha256": "4265299daa3282b16a40a91c4b4727f291007bc68f4687f21dfb5bcd171ec401",
+          "candidateSha256": "4265299daa3282b16a40a91c4b4727f291007bc68f4687f21dfb5bcd171ec401",
+          "byteIdentical": true
+        }
+      ]
+    },
+    {
+      "overlay": "all-fixed",
+      "requestedSpecialization": "final",
+      "effectivePolicy": {
+        "gemm": "k16",
+        "windowAttention": "k16",
+        "globalAttention": "k16; unchanged baseline module"
+      },
+      "identity": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "adbf16559e3bb7ee94f6ef52165261a82e186a95891f334c82f44b8e3294c908",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+      },
+      "gpuExitCode": 0,
+      "qualityExitCode": 0,
+      "qualityGatePassed": true,
+      "resultSha256": "3c8b90d3d927217f061782575b63eac7b09f1efbd09e054a8b9ab7eb16b1477e",
+      "rawQualitySha256": "7f39e4c3d512c1e1f4176419dcf5e69dfbc0202959bde4147cb31c316838d8cc",
+      "rawManifestSha256": "ff131428b16e9ec7b6ce606da171b5be0a3b394128d277c096308035ac2bb059",
+      "gpuLogSha256": "e664db7a08516c328586a70f725f2f86e2d3590184739d55bbb8bfb71772b504",
+      "cases": [
+        {
+          "name": "sdr-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_absolute_error": 0.0,
+            "different_samples": 0,
+            "psnr_db": null,
+            "exact": true,
+            "ssim": 1.0,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "sdr-temporal",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_absolute_error": 0.0,
+            "different_samples": 0,
+            "psnr_db": null,
+            "exact": true,
+            "ssim": 1.0,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+                "head.f32": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+                "scene-linear-rgba.f32": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+                "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+              },
+              "pfm_sha256": "b0a78fe51fba21da87a6c76564c6763d202b20ee89dd78aaddee4e33aebb23a1",
+              "minimum_rgb": 0.0021164356730878353,
+              "maximum_rgb": 0.8545121550559998,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+                "head.f32": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+                "scene-linear-rgba.f32": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+                "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+              },
+              "pfm_sha256": "b0a78fe51fba21da87a6c76564c6763d202b20ee89dd78aaddee4e33aebb23a1",
+              "minimum_rgb": 0.0021164356730878353,
+              "maximum_rgb": 0.8545121550559998,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "sdr-camera-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_absolute_error": 0.0,
+            "different_samples": 0,
+            "psnr_db": null,
+            "exact": true,
+            "ssim": 1.0,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "hdr-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_absolute_error": 0.0,
+            "different_samples": 0,
+            "psnr_db": null,
+            "exact": true,
+            "ssim": 1.0,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            }
+          }
+        },
+        {
+          "name": "hdr-temporal",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_absolute_error": 0.0,
+            "different_samples": 0,
+            "psnr_db": null,
+            "exact": true,
+            "ssim": 1.0,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+                "head.f32": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+                "scene-linear-rgba.f32": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+                "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+              },
+              "pfm_sha256": "b05c8fc96152e5127e3c3a8dfbe31f4b2be6a4a5bc1b5d814e67b6af2dc739d3",
+              "minimum_rgb": 0.004615298006683588,
+              "maximum_rgb": 17.782495498657227,
+              "hdr_samples_above_one": 158287
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+                "head.f32": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+                "scene-linear-rgba.f32": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+                "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+              },
+              "pfm_sha256": "b05c8fc96152e5127e3c3a8dfbe31f4b2be6a4a5bc1b5d814e67b6af2dc739d3",
+              "minimum_rgb": 0.004615298006683588,
+              "maximum_rgb": 17.782495498657227,
+              "hdr_samples_above_one": 158287
+            }
+          }
+        },
+        {
+          "name": "hdr-camera-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_absolute_error": 0.0,
+            "different_samples": 0,
+            "psnr_db": null,
+            "exact": true,
+            "ssim": 1.0,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            }
+          }
+        }
+      ],
+      "sanityByteChecks": [
+        {
+          "file": "sdr-reset-head.f32",
+          "baselineSha256": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+          "candidateSha256": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-reset-scene-linear-rgba.f32",
+          "baselineSha256": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+          "candidateSha256": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-reset-published-history.f32",
+          "baselineSha256": "e5e1111ffe9ca8c72a9d28168df94d9a543340a8bede9984710d27af3513fef5",
+          "candidateSha256": "e5e1111ffe9ca8c72a9d28168df94d9a543340a8bede9984710d27af3513fef5",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-temporal-head.f32",
+          "baselineSha256": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+          "candidateSha256": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-temporal-scene-linear-rgba.f32",
+          "baselineSha256": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+          "candidateSha256": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-temporal-published-history.f32",
+          "baselineSha256": "bd0050e3c70d7dbd0309e8e5a3c03e0267c373d50881b7b04384c334d1d5c4ec",
+          "candidateSha256": "bd0050e3c70d7dbd0309e8e5a3c03e0267c373d50881b7b04384c334d1d5c4ec",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-camera-reset-head.f32",
+          "baselineSha256": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+          "candidateSha256": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-camera-reset-scene-linear-rgba.f32",
+          "baselineSha256": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+          "candidateSha256": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+          "byteIdentical": true
+        },
+        {
+          "file": "sdr-camera-reset-published-history.f32",
+          "baselineSha256": "e5e1111ffe9ca8c72a9d28168df94d9a543340a8bede9984710d27af3513fef5",
+          "candidateSha256": "e5e1111ffe9ca8c72a9d28168df94d9a543340a8bede9984710d27af3513fef5",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-reset-head.f32",
+          "baselineSha256": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+          "candidateSha256": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-reset-scene-linear-rgba.f32",
+          "baselineSha256": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+          "candidateSha256": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-reset-published-history.f32",
+          "baselineSha256": "4265299daa3282b16a40a91c4b4727f291007bc68f4687f21dfb5bcd171ec401",
+          "candidateSha256": "4265299daa3282b16a40a91c4b4727f291007bc68f4687f21dfb5bcd171ec401",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-temporal-head.f32",
+          "baselineSha256": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+          "candidateSha256": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-temporal-scene-linear-rgba.f32",
+          "baselineSha256": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+          "candidateSha256": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-temporal-published-history.f32",
+          "baselineSha256": "d073dfccb08cc46732f73897f6b114db8dc423502a756e0281cfa130241b71de",
+          "candidateSha256": "d073dfccb08cc46732f73897f6b114db8dc423502a756e0281cfa130241b71de",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-camera-reset-head.f32",
+          "baselineSha256": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+          "candidateSha256": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-camera-reset-scene-linear-rgba.f32",
+          "baselineSha256": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+          "candidateSha256": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+          "byteIdentical": true
+        },
+        {
+          "file": "hdr-camera-reset-published-history.f32",
+          "baselineSha256": "4265299daa3282b16a40a91c4b4727f291007bc68f4687f21dfb5bcd171ec401",
+          "candidateSha256": "4265299daa3282b16a40a91c4b4727f291007bc68f4687f21dfb5bcd171ec401",
+          "byteIdentical": true
+        }
+      ]
+    },
+    {
+      "overlay": "gemm-only",
+      "requestedSpecialization": "k32",
+      "effectivePolicy": {
+        "gemm": "k32",
+        "windowAttention": "k16",
+        "globalAttention": "k16; unchanged baseline module"
+      },
+      "identity": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "cc968c837a5dd94737ebfae61f6d44fda4c07688a04c66f950c8cf8c64c10f98",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+      },
+      "gpuExitCode": 0,
+      "qualityExitCode": 1,
+      "qualityGatePassed": false,
+      "resultSha256": "b87f5914d6a4977d13d89be1578a95eb86f7ae292a5a9213e53e26afdbd1c263",
+      "rawQualitySha256": "241876abee04df76c21fac357b2d1ccedb3ce7d4f0095ae902aaaefa31b1a115",
+      "rawManifestSha256": "96916b8e63576ecadbf7cbf178caf32390c7ddc78946f4ea9e33cdd17ea4a290",
+      "gpuLogSha256": "33be55468c1279961072d0ea2be99b36c25e59b0b913da21fe667b606aa683bc",
+      "cases": [
+        {
+          "name": "sdr-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0025568569409433746,
+            "rmse": 0.0035003349309904092,
+            "max_absolute_error": 0.02301764488220215,
+            "different_samples": 306021,
+            "psnr_db": 49.117807960299665,
+            "exact": false,
+            "ssim": 0.9978938904704683,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "70a45c4ebfbc24a1f04a2ef1513c71a0b0a2966b7fe2586fa19427b1bb278e03",
+                "scene-linear-rgba.f32": "f72b6f2de6a1d9317a8bc8e6bb5880871f6e29d55db5822d46b2082d2501835e",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "0339f713c81b680d7e03484556261e321bdde03f1e9e8258f9b77c0b6d7ebaee",
+              "minimum_rgb": -6.621702937081864e-07,
+              "maximum_rgb": 0.8262725472450256,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "sdr-temporal",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.004473575620066488,
+            "rmse": 0.006204866870708475,
+            "max_absolute_error": 0.04870343208312988,
+            "different_samples": 306682,
+            "psnr_db": 44.14535064248936,
+            "exact": false,
+            "ssim": 0.9939594385471694,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+                "head.f32": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+                "scene-linear-rgba.f32": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+                "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+              },
+              "pfm_sha256": "b0a78fe51fba21da87a6c76564c6763d202b20ee89dd78aaddee4e33aebb23a1",
+              "minimum_rgb": 0.0021164356730878353,
+              "maximum_rgb": 0.8545121550559998,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+                "head.f32": "04c60fdc3d5483087c0484d811a3f59ac5b8a8b3734c0d395cb3cfd06a700657",
+                "scene-linear-rgba.f32": "b861ddc89549640c6f5951a8fe2dbb9d1fcae4e6cad3e836faf0499334317eeb",
+                "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+              },
+              "pfm_sha256": "65609c3e745a1b2d1a0a7441007a7215e87941bf791e260541a15338988b5bbb",
+              "minimum_rgb": 0.001414070138707757,
+              "maximum_rgb": 0.8717157244682312,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "sdr-camera-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0025568569409433746,
+            "rmse": 0.0035003349309904092,
+            "max_absolute_error": 0.02301764488220215,
+            "different_samples": 306021,
+            "psnr_db": 49.117807960299665,
+            "exact": false,
+            "ssim": 0.9978938904704683,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "70a45c4ebfbc24a1f04a2ef1513c71a0b0a2966b7fe2586fa19427b1bb278e03",
+                "scene-linear-rgba.f32": "f72b6f2de6a1d9317a8bc8e6bb5880871f6e29d55db5822d46b2082d2501835e",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "0339f713c81b680d7e03484556261e321bdde03f1e9e8258f9b77c0b6d7ebaee",
+              "minimum_rgb": -6.621702937081864e-07,
+              "maximum_rgb": 0.8262725472450256,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "hdr-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.013956569943923114,
+            "rmse": 0.02029430999131768,
+            "max_absolute_error": 0.2860870361328125,
+            "different_samples": 307116,
+            "psnr_db": 33.85251420307828,
+            "exact": false,
+            "ssim": 0.991228386899936,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "d2d3d6747ad3dff8be114b3255e8fd50ca62f192f196cdd5a4802a9cfd7dd7ae",
+                "scene-linear-rgba.f32": "ef3c3af959bbc5b9c7870b4ba63736f844e57475427db799e1a3d97ce63fc23f",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "2cb1703eace05c23da2245a3a1a89a8492e8095512b2c40c400738560311788c",
+              "minimum_rgb": 0.002061571693047881,
+              "maximum_rgb": 17.361175537109375,
+              "hdr_samples_above_one": 161041
+            }
+          }
+        },
+        {
+          "name": "hdr-temporal",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.011512175353946077,
+            "rmse": 0.016599523455526056,
+            "max_absolute_error": 0.5356845855712891,
+            "different_samples": 306880,
+            "psnr_db": 35.598087592941226,
+            "exact": false,
+            "ssim": 0.984625122504254,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+                "head.f32": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+                "scene-linear-rgba.f32": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+                "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+              },
+              "pfm_sha256": "b05c8fc96152e5127e3c3a8dfbe31f4b2be6a4a5bc1b5d814e67b6af2dc739d3",
+              "minimum_rgb": 0.004615298006683588,
+              "maximum_rgb": 17.782495498657227,
+              "hdr_samples_above_one": 158287
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+                "head.f32": "192b5ba0ee8f6098f87f0ff1b32ee3a707c583d3ee2b3168a7ce607db71f2327",
+                "scene-linear-rgba.f32": "cfe8b94dfe1dd8edd3bb36b794836c83a9f743f88d5e3bfab06751f4d9d18990",
+                "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+              },
+              "pfm_sha256": "cdf51b37eb5c1e616af7a27142ba6b3781a0d2a3ac8805d1f019121506520a0a",
+              "minimum_rgb": 0.006347124930471182,
+              "maximum_rgb": 18.00083351135254,
+              "hdr_samples_above_one": 157903
+            }
+          }
+        },
+        {
+          "name": "hdr-camera-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.013956569943923114,
+            "rmse": 0.02029430999131768,
+            "max_absolute_error": 0.2860870361328125,
+            "different_samples": 307116,
+            "psnr_db": 33.85251420307828,
+            "exact": false,
+            "ssim": 0.991228386899936,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "d2d3d6747ad3dff8be114b3255e8fd50ca62f192f196cdd5a4802a9cfd7dd7ae",
+                "scene-linear-rgba.f32": "ef3c3af959bbc5b9c7870b4ba63736f844e57475427db799e1a3d97ce63fc23f",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "2cb1703eace05c23da2245a3a1a89a8492e8095512b2c40c400738560311788c",
+              "minimum_rgb": 0.002061571693047881,
+              "maximum_rgb": 17.361175537109375,
+              "hdr_samples_above_one": 161041
+            }
+          }
+        }
+      ]
+    },
+    {
+      "overlay": "gemm-only",
+      "requestedSpecialization": "final",
+      "effectivePolicy": {
+        "gemm": "final",
+        "windowAttention": "k16",
+        "globalAttention": "k16; unchanged baseline module"
+      },
+      "identity": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "cc968c837a5dd94737ebfae61f6d44fda4c07688a04c66f950c8cf8c64c10f98",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+      },
+      "gpuExitCode": 0,
+      "qualityExitCode": 1,
+      "qualityGatePassed": false,
+      "resultSha256": "13cd7cb5233ed7a71d0e06e8620d9f26869774138a1689de0056f9478e1eabcd",
+      "rawQualitySha256": "0465f7c897283b553940c874d069482c7bf62a63dfc76c0ca6cbb34508855fb0",
+      "rawManifestSha256": "4988db77ce197b940a1cb850945e374b65a7b1a2d6fef6cf556a0c6f9cf1f50f",
+      "gpuLogSha256": "daf49d484993f40eb5310a9b050a79d2f233494550b9b649d0471faf0616344d",
+      "cases": [
+        {
+          "name": "sdr-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0034545041437470305,
+            "rmse": 0.004865958351100177,
+            "max_absolute_error": 0.028540372848510742,
+            "different_samples": 306401,
+            "psnr_db": 46.25663225238999,
+            "exact": false,
+            "ssim": 0.9974281471410258,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "e9589212720cceaa973c20bf39293809061efd553a9c0f9d658e40390699c9a8",
+                "scene-linear-rgba.f32": "05a4d1130ca432aa278822bdeafe6f0d12140c52b3fdf1894baad16f29ce01d6",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c767559b96716fa5880c206a4a79bc63c569a240544d7438b7671ef22a570700",
+              "minimum_rgb": -3.495563873912033e-07,
+              "maximum_rgb": 0.8276891112327576,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "sdr-temporal",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.007487748326318903,
+            "rmse": 0.010068283094327005,
+            "max_absolute_error": 0.0576246976852417,
+            "different_samples": 306870,
+            "psnr_db": 39.94089163407542,
+            "exact": false,
+            "ssim": 0.9901243714281011,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+                "head.f32": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+                "scene-linear-rgba.f32": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+                "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+              },
+              "pfm_sha256": "b0a78fe51fba21da87a6c76564c6763d202b20ee89dd78aaddee4e33aebb23a1",
+              "minimum_rgb": 0.0021164356730878353,
+              "maximum_rgb": 0.8545121550559998,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+                "head.f32": "0c95b590116ad7dc396de942b113afb39a9cb1afd909d8f89d292472b7309810",
+                "scene-linear-rgba.f32": "76d376ea269ed1d503bc9d54cf7e1ae795a4f8457ac5f82d22041838a022e762",
+                "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+              },
+              "pfm_sha256": "fabca31579f40dbb9743c4aeda1e62e455002617d5e1ee24e3f548451747d62e",
+              "minimum_rgb": 0.0009130710968747735,
+              "maximum_rgb": 0.8680100440979004,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "sdr-camera-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0034545041437470305,
+            "rmse": 0.004865958351100177,
+            "max_absolute_error": 0.028540372848510742,
+            "different_samples": 306401,
+            "psnr_db": 46.25663225238999,
+            "exact": false,
+            "ssim": 0.9974281471410258,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "e9589212720cceaa973c20bf39293809061efd553a9c0f9d658e40390699c9a8",
+                "scene-linear-rgba.f32": "05a4d1130ca432aa278822bdeafe6f0d12140c52b3fdf1894baad16f29ce01d6",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c767559b96716fa5880c206a4a79bc63c569a240544d7438b7671ef22a570700",
+              "minimum_rgb": -3.495563873912033e-07,
+              "maximum_rgb": 0.8276891112327576,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "hdr-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.008214873823443441,
+            "rmse": 0.015217857286428044,
+            "max_absolute_error": 0.2650022506713867,
+            "different_samples": 306399,
+            "psnr_db": 36.35292986088942,
+            "exact": false,
+            "ssim": 0.9932768135991129,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "d6cef6e22b43bffba5acaa9a635da85ecb4adee9d9d9f2b3f326cbaf95131200",
+                "scene-linear-rgba.f32": "2378e5f504dff5f841645394b202324dfecc90a1d1c9ee60fc8953df2dcdfcd7",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "61014b079c7d783b1e329c544b2116990d3b73200007937aa2dc1a44878f2ce1",
+              "minimum_rgb": 0.001489492948167026,
+              "maximum_rgb": 17.335050582885742,
+              "hdr_samples_above_one": 161199
+            }
+          }
+        },
+        {
+          "name": "hdr-temporal",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.01190458192212797,
+            "rmse": 0.01830821385778095,
+            "max_absolute_error": 0.3951568603515625,
+            "different_samples": 306852,
+            "psnr_db": 34.74708046464598,
+            "exact": false,
+            "ssim": 0.9851712422159961,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+                "head.f32": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+                "scene-linear-rgba.f32": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+                "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+              },
+              "pfm_sha256": "b05c8fc96152e5127e3c3a8dfbe31f4b2be6a4a5bc1b5d814e67b6af2dc739d3",
+              "minimum_rgb": 0.004615298006683588,
+              "maximum_rgb": 17.782495498657227,
+              "hdr_samples_above_one": 158287
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+                "head.f32": "9b55bae853c8029e37e804d2c032a7148e2f92b0e3af8c94775c5379bc3ee3ea",
+                "scene-linear-rgba.f32": "e3fca1bc8ec224486ac3035ec665daa4a2876f62a7506ddcd189f88b21ea4bf0",
+                "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+              },
+              "pfm_sha256": "3584fc4b440244ba9ce458fc2a3f02180044445ff5668508accaaaca6d36fbba",
+              "minimum_rgb": 0.005051479209214449,
+              "maximum_rgb": 17.75607681274414,
+              "hdr_samples_above_one": 158015
+            }
+          }
+        },
+        {
+          "name": "hdr-camera-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.008214873823443441,
+            "rmse": 0.015217857286428044,
+            "max_absolute_error": 0.2650022506713867,
+            "different_samples": 306399,
+            "psnr_db": 36.35292986088942,
+            "exact": false,
+            "ssim": 0.9932768135991129,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "d6cef6e22b43bffba5acaa9a635da85ecb4adee9d9d9f2b3f326cbaf95131200",
+                "scene-linear-rgba.f32": "2378e5f504dff5f841645394b202324dfecc90a1d1c9ee60fc8953df2dcdfcd7",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "61014b079c7d783b1e329c544b2116990d3b73200007937aa2dc1a44878f2ce1",
+              "minimum_rgb": 0.001489492948167026,
+              "maximum_rgb": 17.335050582885742,
+              "hdr_samples_above_one": 161199
+            }
+          }
+        }
+      ]
+    },
+    {
+      "overlay": "window-only",
+      "requestedSpecialization": "k32",
+      "effectivePolicy": {
+        "gemm": "k16",
+        "windowAttention": "k32",
+        "globalAttention": "k16; unchanged baseline module"
+      },
+      "identity": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "79c15c999e09b9ea6b84b0c6cf6428b20f2377edcbdc3dc699dbc9de75a1c399",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+      },
+      "gpuExitCode": 0,
+      "qualityExitCode": 1,
+      "qualityGatePassed": false,
+      "resultSha256": "6a6ad71e316f3ae1146e35a8445407f72be0f1da65b0f41c32d92fccf8caf1ce",
+      "rawQualitySha256": "4d1fd4c0903e555093eda2d7b4f2debee4ff19eda747c14ab1fd4158ca1f3d26",
+      "rawManifestSha256": "2b301176cdbe4bf095e4167db4413d9e3e2a741a97ba0992f94cd9dfbff82a4e",
+      "gpuLogSha256": "93af0d32920750957563a81259d45d59f9a793b8cdd49b9ca30409991f5acb26",
+      "cases": [
+        {
+          "name": "sdr-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0036676634083252207,
+            "rmse": 0.0052377853750925065,
+            "max_absolute_error": 0.031112074851989746,
+            "different_samples": 306423,
+            "psnr_db": 45.617046026282495,
+            "exact": false,
+            "ssim": 0.9977944490672431,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "ddb6c152765e5ebd4f30fdfb05a06bd2c791c93c1dc0080d1c78477f6e904c7f",
+                "scene-linear-rgba.f32": "ce72ec0bfade2f61da9f3831a8da44b71502bc93e1e95a85a48969be53f7a91a",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "d509f47c6cbb9f0f6dd8993b624f09735ca89efdaa590c4165c3f50e3ac31caf",
+              "minimum_rgb": -1.9588817679050408e-07,
+              "maximum_rgb": 0.8283544778823853,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "sdr-temporal",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.006116172486249525,
+            "rmse": 0.008009239284839475,
+            "max_absolute_error": 0.04407179355621338,
+            "different_samples": 306784,
+            "psnr_db": 41.928174622348834,
+            "exact": false,
+            "ssim": 0.9926195235354024,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+                "head.f32": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+                "scene-linear-rgba.f32": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+                "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+              },
+              "pfm_sha256": "b0a78fe51fba21da87a6c76564c6763d202b20ee89dd78aaddee4e33aebb23a1",
+              "minimum_rgb": 0.0021164356730878353,
+              "maximum_rgb": 0.8545121550559998,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+                "head.f32": "5318f6dcd3d227b4c20676a7e86764c17a117d8781f06ab7da2906de270b8ed1",
+                "scene-linear-rgba.f32": "a1042d6710f904ae602f2a28014ede41b2d069e1dc356903ccd38f7cd39541f5",
+                "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+              },
+              "pfm_sha256": "d6fd359bbda5c8635dd5a9c8df5b1bfea2822553811f9f139c4b43551127fd5d",
+              "minimum_rgb": 0.0021385077852755785,
+              "maximum_rgb": 0.8474032282829285,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "sdr-camera-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0036676634083252207,
+            "rmse": 0.0052377853750925065,
+            "max_absolute_error": 0.031112074851989746,
+            "different_samples": 306423,
+            "psnr_db": 45.617046026282495,
+            "exact": false,
+            "ssim": 0.9977944490672431,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "ddb6c152765e5ebd4f30fdfb05a06bd2c791c93c1dc0080d1c78477f6e904c7f",
+                "scene-linear-rgba.f32": "ce72ec0bfade2f61da9f3831a8da44b71502bc93e1e95a85a48969be53f7a91a",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "d509f47c6cbb9f0f6dd8993b624f09735ca89efdaa590c4165c3f50e3ac31caf",
+              "minimum_rgb": -1.9588817679050408e-07,
+              "maximum_rgb": 0.8283544778823853,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "hdr-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.025588579452004677,
+            "rmse": 0.03636609230398337,
+            "max_absolute_error": 0.563227653503418,
+            "different_samples": 307160,
+            "psnr_db": 28.786067265677076,
+            "exact": false,
+            "ssim": 0.9849471702886591,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "864e809ddc1fce93cdd6473346c13a4cfab136c353f273c3bebdf53ba5e4fd53",
+                "scene-linear-rgba.f32": "4506c7545b0c3c9a51140b36c339c65fa82c71d4dd0c515b80795ebe7d338e9f",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "394c10b2cd20ed96eb1514ab09d631f8c7f1ad798cc7024ab722d34340f05c91",
+              "minimum_rgb": 0.004538350272923708,
+              "maximum_rgb": 17.39614486694336,
+              "hdr_samples_above_one": 160483
+            }
+          }
+        },
+        {
+          "name": "hdr-temporal",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.00968278273861112,
+            "rmse": 0.01676395430981689,
+            "max_absolute_error": 0.3747997283935547,
+            "different_samples": 306753,
+            "psnr_db": 35.5124706301371,
+            "exact": false,
+            "ssim": 0.9870066249162622,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+                "head.f32": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+                "scene-linear-rgba.f32": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+                "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+              },
+              "pfm_sha256": "b05c8fc96152e5127e3c3a8dfbe31f4b2be6a4a5bc1b5d814e67b6af2dc739d3",
+              "minimum_rgb": 0.004615298006683588,
+              "maximum_rgb": 17.782495498657227,
+              "hdr_samples_above_one": 158287
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+                "head.f32": "1b21a3712fa3ed57c86d76e02bca42aeaf6fed0c542bb194aa8b63c0c4444541",
+                "scene-linear-rgba.f32": "302056f26fb21a81e3bde8e611d848e4fc314caf41adc20efec5e8f0a65406ef",
+                "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+              },
+              "pfm_sha256": "c5e6d6de77dc7c5044acba9d48b6864ae7daa1beb47a182e505cb4bcf1471fe5",
+              "minimum_rgb": 0.003949691075831652,
+              "maximum_rgb": 17.769153594970703,
+              "hdr_samples_above_one": 157612
+            }
+          }
+        },
+        {
+          "name": "hdr-camera-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.025588579452004677,
+            "rmse": 0.03636609230398337,
+            "max_absolute_error": 0.563227653503418,
+            "different_samples": 307160,
+            "psnr_db": 28.786067265677076,
+            "exact": false,
+            "ssim": 0.9849471702886591,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "864e809ddc1fce93cdd6473346c13a4cfab136c353f273c3bebdf53ba5e4fd53",
+                "scene-linear-rgba.f32": "4506c7545b0c3c9a51140b36c339c65fa82c71d4dd0c515b80795ebe7d338e9f",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "394c10b2cd20ed96eb1514ab09d631f8c7f1ad798cc7024ab722d34340f05c91",
+              "minimum_rgb": 0.004538350272923708,
+              "maximum_rgb": 17.39614486694336,
+              "hdr_samples_above_one": 160483
+            }
+          }
+        }
+      ]
+    },
+    {
+      "overlay": "window-only",
+      "requestedSpecialization": "final",
+      "effectivePolicy": {
+        "gemm": "k16",
+        "windowAttention": "final",
+        "globalAttention": "k16; unchanged baseline module"
+      },
+      "identity": {
+        "device_id": "1002:7550",
+        "driver_id": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "model_sha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+        "shader_sha256": "79c15c999e09b9ea6b84b0c6cf6428b20f2377edcbdc3dc699dbc9de75a1c399",
+        "baseline_shader_sha256": "360c9488cd87c7e1de22d6b56f051921e9d4408f2efbd70ad1d3b01084ad3dae"
+      },
+      "gpuExitCode": 0,
+      "qualityExitCode": 1,
+      "qualityGatePassed": false,
+      "resultSha256": "44ed4882cabad6150b53fd3ff3cd772d5e0dde4b03ba2d560882043c0d696ffa",
+      "rawQualitySha256": "8b596178876136036c53da8d6e191d70ade8237309987eb41fe542b25486671b",
+      "rawManifestSha256": "f36f85739968f49120a22c0d4b84f4199a78ff4702d9711ecb213cb49e867330",
+      "gpuLogSha256": "6316f11c431783285c9dc01e1dc8eac2e429d3530f49574e8579bacbbdb898e4",
+      "cases": [
+        {
+          "name": "sdr-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0038310690816599426,
+            "rmse": 0.00534366951932435,
+            "max_absolute_error": 0.030884087085723877,
+            "different_samples": 306419,
+            "psnr_db": 45.44320817521579,
+            "exact": false,
+            "ssim": 0.9972985264440338,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "be182869082d0a659777924425c8f22701b9afa42c11e01b3fc9b3bc6dfe90a4",
+                "scene-linear-rgba.f32": "412f38bbfe421f665abee806237b81bcd37af2ea817253297d9e76579f1d5057",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "e744c21c0e1bd295b18546242d1a68b2d0fb7810810c352fbc8e6e28154f7d02",
+              "minimum_rgb": -4.706283220912155e-07,
+              "maximum_rgb": 0.8283541798591614,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "sdr-temporal",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.009087226354770337,
+            "rmse": 0.012267654962070997,
+            "max_absolute_error": 0.060832858085632324,
+            "different_samples": 306954,
+            "psnr_db": 38.22476894817626,
+            "exact": false,
+            "ssim": 0.9921835668138351,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+                "head.f32": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+                "scene-linear-rgba.f32": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+                "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+              },
+              "pfm_sha256": "b0a78fe51fba21da87a6c76564c6763d202b20ee89dd78aaddee4e33aebb23a1",
+              "minimum_rgb": 0.0021164356730878353,
+              "maximum_rgb": 0.8545121550559998,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+                "head.f32": "7c9a7e5abe41bb80931dad4a45b2d945898554f1d4e1cf80b08a3a8651b577cb",
+                "scene-linear-rgba.f32": "af2155372be3fe475cfb56d9e353918df97ac72ff08907a435e90b9442f4f3e5",
+                "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de"
+              },
+              "pfm_sha256": "01c45271cdc9ad9edb85bfeb9e646f601e177257a761aa82daae460b7c773203",
+              "minimum_rgb": 0.0017289596144109964,
+              "maximum_rgb": 0.8217355012893677,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "sdr-camera-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.0038310690816599426,
+            "rmse": 0.00534366951932435,
+            "max_absolute_error": 0.030884087085723877,
+            "different_samples": 306419,
+            "psnr_db": 45.44320817521579,
+            "exact": false,
+            "ssim": 0.9972985264440338,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": true,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+                "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f",
+              "minimum_rgb": -5.355104235604813e-07,
+              "maximum_rgb": 0.8283277153968811,
+              "hdr_samples_above_one": 0
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+                "head.f32": "be182869082d0a659777924425c8f22701b9afa42c11e01b3fc9b3bc6dfe90a4",
+                "scene-linear-rgba.f32": "412f38bbfe421f665abee806237b81bcd37af2ea817253297d9e76579f1d5057",
+                "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60"
+              },
+              "pfm_sha256": "e744c21c0e1bd295b18546242d1a68b2d0fb7810810c352fbc8e6e28154f7d02",
+              "minimum_rgb": -4.706283220912155e-07,
+              "maximum_rgb": 0.8283541798591614,
+              "hdr_samples_above_one": 0
+            }
+          }
+        },
+        {
+          "name": "hdr-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.013611871772834547,
+            "rmse": 0.02440322214605595,
+            "max_absolute_error": 0.382049560546875,
+            "different_samples": 307068,
+            "psnr_db": 32.25105653235349,
+            "exact": false,
+            "ssim": 0.9913951005487571,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "50ffc888fb9696d38ac7f5213ab8728605f180563127d248f178d004e10d7e25",
+                "scene-linear-rgba.f32": "c9d7ddcb5021b415affd63f6425d580743c9735fba2bf2f919ef850e2d32753f",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "a5cb89cae2682fbfdc26a861927e98d53407fca093cb3681bd7b440098c0e1ed",
+              "minimum_rgb": 0.003512272145599127,
+              "maximum_rgb": 17.342763900756836,
+              "hdr_samples_above_one": 160596
+            }
+          }
+        },
+        {
+          "name": "hdr-temporal",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.011891071149927181,
+            "rmse": 0.01794309749043653,
+            "max_absolute_error": 0.4283447265625,
+            "different_samples": 306846,
+            "psnr_db": 34.922051664093026,
+            "exact": false,
+            "ssim": 0.9869745205448015,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+                "head.f32": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+                "scene-linear-rgba.f32": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+                "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+              },
+              "pfm_sha256": "b05c8fc96152e5127e3c3a8dfbe31f4b2be6a4a5bc1b5d814e67b6af2dc739d3",
+              "minimum_rgb": 0.004615298006683588,
+              "maximum_rgb": 17.782495498657227,
+              "hdr_samples_above_one": 158287
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+                "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+                "head.f32": "43a398c621230d7afd709ca1c5ecdc69a2d2be2ec7c43e85993c904bb46be32d",
+                "scene-linear-rgba.f32": "b064ab8124544ce2c5a28036dda3c47a28a8318136271b07047823a851d5d2cb",
+                "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a"
+              },
+              "pfm_sha256": "bdcdd08ac5b3f6c3aa186ad0e6c98a33c59cb213552ff3ea5257e8d7329d51b9",
+              "minimum_rgb": 0.005601502489298582,
+              "maximum_rgb": 17.745512008666992,
+              "hdr_samples_above_one": 157034
+            }
+          }
+        },
+        {
+          "name": "hdr-camera-reset",
+          "metrics": {
+            "width": 320,
+            "height": 320,
+            "channels": 3,
+            "peak": 1.0,
+            "mae": 0.013611871772834547,
+            "rmse": 0.02440322214605595,
+            "max_absolute_error": 0.382049560546875,
+            "different_samples": 307068,
+            "psnr_db": 32.25105653235349,
+            "exact": false,
+            "ssim": 0.9913951005487571,
+            "ssim_method": "11x11 Gaussian sigma=1.5, K1=.01 K2=.03, population moments, channel mean, valid windows (5-pixel border excluded), data_range=peak",
+            "psnr_note": "null means exact/infinite PSNR; float/HDR comparisons use the explicitly recorded peak"
+          },
+          "qualityGatePassed": false,
+          "provenance": {
+            "reference": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+                "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609",
+              "minimum_rgb": 0.0008596715051680803,
+              "maximum_rgb": 17.36393165588379,
+              "hdr_samples_above_one": 161205
+            },
+            "candidate": {
+              "hashes": {
+                "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+                "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+                "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+                "head.f32": "50ffc888fb9696d38ac7f5213ab8728605f180563127d248f178d004e10d7e25",
+                "scene-linear-rgba.f32": "c9d7ddcb5021b415affd63f6425d580743c9735fba2bf2f919ef850e2d32753f",
+                "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440"
+              },
+              "pfm_sha256": "a5cb89cae2682fbfdc26a861927e98d53407fca093cb3681bd7b440098c0e1ed",
+              "minimum_rgb": 0.003512272145599127,
+              "maximum_rgb": 17.342763900756836,
+              "hdr_samples_above_one": 160596
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "conclusion": "REJECT all four relaxed-publication variants; keep preserving K16",
+  "performanceMeasured": false,
+  "productionIntegrated": false,
+  "capturedGameQualityEstablished": false,
+  "visualMotionReviewCompleted": false,
+  "nvidiaParityEstablished": false,
+  "limitations": [
+    "Six generated scenes include reset, temporal composition and camera reset in SDR and HDR-highlight domains; they are not a captured gameplay sequence.",
+    "Fixed requested history is identical across comparisons; histories are not independently evolved over this six-case suite.",
+    "All-fixed controls requested K32/final but execute preserving K16 in all three families. They reproduce 18 raw buffers each exactly, including the actually selected global-attention alias. This is bounded case evidence.",
+    "Supplied global arithmetic specialization is ignored by the pinned family module; effective per-family policy in this record must accompany raw CLI logs/manifests.",
+    "No inference-latency, bridge-latency or FPS measurement was performed for rejected arithmetic variants."
+  ]
+}

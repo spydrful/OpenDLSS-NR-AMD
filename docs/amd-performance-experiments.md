@@ -333,6 +333,42 @@ the worst final-publication result is **34.8592 dB / 0.985200 SSIM**. Both miss 
 not replace absolute-reference or broad game quality validation. Neither
 arithmetic policy is promoted.
 
+## Isolated accumulation experiments after alpha 5
+
+The [separate family-arithmetic evidence](performance/family-arithmetic-rx9070xt-20261003.json)
+isolates relaxed publication in GEMM from relaxed publication in window
+attention, using the repaired alpha 5 Pair/Arena Q32 route as the comparator.
+Two all-fixed control runs, requesting K32 and final publication, first reproduce
+K16 exactly in **18 raw-buffer checks each**: neural head, scene-linear
+composition and published history for all six generated 320×320 scenes. These
+controls verify the original global-attention module under the filename selected
+by the experimental runtime branch. In the isolated runs, the other family stays
+at K16; global attention, layer formats, residual placement, exponent and softmax
+tree stay unchanged.
+
+| Effective GEMM publication | Effective window publication | Lowest PSNR | Lowest SSIM | Result |
+| --- | --- | ---: | ---: | --- |
+| K32 | K16 | 33.8525 dB | 0.984625 | Reject |
+| End of accumulation | K16 | 34.7471 dB | 0.985171 | Reject |
+| K16 | K32 | 28.7861 dB | 0.984947 | Reject |
+| K16 | End of accumulation | 32.2511 dB | 0.986975 | Reject |
+
+Each relaxed variant fails all three HDR-highlight cases. Both K32 variants
+pass the three SDR cases; both final-publication variants also fail the SDR
+temporal case. PSNR and SSIM minima can come from different frames; every
+frame must meet both **40 dB / 0.99** thresholds using unclamped scene-linear RGB
+and data range 1.0. No performance run follows these rejected quality screens.
+These generated reset, temporal-composition and camera-reset cases use matched
+inputs and histories; they do not establish independently evolved sequence
+quality, game motion review or original NVIDIA parity.
+
+These are private shader overlays, with no added public runtime policy or
+default change. The existing CLI records the requested global specialization;
+the pinned overlay ignores that specialization in one family. The evidence's
+explicit **effective per-family policy**, source/module hashes and K16 sanity
+checks describe the executed experiment. Raw CLI selections alone cannot
+identify it. Preserving K16 remains the performance-development path.
+
 ## Reproduce the development route
 
 Use the Windows toolchain prerequisites in [AMD.md](AMD.md#build-and-local-checks).
