@@ -170,6 +170,9 @@ The [installation guide](INSTALL.md#optional-pairarena-selection) provides
 process-only game selection and reversal. NR remains disabled until enabled
 deliberately. Alpha 5 includes the original MIT core/importer notices, GPL host
 corresponding source and dependency notices. NVIDIA DLLs, extracted weights,
-model buffers and game captures remain excluded. Final package/publication
-identities are recorded when delivery completes; rebuilt EXE/DLL byte identity
-is not claimed.
+model buffers and game captures remain excluded. The
+[verified publication record](performance/alpha5-release-identities.json) binds
+the tag and download hashes. The core, runtime, importer tests and GPL host
+rebuild from the included corresponding source; all 31 native and two game
+shader modules match the shipped bytes. Rebuilt EXE/DLL byte identity is not
+claimed. Earlier alpha releases remain unchanged.

@@ -1,0 +1,396 @@
+{
+  "format": "OpenNR-alpha5-release-identities-v1",
+  "verified_utc": "2026-10-03T21:39:00.317492+00:00",
+  "source_commit": "89758137b016f4407f8ad05c8d30dab46737d497",
+  "release_tag": "v0.1.0-alpha.5",
+  "release_id": 402700450,
+  "release_url": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.5",
+  "prerelease": true,
+  "draft": false,
+  "assets": [
+    {
+      "name": "OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip",
+      "url": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/download/v0.1.0-alpha.5/OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip",
+      "size": 312480684,
+      "digest": "sha256:e8b58e5635813d51d31795af51f0e9f4ccf40f6b9084971c1f061f2ecf26b7cb"
+    },
+    {
+      "name": "OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip.sha256",
+      "url": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/download/v0.1.0-alpha.5/OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip.sha256",
+      "size": 105,
+      "digest": "sha256:951c12671b52e9ca0efd9eae7fe77ed4cb16c15f3685abd625e013c39d269775"
+    }
+  ],
+  "package_manifest": {
+    "path": "dist/OpenNR-AMD-v0.1.0-alpha.5-rx9070xt/package-manifest.json",
+    "sha256": "d5243bda1c34f2ccc3db3d88d1510393da581300a2e51246d411eda965f75ea0",
+    "bytes": 19144
+  },
+  "archive_audit": {
+    "format": "OpenNR-alpha5-archive-audit-v1",
+    "sourceCommit": "89758137b016f4407f8ad05c8d30dab46737d497",
+    "releaseTag": "v0.1.0-alpha.5",
+    "fileCount": 10838,
+    "zipBytes": 312480684,
+    "zipSha256": "e8b58e5635813d51d31795af51f0e9f4ccf40f6b9084971c1f061f2ecf26b7cb",
+    "allEmbeddedFileHashesMatched": true,
+    "reviewedArtifactIdentities": {
+      "tools/dlss5vk.exe": "d6ffdde401a08a3e85dd1dcea4c141ded8be103921c9cf330d21f5f31dedb0cd",
+      "payload/OpenNrRuntime.dll": "a34b12793524766382bda7d9680ab83e24ac61d0077087831064526980218d38",
+      "payload/OptiScaler.dll": "3c43bb1d4a5843b68b0537b8703c4a0c12bf4e47f17c53e225df57cad276dee7",
+      "payload/open-nr/shaders/amd-tuning.json": "4037216e4127c19281ddc0f986afc2118af49f125d2e3886648b6c7804deaefe"
+    },
+    "nrEnabledByDefault": false,
+    "proprietaryArtifactsFound": false,
+    "managedPayloadFiles": 44,
+    "sourceArchives": 5
+  },
+  "independent_package_source_audit": {
+    "format": "OpenNR-alpha5-independent-package-audit-v1",
+    "status": "PASS",
+    "scope": "CPU read-only package/source audit; no GPU or game run",
+    "source_commit": "89758137b016f4407f8ad05c8d30dab46737d497",
+    "package": "D:\\amd\\dist\\OpenNR-AMD-v0.1.0-alpha.5-rx9070xt",
+    "package_manifest_sha256": "d5243bda1c34f2ccc3db3d88d1510393da581300a2e51246d411eda965f75ea0",
+    "public_summary_sha256": "eee7071d8d56d289bb553a0e829ef868daf144fb48427894189166940f68bdd4",
+    "file_count": 10838,
+    "managed_payload_files": 44,
+    "hashed_manifest_refs": 66,
+    "diagnostic_executable_sha256": "d6ffdde401a08a3e85dd1dcea4c141ded8be103921c9cf330d21f5f31dedb0cd",
+    "runtime_dll_sha256": "a34b12793524766382bda7d9680ab83e24ac61d0077087831064526980218d38",
+    "native_modules": 31,
+    "game_modules": 2,
+    "unchanged_auto_tuning_sha256": "4037216e4127c19281ddc0f986afc2118af49f125d2e3886648b6c7804deaefe",
+    "tracked_corresponding_source_files": 522,
+    "only_lf_normalized_source_paths": [
+      ".gitignore",
+      "docs/amd-performance-implementation.md",
+      "docs/cyberpunk-alpha2-validation.md",
+      "docs/releases/v0.1.0-alpha.2.md",
+      "game/compat/LmxxfNrApi.h",
+      "game/compat/MochizukiNrControls.h",
+      "game/shaders/game_composite.comp",
+      "game/shaders/game_preprocess.comp",
+      "integrations/optiscaler/LICENSE",
+      "shaders/amd_global_matrix_optimized.comp"
+    ],
+    "extra_corresponding_source_files": {
+      "integrations/optiscaler": 5,
+      "tools/Vulkan-Headers": 81,
+      "tools/volk": 21,
+      "tools/glslang": 21,
+      "tools/cmake": 5879,
+      "third_party/optiscaler-host": 4225
+    },
+    "modified_host_files_checked": 4225,
+    "compiled_source_bindings": 101,
+    "public_scalar_files": 44,
+    "license_notices_checked": 14,
+    "static_source_archives": 5,
+    "pe_files": [
+      "payload/OpenNrRuntime.dll",
+      "payload/OptiScaler/amd_fidelityfx_loader_dx12.dll",
+      "payload/OptiScaler/amd_fidelityfx_upscaler_dx12.dll",
+      "payload/OptiScaler/D3D12_OptiScaler/D3D12Core.dll",
+      "payload/OptiScaler.dll",
+      "tools/dlss5vk.exe",
+      "tools/model_importer.exe"
+    ],
+    "nvidia_binaries_model_weights_game_capture_files_found": false,
+    "nr_enabled_by_default": false,
+    "arithmetic_default": "k16",
+    "auto_candidate_promotion": false,
+    "all_package_refs_source_committed_bytes_and_tested_module_identities_match": true,
+    "limitations": [
+      "Byte-reproduction of supplied static libraries is not established; version-matched source and notices are included.",
+      "Windows SDK identity was not independently frozen.",
+      "Broad image/game performance gates remain unmet."
+    ],
+    "passed": true,
+    "independent_detailed_proof": {
+      "path": "build/release/alpha5-independent-package-audit-0e7a3eaab8c34b998f6b995585dd1850/verification.json",
+      "sha256": "73e74a90912e2d6d38cef946b87b31c32290526f5ae2a3e98bfc7f961e6faf48"
+    }
+  },
+  "network_evidence": {
+    "path": "docs/performance/pair-arena-rx9070xt-20261003.json",
+    "sha256": "eee7071d8d56d289bb553a0e829ef868daf144fb48427894189166940f68bdd4",
+    "bytes": 155488
+  },
+  "source_package_build": {
+    "passed": true,
+    "log": {
+      "path": "build/release/alpha5-source-package-build.log",
+      "sha256": "9b234dc9322cfed0238777f27b8368b54ed449f943bc11559ed6da3d2ca663a3",
+      "bytes": 786
+    },
+    "products": [
+      {
+        "path": "build/source-package-test-e121d438406a49dcaac6fe78c8bf0665/build/dlss5vk.exe",
+        "sha256": "b1047203ab01b00c115d6338c829866d29e2694873772f4b7e9513c83fd7b206",
+        "bytes": 1151488
+      },
+      {
+        "path": "build/source-package-test-e121d438406a49dcaac6fe78c8bf0665/build/game/OpenNrRuntime.dll",
+        "sha256": "fb921fd5c905a7eee8f8021dbfc63555dd5c81a8ae903bcc3f0b7e9330afc0cb",
+        "bytes": 574976
+      },
+      {
+        "path": "build/source-package-test-e121d438406a49dcaac6fe78c8bf0665/build/importer/model_importer.exe",
+        "sha256": "cd1b026913f66fff8a6ea7ebb220c5a8e63bdecc7ed181fae897505e0c6b5249",
+        "bytes": 359936
+      },
+      {
+        "path": "build/source-package-test-e121d438406a49dcaac6fe78c8bf0665/build/optiscaler/OptiScaler.dll",
+        "sha256": "8816ea3434b17336376bb71eef3096c898a613d34cfe0f84d06176d06f6daaaa",
+        "bytes": 27041280
+      }
+    ],
+    "fresh_shader_rebuilds": [
+      {
+        "name": "amd_block32.spv",
+        "family": "native",
+        "sha256": "e9638615189dfd1dd5cc9620fed839dcb1d0de9daf031e92cd8ac580ed13af5e",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_expert_ffn.spv",
+        "family": "native",
+        "sha256": "e0e8e15e636cafd2b32d1f3a6237a4134bd46658757ad7886863a111927dbac1",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_ffn32.spv",
+        "family": "native",
+        "sha256": "1b4aa577e62bf3ff67b61b6da972b95d91058d7259488d82e1a75dfcf4e14ccc",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_gemm.spv",
+        "family": "native",
+        "sha256": "848a6b21bcf5470ad083d64680cba6dc25c11a6b6b3a286982698eea088c3305",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_gemm_direct.spv",
+        "family": "native",
+        "sha256": "f7cb8e5e596fa92792de7b1acc1013d765b1c0cf181d82b08d0e8dc16ed685d9",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_gemm_direct_rte.spv",
+        "family": "native",
+        "sha256": "f2fe7abcb5a4d714dcd466a9ba96834d54b9160ccb3d20a75e8aeab84f3a8677",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_gemm_direct_rte_epilogue.spv",
+        "family": "native",
+        "sha256": "82bdcb6cc9b295578081467c03bfdf017b1f06aab0955326d791c5ef8a685f0f",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_gemm_direct_rte_init.spv",
+        "family": "native",
+        "sha256": "bf90bffb6b28731566b8c70cf4a75fb091bb60e7ba56cc6503c35a7a89d85c3c",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_gemm_direct_rte_pair.spv",
+        "family": "native",
+        "sha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_gemm_optimized.spv",
+        "family": "native",
+        "sha256": "8673dfb3bb0f30d987c44e4d77df3850bcf44818c5b095e0065a1378e6d6fc23",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_gemm_packed.spv",
+        "family": "native",
+        "sha256": "583da6f979a7bb20ca61b71e3a80b0597167ac41adde9ab8afca6dd59a36d31c",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_global.spv",
+        "family": "native",
+        "sha256": "733d41fa9b48317e863dfa35a039418f4e950155cff67ecfb6e30a002289901d",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_global_matrix.spv",
+        "family": "native",
+        "sha256": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_global_matrix_optimized.spv",
+        "family": "native",
+        "sha256": "f5d52ffd0e14da7136bb17b71ee37ced4a029efd8a6d4aa0e68d896b0fcb7626",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_global_normalize.spv",
+        "family": "native",
+        "sha256": "caeb9fbaf68519e06219ee7455a2521f28f5bf9fda6b17bc8e5631763541a8aa",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_qkv32.spv",
+        "family": "native",
+        "sha256": "2dbdfd7e725e2cfd09e8c09e0aa60ce09a487272bc93d47bd328818d5824224b",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_window.spv",
+        "family": "native",
+        "sha256": "76307130e55cb4281ab14c671e1afea404e9df2f83f1c3ade391a7111e0ebf78",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_window_arena_rte.spv",
+        "family": "native",
+        "sha256": "93af10965760ea7b9308f8a3cad63260d035b6dd22d1babbf9223a0195f6b8de",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_window_normalize.spv",
+        "family": "native",
+        "sha256": "c5c8161b72282e283b5ab108f732a328731da39fb5d02c2500a9230b754fe008",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_window_optimized.spv",
+        "family": "native",
+        "sha256": "02bd200ba23be279bc1b3f6a4fc998d9648f576c7c940db09db21cfeb9ff7f75",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_window_register.spv",
+        "family": "native",
+        "sha256": "73081387738a6697a27d9559ea4cc76157f39761e85dc841f634499e08338462",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_window_register_rte.spv",
+        "family": "native",
+        "sha256": "9ff6958330657dbf8fe6dbc86d1dd520fb3b0c80e9afbdf39cf78a3995314569",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "amd_window_small.spv",
+        "family": "native",
+        "sha256": "8406622ac4c6162646d3cc3185eaa0a60bbb03443efeca614fa9f644a80faab2",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "global_normalize.spv",
+        "family": "native",
+        "sha256": "a8d7ca16a8020fb8f033c11119540869e2daf680b102d7c1d08771f87aaaa8cd",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "ops.spv",
+        "family": "native",
+        "sha256": "6fc879c4d5563225548dd40f2050d81dbbda8e61bf0e77408e743bfba712c7f2",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "portable_f16.spv",
+        "family": "native",
+        "sha256": "843388324a4c1211dca82b2711cc22b4db144e3404b79ab4bb74170ac04fba6b",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "portable_gemm.spv",
+        "family": "native",
+        "sha256": "c64d7598632790ca581211581994a60ff24b04e3d904cfae0eadf930ea8f7d85",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "portable_global.spv",
+        "family": "native",
+        "sha256": "b76b366a52de8de92a27a92072ae4e1c3902fee84f9ca649c0ac9f97c3bbb06f",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "portable_window.spv",
+        "family": "native",
+        "sha256": "4953c2c4f53921b92da407df604cefb44789d00de08ec60d3d0fa736de1ac675",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "preprocess.spv",
+        "family": "native",
+        "sha256": "3674eed6b58a4c6a3fa868a1628b704b93ebd693d5c81981eddf3f66ee65adba",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "window_normalize.spv",
+        "family": "native",
+        "sha256": "c9218555db0fb623a049b984ec04e82313efeecd89745c020152e82dac18b6ac",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "game_composite.spv",
+        "family": "game",
+        "sha256": "7af79e07a1e56f0916f93038a6068fb5d7bc3ccd2fc28d5e7f7808762c0bb61d",
+        "fresh_source_rebuild_matches": true
+      },
+      {
+        "name": "game_preprocess.spv",
+        "family": "game",
+        "sha256": "ef4acf9c54e25c84bb8898e6a1682d35cedfc3c22cd08d1f35019e915b6f7775",
+        "fresh_source_rebuild_matches": true
+      }
+    ],
+    "runtime_exe_or_host_byte_reproduction_claimed": false
+  },
+  "nr_enabled_by_default": false,
+  "arithmetic_default": "k16",
+  "pair_arena_opt_in": true,
+  "qualified_auto_cache_changed": false,
+  "older_alpha1_to_alpha4_unchanged": true,
+  "older_release_before": {
+    "path": "build/release/older-releases-alpha5-before.json",
+    "sha256": "a9aab8e168bbf568fa2a2f94e286fb4b00100909fafd52e5f917d35243103264",
+    "bytes": 5517
+  },
+  "older_release_after": {
+    "path": "build/release/older-releases-alpha5-after.json",
+    "sha256": "a9aab8e168bbf568fa2a2f94e286fb4b00100909fafd52e5f917d35243103264",
+    "bytes": 5517
+  },
+  "nvidia_dlls_or_weights_or_game_captures_included": false,
+  "git_tag_check": "Remote tag verified by publication helper against the source commit",
+  "release_notes_source": {
+    "path": "docs/releases/v0.1.0-alpha.5.md",
+    "sha256": "da245bf321f2aed1578206d499c077a5508c7d2d947c51403ebb7be68430d7a9",
+    "bytes": 6598
+  },
+  "release_notes_published": {
+    "path": "build/release/alpha5-github-notes-v2.md",
+    "sha256": "5055eb75b611b2c35405508f18e4d0531a66353e218f9ad39222b5d5da12bf80",
+    "bytes": 6704
+  },
+  "release_notes_link_conversion": "Relative repository documentation links converted to absolute tag-bound URLs for GitHub release body",
+  "limitations": [
+    "The network-only median of 50.500780 ms does not meet the 8 ms NR-plus-bridge or 16.67 ms full-frame targets.",
+    "Broad image/motion quality, new complete Cyberpunk FPS, bridge timings, game VRAM and ten-minute gameplay remain unverified.",
+    "Original NVIDIA parity, RX 7000 acceleration and other drivers remain unclaimed.",
+    "This publication record was added after the frozen package/tag; it does not rewrite release assets."
+  ],
+  "release_notes_binding": {
+    "local_file_raw_utf8_sha256": "5055eb75b611b2c35405508f18e4d0531a66353e218f9ad39222b5d5da12bf80",
+    "local_file_raw_bytes": 6704,
+    "local_file_crlf_count": 106,
+    "http_body_utf8_sha256": "da245bf321f2aed1578206d499c077a5508c7d2d947c51403ebb7be68430d7a9",
+    "http_body_utf8_bytes": 6598,
+    "text_equal_after_only_crlf_to_lf_normalization": true,
+    "actual_live_body_verified": true,
+    "utf8_encoding_verified": true,
+    "scope": "The HTTP body is UTF-8 text with LF. The local notes artifact uses Windows CRLF. Their raw byte hashes intentionally differ."
+  }
+}

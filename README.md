@@ -22,6 +22,9 @@ See the [alpha 5 release notes](docs/releases/v0.1.0-alpha.5.md),
 [installation and optional-selection guide](docs/INSTALL.md),
 [Pair/Arena delivery record](docs/amd-pair-arena-delivery.md)
 and [measured evidence](docs/performance/pair-arena-rx9070xt-20261003.json).
+The [verified alpha 5 publication record](docs/performance/alpha5-release-identities.json)
+binds the source tag, download hashes and corresponding-source rebuild. All 33
+shipped shader modules match that fresh rebuild exactly.
 The earlier [alpha 4 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.4)
 remains unchanged. Its [publication identities](docs/performance/alpha4-release-identities.json)
 record the verified source tag, GitHub asset hashes and corresponding-source checks.
