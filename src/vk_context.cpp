@@ -1,4 +1,5 @@
 #include "vk_context.h"
+#include "vk_readback.h"
 
 #include <algorithm>
 #include <atomic>
@@ -468,15 +469,18 @@ void Context::destroyBuffer(Buffer& buffer) {
 }
 
 void Context::upload(const Buffer& target, const void* data, VkDeviceSize size, VkDeviceSize offset) {
-  if (offset + size > target.size) throw std::runtime_error(std::string("upload overflows ") + target.label);
+  if (!readback::validRange(target.size, size, offset))
+    throw std::runtime_error(std::string("upload overflows ") + target.label);
   const uint8_t* bytes = static_cast<const uint8_t*>(data);
   VkDeviceSize done = 0;
   while (done < size) {
     VkDeviceSize chunk = std::min(size - done, staging_.size);
     memcpy(staging_.mapped, bytes + done, chunk);
     VkCommandBuffer commands = beginCommands();
+    transferBarrier(commands);
     VkBufferCopy region{0, offset + done, chunk};
     vkCmdCopyBuffer(commands, staging_.buffer, target.buffer, 1, &region);
+    transferBarrier(commands);
     endAndSubmit(commands, true);
     done += chunk;
   }
@@ -484,19 +488,32 @@ void Context::upload(const Buffer& target, const void* data, VkDeviceSize size, 
 
 void Context::fillZero(const Buffer& target) {
   VkCommandBuffer commands = beginCommands();
+  transferBarrier(commands);
   vkCmdFillBuffer(commands, target.buffer, 0, VK_WHOLE_SIZE, 0);
+  transferBarrier(commands);
   endAndSubmit(commands, true);
 }
 
 std::vector<uint8_t> Context::download(const Buffer& source, VkDeviceSize size, VkDeviceSize offset) {
-  if (offset + size > source.size) throw std::runtime_error(std::string("download overflows ") + source.label);
+  if (!readback::validRange(source.size, size, offset))
+    throw std::runtime_error(std::string("download overflows ") + source.label);
   std::vector<uint8_t> result(size);
   VkDeviceSize done = 0;
   while (done < size) {
     VkDeviceSize chunk = std::min(size - done, staging_.size);
     VkCommandBuffer commands = beginCommands();
+    // This helper is outside timed inference. Include prior upload/capture
+    // writes as well as compute output before the staged transfer reads it.
+    auto before = readback::deviceWritesToTransfer();
+    VkDependencyInfo dependency{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
+    dependency.memoryBarrierCount = 1;
+    dependency.pMemoryBarriers = &before;
+    vkCmdPipelineBarrier2(commands, &dependency);
     VkBufferCopy region{offset + done, 0, chunk};
     vkCmdCopyBuffer(commands, source.buffer, staging_.buffer, 1, &region);
+    auto after = readback::transferWritesToHost();
+    dependency.pMemoryBarriers = &after;
+    vkCmdPipelineBarrier2(commands, &dependency);
     endAndSubmit(commands, true);
     memcpy(result.data() + done, staging_.mapped, chunk);
     done += chunk;

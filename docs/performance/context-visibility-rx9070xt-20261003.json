@@ -1,0 +1,608 @@
+{
+  "format": "OpenNR-context-visibility-fix-public-v1",
+  "date": "2026-10-03",
+  "status": "fresh CLI diagnostics and native lifecycle validation passed; no release/default promotion",
+  "device": {
+    "name": "AMD Radeon RX 9070 XT",
+    "deviceId": "1002:7550",
+    "driver": "AMD proprietary driver|26.9.1 (LLPC)|8389003"
+  },
+  "change": {
+    "files": [
+      {
+        "path": "src/vk_context.cpp",
+        "sha256": "d924a2f24b70e9c2a824d3f64e7a8d1aa9f13a92f6c6b51d36c536815143bbbc",
+        "bytes": 45267
+      },
+      {
+        "path": "src/vk_readback.h",
+        "sha256": "00fc1f567eeb580dde31addef0cf189649fdbc8d7786143878a223f4024669e4",
+        "bytes": 1288
+      },
+      {
+        "path": "tests/vk_readback_tests.cpp",
+        "sha256": "d2d724763e2d8ee37190bc3eb4da3414ceedb99fa56fc6a661051af538a79f54",
+        "bytes": 3279
+      },
+      {
+        "path": "scripts/test_vk_readback_cpu.ps1",
+        "sha256": "79119b3b0af28832d5c87d46f36adfe3be9f0bfc44196baed60aaef09c78291b",
+        "bytes": 1024
+      }
+    ],
+    "download": "Overflow-safe range check; COMPUTE/TRANSFER device writes made visible to transfer reads before each staged copy; transfer writes made visible to HOST reads before queue completion and memcpy.",
+    "uploadAndFill": "Existing compute/transfer dependency before and after device writes; upload uses overflow-safe range check. Host-coherent staging and submit ordering retained.",
+    "timedDispatchBarriersChanged": false,
+    "nativeCAbiChanged": false,
+    "gameBridgeChanged": false,
+    "shaderOrArithmeticChanged": false
+  },
+  "sourceBinding": {
+    "scope": "Exact Windows working-tree bytes for the fresh build; uncommitted fix pending root publication",
+    "compiledSourceFiles": [
+      {
+        "file": "src\\amd_config.h",
+        "sha256": "cbb34d120f090db154f63a1394be9a0bb9b1e1f468671323c3eeff0e5548d568"
+      },
+      {
+        "file": "src\\amd_fusion.h",
+        "sha256": "eb746524607edbc8fe634d8ff1f5f3bca7b49978c6848e4e5e06911e285f697e"
+      },
+      {
+        "file": "src\\amd_fusion_validation.h",
+        "sha256": "8360043da39ea5ec396ded3bd4068b120ba23b0d3461a3f07f2618719b253a0c"
+      },
+      {
+        "file": "src\\amd_qualified_fallback.h",
+        "sha256": "d4d9fdc135f086e6e0f770a76ddc0b6b39296c84522a780c88bcfe3b09acbc85"
+      },
+      {
+        "file": "src\\amd_selection.h",
+        "sha256": "a85c934ba8e97c7d865506d33b19c623346d959fe23e96cf4beeeb18bb208b5d"
+      },
+      {
+        "file": "src\\amd_window_resources.h",
+        "sha256": "39d98d6d7ab3d12b76192271b15138112dbf7ca020f8e74d8970dc9cf6e7aa46"
+      },
+      {
+        "file": "src\\json.h",
+        "sha256": "4634156197520e561c7aba2e4398bea3bb15b685934882c2008312afb6cc500b"
+      },
+      {
+        "file": "src\\kernels.cpp",
+        "sha256": "9fb8593a082b0d6a875f874c5ced6a5d28b100d218f8d1d286ea2c8172af84b9"
+      },
+      {
+        "file": "src\\kernels.h",
+        "sha256": "64567b8629dc3c0bb4484f6a0e16f94e97dc91a441e468abb9900c6964872cf3"
+      },
+      {
+        "file": "src\\main.cpp",
+        "sha256": "a63761c0c33aa70662406a09b921111e67a1a83786f9349745f8d47d32c160f9"
+      },
+      {
+        "file": "src\\nr_graph.cpp",
+        "sha256": "9cefbdf08b195d7be1c2bfbe6937f2504a0ead82bec37be59a69d83d050265ec"
+      },
+      {
+        "file": "src\\nr_graph.h",
+        "sha256": "d2a28efba1dbc97b903a8f6a0f074c22a59ea45da035afa265a4f2a3979a6418"
+      },
+      {
+        "file": "src\\nr_model.cpp",
+        "sha256": "2fa2e2302f326ffc845f025625b3aad61abca5aa13144c31caf26711e9ff4ff6"
+      },
+      {
+        "file": "src\\nr_model.h",
+        "sha256": "c489334d83befd6f7b8771839cfc77aa22582c0d10f6ed6302d9d1c12e9fc70b"
+      },
+      {
+        "file": "src\\numeric.h",
+        "sha256": "097f704525ac9b548645c8168de75e95758fab5c6395e422c7f7aea7545be5e1"
+      },
+      {
+        "file": "src\\reference.cpp",
+        "sha256": "48f8cabfc108001e97a0b4eee087098d986dc07366fd264a058d60b665d851a6"
+      },
+      {
+        "file": "src\\reference.h",
+        "sha256": "140a34b50c37958712b0a810fcdb12586225ba6e5b219158ee53957d1452716c"
+      },
+      {
+        "file": "src\\sha256.h",
+        "sha256": "7bc612aa8e483a8946e3a8fb911e3e16048e99175374b87a37c9aa45291b025b"
+      },
+      {
+        "file": "src\\shader_identity.h",
+        "sha256": "5b11267047476acc5ce0ecad027ae39e5ab854e0b6c63ae9c36b93d01ee5e049"
+      },
+      {
+        "file": "src\\verify.cpp",
+        "sha256": "d9f756ea24f801d47543b63833c3aab29d95457aeb4fd8cd952b706c935d21d4"
+      },
+      {
+        "file": "src\\vk_context.cpp",
+        "sha256": "d924a2f24b70e9c2a824d3f64e7a8d1aa9f13a92f6c6b51d36c536815143bbbc"
+      },
+      {
+        "file": "src\\vk_context.h",
+        "sha256": "7fd39bd354ab9e75e3868d1d4036f814dd49580168db2604e7057ed44c59ab7f"
+      },
+      {
+        "file": "src\\vk_readback.h",
+        "sha256": "00fc1f567eeb580dde31addef0cf189649fdbc8d7786143878a223f4024669e4"
+      }
+    ],
+    "differenceFromAlpha5SourceCommit": [
+      "src/vk_context.cpp",
+      "src/vk_readback.h"
+    ],
+    "alpha5SourceCommit": "89758137b016f4407f8ad05c8d30dab46737d497",
+    "sourceCommitForFix": null
+  },
+  "identities": {
+    "freshCliSha256": "122181c26202388a5016b0386f4cd34b86e8023cff0dcc9ae9105708cd746946",
+    "frozenAlpha5CliSha256": "d6ffdde401a08a3e85dd1dcea4c141ded8be103921c9cf330d21f5f31dedb0cd",
+    "modelManifestSha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+    "unchangedShaderModuleCount": 31,
+    "shaders": [
+      {
+        "file": "amd_block32.spv",
+        "sha256": "e9638615189dfd1dd5cc9620fed839dcb1d0de9daf031e92cd8ac580ed13af5e",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_expert_ffn.spv",
+        "sha256": "e0e8e15e636cafd2b32d1f3a6237a4134bd46658757ad7886863a111927dbac1",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_ffn32.spv",
+        "sha256": "1b4aa577e62bf3ff67b61b6da972b95d91058d7259488d82e1a75dfcf4e14ccc",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_gemm.spv",
+        "sha256": "848a6b21bcf5470ad083d64680cba6dc25c11a6b6b3a286982698eea088c3305",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_gemm_direct.spv",
+        "sha256": "f7cb8e5e596fa92792de7b1acc1013d765b1c0cf181d82b08d0e8dc16ed685d9",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_gemm_direct_rte.spv",
+        "sha256": "f2fe7abcb5a4d714dcd466a9ba96834d54b9160ccb3d20a75e8aeab84f3a8677",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_gemm_direct_rte_epilogue.spv",
+        "sha256": "82bdcb6cc9b295578081467c03bfdf017b1f06aab0955326d791c5ef8a685f0f",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_gemm_direct_rte_init.spv",
+        "sha256": "bf90bffb6b28731566b8c70cf4a75fb091bb60e7ba56cc6503c35a7a89d85c3c",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_gemm_direct_rte_pair.spv",
+        "sha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_gemm_optimized.spv",
+        "sha256": "8673dfb3bb0f30d987c44e4d77df3850bcf44818c5b095e0065a1378e6d6fc23",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_gemm_packed.spv",
+        "sha256": "583da6f979a7bb20ca61b71e3a80b0597167ac41adde9ab8afca6dd59a36d31c",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_global.spv",
+        "sha256": "733d41fa9b48317e863dfa35a039418f4e950155cff67ecfb6e30a002289901d",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_global_matrix.spv",
+        "sha256": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_global_matrix_optimized.spv",
+        "sha256": "f5d52ffd0e14da7136bb17b71ee37ced4a029efd8a6d4aa0e68d896b0fcb7626",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_global_normalize.spv",
+        "sha256": "caeb9fbaf68519e06219ee7455a2521f28f5bf9fda6b17bc8e5631763541a8aa",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_qkv32.spv",
+        "sha256": "2dbdfd7e725e2cfd09e8c09e0aa60ce09a487272bc93d47bd328818d5824224b",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_window.spv",
+        "sha256": "76307130e55cb4281ab14c671e1afea404e9df2f83f1c3ade391a7111e0ebf78",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_window_arena_rte.spv",
+        "sha256": "93af10965760ea7b9308f8a3cad63260d035b6dd22d1babbf9223a0195f6b8de",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_window_normalize.spv",
+        "sha256": "c5c8161b72282e283b5ab108f732a328731da39fb5d02c2500a9230b754fe008",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_window_optimized.spv",
+        "sha256": "02bd200ba23be279bc1b3f6a4fc998d9648f576c7c940db09db21cfeb9ff7f75",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_window_register.spv",
+        "sha256": "73081387738a6697a27d9559ea4cc76157f39761e85dc841f634499e08338462",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_window_register_rte.spv",
+        "sha256": "9ff6958330657dbf8fe6dbc86d1dd520fb3b0c80e9afbdf39cf78a3995314569",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "amd_window_small.spv",
+        "sha256": "8406622ac4c6162646d3cc3185eaa0a60bbb03443efeca614fa9f644a80faab2",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "global_normalize.spv",
+        "sha256": "a8d7ca16a8020fb8f033c11119540869e2daf680b102d7c1d08771f87aaaa8cd",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "ops.spv",
+        "sha256": "6fc879c4d5563225548dd40f2050d81dbbda8e61bf0e77408e743bfba712c7f2",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "portable_f16.spv",
+        "sha256": "843388324a4c1211dca82b2711cc22b4db144e3404b79ab4bb74170ac04fba6b",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "portable_gemm.spv",
+        "sha256": "c64d7598632790ca581211581994a60ff24b04e3d904cfae0eadf930ea8f7d85",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "portable_global.spv",
+        "sha256": "b76b366a52de8de92a27a92072ae4e1c3902fee84f9ca649c0ac9f97c3bbb06f",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "portable_window.spv",
+        "sha256": "4953c2c4f53921b92da407df604cefb44789d00de08ec60d3d0fa736de1ac675",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "preprocess.spv",
+        "sha256": "3674eed6b58a4c6a3fa868a1628b704b93ebd693d5c81981eddf3f66ee65adba",
+        "originalByteIdentical": true
+      },
+      {
+        "file": "window_normalize.spv",
+        "sha256": "c9218555db0fb623a049b984ec04e82313efeecd89745c020152e82dac18b6ac",
+        "originalByteIdentical": true
+      }
+    ],
+    "defaultTuningCacheSha256": "4037216e4127c19281ddc0f986afc2118af49f125d2e3886648b6c7804deaefe",
+    "qualifiedFallbackSourceSha256": "d4d9fdc135f086e6e0f770a76ddc0b6b39296c84522a780c88bcfe3b09acbc85",
+    "gameRuntimeSourceSha256": "b9a178a4b52a76dd0559a386d5d9f88dd4d6fb5c58d75a44f8d74efcadbe17e9",
+    "nativeAbiSourceSha256": "55961e2a09529a7059852d1758180a85c2b108c5ee147087a6269f9e238b5e71"
+  },
+  "cpu": {
+    "checks": 20,
+    "gpuExecuted": false,
+    "runner": "scripts/test_vk_readback_cpu.ps1",
+    "scope": "Production range rejection at exact boundaries and UINT64_MAX wraparound; required device/copy/host access scopes."
+  },
+  "bufferRoundTrip": {
+    "checks": 8,
+    "comparedBytes": 268451328,
+    "differentBytes": 0,
+    "stagingBytes": 268435456,
+    "payloadBytes": 268439552,
+    "multiChunkUpload": true,
+    "multiChunkOffsetDownload": true,
+    "filledInputs": true,
+    "reuseAfterCompute": true,
+    "emptyAndTailRanges": true,
+    "validationLayerEnabled": false,
+    "validationErrors": 0,
+    "scope": "Synthetic uint buffer XOR round-trip through the modified production Context helpers; no model or image data."
+  },
+  "preservation": {
+    "selectedDiagnosticPolicy": {
+      "kernels": "optimized",
+      "arithmetic": "k16",
+      "gemm": "direct-rte-pair",
+      "tileN": 16,
+      "stageK": 16,
+      "windowLayout": "arena-rte",
+      "windowQueries": 32,
+      "allFusionDisabled": true,
+      "hardwarePublication": false
+    },
+    "operatorAnchor": "unchanged DirectRte/register-rte N16/K16/Q32",
+    "operators": {
+      "manifest": {
+        "path": "build/release/context-visibility-build-20261003-01/validation/operators/manifest.json",
+        "sha256": "de5faef6d6ee6f11f5a25a85c3b7314a4f800fcaa6b8fffc84aea4872e118736",
+        "bytes": 321938
+      },
+      "operators": 724,
+      "checks": 934,
+      "comparedBytes": 15264768,
+      "differentBytes": 0,
+      "gemmCanaryBuffersChecked": 1680,
+      "gemmCanaryBytesChecked": 14996384,
+      "rawOverdispatchFullAllocationSizes": {
+        "gemm-overdispatch-v0": 10240,
+        "gemm-overdispatch-v3": 22528,
+        "gemm-overdispatch-v5": 45056,
+        "gemm-overdispatch-v5-dual": 22528
+      },
+      "fixtureUploadHash": "9da58c92853160dfe69bb61a5d54b5ddccf43131a933c12921dc60cc553c031b",
+      "validationLayerEnabled": false
+    },
+    "models": [
+      {
+        "name": "model320",
+        "manifest": {
+          "path": "build/release/context-visibility-build-20261003-01/validation/model320/manifest.json",
+          "sha256": "404c20a399db97ba2374fc0f7bcc234db2947e28ff8b93da2367c145c31556a0",
+          "bytes": 6784
+        },
+        "report": {
+          "path": "build/release/context-visibility-build-20261003-01/validation/model320/modelcheck-report.json",
+          "sha256": "4e803aed8ab619d5e6b109696bdaeb1ede122347687106c81fa63aa6c9407229",
+          "bytes": 8833
+        },
+        "sourceDimensions": [
+          320,
+          320
+        ],
+        "paddedDimensions": [
+          320,
+          320
+        ],
+        "captureImplementation": "decomposed",
+        "modelBoundaries": 75,
+        "block0IntermediateFiles": 9,
+        "f32HeadAndCaptureIdentical": true,
+        "rawComparedFiles": 88,
+        "rawComparedBytes": 103739392,
+        "rawFileClosureSha256": "2b52fc73293bbe3b6864d017ed7fc14175e47f37a5e32b5786ec153514bbdd1f",
+        "comparedAgainst": "frozen named2 selected Pair/Arena diagnostic captures",
+        "differentBytes": 0,
+        "displayProxyComposedRgbIdentical": true,
+        "sceneLinearQualityGateApplied": false
+      },
+      {
+        "name": "target",
+        "manifest": {
+          "path": "build/release/context-visibility-build-20261003-01/validation/target/manifest.json",
+          "sha256": "660148b1b158f5c673113f86f7e5326372218ada7a480730791330ddce3dea9b",
+          "bytes": 1386
+        },
+        "report": {
+          "path": "build/release/context-visibility-build-20261003-01/validation/target/modelcheck-report.json",
+          "sha256": "7860453d2e8ee18e96c41bb4ee066b1f11dddd1ff3c7be95b0b26e9b381237f9",
+          "bytes": 1495
+        },
+        "sourceDimensions": [
+          1707,
+          960
+        ],
+        "paddedDimensions": [
+          1728,
+          960
+        ],
+        "captureImplementation": "selected-production",
+        "modelBoundaries": 0,
+        "block0IntermediateFiles": 0,
+        "f32HeadAndCaptureIdentical": true,
+        "rawComparedFiles": 4,
+        "rawComparedBytes": 178917120,
+        "rawFileClosureSha256": "02c27e6c54b47805b8fd704afcb96afe5b66f3b18f68f35de3002a6fbb2d7740",
+        "comparedAgainst": "frozen named2 selected Pair/Arena diagnostic captures",
+        "differentBytes": 0,
+        "displayProxyComposedRgbIdentical": true,
+        "sceneLinearQualityGateApplied": false
+      }
+    ],
+    "scope": "Fresh diagnostic model outputs match the previously frozen local AMD outputs. The modelcheck composed RGB is a clamped display proxy, not the unclamped scene-linear quality gate."
+  },
+  "nativeLifecycle": {
+    "executed": true,
+    "passed": true,
+    "runtimeDllSha256": "141aadeee9d460ea58b152a05b783df159465120320138bd4fe576211db86c36",
+    "interopExeSha256": "3fbd83a3d3497b8336fa26b865d136355d83a552531242180b83080607f69773",
+    "sourceIncludedHarnessSha256": "5f0126fb96452f9c70034e9accfde1b4fc8e1c45e5bc80f8c63376504aaeb349",
+    "sourceIncludedGameRuntimeSha256": "b9a178a4b52a76dd0559a386d5d9f88dd4d6fb5c58d75a44f8d74efcadbe17e9",
+    "unchangedNativeAndGameShaderCount": 33,
+    "results": [
+      {
+        "validDimensions": [
+          320,
+          320
+        ],
+        "nativeDllRequestedGeometryFrames": 8,
+        "nativeDllSubmission": "serialized; lifecycle includes two queued slots",
+        "sourceIncludedProductionPool": [
+          {
+            "mode": "ordered continuous",
+            "livePreparedSlots": 8,
+            "submittedComparedFrames": 8,
+            "comparedRgba16Bytes": 6553600,
+            "paddedDimensions": [
+              320,
+              320
+            ],
+            "differentBytes": 0
+          },
+          {
+            "mode": "cancel/gap/reset",
+            "livePreparedSlots": 8,
+            "submittedComparedFrames": 7,
+            "comparedRgba16Bytes": 5734400,
+            "paddedDimensions": [
+              320,
+              320
+            ],
+            "differentBytes": 0
+          }
+        ],
+        "sourceIncludedPoolParallelInferenceClaim": false,
+        "log": {
+          "path": "build/release/context-visibility-build-20261003-01/runtime-validation/320x320-8frames.log",
+          "sha256": "097a666d78aa287b10a42c2e6f4358dca1dab114c6e724d629696fece07b49b9",
+          "bytes": 10341
+        },
+        "sharedBufferFenceRoundTrips": true,
+        "nativeAbiLifecycle": true,
+        "cancellationResizeResetDrainShutdown": true,
+        "foreignQueueOrderingAndFallback": true,
+        "commandListContinuationStatesAndSentinel": true,
+        "syntheticHarnessOnly": true,
+        "gameFpsMeasured": false,
+        "validationLayerEnabled": false
+      },
+      {
+        "validDimensions": [
+          1707,
+          960
+        ],
+        "nativeDllRequestedGeometryFrames": 8,
+        "nativeDllSubmission": "serialized; lifecycle includes two queued slots",
+        "sourceIncludedProductionPool": [
+          {
+            "mode": "ordered continuous",
+            "livePreparedSlots": 8,
+            "submittedComparedFrames": 8,
+            "comparedRgba16Bytes": 104878080,
+            "paddedDimensions": [
+              1728,
+              960
+            ],
+            "differentBytes": 0
+          },
+          {
+            "mode": "cancel/gap/reset",
+            "livePreparedSlots": 8,
+            "submittedComparedFrames": 7,
+            "comparedRgba16Bytes": 91768320,
+            "paddedDimensions": [
+              1728,
+              960
+            ],
+            "differentBytes": 0
+          }
+        ],
+        "sourceIncludedPoolParallelInferenceClaim": false,
+        "log": {
+          "path": "build/release/context-visibility-build-20261003-01/runtime-validation/1707x960-8frames.log",
+          "sha256": "e5acfd2a072d0750714b6f2cd2901a6f8f2962521e0ebbc6d23a5abe01aa48ed",
+          "bytes": 10400
+        },
+        "sharedBufferFenceRoundTrips": true,
+        "nativeAbiLifecycle": true,
+        "cancellationResizeResetDrainShutdown": true,
+        "foreignQueueOrderingAndFallback": true,
+        "commandListContinuationStatesAndSentinel": true,
+        "syntheticHarnessOnly": true,
+        "gameFpsMeasured": false,
+        "validationLayerEnabled": false
+      }
+    ],
+    "ordinaryPerformanceMeasured": false,
+    "gameFpsMeasured": false,
+    "parallelInferenceClaim": false
+  },
+  "evidence": {
+    "validationRecord": {
+      "path": "build/release/context-visibility-build-20261003-01/validation/record.json",
+      "sha256": "36864260ec913cec7651ccf914e5749dceaf3183c2e4f15d5d303c972645c5ed",
+      "bytes": 12710
+    },
+    "independentPreservationAudit": {
+      "path": "build/release/context-visibility-preservation-independent-cpu-audit.json",
+      "sha256": "2dc914b6fe5a95daab35d3841f3bb5594f7ffb6dda313a8f73d9a4505eb7362b",
+      "bytes": 4355
+    },
+    "independentVisibilityAudit": {
+      "path": "build/release/native-clamp-and-visibility-independent-cpu-audit.json",
+      "sha256": "247b9cef1745ffd7c4dbd71d743a54aa0a451d53de5c2bfcc8c6214f29d74b37",
+      "bytes": 9028
+    },
+    "roundTripManifest": {
+      "path": "build/release/context-visibility-contract-e8f3ed6e4cf540968fc57917a1b8a7c5/gpu-roundtrip/manifest.json",
+      "sha256": "a3e4f482d04737cc96b47e016933387466917633e7b9a1e207da8d81f1929110",
+      "bytes": 468
+    },
+    "runtimeRecord": {
+      "path": "build/release/context-visibility-build-20261003-01/runtime-validation/record.json",
+      "sha256": "0543246f115c655d97c88cc79be6feaf6b0c6f91448476b51c60120c7835b6af",
+      "bytes": 8562
+    },
+    "independentRuntimeAudit": {
+      "path": "build/release/context-visibility-runtime-independent-cpu-audit.json",
+      "sha256": "566e39ae1829175b787626914b9aed39dee6d9a31cc7721392bcfa38289c5915",
+      "bytes": 4293
+    }
+  },
+  "sources": [
+    {
+      "title": "Vulkan fence host visibility and wait-idle semantics",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/synchronization.html#synchronization-fences-signaling"
+    },
+    {
+      "title": "Khronos CPU readback synchronization example",
+      "url": "https://github.com/KhronosGroup/Vulkan-Docs/wiki/Synchronization-Examples#cpu-read-back-of-data-written-by-a-compute-shader"
+    }
+  ],
+  "ordinaryPerformanceMeasured": false,
+  "completeInferenceImprovementClaim": false,
+  "gameFpsMeasured": false,
+  "diagnosticKernelsPromoted": false,
+  "releaseChanged": false,
+  "nvidiaParityEstablished": false,
+  "sceneLinearQualityGateApplied": false,
+  "defaultTuningAndEnableStateChanged": false,
+  "payloadExclusions": [
+    "NVIDIA DLLs",
+    "extracted model weights",
+    "raw model activations",
+    "game captures",
+    "image buffers",
+    "private ISA text"
+  ],
+  "limitations": [
+    "Validation layer was not enabled for these GPU runs; zero validation errors is not evidence of validation-layer coverage.",
+    "Fresh visibility-dependent diagnostic runs reproduce recorded local results; bounded fixtures do not establish arbitrary-input numerical equivalence.",
+    "No ordinary inference benchmark, bridge latency, Cyberpunk FPS, gameplay review, or release promotion follows from these checks."
+  ],
+  "independentAuditIdentities": {
+    "context-visibility-preservation-independent-cpu-audit.json": "2dc914b6fe5a95daab35d3841f3bb5594f7ffb6dda313a8f73d9a4505eb7362b",
+    "context-visibility-runtime-independent-cpu-audit.json": "566e39ae1829175b787626914b9aed39dee6d9a31cc7721392bcfa38289c5915",
+    "native-clamp-and-visibility-independent-cpu-audit.json": "247b9cef1745ffd7c4dbd71d743a54aa0a451d53de5c2bfcc8c6214f29d74b37"
+  },
+  "scopeClarification": "Correctness validation of current upload/fill/download helpers; no ordinary timing measurement, arithmetic change, default/cache promotion or release replacement."
+}

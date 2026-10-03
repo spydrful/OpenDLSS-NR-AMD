@@ -41,6 +41,13 @@ new runtime. New complete game benchmarks, ten minutes of active gameplay and
 broad temporal review remain pending. [Alpha 3 game evidence](docs/performance/cyberpunk-alpha3-20261002.json)
 retains its original identities.
 
+Current development source fixes buffer visibility around uploads, fills and
+diagnostic readback. Fresh strict model and native lifecycle checks pass; see
+the [buffer synchronization validation](docs/amd-context-visibility.md).
+The [subsequent fusion and normalization screens](docs/amd-fusion-screen.md)
+record rejected or ineffective candidates. Existing release downloads and
+default kernel selections remain unchanged.
+
 **NVIDIA model DLLs and extracted weights are not distributed.** Supply a
 supported DLL locally; the importer reads it without executing it.
 
