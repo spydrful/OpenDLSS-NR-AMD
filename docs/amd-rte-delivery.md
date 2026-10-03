@@ -50,9 +50,12 @@ bind actual policies and input geometry to these measured identities:
 | Selected alpha 3 shader identity | `9497a10fc30264c5325440f90e1925f0251dc571a1676d2d1ae4aa6b810960ba` |
 | Model manifest identity | `163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e` |
 
-These identify tested artifacts. Final package, source revision and download
-hashes must be recorded when packaging and publication complete; rebuilding an
-EXE or DLL is not a claim of identical binary bytes. Published alpha 3 assets,
+These identify tested artifacts. The
+[publication identities](performance/alpha4-release-identities.json) record the
+verified source revision, package and GitHub asset hashes. Final source matches
+78 checked inputs; all 27 native and two game SPIR-V modules match the qualified
+payload. Rebuilding an EXE or DLL is not a claim of identical binary bytes.
+Published alpha 3 assets,
 tag, [identities](performance/alpha3-release-identities.json) and game evidence
 remain unchanged.
 

@@ -1,0 +1,133 @@
+{
+  "format": "OpenNR-alpha4-release-identities-v1",
+  "verifiedUtc": "2026-10-03T01:14:54.796014+00:00",
+  "publicationVerified": true,
+  "releaseId": 402254073,
+  "releaseTag": "v0.1.0-alpha.4",
+  "releaseUrl": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.4",
+  "sourceSnapshotCommit": "df300456a2497fa4af6cedccc440c48eea56daa8",
+  "buildBaseCommit": "016cc666cd8543c9367f7d8ce3a0b31074309459",
+  "buildHadUncommittedChanges": true,
+  "sourceIdentityScope": "The immutable alpha4 tag identifies the final corresponding-source snapshot. The package retains independently hashed tested binaries; successful source/shader correspondence does not claim byte-identical rebuilt EXE/DLL products.",
+  "assets": [
+    {
+      "name": "OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip",
+      "url": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/download/v0.1.0-alpha.4/OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip",
+      "size": 310033339,
+      "digest": "sha256:fddaeff9ab7bf07d69d452fd2f96f0d8a6862db721f94d423b5936a33018927c"
+    },
+    {
+      "name": "OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip.sha256",
+      "url": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/download/v0.1.0-alpha.4/OpenNR-AMD-v0.1.0-alpha.4-rx9070xt.zip.sha256",
+      "size": 105,
+      "digest": "sha256:f374bb2d1267f4c6bb777a3fd57c906663fb2afc93eb2db854bf770e3c179c1a"
+    }
+  ],
+  "publicationVerification": {
+    "proofSha256": "cdf3b9959a3a44c89fa5a7f7948a974e4f8c1a92963d3457e585b1fb948b365f",
+    "independentVerificationSha256": "cdf3b9959a3a44c89fa5a7f7948a974e4f8c1a92963d3457e585b1fb948b365f",
+    "tagCommitVerified": true,
+    "draft": false,
+    "prerelease": true
+  },
+  "archiveAudit": {
+    "sha256": "8b513bc2794a8e326702f03e919e2375d6499c325d116c874aae23968e368006",
+    "fileCount": 10737,
+    "allEmbeddedFileHashesMatched": true,
+    "proprietaryArtifactsFound": false,
+    "sourceArchives": 5,
+    "managedPayloadFiles": 40
+  },
+  "packageManifestSha256": "e15c5c45898fe0ffd7234578104643f9a48c05f4b6856d719a0967c4092b04a2",
+  "measuredBinaryIdentities": {
+    "tools/dlss5vk.exe": "f29be529e14a4b896b7ab4424d7618b5b6dce3aa6c8d2156f17fca6fdfca1f0f",
+    "payload/OpenNrRuntime.dll": "ba0a318fd5567fcf1b95cf594608ff23cb0b40b37eee0a1d2736b5b017a2a388",
+    "payload/OptiScaler.dll": "3c43bb1d4a5843b68b0537b8703c4a0c12bf4e47f17c53e225df57cad276dee7",
+    "payload/open-nr/shaders/amd-tuning.json": "4037216e4127c19281ddc0f986afc2118af49f125d2e3886648b6c7804deaefe"
+  },
+  "sourceCorrespondence": {
+    "proofSha256": "a9287cb4abde3b753e8ad17440917efa83800f5a138db6947f4beb8aac2972a4",
+    "priorSuccessfulRebuildProofSha256": "abeb7c600e1d3d669695a1601f14cbd9b9d5f4b4d412e8d44ca18f87ddd4bb16",
+    "finalPackageSourceInputsMatched": 78,
+    "cppHeaderBridgeInputs": 34,
+    "shaderSourceIncludeClosure": 38,
+    "buildScripts": 6,
+    "referencedFrozenDriverLogs": 1,
+    "gitattributesIncluded": true,
+    "gitByteBoundFilesMatched": 6,
+    "sourceRebuiltSpirvByteMatches": 29,
+    "nativeSpirv": 27,
+    "gameSpirv": 2,
+    "exeDllByteReproductionClaim": false
+  },
+  "qualifiedTargetCache": {
+    "sha256": "4037216e4127c19281ddc0f986afc2118af49f125d2e3886648b6c7804deaefe",
+    "records": 68,
+    "selectedPolicy": {
+      "kernels": "optimized",
+      "arithmetic": "k16",
+      "tile_n": 16,
+      "stage_k": 16,
+      "gemm": "direct-rte",
+      "window_queries": 32,
+      "window_layout": "register-rte",
+      "fusion": false,
+      "expert_fusion": false,
+      "block_fusion": false,
+      "hardware_publication": false,
+      "ffn32_fusion": false,
+      "qkv32_fusion": false
+    },
+    "scope": "Identity/geometry-bound qualified RX 9070 XT target policy; original fallback policies remain separately identified."
+  },
+  "measurementRecords": [
+    {
+      "file": "docs/performance/rte-kernels-rx9070xt-20261003.json",
+      "sha256": "8ce5ec9e3b0218654540b6b7c5c1332e73cea6be2a6e31e87a83ad7bab1f5396",
+      "scope": "Prepublication RTE network/operator/model/native record; this release record supplies later publication evidence, not additional game measurements"
+    },
+    {
+      "file": "docs/performance/post-alpha3-publication-rte-evidence.json",
+      "sha256": "4b9ca49ec86ccad929fd4fff43a9ac2330207605c78b8d9210d12ff5b90815ea",
+      "scope": "Conversion probe and independently identified offline compiler evidence"
+    },
+    {
+      "file": "docs/performance/amd-fusion-screen-rx9070xt-20261003.json",
+      "sha256": "6e01728f90db9896e41f116a568bdba6fad2b186386c064daaf160ad495c6a5f",
+      "scope": "Separate historical frozen-alpha3 fusion protocols; not RTE performance"
+    }
+  ],
+  "previousReleases": {
+    "alpha1AssetsNotesTagVerifiedUnchanged": true,
+    "alpha1SourceCommit": "1de84bb81c7a819a741b7deb9e22bb0cfc19cc13",
+    "alpha2AssetsNotesTagVerifiedUnchanged": true,
+    "alpha2SourceCommit": "7f1cd3108133d8aee9bae505cb31542e236d13e0",
+    "alpha3AssetsNotesTagVerifiedUnchanged": true,
+    "alpha3SourceCommit": "64a36b3a9511807fc7414cd795fdc56907647526",
+    "beforeSnapshotSha256": "3aeae779309f555fd5b5aaac31e3fdc93f6de42494b4912b4f40c040ace42544",
+    "afterSnapshotSha256": "3aeae779309f555fd5b5aaac31e3fdc93f6de42494b4912b4f40c040ace42544"
+  },
+  "historicalGameEvidence": {
+    "file": "docs/performance/cyberpunk-alpha3-20261002.json",
+    "sha256": "c476214bbce4c1796131803fe863ee899403408744c49b49d408d43c7f3ee5fe",
+    "scope": "Original alpha3 game measurements only; no alpha4 game FPS, in-game bridge timing or game VRAM measurement"
+  },
+  "alpha4GameMeasurements": {
+    "completeGameFpsMeasured": false,
+    "inGameBridgeTimingMeasured": false,
+    "gameVramMeasured": false
+  },
+  "nrEnabledByDefault": false,
+  "arithmeticDefault": "k16",
+  "targetBudgetsMet": false,
+  "broadTemporalHighlightAcceptanceMet": false,
+  "existingHdrHighlightQualityFailuresResolved": false,
+  "tenMinuteActiveGameplayCompleted": false,
+  "hdrDisplayValidationEstablished": false,
+  "originalNvidiaParityEstablished": false,
+  "proprietaryAssetsExcluded": [
+    "NVIDIA DLLs",
+    "extracted weights",
+    "game captures"
+  ]
+}

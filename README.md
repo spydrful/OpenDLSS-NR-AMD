@@ -19,6 +19,8 @@ Download the development package:
 See the [alpha 4 release notes](docs/releases/v0.1.0-alpha.4.md),
 [installation guide](docs/INSTALL.md), [RTE kernel delivery record](docs/amd-rte-delivery.md)
 and [measured evidence](docs/performance/rte-kernels-rx9070xt-20261003.json).
+The [publication identities](docs/performance/alpha4-release-identities.json)
+record the verified source tag, GitHub asset hashes and corresponding-source checks.
 The [published alpha 3](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.3)
 and [its installation guide](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/INSTALL.md)
 remain unchanged and available.
