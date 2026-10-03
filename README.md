@@ -254,7 +254,8 @@ AMD selftest uses explicit `optimized` kernels because its synthetic fixtures
 do not match the qualified model identity used by auto selection.
 
 The CLI also accepts `--amd-window-queries 16|32|64`, `--amd-tile-n 16|32|64`,
-`--amd-stage-k 16|32|64`, `--amd-gemm shared|packed|direct|direct-rte`,
+`--amd-stage-k 16|32|64`,
+`--amd-gemm shared|packed|direct|direct-rte|direct-rte-init|direct-rte-epilogue`,
 `--amd-window-layout staged|register|register-rte`, and `--amd-tuning <path>`.
 Direct GEMM routes require stage K16. Register attention layouts require Q16 or
 Q32 and enumerated FP16 accumulator support. RTE routes additionally require
@@ -269,9 +270,20 @@ publication order and remains experimental; alpha auto selections use `k16`.
 These choices also have `DLSS5VK_AMD_*` environment equivalents in
 [amd_config.h](src/amd_config.h).
 
+Current source builds add `direct-rte-init` and `direct-rte-epilogue` as opt-in,
+unpromoted diagnostic GEMM routes. They retain K16 publication; the tested policy
+is N16/stage16/Q32 with Register-RTE attention. Fusion and packed hardware
+publication are off. The epilogue additionally requires F32 signed-zero/Inf/NaN preservation.
+These routes do not change the published alpha 4 release or qualified cache.
+For new comparisons, use `--comparison-anchor rte32` with explicit frozen
+published alpha 4 executable and shader inputs: Direct-RTE/K16/N16/stage16/Q32,
+Register-RTE, all fusion and packed publication off. See the
+[post-alpha-4 experiments](docs/amd-performance-experiments.md) for the actual
+variant identities, rejected candidates and qualification scope.
+
 Use `scripts/benchmark_amd.ps1 -ComparisonAnchor direct32 -Gemm direct-rte -WindowLayout register-rte -WindowQueries 32`
-for the new RTE interleaved ordinary `bench` runs and separate
-`profile` runs. Profiles report per-dispatch metadata and GPU timestamps and
+to reproduce the published alpha 4 versus alpha 3 interleaved ordinary `bench`
+runs and separate `profile` runs. Profiles report per-dispatch metadata and GPU timestamps and
 measure instrumentation overhead; their timings are not ordinary network or
 game performance. `tools/qualify_amd_model.py` checks actual model artifacts,
 and `tools/tune_amd.py` validates evidence, replays bounded sequences with
@@ -282,7 +294,8 @@ selects Direct/K16/N16/stage16/Q32/staged with all experiments off as the baseli
 use the frozen alpha 3 binary and shaders to reproduce the published comparison.
 `qualified32` remains the prior shared-GEMM comparison and `compact64` the earlier
 legal Q64 attention anchor. See the [RTE delivery recipe](docs/amd-rte-delivery.md)
-for exact source and runtime selections.
+for exact source and runtime selections. `direct32` retains that historical
+comparison meaning; use `rte32` for the newer diagnostic routes above.
 The optional `scripts/analyze_amd_shaders.ps1 -FetchTool` downloads the pinned
 portable RGA compiler for CPU-only wave32 resource/ISA analysis. Its results
 describe that offline compiler, not the installed driver. Follow the
@@ -352,6 +365,15 @@ The [frozen alpha 3 fusion screen](docs/performance/amd-fusion-screen-rx9070xt-2
 completes three paired protocols: FFN-only, QKV-only and both increase inference
 median **23.19%, 25.57% and 50.45%**. Those original-route results are separate
 from the newer RTE measurements; redesigned RTE fusion requires fresh evidence.
+
+The latest source-only epilogue candidate measures **58.6687 → 56.36042 ms**
+ordinary target-inference median against frozen published alpha 4, a **3.934%**
+improvement below the **5% default-promotion gate**. It passes the extended
+**674 operators / 880 strict byte checks**, all 75 model checkpoints and the F32
+head at 320×320, target output and existing SDR replay. Global N32 remains
+rejected because strict overflow outputs differ. The
+[experiment record](docs/amd-performance-experiments.md) separates this evidence
+from published release results; no release, cache or default has changed.
 
 1. Improve the now-dominant FP8 matrix family, then remaining window-attention
    cost and fusion. Preserve publication boundaries and compare every change

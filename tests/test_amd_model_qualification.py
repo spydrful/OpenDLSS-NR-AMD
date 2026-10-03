@@ -487,5 +487,52 @@ class ModelQualificationTests(unittest.TestCase):
         self.assertEqual(process.returncode, 2)
 
 
+    def rte32_anchor(self, candidate_gemm="direct-rte-init"):
+        self.direct32_anchor()
+        for root,benchmark,role in ((self.baseline,self.baseline_benchmark,"baseline"),
+                                    (self.candidate,self.candidate_benchmark,"candidate")):
+            for path in (root/"manifest.json",root/"modelcheck-report.json",benchmark):
+                self.mutate(path,lambda value:value["selected"].update(
+                    gemm="direct-rte" if role=="baseline" else candidate_gemm,window_layout="register-rte",
+                    **{key:False for key in qualification._protocol.FUSION_KEYS}))
+
+    def test_rte32_model_binds_new_modules_and_all_75_checkpoints(self):
+        self.fixtures()
+        for gemm in ("direct-rte-init","direct-rte-epilogue"):
+            self.rte32_anchor(gemm);self.output=self.root/(gemm+"-quality.json")
+            result=self.run_qualification(comparison_anchor="rte32")
+            self.assertTrue(result["passed"]);self.assertEqual(result["checks"],77)
+            self.assertEqual(result["baseline_selected"]["gemm"],"direct-rte")
+            self.assertEqual(result["baseline_selected"]["window_layout"],"register-rte")
+            self.assertEqual(result["selected"]["gemm"],gemm)
+            self.assertTrue(qualification._protocol.exact_manifest(self.output,"rte32")["passed"])
+            with self.assertRaisesRegex(ValueError,"explicit --comparison-anchor"):
+                qualification._protocol.exact_manifest(self.output,"direct32")
+
+    def test_rte32_cannot_inherit_old_direct_or_staged_baseline(self):
+        self.fixtures();self.rte32_anchor()
+        for key,wrong in (("gemm","direct"),("window_layout","staged"),("window_layout","register")):
+            self.rte32_anchor()
+            for path in (self.baseline/"manifest.json",self.baseline/"modelcheck-report.json",self.baseline_benchmark):
+                self.mutate(path,lambda value:value["selected"].update({key:wrong}))
+            with self.subTest(key=key,value=wrong),self.assertRaisesRegex(ValueError,"rte32 baseline"):
+                self.run_qualification(comparison_anchor="rte32")
+            self.assertFalse(self.output.exists())
+
+    def test_rte32_new_variant_cannot_inherit_predecessor_capture_policy(self):
+        self.fixtures();self.rte32_anchor()
+        self.mutate(self.candidate/"manifest.json",lambda value:value["selected"].update(gemm="direct-rte"))
+        with self.assertRaisesRegex(ValueError,"selected policy differs from benchmark"):
+            self.run_qualification(comparison_anchor="rte32")
+        self.assertFalse(self.output.exists())
+
+    def test_rte32_target_still_checks_signed_zero_and_production_capture_bytes(self):
+        self.fixtures(target=True);self.rte32_anchor("direct-rte-epilogue")
+        self.change_byte(self.candidate/"head.f32",offset=3)
+        result=self.run_qualification(target=True,comparison_anchor="rte32")
+        self.assertFalse(result["passed"]);self.assertEqual(result["mismatchedChecks"],2)
+        self.assertEqual(result["selected"]["arithmetic"],"k16")
+
+
 if __name__ == "__main__":
     unittest.main()

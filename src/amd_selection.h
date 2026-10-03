@@ -134,9 +134,9 @@ inline Options tuningPolicy(const json::Value& doc, const Options& current,
   const auto gemm=gemmPolicy(selected);
   const auto windowLayout=windowLayoutPolicy(selected);
   require(windowLayout==WindowLayout::Staged || queries==16 || queries==32,"register AMD tuning window layout requires Q16 or Q32");
-  require((gemm!=Gemm::Direct && gemm!=Gemm::DirectRte) || stageK==16,"direct AMD tuning GEMM requires stage_k=16");
+  require(!Options::directGemm(gemm) || stageK==16,"direct AMD tuning GEMM requires stage_k=16");
   const bool expert=flag("expert_fusion"),block=flag("block_fusion"),hardware=flag("hardware_publication");
-  require(gemm!=Gemm::DirectRte || !hardware,"scalar RTE tuning cannot name packed hardware publication");
+  require(!Options::scalarRteGemm(gemm) || !hardware,"scalar RTE tuning cannot name packed hardware publication");
   if(allowAutoSelection){
     prospective.tileN=tileN;prospective.stageK=stageK;prospective.windowQueries=queries;
     prospective.gemm=gemm;

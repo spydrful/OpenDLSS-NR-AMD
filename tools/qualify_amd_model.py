@@ -315,7 +315,7 @@ def main(argv=None) -> int:
     parser.add_argument("--output", type=Path, required=True, help="new exact-manifest path under ignored build/ (also writes two proof bundles)")
     parser.add_argument("--target-only", action="store_true", help="head/capture-production only at valid 1707x960; default is all 75 boundaries at 320x320")
     parser.add_argument("--comparison-anchor", choices=_protocol.COMPARISON_ANCHORS, default="legacy",
-                        help="explicit baseline role: legacy, shared compact64/qualified32, or alpha 3 direct32")
+                        help="explicit baseline role: legacy, shared compact64/qualified32, alpha 3 direct32, or alpha 4 rte32")
     args = parser.parse_args(argv)
     try:
         result = qualify(args.baseline, args.candidate, args.baseline_benchmark, args.candidate_benchmark,

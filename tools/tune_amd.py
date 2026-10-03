@@ -22,6 +22,14 @@ IDENTITY_KEYS = ("device_id", "driver_id", "model_sha256", "shader_sha256", "bas
 COMMON_KEYS = ("device_id", "driver_id", "model_sha256", "baseline_shader_sha256")
 EXACT_COVERAGE = {"tails", "shifted-windows", "channel-families", "broadcasts", "split-k",
                   "residuals", "activation", "padding", "conversion-edge-cases"}
+VIT_COVERAGE = "vit-k1024-k4096-partitions-v1"
+# Bounded CLI operator contract: (K, N, rows, flags, partition, batches).
+# Historical reports lack this extension; new init/epilogue proofs require it.
+VIT_CASES = ((1024,16,1,0,256,1), (1024,48,63,0,512,1), (1024,128,73,24,0,1),
+             (1024,48,73,83,256,1), (1024,16,63,99,512,1), (1024,128,1,19,256,1),
+             (1024,48,73,35,512,1), (1024,128,63,16,0,1), (4096,16,1,83,1024,1),
+             (4096,48,63,99,1024,1), (4096,128,73,0,1024,1), (4096,48,73,24,1024,1),
+             (1024,48,63,152,256,2), (4096,16,73,163,1024,2))
 SCENE_COVERAGE = {"sdr", "hdr-highlights", "motion", "faces", "moving-objects",
                   "disocclusion", "exposure-changes", "camera-cuts"}
 MODEL_CHECKPOINTS = {f"block-{i}" for i in range(70)} | {
@@ -30,8 +38,11 @@ LEGACY_FUSION_KEYS = ("fusion", "expert_fusion", "block_fusion", "hardware_publi
 FUSION_KEYS = (*LEGACY_FUSION_KEYS, "ffn32_fusion", "qkv32_fusion")
 SELECTION_KEYS = ("kernels", "arithmetic", "gemm", "tile_n", "stage_k", "window_queries", "window_layout", *FUSION_KEYS)
 GEMM_VARIANTS = {"shared": "amd_gemm_optimized", "packed": "amd_gemm_packed", "direct": "amd_gemm_direct",
-                 "direct-rte": "amd_gemm_direct_rte"}
-COMPARISON_ANCHORS = ("legacy", "compact64", "qualified32", "direct32")
+                 "direct-rte": "amd_gemm_direct_rte", "direct-rte-init": "amd_gemm_direct_rte_init",
+                 "direct-rte-epilogue": "amd_gemm_direct_rte_epilogue"}
+DIRECT_GEMMS = {"direct", "direct-rte", "direct-rte-init", "direct-rte-epilogue"}
+SCALAR_RTE_GEMMS = DIRECT_GEMMS - {"direct"}
+COMPARISON_ANCHORS = ("legacy", "compact64", "qualified32", "direct32", "rte32")
 ACCELERATED_VARIANTS = {
     "fp8_gemm": set(GEMM_VARIANTS.values()),
     "window_attention": {"amd_window_optimized", "amd_window_small", "amd_window_register", "amd_window_register_rte"},
@@ -97,11 +108,11 @@ def selected_policy(value, *, explicit_flags=False) -> dict:
         raise ValueError("missing actual selected AMD kernel/arithmetic policy")
     result = {"window_queries": 64, "window_layout": "staged", "gemm": "shared", **value}
     if type(result["gemm"]) is not str or result["gemm"] not in GEMM_VARIANTS:
-        raise ValueError("selected.gemm must be shared, packed, direct or direct-rte")
+        raise ValueError("selected.gemm must be " + ", ".join(GEMM_VARIANTS))
     for key in ("tile_n", "stage_k", "window_queries"):
         if type(result.get(key)) is not int or result[key] not in (16, 32, 64):
             raise ValueError(f"selected.{key} must be 16, 32 or 64")
-    if result["gemm"] in ("direct", "direct-rte") and result["stage_k"] != 16:
+    if result["gemm"] in DIRECT_GEMMS and result["stage_k"] != 16:
         raise ValueError("direct GEMM requires stage_k=16")
     if result["window_layout"] not in ("staged", "register", "register-rte"):
         raise ValueError("selected.window_layout must be staged, register or register-rte")
@@ -120,8 +131,8 @@ def selected_policy(value, *, explicit_flags=False) -> dict:
         result.update({key: result["fusion"] for key in routes})
     if any(type(result[key]) is not bool for key in routes) or result["fusion"] != all(result[key] for key in routes):
         raise ValueError("selected independent fusion policy contradicts legacy summary")
-    if result["gemm"] == "direct-rte" and result["hardware_publication"]:
-        raise ValueError("direct-rte specifies scalar RTE; packed hardware publication must be off")
+    if result["gemm"] in SCALAR_RTE_GEMMS and result["hardware_publication"]:
+        raise ValueError("scalar RTE GEMM requires packed hardware publication off")
     return {key: result[key] for key in SELECTION_KEYS}
 
 
@@ -140,7 +151,7 @@ def requested_fusion_policy(args, candidate=True) -> dict:
 
 def comparison_anchor(value="legacy") -> str:
     if value not in COMPARISON_ANCHORS:
-        raise ValueError("comparison_anchor must be legacy, compact64, qualified32 or direct32")
+        raise ValueError("comparison_anchor must be " + ", ".join(COMPARISON_ANCHORS))
     return value
 
 
@@ -167,11 +178,16 @@ def evidence_equal(first, second) -> bool:
 
 
 def anchor_queries(anchor: str) -> int:
-    return 32 if comparison_anchor(anchor) in ("qualified32", "direct32") else 64
+    return 32 if comparison_anchor(anchor) in ("qualified32", "direct32", "rte32") else 64
 
 
 def anchor_gemm(anchor: str) -> str:
-    return "direct" if comparison_anchor(anchor) == "direct32" else "shared"
+    anchor = comparison_anchor(anchor)
+    return "direct-rte" if anchor == "rte32" else "direct" if anchor == "direct32" else "shared"
+
+
+def anchor_window_layout(anchor: str) -> str:
+    return "register-rte" if comparison_anchor(anchor) == "rte32" else "staged"
 
 
 def preserving_baseline(selected: dict, anchor="legacy") -> bool:
@@ -180,7 +196,7 @@ def preserving_baseline(selected: dict, anchor="legacy") -> bool:
     window_queries = anchor_queries(anchor)
     return (selected["kernels"] == mode and selected["arithmetic"] == "k16" and selected.get("gemm", "shared") == anchor_gemm(anchor)
             and selected["tile_n"] == 16 and selected["stage_k"] == 16 and selected["window_queries"] == window_queries
-            and selected.get("window_layout", "staged") == "staged"
+            and selected.get("window_layout", "staged") == anchor_window_layout(anchor)
             and not any(selected[key] for key in FUSION_KEYS))
 
 
@@ -270,6 +286,16 @@ def benchmark(path: Path, *, explicit_policy=False) -> dict:
                     raise ValueError("compact-window geometry.tile_m must be 16 or 32")
                 if queries != value["selected"]["window_queries"]:
                     raise ValueError("window attention geometry.tile_m differs from selected.window_queries")
+            if entry["family"] == "fp8_gemm" and value["selected"]["gemm"] in ("direct-rte-init", "direct-rte-epilogue"):
+                policy = value["selected"]
+                geometry = entry.get("geometry")
+                required_geometry = {"threads":128, "required_subgroup_size":32, "tile_m":64}
+                if (entry["variant"] != GEMM_VARIANTS[policy["gemm"]]
+                        or entry["tile_n"] != policy["tile_n"] or entry["stage_k"] != policy["stage_k"]
+                        or not isinstance(geometry, dict)
+                        or any(type(geometry.get(key)) is not int or geometry[key] != item
+                               for key, item in required_geometry.items())):
+                    raise ValueError("new GEMM dispatch module/resources differ from selected policy")
             entry["frame_ms"] = samples(entry.get("frame_ms"), value["frames"], "dispatch.frame_ms", allow_zero=True)
     return value
 
@@ -403,15 +429,16 @@ def analyze(path: Path, allow_arithmetic_change=False, network_manifest: Path | 
 
 def collect(args) -> Path:
     anchor = comparison_anchor(getattr(args, "comparison_anchor", "legacy"))
-    if anchor == "direct32" and (getattr(args, "baseline_executable", None) is None or
+    if anchor in ("direct32", "rte32") and (getattr(args, "baseline_executable", None) is None or
                                  getattr(args, "baseline_shaders", None) is None):
-        raise ValueError("direct32 collection requires explicit --baseline-executable and --baseline-shaders; "
-                         "it is a preserving policy anchor, not an immutable alpha 3 identity pin")
+        release = "alpha 4" if anchor == "rte32" else "alpha 3"
+        raise ValueError(f"{anchor} collection requires explicit --baseline-executable and --baseline-shaders; "
+                         f"it is a preserving policy anchor, not an immutable {release} identity pin")
     if args.arithmetic != "k16" and not args.allow_arithmetic_change:
         raise ValueError("changed arithmetic requires --allow-arithmetic-change")
     requested_gemm = getattr(args, "gemm", "shared")
-    if requested_gemm not in GEMM_VARIANTS or (requested_gemm in ("direct", "direct-rte") and args.stage_k != 16):
-        raise ValueError("GEMM must be shared|packed|direct|direct-rte; direct requires stage_k=16")
+    if requested_gemm not in GEMM_VARIANTS or (requested_gemm in DIRECT_GEMMS and args.stage_k != 16):
+        raise ValueError("GEMM must be " + "|".join(GEMM_VARIANTS) + "; direct requires stage_k=16")
     for name in ("width", "height", "frames", "pairs", "timeout"):
         integer(getattr(args, name), name, 1)
     integer(args.warmup, "warmup")
@@ -430,13 +457,15 @@ def collect(args) -> Path:
     executable_hashes = {"baseline": sha256(baseline_executable), "candidate": sha256(executable)}
     manifest = {"format": "OpenNR-amd-interleaved-v1", "comparison_anchor": anchor, "created_utc": datetime.now(timezone.utc).isoformat(),
                 "model_directory": str(model), "command": args.mode, "runs": []}
-    if anchor == "direct32":
+    if anchor in ("direct32", "rte32"):
+        route = "Direct-RTE/K16/N16/stage16/Q32/Register-RTE" if anchor == "rte32" else "Direct/K16/N16/stage16/Q32/staged"
+        release = "alpha 4" if anchor == "rte32" else "alpha 3"
         manifest["comparison_anchor_scope"] = (
-            "Preserving Direct/K16/N16/stage16/Q32/staged policy with explicitly selected baseline artifacts. "
-            "Measured executable and loaded shader hashes bind these artifacts; an immutable alpha 3 "
+            f"Preserving {route} policy with explicitly selected baseline artifacts. "
+            f"Measured executable and loaded shader hashes bind these artifacts; an immutable {release} "
             "comparison additionally requires independent release-identity proof.")
-        print("direct32 is a preserving policy anchor; retain independent immutable release-hash proof "
-              "when claiming an alpha 3 baseline", flush=True)
+        print(f"{anchor} is a preserving policy anchor; retain independent immutable release-hash proof "
+              f"when claiming an {release} baseline", flush=True)
     child_base = {key: value for key, value in os.environ.items() if not key.startswith("DLSS5VK_")}
     for pair in range(args.pairs):
         for role in ("baseline", "candidate"):
@@ -447,7 +476,7 @@ def collect(args) -> Path:
             anchor_mode = "baseline" if anchor == "legacy" else "optimized"
             kernels, arithmetic, tile_n, stage_k = (anchor_mode, "k16", 16, 16) if role == "baseline" else (args.kernels, args.arithmetic, args.tile_n, args.stage_k)
             window_queries=anchor_queries(anchor) if role=="baseline" else getattr(args,"window_queries",64)
-            window_layout="staged" if role=="baseline" else getattr(args,"window_layout","staged")
+            window_layout=anchor_window_layout(anchor) if role=="baseline" else getattr(args,"window_layout","staged")
             gemm = anchor_gemm(anchor) if role == "baseline" else requested_gemm
             stem = f"pair-{pair + 1:02d}-{role}"
             json_path, log_path = output / (stem + ".json"), output / (stem + ".log")
@@ -529,6 +558,18 @@ def exact_manifest(path: Path, comparison_anchor="legacy") -> dict:
             raise ValueError("model-free operator fixtures require a lowercase fixture_sha256")
         if any(baseline_identity[k] != ident[k] for k in ("device_id", "driver_id", "baseline_shader_sha256")):
             raise ValueError("operator baseline/candidate device, driver or frozen baseline identity differs")
+    raw_overdispatch = value.get("raw_gemm_overdispatch")
+    requires_raw = value["suite"] == "operators" and selected["gemm"] in ("direct-rte-init", "direct-rte-epilogue")
+    if requires_raw and not isinstance(raw_overdispatch, dict):
+        raise ValueError("new GEMM operator proof requires actual raw_gemm_overdispatch provenance")
+    if "raw_gemm_overdispatch" in value:
+        expected = {"variant": GEMM_VARIANTS[selected["gemm"]], "tile_n": selected["tile_n"],
+                    "stage_k": 16, "publication_interval": 16, "required_subgroup_size": 32,
+                    "dispatch_count": 3}
+        if (value["suite"] != "operators" or selected["gemm"] not in DIRECT_GEMMS or not isinstance(raw_overdispatch, dict)
+                or any(type(raw_overdispatch.get(key)) is not type(item) or raw_overdispatch[key] != item
+                       for key, item in expected.items())):
+            raise ValueError("raw GEMM overdispatch module/resources differ from selected policy")
     entries = value.get("pairs")
     if not isinstance(entries, list) or not entries:
         raise ValueError("exact manifest must list binary pairs")
@@ -559,11 +600,53 @@ def exact_manifest(path: Path, comparison_anchor="legacy") -> dict:
         raise ValueError("coverage must be an array of strings")
     if value["suite"] == "operators" and not EXACT_COVERAGE.issubset(coverage):
         raise ValueError("operator suite lacks prescribed mode/edge-case coverage")
+    extended_vit = value.get("extended_vit")
+    requires_vit = value["suite"] == "operators" and selected["gemm"] in ("direct-rte-init", "direct-rte-epilogue")
+    if requires_vit and (VIT_COVERAGE not in coverage or not isinstance(extended_vit, dict)):
+        raise ValueError("new GEMM operator proof requires extended ViT K1024/K4096 partition coverage")
+    if value["suite"] == "operators" and (extended_vit is not None or VIT_COVERAGE in coverage):
+        if (not isinstance(extended_vit, dict) or extended_vit.get("coverage_marker") != VIT_COVERAGE
+                or type(extended_vit.get("case_count")) is not int or extended_vit["case_count"] != len(VIT_CASES)
+                or not isinstance(extended_vit.get("cases"), list) or len(extended_vit["cases"]) != len(VIT_CASES)):
+            raise ValueError("extended ViT execution metadata is incomplete")
+        expected_cases = {}
+        for K,N,rows,flags,partition,batches in VIT_CASES:
+            name = f"gemm-vit-K{K}-N{N}-R{rows}-F{flags}-P{partition}-B{batches}"
+            expected_cases[name] = {"name":name,"K":K,"N":N,"rows":rows,"flags":flags,"partition":partition,"batches":batches}
+        actual_cases = {}
+        for case in extended_vit["cases"]:
+            if (not isinstance(case, dict) or type(case.get("name")) is not str or case["name"] not in expected_cases or case["name"] in actual_cases
+                    or any(type(case.get(key)) is not type(item) or case[key] != item
+                           for key,item in expected_cases[case["name"]].items())):
+                raise ValueError("extended ViT case shape/flags/partition/batches mismatch")
+            actual_cases[case["name"]] = case
+        if actual_cases != expected_cases:
+            raise ValueError("extended ViT case coverage is incomplete")
+        actual_pairs = {entry["name"]:entry for entry in reports}
+        for name,case in expected_cases.items():
+            allocation = ((case["rows"] + 63) // 64) * 64 * (32 + case["batches"] * case["N"])
+            sizes = {name:allocation * (1 if case["flags"] & 16 else 2)}
+            if case["flags"] & 32: sizes[name+"-dual"] = allocation
+            for buffer_name,size in sizes.items():
+                pair = actual_pairs.get(buffer_name)
+                if pair is None or pair["baseline_bytes"] != size or pair["candidate_bytes"] != size:
+                    raise ValueError("extended ViT executed output/dual tail allocation is missing or mismatched")
+    if raw_overdispatch is not None:
+        actual_pairs = {entry["name"]:entry for entry in reports}
+        # Real raw fixtures: 73 valid rows padded to 128, N48; variants 3/5
+        # have three output batches. Compare full allocations, including guards.
+        for name,size in (("gemm-overdispatch-v0",10240), ("gemm-overdispatch-v3",22528),
+                          ("gemm-overdispatch-v5",45056), ("gemm-overdispatch-v5-dual",22528)):
+            pair = actual_pairs.get(name)
+            if pair is None or pair["baseline_bytes"] != size or pair["candidate_bytes"] != size:
+                raise ValueError("raw GEMM overdispatch executed output/dual tail allocation is missing or mismatched")
     if value["suite"] == "model320" and (value.get("resolution") != [320, 320] or names != MODEL_CHECKPOINTS | {"head", "capture-production"}):
         raise ValueError("model320 suite requires 75 checkpoints plus head at 320x320")
     if value["suite"] == "target" and (value.get("resolution") != [1707, 960] or not {"head", "capture-production"}.issubset(names)):
         raise ValueError("target suite requires head and capture/production equality at valid resolution 1707x960")
-    return {"suite": value["suite"], "comparison_anchor": anchor, "source_manifest": str(path.resolve()), "source_sha256": sha256(path), "identity": ident,
+    raw_evidence = {"raw_gemm_overdispatch": raw_overdispatch} if raw_overdispatch is not None else {}
+    if extended_vit is not None: raw_evidence["extended_vit"] = extended_vit
+    return {**raw_evidence, "suite": value["suite"], "comparison_anchor": anchor, "source_manifest": str(path.resolve()), "source_sha256": sha256(path), "identity": ident,
             "model_free": model_free, "fixture_sha256": fixture_hash, "baseline_identity": baseline_identity,
             "selected": selected, "baseline_selected": baseline_selected,
             "coverage": sorted(set(coverage)), "pairs": reports, "passed": all(x["exact"] for x in reports)}
@@ -795,8 +878,8 @@ def replay_sequence(args) -> dict:
     if args.arithmetic!="k16" and not args.allow_arithmetic_change:
         raise ValueError("experimental replay requires --allow-arithmetic-change")
     requested_gemm=getattr(args,"gemm","shared")
-    if requested_gemm not in GEMM_VARIANTS or (requested_gemm in ("direct", "direct-rte") and args.stage_k!=16):
-        raise ValueError("GEMM must be shared|packed|direct|direct-rte; direct requires stage_k=16")
+    if requested_gemm not in GEMM_VARIANTS or (requested_gemm in DIRECT_GEMMS and args.stage_k!=16):
+        raise ValueError("GEMM must be " + "|".join(GEMM_VARIANTS) + "; direct requires stage_k=16")
     frames=captured_sequence(args.capture_sequence.resolve(strict=True),args.allow_nongame)
     executable=args.executable.resolve(strict=True);model=args.model.resolve(strict=True)
     args.output.mkdir(parents=True,exist_ok=False);output=args.output.resolve()
@@ -936,7 +1019,7 @@ def main() -> int:
     merge_parser.add_argument("--output", type=Path, required=True)
     for anchor_parser in (collect_parser, analyze_parser, qualify_parser, tuning_parser, merge_parser):
         anchor_parser.add_argument("--comparison-anchor", choices=COMPARISON_ANCHORS, default="legacy",
-                                   help="preserving policy anchor: legacy, shared compact64/qualified32, or direct32 "
+                                   help="preserving policy anchor: legacy, shared compact64/qualified32, direct32, or rte32 "
                                         "(collection needs explicit baseline tool/shaders; immutable release hashes are verified separately)")
     replay_parser=commands.add_parser("replay",help="replay a bounded scene sequence with identical and evolved histories")
     replay_parser.add_argument("--capture-sequence",type=Path,required=True)

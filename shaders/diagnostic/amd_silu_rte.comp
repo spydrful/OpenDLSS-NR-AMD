@@ -1,0 +1,43 @@
+#version 460
+#extension GL_GOOGLE_include_directive : require
+#include "../common.glsl"
+#include "../amd_silu_rte.glsl"
+layout(local_size_x = 128) in;
+layout(push_constant) uniform Push { uint count; } pc;
+layout(std430, binding = 0) readonly buffer Input { uint inputBits[]; };
+layout(std430, binding = 1) writeonly buffer Output { uint outputBits[]; };
+void main() {
+  uint index = gl_GlobalInvocationID.x;
+  if (index >= pc.count) return;
+  float value = uintBitsToFloat(inputBits[index]);
+  precise float oldBounded = roundF16(clamp(value, -4.0, 4.0));
+  precise float oldAbsolute = roundF16(abs(oldBounded));
+  precise float oldInner = roundF16(fma(-0.055908203125, oldAbsolute, 0.447265625));
+  precise float oldPolynomial = roundF16(fma(oldBounded, oldInner, 0.89453125));
+  precise float oldResult = roundF16(value * oldPolynomial);
+  precise float newBounded = nrHalfPublishRte(clamp(value, -4.0, 4.0));
+  precise float newAbsolute = nrHalfPublishRte(abs(newBounded));
+  precise float newInner = roundF16(fma(-0.055908203125, newAbsolute, 0.447265625));
+  precise float newPolynomial = nrHalfPublishRte(fma(newBounded, newInner, 0.89453125));
+  precise float newResult = roundF16(value * newPolynomial);
+  uint base = index * 16u;
+  outputBits[base + 0u] = floatBitsToUint(oldBounded);
+  outputBits[base + 1u] = floatBitsToUint(oldAbsolute);
+  outputBits[base + 2u] = floatBitsToUint(oldInner);
+  outputBits[base + 3u] = floatBitsToUint(oldPolynomial);
+  outputBits[base + 4u] = floatBitsToUint(oldResult);
+  outputBits[base + 5u] = floatBitsToUint(newBounded);
+  outputBits[base + 6u] = floatBitsToUint(newAbsolute);
+  outputBits[base + 7u] = floatBitsToUint(newInner);
+  outputBits[base + 8u] = floatBitsToUint(newPolynomial);
+  outputBits[base + 9u] = floatBitsToUint(newResult);
+  // Direct function calls bind the instrumented spelling to the actual helpers.
+  outputBits[base + 10u] = floatBitsToUint(mpCubicSilu(value));
+  outputBits[base + 11u] = floatBitsToUint(nrCubicSiluRte(value));
+  // Nonfinite publications must preserve the original F32 bits, independently
+  // of the implementation-defined NaN payload propagated by clamp/FMA/multiply.
+  outputBits[base + 12u] = floatBitsToUint(roundF16(value));
+  outputBits[base + 13u] = floatBitsToUint(nrHalfPublishRte(value));
+  outputBits[base + 14u] = e4m3CodeFromF32(oldResult);
+  outputBits[base + 15u] = e4m3CodeFromF32(newResult);
+}

@@ -95,22 +95,32 @@ int main() {
     clear();set("DLSS5VK_AMD_FFN32_FUSION","1");const auto independent=amd::Options::fromEnvironment();
     set("DLSS5VK_AMD_FFN32_FUSION","0");set("DLSS5VK_AMD_QKV32_FUSION","1");
     expect(independent.ffn32Enabled() && !independent.qkv32Enabled(),"environment changes mutated an independent session snapshot");
-    for(const auto& [name,mode,shader]:std::vector<std::tuple<const char*,amd::Gemm,const char*>>{{"shared",amd::Gemm::Shared,"amd_gemm_optimized"},{"packed",amd::Gemm::Packed,"amd_gemm_packed"},{"direct",amd::Gemm::Direct,"amd_gemm_direct"},{"direct-rte",amd::Gemm::DirectRte,"amd_gemm_direct_rte"}}){
+    for(const auto& [name,mode,shader]:std::vector<std::tuple<const char*,amd::Gemm,const char*>>{{"shared",amd::Gemm::Shared,"amd_gemm_optimized"},{"packed",amd::Gemm::Packed,"amd_gemm_packed"},{"direct",amd::Gemm::Direct,"amd_gemm_direct"},{"direct-rte",amd::Gemm::DirectRte,"amd_gemm_direct_rte"},{"direct-rte-init",amd::Gemm::DirectRteInit,"amd_gemm_direct_rte_init"},{"direct-rte-epilogue",amd::Gemm::DirectRteEpilogue,"amd_gemm_direct_rte_epilogue"}}){
       clear();set("DLSS5VK_AMD_GEMM",name);const auto selected=amd::Options::fromEnvironment();
       expect(selected.gemm==mode && std::string(selected.gemmName())==name && std::string(selected.gemmShaderName())==shader,
              "GEMM selector/name/shader identity differed");
-      expect(selected.requiresRtePublication()==(mode==amd::Gemm::DirectRte),"GEMM policy lost its independent RTE capability requirement");
+      const bool rte=mode==amd::Gemm::DirectRte || mode==amd::Gemm::DirectRteInit || mode==amd::Gemm::DirectRteEpilogue;
+      expect(selected.requiresRtePublication()==rte,"GEMM policy lost its independent RTE capability requirement");
+      expect(selected.directOperands()==(mode==amd::Gemm::Direct || rte),"direct GEMM policy gained operand staging");
       set("DLSS5VK_AMD_GEMM","shared");expect(selected.gemm==mode,"an existing GEMM selection changed with the environment");
     }
     for(const char* stage:{"32","64"}){
-      clear();set("DLSS5VK_AMD_GEMM","direct");set("DLSS5VK_AMD_STAGE_K",stage);
-      rejects([]{(void)amd::Options::fromEnvironment();},"direct GEMM falsely accepted nonexistent staging");
-      set("DLSS5VK_AMD_GEMM","direct-rte");
-      rejects([]{(void)amd::Options::fromEnvironment();},"direct RTE GEMM falsely accepted nonexistent staging");
+      for(const char* name:{"direct","direct-rte","direct-rte-init","direct-rte-epilogue"}){
+        clear();set("DLSS5VK_AMD_GEMM",name);set("DLSS5VK_AMD_STAGE_K",stage);
+        rejects([]{(void)amd::Options::fromEnvironment();},"direct GEMM falsely accepted nonexistent staging");
+      }
       set("DLSS5VK_AMD_GEMM","packed");expect(amd::Options::fromEnvironment().stageK==uint32_t(std::stoi(stage)),"packed GEMM staging was restricted");
     }
-    clear();set("DLSS5VK_AMD_GEMM","direct-rte");set("DLSS5VK_AMD_HARDWARE_PUBLICATION","1");
-    rejects([]{(void)amd::Options::fromEnvironment();},"scalar RTE was mislabeled as packed hardware publication");
+    for(const char* name:{"direct-rte","direct-rte-init","direct-rte-epilogue"}){
+      clear();set("DLSS5VK_AMD_GEMM",name);set("DLSS5VK_AMD_HARDWARE_PUBLICATION","1");
+      rejects([]{(void)amd::Options::fromEnvironment();},"scalar RTE was mislabeled as packed hardware publication");
+      for(const char* tile:{"16","32","64"}){
+        clear();set("DLSS5VK_AMD_GEMM",name);set("DLSS5VK_AMD_TILE_N",tile);
+        const auto candidate=amd::Options::fromEnvironment();
+        expect(candidate.tileN==uint32_t(std::stoi(tile)) && candidate.stageK==16 && !candidate.hardwarePublication,
+               "scalar RTE tile experiment changed staging or packed publication");
+      }
+    }
 
     for(const char* layout:{"register","register-rte"})for(const char* queries:{"16","32"})for(const char* arithmetic:{"k16","k32","final"}){
       clear();set("DLSS5VK_AMD_WINDOW_QUERIES",queries);set("DLSS5VK_AMD_ARITHMETIC",arithmetic);
@@ -160,6 +170,7 @@ int main() {
         {"DLSS5VK_AMD_WINDOW_QUERIES", "32"}, {"DLSS5VK_AMD_FUSION", "1"}, {"DLSS5VK_AMD_FFN32_FUSION", "1"}, {"DLSS5VK_AMD_QKV32_FUSION", "1"}, {"DLSS5VK_AMD_EXPERT_FUSION", "1"},
         {"DLSS5VK_AMD_BLOCK_FUSION", "1"}, {"DLSS5VK_AMD_HARDWARE_PUBLICATION", "1"},
         {"DLSS5VK_AMD_GEMM","packed"},{"DLSS5VK_AMD_GEMM","direct"},{"DLSS5VK_AMD_GEMM","direct-rte"},
+        {"DLSS5VK_AMD_GEMM","direct-rte-init"},{"DLSS5VK_AMD_GEMM","direct-rte-epilogue"},
         {"DLSS5VK_AMD_WINDOW_LAYOUT","register"},{"DLSS5VK_AMD_WINDOW_LAYOUT","register-rte"}}) {
       clear(); set("DLSS5VK_AMD_KERNELS", "baseline"); set(item.name, item.value);
       rejects([] { (void)amd::Options::fromEnvironment(); }, "frozen baseline accepted an arithmetic/kernel override");

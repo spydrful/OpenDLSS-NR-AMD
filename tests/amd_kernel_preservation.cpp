@@ -52,11 +52,11 @@ struct Runner {
     environment.set("DLSS5VK_AMD_KERNELS", baseline && anchor == "legacy" ? "baseline" : "optimized");
     if (baseline) {
       environment.set("DLSS5VK_AMD_ARITHMETIC", "k16");
-      environment.set("DLSS5VK_AMD_GEMM", anchor == "direct32" ? "direct" : "shared");
+      environment.set("DLSS5VK_AMD_GEMM", anchor == "rte32" ? "direct-rte" : anchor == "direct32" ? "direct" : "shared");
       environment.set("DLSS5VK_AMD_TILE_N", "16");
       environment.set("DLSS5VK_AMD_STAGE_K", "16");
-      environment.set("DLSS5VK_AMD_WINDOW_QUERIES", anchor == "qualified32" || anchor == "direct32" ? "32" : "64");
-      environment.set("DLSS5VK_AMD_WINDOW_LAYOUT", "staged");
+      environment.set("DLSS5VK_AMD_WINDOW_QUERIES", anchor == "qualified32" || anchor == "direct32" || anchor == "rte32" ? "32" : "64");
+      environment.set("DLSS5VK_AMD_WINDOW_LAYOUT", anchor == "rte32" ? "register-rte" : "staged");
       environment.set("DLSS5VK_AMD_FUSION", "0");
       environment.set("DLSS5VK_AMD_FFN32_FUSION", "0");
       environment.set("DLSS5VK_AMD_QKV32_FUSION", "0");
@@ -72,10 +72,11 @@ struct Runner {
     if (baseline) {
       const auto& actual = kernels->amdPolicy();
       const std::string expectedMode = anchor == "legacy" ? "baseline" : "optimized";
-      const uint32_t expectedQueries = anchor == "qualified32" || anchor == "direct32" ? 32u : 64u;
-      const auto expectedGemm = anchor == "direct32" ? amd::Gemm::Direct : amd::Gemm::Shared;
+      const uint32_t expectedQueries = anchor == "qualified32" || anchor == "direct32" || anchor == "rte32" ? 32u : 64u;
+      const auto expectedGemm = anchor == "rte32" ? amd::Gemm::DirectRte : anchor == "direct32" ? amd::Gemm::Direct : amd::Gemm::Shared;
+      const auto expectedLayout = anchor == "rte32" ? amd::WindowLayout::RegisterRte : amd::WindowLayout::Staged;
       if (kernels->selectedKernelMode() != expectedMode || actual.arithmetic != amd::Arithmetic::K16 || actual.gemm != expectedGemm ||
-          actual.windowLayout != amd::WindowLayout::Staged ||
+          actual.windowLayout != expectedLayout ||
           actual.tileN != 16 || actual.stageK != 16 || actual.windowQueries != expectedQueries ||
           actual.ffn32Enabled() || actual.qkv32Enabled() || actual.expertFusion || actual.blockFusion || actual.hardwarePublication)
         throw std::runtime_error("amdcheck comparison anchor did not select its explicit preserving N16/K16/Q policy");
@@ -157,7 +158,7 @@ struct Pair {
 struct Results {
   fs::path root;
   std::vector<Pair> pairs;
-  uint32_t operators = 0, failures = 0;
+  uint32_t operators = 0, failures = 0, vitCasesExecuted = 0;
   uint64_t comparedBytes = 0;
   void compare(const std::string& name, const std::vector<uint8_t>& baseline,
                const std::vector<uint8_t>& candidate) {
@@ -182,24 +183,60 @@ struct Results {
 
 struct GemmCase {
   uint32_t K, N, rows, variant, seed;
+  std::optional<uint32_t> partition, flags, batches;
 };
+constexpr const char* kVitCoverage = "vit-k1024-k4096-partitions-v1";
+const std::array<GemmCase,14>& vitCases() {
+  // The old Cartesian suite stops at K512 and partition128. These bounded
+  // cases cover the actual ViT depths/partitions with small rows/columns,
+  // output formats, seeded residuals, SiLU, broadcasts, tails and canaries.
+  static const std::array<GemmCase,14> cases{{
+      {1024,16,1,1,0x9070B100u,256,0,1},
+      {1024,48,63,1,0x9070B101u,512,0,1},
+      {1024,128,73,1,0x9070B102u,0,24,1},
+      {1024,48,73,1,0x9070B103u,256,83,1},
+      {1024,16,63,1,0x9070B104u,512,99,1},
+      {1024,128,1,1,0x9070B105u,256,19,1},
+      {1024,48,73,1,0x9070B106u,512,35,1},
+      {1024,128,63,1,0x9070B107u,0,16,1},
+      {4096,16,1,1,0x9070B108u,1024,83,1},
+      {4096,48,63,1,0x9070B109u,1024,99,1},
+      {4096,128,73,1,0x9070B10Au,1024,0,1},
+      {4096,48,73,1,0x9070B10Bu,1024,24,1},
+      {1024,48,63,1,0x9070B10Cu,256,152,2},
+      {4096,16,73,1,0x9070B10Du,1024,163,2}}};
+  return cases;
+}
+std::string vitName(const GemmCase& test) {
+  return "gemm-vit-K" + std::to_string(test.K) + "-N" + std::to_string(test.N) +
+      "-R" + std::to_string(test.rows) + "-F" + std::to_string(test.flags.value()) +
+      "-P" + std::to_string(test.partition.value()) + "-B" + std::to_string(test.batches.value());
+}
 struct Output { std::vector<uint8_t> primary, dual; };
 
 Output gemm(Runner& runner, const GemmCase& test, bool overdispatch = false) {
   auto& context = *runner.context; auto& kernels = *runner.kernels;
   Buffers storage{context,{},&runner.fixtureBytes};
-  const bool broadcast = test.variant == 3 || test.variant == 4;
-  const uint32_t batches = test.variant < 2 ? 1 : (test.variant == 3 || test.variant == 5 ? 3 : 2);
-  const bool residual = test.variant >= 2, residualHalf = test.variant == 2 || test.variant == 4;
-  const bool dual = test.variant == 2 || test.variant == 5;
-  const bool quantize = test.variant != 1 && !dual;
-  const bool scaled = residual && test.variant != 4;
-  const bool silu = test.variant >= 4;
+  const bool oldResidual = test.variant >= 2, oldHalf = test.variant == 2 || test.variant == 4;
+  const bool oldDual = test.variant == 2 || test.variant == 5;
+  const uint32_t flags = test.flags.value_or((oldResidual ? 1u : 0u) |
+      (oldResidual && test.variant != 4 ? 2u : 0u) | (test.variant >= 4 ? 8u : 0u) |
+      (test.variant != 1 && !oldDual ? 16u : 0u) | (oldDual ? 32u : 0u) |
+      (oldResidual && !oldHalf ? 64u : 0u) | (test.variant == 3 || test.variant == 4 ? 128u : 0u));
+  const bool broadcast = (flags & 128u) != 0u;
+  const uint32_t batches = test.batches.value_or(test.variant < 2 ? 1u : (test.variant == 3 || test.variant == 5 ? 3u : 2u));
+  const bool residual = (flags & 1u) != 0u, residualHalf = residual && (flags & 64u) == 0u;
+  const bool dual = (flags & 32u) != 0u, quantize = (flags & 16u) != 0u;
+  const bool scaled = (flags & 2u) != 0u, silu = (flags & 8u) != 0u;
+  if ((flags & ~251u) || !batches || (dual && quantize) || (scaled && !residual) || ((flags & 64u) && !residual))
+    throw std::runtime_error("invalid preservation GEMM flags/batches");
   const uint32_t inputBase = 16, outputBase = 16;
   const uint32_t inputStride = inputBase + test.K * (broadcast ? 1 : batches) + 16;
   const uint32_t outputStride = outputBase + batches * test.N + 16;
   const uint32_t padded = nr::alignRows(test.rows), matrixN = test.N + 32, weightBase = 16;
-  const uint32_t partition = (test.variant == 2 || test.variant == 5) && test.K >= 64 ? std::min(128u, test.K) : 0;
+  const uint32_t partition = test.partition.value_or((test.variant == 2 || test.variant == 5) && test.K >= 64 ? std::min(128u, test.K) : 0);
+  if (partition && (partition % 16 || test.K % partition))
+    throw std::runtime_error("invalid preservation GEMM partition");
   uint32_t state = test.seed;
   std::vector<uint8_t> input(size_t(padded) * inputStride), weights(size_t(batches) * test.K * matrixN);
   for (size_t i = 0; i < input.size(); ++i) input[i] = finiteE4(state, i, test.variant & 1);
@@ -235,9 +272,6 @@ Output gemm(Runner& runner, const GemmCase& test, bool overdispatch = false) {
     const auto& policy = kernels.amdPolicy();
     if (!policy.directOperands() || test.rows > 128)
       throw std::runtime_error("overdispatch fixture requires direct GEMM and at most 128 rows");
-    uint32_t flags = (residual ? 1u : 0u) | (scaled ? 2u : 0u) | (silu ? 8u : 0u) |
-        (quantize ? 16u : 0u) | (dual ? 32u : 0u) | (residual && !residualHalf ? 64u : 0u) |
-        (broadcast ? 128u : 0u);
     vk::SpecConstants specs;
     specs.add(0,test.K);specs.add(2,flags);specs.add(3,partition);
     specs.add(10,policy.publicationInterval());specs.add(11,policy.tileN);
@@ -253,8 +287,10 @@ Output gemm(Runner& runner, const GemmCase& test, bool overdispatch = false) {
     if(dual)bindings[5]=&outDual.buffer;
     if(residual)bindings[residualHalf ? 3 : 6]=&res.buffer;
     if(scaled)bindings[4]=&aux.raw;
-    const auto module=context.loadShaderModule((runner.shaders/"amd_gemm_direct.spv").string());
-    auto pipeline=context.createComputePipeline(module,specs,"direct GEMM overdispatch",32);
+    const std::string moduleName=policy.gemmShaderName();
+    const auto module=context.loadShaderModule((runner.shaders/(moduleName+".spv")).string());
+    const std::string pipelineLabel=moduleName+" overdispatch";
+    auto pipeline=context.createComputePipeline(module,specs,pipelineLabel.c_str(),32);
     const auto descriptors=context.allocateSet(bindings);
     vkCmdBindPipeline(commands,VK_PIPELINE_BIND_POINT_COMPUTE,pipeline.pipeline);
     vkCmdBindDescriptorSets(commands,VK_PIPELINE_BIND_POINT_COMPUTE,context.pipelineLayout(),0,1,&descriptors,0,nullptr);
@@ -373,9 +409,22 @@ void manifest(const Results& results, const Runner& baseline, const Runner& cand
       << ",\"validationErrors\":" << validationErrors << ",\"fixtureRoot\":" << quote(results.root.generic_string())
       << ",\"model_free\":true,\"fixture_sha256\":" << quote(hash(baseline.fixtureBytes))
       << ",\"fixture_hash_scope\":\"Ordered length-prefixed host uploads, including output canaries\""
-      << ",\"identity\":" << identity(candidate) << ",\"baseline_identity\":" << identity(baseline) << ",\n"
-      << "\"coverage\":[\"tails\",\"shifted-windows\",\"channel-families\",\"broadcasts\",\"split-k\","
-         "\"residuals\",\"activation\",\"padding\",\"conversion-edge-cases\"],\n\"pairs\":[\n";
+      << ",\"identity\":" << identity(candidate) << ",\"baseline_identity\":" << identity(baseline) << ",\n";
+  if (candidate.kernels->amdPolicy().directOperands()) {
+    const auto& policy=candidate.kernels->amdPolicy();
+    out << "\"raw_gemm_overdispatch\":{\"variant\":" << quote(policy.gemmShaderName())
+        << ",\"tile_n\":" << policy.tileN << ",\"stage_k\":16,\"publication_interval\":" << policy.publicationInterval()
+        << ",\"required_subgroup_size\":32,\"dispatch_count\":3},\n";
+  }
+  if (results.vitCasesExecuted != vitCases().size()) throw std::runtime_error("extended ViT suite did not finish");
+  out << "\"extended_vit\":{\"coverage_marker\":" << quote(kVitCoverage) << ",\"case_count\":" << results.vitCasesExecuted << ",\"cases\":[";
+  for (size_t i = 0; i < vitCases().size(); ++i) {
+    const auto& test=vitCases()[i]; if (i) out << ',';
+    out << "{\"name\":" << quote(vitName(test)) << ",\"K\":" << test.K << ",\"N\":" << test.N << ",\"rows\":" << test.rows
+        << ",\"flags\":" << test.flags.value() << ",\"partition\":" << test.partition.value() << ",\"batches\":" << test.batches.value() << '}';
+  }
+  out << "]},\n\"coverage\":[\"tails\",\"shifted-windows\",\"channel-families\",\"broadcasts\",\"split-k\","
+         "\"residuals\",\"activation\",\"padding\",\"conversion-edge-cases\"," << quote(kVitCoverage) << "],\n\"pairs\":[\n";
   for (size_t i = 0; i < results.pairs.size(); ++i) {
     const auto& pair = results.pairs[i];
     if (i) out << ",\n";
@@ -395,10 +444,10 @@ int runAmdKernelPreservation(int argc, char** argv) {
     const auto candidateDirectory = argument(argc, argv, "--shaders");
     const auto fixtureDirectory = argument(argc, argv, "--fixture");
     const auto anchor = argument(argc, argv, "--comparison-anchor", "legacy");
-    if (anchor != "legacy" && anchor != "compact64" && anchor != "qualified32" && anchor != "direct32")
-      throw std::runtime_error("--comparison-anchor must be legacy, compact64, qualified32 or direct32");
+    if (anchor != "legacy" && anchor != "compact64" && anchor != "qualified32" && anchor != "direct32" && anchor != "rte32")
+      throw std::runtime_error("--comparison-anchor must be legacy, compact64, qualified32, direct32 or rte32");
     if (baselineDirectory.empty() || candidateDirectory.empty() || fixtureDirectory.empty()) {
-      fprintf(stderr, "usage: dlss5vk amdcheck --baseline-shaders <frozen dir> --shaders <candidate dir> --fixture <output dir> [--json <manifest>] [--comparison-anchor legacy|compact64|qualified32|direct32]\n");
+      fprintf(stderr, "usage: dlss5vk amdcheck --baseline-shaders <frozen dir> --shaders <candidate dir> --fixture <output dir> [--json <manifest>] [--comparison-anchor legacy|compact64|qualified32|direct32|rte32]\n");
       return 2;
     }
     if (fs::equivalent(fs::path(baselineDirectory), fs::path(candidateDirectory)))
@@ -433,6 +482,13 @@ int runAmdKernelPreservation(int argc, char** argv) {
       if (!expected.dual.empty()) results.compare(name + "-dual", expected.dual, actual.dual);
       ++results.operators;
       if (results.operators % 50 == 0) printf("amdcheck progress: %u operators, %zu checks, %u mismatched\n", results.operators, results.pairs.size(), results.failures);
+    }
+    for (const auto& test : vitCases()) {
+      const auto expected=gemm(baseline,test), actual=gemm(candidate,test);
+      const auto name=vitName(test);
+      results.compare(name,expected.primary,actual.primary);
+      if (!expected.dual.empty()) results.compare(name+"-dual",expected.dual,actual.dual);
+      ++results.operators; ++results.vitCasesExecuted;
     }
     if(candidate.kernels->amdPolicy().directOperands()) {
       for(uint32_t variant : {0u,3u,5u}) {

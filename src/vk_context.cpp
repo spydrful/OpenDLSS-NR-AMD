@@ -80,6 +80,9 @@ DeviceRequirements::DeviceRequirements(VkPhysicalDevice physical, Backend reques
       fc.shaderSignedZeroInfNanPreserveFloat16 &&
       fc.roundingModeIndependence != VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_NONE &&
       fc.denormBehaviorIndependence != VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_NONE;
+  // The SiLU RTE epilogue additionally preserves the F32 operations feeding
+  // half publication. Other scalar-RTE kernels do not request this F32 mode.
+  capabilities.float32SignedZeroInfNan = fc.shaderSignedZeroInfNanPreserveFloat32;
   if (properties.properties.apiVersion < VK_API_VERSION_1_3) throw std::runtime_error("Vulkan 1.3 is required");
   Backend selected = requested;
   if (selected == Backend::Auto) {
@@ -296,6 +299,7 @@ std::string Context::capabilityReport() const {
       << "\nFP8 E4M3 16x16x16 -> FP32: " << (capabilities_.fp8Matrix16 ? "yes" : "no")
       << "\nFP16 16x16 accumulator type: " << (capabilities_.fp16Accumulator16 ? "yes" : "no")
       << "\nIndependent FP16 RTE/denorm/zero controls: " << (capabilities_.halfPublicationRte ? "yes" : "no")
+      << "\nFP32 signed-zero/Inf/NaN controls: " << (capabilities_.float32SignedZeroInfNan ? "yes" : "no")
       << "\nNVIDIA PTX: " << (capabilities_.cudaLaunch ? "yes" : "no")
       << "\nD3D12 external interop: " << (capabilities_.externalInterop ? "enabled" : "disabled") << "\n";
   for (const auto& m : capabilities_.matrixTypes)

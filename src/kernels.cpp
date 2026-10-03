@@ -82,6 +82,8 @@ Kernels::Kernels(vk::Context& context, const std::string& shaderDirectory)
       if (amdOptimized_) {
         check(!options.requiresRtePublication() || context_.capabilities().halfPublicationRte,
               "AMD scalar RTE publication requires independent FP16 RTE, denorm and signed-zero/Inf/NaN controls");
+        check(options.gemm != amd::Gemm::DirectRteEpilogue || context_.capabilities().float32SignedZeroInfNan,
+              "AMD scalar RTE epilogue requires FP32 signed-zero/Inf/NaN controls");
         check(!options.registerWindowOperands() || context_.capabilities().fp16Accumulator16,
               "AMD register attention requires subgroup 16x16 FP16 accumulator support");
         modules_["gemm_fp8_optimized"] = loadCachedShaderModule(options.gemmShaderName());
@@ -176,6 +178,8 @@ bool Kernels::amdBlock32Enabled() const { return context_.isAmd() && amdOptimize
 void Kernels::loadAmdOptimizedModules() {
   check(!amdPolicy_.requiresRtePublication() || context_.capabilities().halfPublicationRte,
         "AMD scalar RTE publication requires independent FP16 RTE, denorm and signed-zero/Inf/NaN controls");
+  check(amdPolicy_.gemm != amd::Gemm::DirectRteEpilogue || context_.capabilities().float32SignedZeroInfNan,
+        "AMD scalar RTE epilogue requires FP32 signed-zero/Inf/NaN controls");
   check(!amdPolicy_.registerWindowOperands() || context_.capabilities().fp16Accumulator16,
         "AMD register attention requires subgroup 16x16 FP16 accumulator support");
   std::vector<std::string> names{amdPolicy_.gemmShaderName(),"portable_f16",amdPolicy_.windowShaderName(),
@@ -788,6 +792,8 @@ void Kernels::nativeGemmFp8(VkCommandBuffer commands, const GemmFp8Args& a) {
     constants.add(10, policy.publicationInterval()); constants.add(11, tileN); constants.add(12, stageK);
     constants.add(13, policy.hardwarePublication ? 1u : 0u);
   }
+  // The last native-only word is unused by legacy modules. The init experiment
+  // reads these +0.0 bits as its runtime accumulator seed; keep this word zero.
   struct Push {
     uint32_t rows, N, Nmatrix, weightColumnOffset, inputStride, inputColumnBase;
     uint32_t outputStride, outputColumnOffset, auxHalfOffset, batches, columnGroups, splitStride;

@@ -7,7 +7,7 @@
 namespace amd {
 enum class KernelMode { Auto, Baseline, Optimized };
 enum class Arithmetic { K16, K32, Final };
-enum class Gemm { Shared, Packed, Direct, DirectRte };
+enum class Gemm { Shared, Packed, Direct, DirectRte, DirectRteInit, DirectRteEpilogue };
 enum class WindowLayout { Staged, Register, RegisterRte };
 struct Options {
   KernelMode kernels = KernelMode::Auto;
@@ -24,11 +24,33 @@ struct Options {
   uint32_t publicationInterval() const { return arithmetic == Arithmetic::K16 ? 16u : arithmetic == Arithmetic::K32 ? 32u : 0u; }
   const char* kernelName() const { return kernels == KernelMode::Auto ? "auto" : kernels == KernelMode::Baseline ? "baseline" : "optimized"; }
   const char* arithmeticName() const { return arithmetic == Arithmetic::K16 ? "k16" : arithmetic == Arithmetic::K32 ? "k32" : "final"; }
-  bool directOperands() const { return gemm == Gemm::Direct || gemm == Gemm::DirectRte; }
-  const char* gemmName() const { return gemm == Gemm::Shared ? "shared" : gemm == Gemm::Packed ? "packed" : gemm == Gemm::Direct ? "direct" : "direct-rte"; }
-  const char* gemmShaderName() const { return gemm == Gemm::Shared ? "amd_gemm_optimized" : gemm == Gemm::Packed ? "amd_gemm_packed" : gemm == Gemm::Direct ? "amd_gemm_direct" : "amd_gemm_direct_rte"; }
+  static bool scalarRteGemm(Gemm mode) { return mode == Gemm::DirectRte || mode == Gemm::DirectRteInit || mode == Gemm::DirectRteEpilogue; }
+  static bool directGemm(Gemm mode) { return mode == Gemm::Direct || scalarRteGemm(mode); }
+  bool directOperands() const { return directGemm(gemm); }
+  const char* gemmName() const {
+    switch(gemm) {
+      case Gemm::Shared: return "shared";
+      case Gemm::Packed: return "packed";
+      case Gemm::Direct: return "direct";
+      case Gemm::DirectRte: return "direct-rte";
+      case Gemm::DirectRteInit: return "direct-rte-init";
+      case Gemm::DirectRteEpilogue: return "direct-rte-epilogue";
+    }
+    throw std::runtime_error("invalid AMD GEMM selector");
+  }
+  const char* gemmShaderName() const {
+    switch(gemm) {
+      case Gemm::Shared: return "amd_gemm_optimized";
+      case Gemm::Packed: return "amd_gemm_packed";
+      case Gemm::Direct: return "amd_gemm_direct";
+      case Gemm::DirectRte: return "amd_gemm_direct_rte";
+      case Gemm::DirectRteInit: return "amd_gemm_direct_rte_init";
+      case Gemm::DirectRteEpilogue: return "amd_gemm_direct_rte_epilogue";
+    }
+    throw std::runtime_error("invalid AMD GEMM shader selector");
+  }
   bool registerWindowOperands() const { return windowLayout != WindowLayout::Staged; }
-  bool requiresRtePublication() const { return gemm == Gemm::DirectRte || windowLayout == WindowLayout::RegisterRte; }
+  bool requiresRtePublication() const { return scalarRteGemm(gemm) || windowLayout == WindowLayout::RegisterRte; }
   const char* windowLayoutName() const { return windowLayout == WindowLayout::Staged ? "staged" : windowLayout == WindowLayout::Register ? "register" : "register-rte"; }
   const char* windowShaderName() const { return windowLayout == WindowLayout::RegisterRte ? "amd_window_register_rte" : windowLayout == WindowLayout::Register ? "amd_window_register" : windowQueries == 64 ? "amd_window_optimized" : "amd_window_small"; }
   static WindowLayout parseWindowLayout(const std::string& text) {
@@ -42,7 +64,9 @@ struct Options {
     if(text=="packed")return Gemm::Packed;
     if(text=="direct")return Gemm::Direct;
     if(text=="direct-rte")return Gemm::DirectRte;
-    throw std::runtime_error("invalid AMD GEMM policy (shared|packed|direct|direct-rte)");
+    if(text=="direct-rte-init")return Gemm::DirectRteInit;
+    if(text=="direct-rte-epilogue")return Gemm::DirectRteEpilogue;
+    throw std::runtime_error("invalid AMD GEMM policy (shared|packed|direct|direct-rte|direct-rte-init|direct-rte-epilogue)");
   }
   bool ffn32Enabled() const { return fusion || ffn32Fusion; }
   bool qkv32Enabled() const { return fusion || qkv32Fusion; }
@@ -89,8 +113,8 @@ struct Options {
     out.expertFusion = boolean("DLSS5VK_AMD_EXPERT_FUSION");
     out.blockFusion = boolean("DLSS5VK_AMD_BLOCK_FUSION");
     out.hardwarePublication = boolean("DLSS5VK_AMD_HARDWARE_PUBLICATION");
-    if(out.gemm==Gemm::DirectRte && out.hardwarePublication)
-      throw std::runtime_error("direct-rte specifies scalar RTE publication; packed hardware publication must be off");
+    if(scalarRteGemm(out.gemm) && out.hardwarePublication)
+      throw std::runtime_error("scalar RTE GEMM specifies scalar publication; packed hardware publication must be off");
     out.tuningPath = value("DLSS5VK_AMD_TUNING", "");
     if (out.kernels == KernelMode::Baseline && (out.arithmetic != Arithmetic::K16 || out.gemm != Gemm::Shared || out.windowLayout != WindowLayout::Staged || out.tileN != 16 || out.stageK != 16 || out.windowQueries != 64 || out.ffn32Enabled() || out.qkv32Enabled() || out.expertFusion || out.blockFusion || out.hardwarePublication))
       throw std::runtime_error("baseline AMD kernels require k16, shared GEMM, tile N16/K16 and no fusion/hardware publication override");

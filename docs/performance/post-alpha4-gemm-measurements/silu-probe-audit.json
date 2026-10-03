@@ -1,0 +1,680 @@
+{
+  "audit_script_sha256": "450cd99feb7ceb794aa60696043aa7dd2da32394b77d1f891030e77ec6621cdc",
+  "corrected": {
+    "artifacts": {
+      "build_identity": {
+        "bytes": 2258,
+        "path": "build/performance/silu-rte-probe-20261003-mixed3-cpu/build-identity.json",
+        "sha256": "103112e79d6666cabe26da465acab1fbf9f361cfb953bc7cfec48da029761d1f"
+      },
+      "cpu_oracle": {
+        "bytes": 13065660,
+        "path": "build/performance/silu-rte-probe-20261003-mixed3-cpu/run.cpu-oracle-u32.bin",
+        "sha256": "b9418936ab88575ab92fde0c678e9cc17104eb3b5527e92a1662ce0b4f398aa5"
+      },
+      "cpu_report": {
+        "bytes": 1840,
+        "path": "build/performance/silu-rte-probe-20261003-mixed3-cpu/cpu.json",
+        "sha256": "265c03fdc85632c3227309d523da58589530694853fd16d3ac230689b159b7bb"
+      },
+      "executable": {
+        "bytes": 440320,
+        "path": "build/performance/silu-rte-probe-20261003-mixed3-cpu/amd_silu_rte_probe.exe",
+        "sha256": "9ed79e64ea19f322f5c02babc51044b32eb93412fa4876c51010101b8888f691"
+      },
+      "gpu_log": {
+        "bytes": 282,
+        "path": "build/performance/silu-rte-probe-20261003-mixed3-cpu/run.log",
+        "sha256": "df6b60b97a0ea503076a553439ba1ad7a01cc534fe5f3ba8749ae5dcbb29a7c0"
+      },
+      "gpu_output": {
+        "bytes": 41810112,
+        "path": "build/performance/silu-rte-probe-20261003-mixed3-cpu/run.gpu-u32.bin",
+        "sha256": "ea75d8fc8bedeb692f803a3dd55f43bd16e86cdd062af28519fb0d5290dca9bc"
+      },
+      "gpu_report": {
+        "bytes": 1979,
+        "path": "build/performance/silu-rte-probe-20261003-mixed3-cpu/run.json",
+        "sha256": "cffaf600d7beca87c40884915828cc49679cb3e751f11130648a7c5340f7b8c8"
+      },
+      "inputs": {
+        "bytes": 2613132,
+        "path": "build/performance/silu-rte-probe-20261003-mixed3-cpu/run.input-u32.bin",
+        "sha256": "3e7c945fcffb0b068dbc6a6d05917c1a7c16282107e5dc435774f2d63240ed6c"
+      },
+      "module": {
+        "bytes": 13712,
+        "path": "build/performance/silu-rte-probe-20261003-mixed3-cpu/amd_silu_rte.spv",
+        "sha256": "9c7a9791804895fb9c347612674cd576934ed8c1dc883bf330ae6ea1d91074d6"
+      }
+    },
+    "cpu_checks": 446477,
+    "cpu_float_policy": "/fp:strict; explicit std::fma; RNE checked",
+    "device": "AMD Radeon RX 9070 XT",
+    "driver": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+    "float_controls": {
+      "denormIndependence": 0,
+      "denormPreserve16": 1,
+      "roundingIndependence": 0,
+      "roundingModeRTE16": 1,
+      "signedZeroInfNanPreserve16": 1,
+      "signedZeroInfNanPreserve32": 1
+    },
+    "frozen_sources_sha256": {
+      "scripts/complete_amd_silu_float_controls.ps1": "0a9ae92dc47e16383e5f1a6a6619f2a9a2d5710bf0a940e8acd116fa234f6eda",
+      "scripts/probe_amd_silu.ps1": "56341c05af7a86bd0a5c003ab2e1088ee5f86ee9367e269bfc05e7b1f8ee8291",
+      "shaders/amd_half_publication_rte.glsl": "5eff0205c9ca593639db0b12e828c2d1bd85c6e7d66897c624be9584c8fdd211",
+      "shaders/amd_silu_rte.glsl": "8dc0ba981f8fe2a0810b393e84d933dacdfc07c908b077821c77fde2ab80e533",
+      "shaders/common.glsl": "e8b0928a841d31983b0e0a57fa183c77578a8e45a9e83ed4391aad18f515b842",
+      "shaders/diagnostic/amd_silu_rte.comp": "c2ab5223b34dc68439bd8251cd5d19dd7492b3981cbeda0471bc99a0c1567c80",
+      "src/amd_config.h": "dbecea14cd087418db08dc611e5cc68597791195283cfc6f9d7effd8147ae934",
+      "src/numeric.h": "097f704525ac9b548645c8168de75e95758fab5c6395e422c7f7aea7545be5e1",
+      "src/sha256.h": "7bc612aa8e483a8946e3a8fb911e3e16048e99175374b87a37c9aa45291b025b",
+      "src/vk_context.cpp": "23c41d0768aaa52300789b3ca187dbf66286b8111d24205ed071f42662d65b7d",
+      "src/vk_context.h": "7fd39bd354ab9e75e3868d1d4036f814dd49580168db2604e7057ed44c59ab7f",
+      "tests/amd_silu_rte_probe.cpp": "0d4734f9f1b8575e659c2ce417a601372409137ee89a876f03cb42b06e3ae0d6"
+    },
+    "glslang_sha256": "9643709c02c83e26773f96b6a87f197ab2e84f78be0879ad8fb3619418b5d9ad",
+    "gpu_run": true,
+    "mismatches": {
+      "baselineFunctionVsTrace": 0,
+      "baselineVsCpuByCheckpoint": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "candidateFunctionVsTrace": 0,
+      "candidateVsBaselineByCheckpoint": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "candidateVsCpuByCheckpoint": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "directPublication": 0,
+      "e4CandidateVsBaseline": 0,
+      "e4VsCpu": 0,
+      "nonfinitePublicationRawBits": 0
+    },
+    "mode_closure": {
+      "added_signed_zero_widths": [
+        16
+      ],
+      "entry_point_id": 4,
+      "format": "OpenNR-amd-silu-float-controls-closure-v1",
+      "id_bound": 567,
+      "input_sha256": "68ca8a6b0328847d525513046c3a49bfa83618c99d3683d6d73adf610634b7f7",
+      "other_instructions_unchanged": true,
+      "output_sha256": "9c7a9791804895fb9c347612674cd576934ed8c1dc883bf330ae6ea1d91074d6",
+      "semantic_validator_run": false
+    },
+    "module": {
+      "capabilities": [
+        1,
+        9,
+        22,
+        4464,
+        4466,
+        4467
+      ],
+      "entry_point_id": 4,
+      "execution_modes": [
+        {
+          "entry_point_id": 4,
+          "mode": 17,
+          "operands": [
+            128,
+            1,
+            1
+          ]
+        },
+        {
+          "entry_point_id": 4,
+          "mode": 4459,
+          "operands": [
+            16
+          ]
+        },
+        {
+          "entry_point_id": 4,
+          "mode": 4461,
+          "operands": [
+            32
+          ]
+        },
+        {
+          "entry_point_id": 4,
+          "mode": 4462,
+          "operands": [
+            16
+          ]
+        },
+        {
+          "entry_point_id": 4,
+          "mode": 4461,
+          "operands": [
+            16
+          ]
+        }
+      ],
+      "spirv_version": "1.6"
+    },
+    "name": "mixed-three-RTE-two-original-software",
+    "passed": true,
+    "raw_reaudit_matches_report": true,
+    "validation_layer_enabled": false
+  },
+  "correction_rationale": {
+    "both_full_RTE_GPU_attempts_output_identical": true,
+    "compiler_FMA_narrowing": "Inference from bit witness and double-rounding result; installed-driver ISA was not inspected.",
+    "full_16_and_32_controls_alone_did_not_fix_failures": true,
+    "inner_witness": {
+      "exact_FMA_above_half_midpoint": "1/134217728",
+      "input_f32_hex": "3cc4c000",
+      "prescribed_F32_FMA_rounds_to_half_midpoint_before_half_RNE": true,
+      "prescribed_inner_f32_hex": "3ee44000",
+      "prior_RTE_inner_f32_hex": "3ee46000"
+    },
+    "prior_all_RTE_checkpoint_failures": [
+      0,
+      0,
+      12,
+      0,
+      196588
+    ],
+    "prior_all_RTE_e4_failures": 189876,
+    "retained_original_software_publications": [
+      "inner_fma",
+      "result_multiply"
+    ]
+  },
+  "format": "OpenNR-amd-silu-corrected-probe-evidence-v1",
+  "gates": {
+    "NVIDIA_parity_established": false,
+    "SPIRV_semantic_validator_run": false,
+    "alpha4_artifacts_changed": false,
+    "default_policy_changed_by_this_evidence": false,
+    "game_measured": false,
+    "isolated_diagnostic_pass": true,
+    "model_operator_qualification_established": false,
+    "performance_claim": false,
+    "production_qualified": false,
+    "validation_layer_enabled": false
+  },
+  "independent_cpu_audit": {
+    "E4_cpu_codes_independent_integer_oracle_finite_inputs": true,
+    "all_three_GPU_reports_recomputed_from_raw_buffers": true,
+    "closure_cpu_tests": {
+      "artifact": {
+        "bytes": 649,
+        "path": "build/performance/silu-closure-cpu/a83ba609bba8491dbb6e1cb3db7fa2e4/verification.json",
+        "sha256": "75439fe198b0ec47f5304ad27f9006cc4582f10f5e24088c3e4cb0a83844db65"
+      },
+      "checks": 68,
+      "semantic_validator_run": false
+    },
+    "complete_execution_modes_and_single_compute_entry_verified": true,
+    "corpus_unique_and_all_half_widenings_verified": true,
+    "cpu_case_count_recomputed": 446477,
+    "current_sources_match_corrected_frozen_build": true,
+    "direct_publication_independent_integer_oracle_all_inputs": true,
+    "recorded_SHA256_and_lengths_verified": true
+  },
+  "preserving_formula": {
+    "actual_functions_match_instrumented_trace_all_inputs": true,
+    "explicit_FMAs_and_F32_order_unchanged": true,
+    "hardware_half_publications": 3,
+    "helper": "shaders/amd_silu_rte.glsl:nrCubicSiluRte",
+    "ordered_boundaries": [
+      "clamp-to-half-RTE",
+      "absolute-to-half-RTE",
+      "inner-F32-FMA-to-original-software-half",
+      "polynomial-F32-FMA-to-half-RTE",
+      "final-F32-multiply-to-original-software-half"
+    ],
+    "original_software_half_publications": 2,
+    "source": "shaders/common.glsl:mpCubicSilu",
+    "source_formula_trace_equality_verified": true
+  },
+  "prior_attempts": [
+    {
+      "artifacts": {
+        "build_identity": {
+          "bytes": 1691,
+          "path": "build/performance/silu-rte-probe-20261003-cpu/build-identity.json",
+          "sha256": "e9c43ca03e9b98734370e902ca32c76aca782a6b4c5f77b2af0f8f7412312b3d"
+        },
+        "cpu_oracle": {
+          "bytes": 13065660,
+          "path": "build/performance/silu-rte-probe-20261003-cpu/run.cpu-oracle-u32.bin",
+          "sha256": "b9418936ab88575ab92fde0c678e9cc17104eb3b5527e92a1662ce0b4f398aa5"
+        },
+        "cpu_report": {
+          "bytes": 1704,
+          "path": "build/performance/silu-rte-probe-20261003-cpu/cpu.json",
+          "sha256": "d5625f4bef6549777d883f04fc17c84c588841311eb8cf45d37c5c3324a617d5"
+        },
+        "executable": {
+          "bytes": 439808,
+          "path": "build/performance/silu-rte-probe-20261003-cpu/amd_silu_rte_probe.exe",
+          "sha256": "58ccb7eb86a43c8ca9f1edbdfa3364a4cb0a504d9c515e4885310d2392bb351e"
+        },
+        "gpu_log": {
+          "bytes": 1450,
+          "path": "build/performance/silu-rte-probe-20261003-cpu/run.log",
+          "sha256": "b5bb1e76d50b57c91a599ccbbd9434f05d8889960ca3a08869341ccdd9fb7fcb"
+        },
+        "gpu_output": {
+          "bytes": 41810112,
+          "path": "build/performance/silu-rte-probe-20261003-cpu/run.gpu-u32.bin",
+          "sha256": "e1356313b24f7bf3878dfac60d1d7d18a320bd8b08636d2586d69f03156f2edc"
+        },
+        "gpu_report": {
+          "bytes": 1866,
+          "path": "build/performance/silu-rte-probe-20261003-cpu/run.json",
+          "sha256": "dd8fd98ad623e5c1017495be01f84c4987b5db2f7bc26764401ada6a7fa37f80"
+        },
+        "inputs": {
+          "bytes": 2613132,
+          "path": "build/performance/silu-rte-probe-20261003-cpu/run.input-u32.bin",
+          "sha256": "3e7c945fcffb0b068dbc6a6d05917c1a7c16282107e5dc435774f2d63240ed6c"
+        },
+        "module": {
+          "bytes": 13696,
+          "path": "build/performance/silu-rte-probe-20261003-cpu/amd_silu_rte.spv",
+          "sha256": "796929cc6a41b1e0b2dd0752bbed90b15c14d9c440416c68950090267a85fdbc"
+        }
+      },
+      "cpu_checks": 446476,
+      "cpu_float_policy": "/fp:strict; explicit std::fma; RNE checked",
+      "device": "AMD Radeon RX 9070 XT",
+      "driver": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+      "float_controls": {
+        "denormIndependence": 0,
+        "denormPreserve16": 1,
+        "roundingIndependence": 0,
+        "roundingModeRTE16": 1,
+        "signedZeroInfNanPreserve16": 1
+      },
+      "frozen_sources_sha256": {
+        "scripts/probe_amd_silu.ps1": "a346ecb256fd226647447d44e295991e6ee92516e12ff6dc96d194f54f6ee528",
+        "shaders/amd_half_publication_rte.glsl": "5eff0205c9ca593639db0b12e828c2d1bd85c6e7d66897c624be9584c8fdd211",
+        "shaders/amd_silu_rte.glsl": "a12688309bec9d11256b498de36de7c27fe9427362d98ef8da0c9d8e65c8b525",
+        "shaders/common.glsl": "e8b0928a841d31983b0e0a57fa183c77578a8e45a9e83ed4391aad18f515b842",
+        "shaders/diagnostic/amd_silu_rte.comp": "6a7fff0958d006365e99e20ac1cbcf113f6431c8c808b2dc7709517bdd1fd899",
+        "src/amd_config.h": "dbecea14cd087418db08dc611e5cc68597791195283cfc6f9d7effd8147ae934",
+        "src/numeric.h": "097f704525ac9b548645c8168de75e95758fab5c6395e422c7f7aea7545be5e1",
+        "src/sha256.h": "7bc612aa8e483a8946e3a8fb911e3e16048e99175374b87a37c9aa45291b025b",
+        "src/vk_context.cpp": "997a6ce2bd21e077dce22620c34768596e65575ee9723c1efac7a578c66f2d48",
+        "src/vk_context.h": "d41d253b8d06949fb1946bc081f495aaf5679eeffdeb4acf0837a3b30a635a7c",
+        "tests/amd_silu_rte_probe.cpp": "6afb2144e81fc8ab53971836e1813bc2993fea149a9c7e764b0ec66855967616"
+      },
+      "glslang_sha256": "9643709c02c83e26773f96b6a87f197ab2e84f78be0879ad8fb3619418b5d9ad",
+      "gpu_run": true,
+      "mismatches": {
+        "baselineFunctionVsTrace": 0,
+        "baselineVsCpuByCheckpoint": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "candidateFunctionVsTrace": 0,
+        "candidateVsBaselineByCheckpoint": [
+          0,
+          0,
+          12,
+          0,
+          196588
+        ],
+        "candidateVsCpuByCheckpoint": [
+          0,
+          0,
+          12,
+          0,
+          196588
+        ],
+        "directPublication": 0,
+        "e4CandidateVsBaseline": 189876,
+        "e4VsCpu": 189876,
+        "nonfinitePublicationRawBits": 0
+      },
+      "mode_closure": null,
+      "module": {
+        "capabilities": [
+          1,
+          9,
+          22,
+          4464,
+          4466,
+          4467
+        ],
+        "entry_point_id": 4,
+        "execution_modes": [
+          {
+            "entry_point_id": 4,
+            "mode": 17,
+            "operands": [
+              128,
+              1,
+              1
+            ]
+          },
+          {
+            "entry_point_id": 4,
+            "mode": 4459,
+            "operands": [
+              16
+            ]
+          },
+          {
+            "entry_point_id": 4,
+            "mode": 4461,
+            "operands": [
+              16
+            ]
+          },
+          {
+            "entry_point_id": 4,
+            "mode": 4462,
+            "operands": [
+              16
+            ]
+          }
+        ],
+        "spirv_version": "1.6"
+      },
+      "name": "all-five-RTE-half-controls",
+      "passed": false,
+      "raw_reaudit_matches_report": true,
+      "validation_layer_enabled": false
+    },
+    {
+      "artifacts": {
+        "build_identity": {
+          "bytes": 1691,
+          "path": "build/performance/silu-rte-probe-20261003-sz32-cpu/build-identity.json",
+          "sha256": "ef4e43dfbf225b1dc5a40d54b8f0314a7e162a945383f42ad0044f86798212dc"
+        },
+        "cpu_report": {
+          "bytes": 1735,
+          "path": "build/performance/silu-rte-probe-20261003-sz32-cpu/cpu.json",
+          "sha256": "9a94b66b480c86e3c2b48561499c6e799862207f63db78920a7508bb51ed3552"
+        },
+        "executable": {
+          "bytes": 440320,
+          "path": "build/performance/silu-rte-probe-20261003-sz32-cpu/amd_silu_rte_probe.exe",
+          "sha256": "a2ee003228b852a1e9b5ce0f13a14d232746d2f07f5f0a1921dee500e1d07bab"
+        },
+        "module": {
+          "bytes": 13696,
+          "path": "build/performance/silu-rte-probe-20261003-sz32-cpu/amd_silu_rte.spv",
+          "sha256": "8648a406871aa79c0d954d6db4ebbb6104dc10ee9fe2c7614597b9e568d08ead"
+        }
+      },
+      "cpu_checks": 446476,
+      "frozen_sources_sha256": {
+        "scripts/probe_amd_silu.ps1": "a346ecb256fd226647447d44e295991e6ee92516e12ff6dc96d194f54f6ee528",
+        "shaders/amd_half_publication_rte.glsl": "5eff0205c9ca593639db0b12e828c2d1bd85c6e7d66897c624be9584c8fdd211",
+        "shaders/amd_silu_rte.glsl": "b3d1c5738311320df549033be8e04b82cd5a796a5e27580ccc979e157055a56c",
+        "shaders/common.glsl": "e8b0928a841d31983b0e0a57fa183c77578a8e45a9e83ed4391aad18f515b842",
+        "shaders/diagnostic/amd_silu_rte.comp": "6a7fff0958d006365e99e20ac1cbcf113f6431c8c808b2dc7709517bdd1fd899",
+        "src/amd_config.h": "dbecea14cd087418db08dc611e5cc68597791195283cfc6f9d7effd8147ae934",
+        "src/numeric.h": "097f704525ac9b548645c8168de75e95758fab5c6395e422c7f7aea7545be5e1",
+        "src/sha256.h": "7bc612aa8e483a8946e3a8fb911e3e16048e99175374b87a37c9aa45291b025b",
+        "src/vk_context.cpp": "997a6ce2bd21e077dce22620c34768596e65575ee9723c1efac7a578c66f2d48",
+        "src/vk_context.h": "d41d253b8d06949fb1946bc081f495aaf5679eeffdeb4acf0837a3b30a635a7c",
+        "tests/amd_silu_rte_probe.cpp": "fffdecc1f2135d87e2736c5a900de80a725b583240f8a027dedcbebe6efa9181"
+      },
+      "gpu_run": false,
+      "module": {
+        "capabilities": [
+          1,
+          9,
+          22,
+          4464,
+          4466,
+          4467
+        ],
+        "entry_point_id": 4,
+        "execution_modes": [
+          {
+            "entry_point_id": 4,
+            "mode": 17,
+            "operands": [
+              128,
+              1,
+              1
+            ]
+          },
+          {
+            "entry_point_id": 4,
+            "mode": 4459,
+            "operands": [
+              16
+            ]
+          },
+          {
+            "entry_point_id": 4,
+            "mode": 4461,
+            "operands": [
+              32
+            ]
+          },
+          {
+            "entry_point_id": 4,
+            "mode": 4462,
+            "operands": [
+              16
+            ]
+          }
+        ],
+        "spirv_version": "1.6"
+      },
+      "name": "all-five-RTE-SZ32-only-CPU-build",
+      "status": "Not GPU tested; intrinsic replaced F16 signed-zero mode with width 32, so incomplete intended execution-mode closure."
+    },
+    {
+      "artifacts": {
+        "build_identity": {
+          "bytes": 2258,
+          "path": "build/performance/silu-rte-probe-20261003-complete-v2-cpu/build-identity.json",
+          "sha256": "5770d412a65a1e1fdbedf085165e2835c39a333f090bbca4a2d129adaf237082"
+        },
+        "cpu_oracle": {
+          "bytes": 13065660,
+          "path": "build/performance/silu-rte-probe-20261003-complete-v2-cpu/run.cpu-oracle-u32.bin",
+          "sha256": "b9418936ab88575ab92fde0c678e9cc17104eb3b5527e92a1662ce0b4f398aa5"
+        },
+        "cpu_report": {
+          "bytes": 1735,
+          "path": "build/performance/silu-rte-probe-20261003-complete-v2-cpu/cpu.json",
+          "sha256": "9a94b66b480c86e3c2b48561499c6e799862207f63db78920a7508bb51ed3552"
+        },
+        "executable": {
+          "bytes": 440320,
+          "path": "build/performance/silu-rte-probe-20261003-complete-v2-cpu/amd_silu_rte_probe.exe",
+          "sha256": "273f7ffadb54c7293bac33393cee57121f204d93f4a6c4eb4b74982e8a066b97"
+        },
+        "gpu_log": {
+          "bytes": 1450,
+          "path": "build/performance/silu-rte-probe-20261003-complete-v2-cpu/run.log",
+          "sha256": "b5bb1e76d50b57c91a599ccbbd9434f05d8889960ca3a08869341ccdd9fb7fcb"
+        },
+        "gpu_output": {
+          "bytes": 41810112,
+          "path": "build/performance/silu-rte-probe-20261003-complete-v2-cpu/run.gpu-u32.bin",
+          "sha256": "e1356313b24f7bf3878dfac60d1d7d18a320bd8b08636d2586d69f03156f2edc"
+        },
+        "gpu_report": {
+          "bytes": 1897,
+          "path": "build/performance/silu-rte-probe-20261003-complete-v2-cpu/run.json",
+          "sha256": "b3e6d3f236e60816413719e5569b508b258dd2fb9a59377c9cb2c2d263297094"
+        },
+        "inputs": {
+          "bytes": 2613132,
+          "path": "build/performance/silu-rte-probe-20261003-complete-v2-cpu/run.input-u32.bin",
+          "sha256": "3e7c945fcffb0b068dbc6a6d05917c1a7c16282107e5dc435774f2d63240ed6c"
+        },
+        "module": {
+          "bytes": 13712,
+          "path": "build/performance/silu-rte-probe-20261003-complete-v2-cpu/amd_silu_rte.spv",
+          "sha256": "9a5d97c065c5c27cdeb820a60abd81fd351ebcf24e9f260ab5679f11337ab8a5"
+        }
+      },
+      "cpu_checks": 446476,
+      "cpu_float_policy": "/fp:strict; explicit std::fma; RNE checked",
+      "device": "AMD Radeon RX 9070 XT",
+      "driver": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+      "float_controls": {
+        "denormIndependence": 0,
+        "denormPreserve16": 1,
+        "roundingIndependence": 0,
+        "roundingModeRTE16": 1,
+        "signedZeroInfNanPreserve16": 1,
+        "signedZeroInfNanPreserve32": 1
+      },
+      "frozen_sources_sha256": {
+        "scripts/complete_amd_silu_float_controls.ps1": "0a9ae92dc47e16383e5f1a6a6619f2a9a2d5710bf0a940e8acd116fa234f6eda",
+        "scripts/probe_amd_silu.ps1": "56341c05af7a86bd0a5c003ab2e1088ee5f86ee9367e269bfc05e7b1f8ee8291",
+        "shaders/amd_half_publication_rte.glsl": "5eff0205c9ca593639db0b12e828c2d1bd85c6e7d66897c624be9584c8fdd211",
+        "shaders/amd_silu_rte.glsl": "758f95dd8f67762e7b8904399320bfbefe3bddc6a63485b49a84be488b13e92b",
+        "shaders/common.glsl": "e8b0928a841d31983b0e0a57fa183c77578a8e45a9e83ed4391aad18f515b842",
+        "shaders/diagnostic/amd_silu_rte.comp": "6a7fff0958d006365e99e20ac1cbcf113f6431c8c808b2dc7709517bdd1fd899",
+        "src/amd_config.h": "dbecea14cd087418db08dc611e5cc68597791195283cfc6f9d7effd8147ae934",
+        "src/numeric.h": "097f704525ac9b548645c8168de75e95758fab5c6395e422c7f7aea7545be5e1",
+        "src/sha256.h": "7bc612aa8e483a8946e3a8fb911e3e16048e99175374b87a37c9aa45291b025b",
+        "src/vk_context.cpp": "23c41d0768aaa52300789b3ca187dbf66286b8111d24205ed071f42662d65b7d",
+        "src/vk_context.h": "7fd39bd354ab9e75e3868d1d4036f814dd49580168db2604e7057ed44c59ab7f",
+        "tests/amd_silu_rte_probe.cpp": "fffdecc1f2135d87e2736c5a900de80a725b583240f8a027dedcbebe6efa9181"
+      },
+      "glslang_sha256": "9643709c02c83e26773f96b6a87f197ab2e84f78be0879ad8fb3619418b5d9ad",
+      "gpu_run": true,
+      "mismatches": {
+        "baselineFunctionVsTrace": 0,
+        "baselineVsCpuByCheckpoint": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "candidateFunctionVsTrace": 0,
+        "candidateVsBaselineByCheckpoint": [
+          0,
+          0,
+          12,
+          0,
+          196588
+        ],
+        "candidateVsCpuByCheckpoint": [
+          0,
+          0,
+          12,
+          0,
+          196588
+        ],
+        "directPublication": 0,
+        "e4CandidateVsBaseline": 189876,
+        "e4VsCpu": 189876,
+        "nonfinitePublicationRawBits": 0
+      },
+      "mode_closure": {
+        "added_signed_zero_widths": [
+          16
+        ],
+        "entry_point_id": 4,
+        "format": "OpenNR-amd-silu-float-controls-closure-v1",
+        "id_bound": 567,
+        "input_sha256": "8648a406871aa79c0d954d6db4ebbb6104dc10ee9fe2c7614597b9e568d08ead",
+        "other_instructions_unchanged": true,
+        "output_sha256": "9a5d97c065c5c27cdeb820a60abd81fd351ebcf24e9f260ab5679f11337ab8a5",
+        "semantic_validator_run": false
+      },
+      "module": {
+        "capabilities": [
+          1,
+          9,
+          22,
+          4464,
+          4466,
+          4467
+        ],
+        "entry_point_id": 4,
+        "execution_modes": [
+          {
+            "entry_point_id": 4,
+            "mode": 17,
+            "operands": [
+              128,
+              1,
+              1
+            ]
+          },
+          {
+            "entry_point_id": 4,
+            "mode": 4459,
+            "operands": [
+              16
+            ]
+          },
+          {
+            "entry_point_id": 4,
+            "mode": 4461,
+            "operands": [
+              32
+            ]
+          },
+          {
+            "entry_point_id": 4,
+            "mode": 4462,
+            "operands": [
+              16
+            ]
+          },
+          {
+            "entry_point_id": 4,
+            "mode": 4461,
+            "operands": [
+              16
+            ]
+          }
+        ],
+        "spirv_version": "1.6"
+      },
+      "name": "all-five-RTE-complete-16-and-32-controls",
+      "passed": false,
+      "raw_reaudit_matches_report": true,
+      "validation_layer_enabled": false
+    }
+  ],
+  "privacy": {
+    "model_weights_NVIDIA_DLL_or_game_images_included": false,
+    "raw_buffers_remain_private": true,
+    "scalar_identities_counts_and_status_only": true
+  },
+  "scope": {
+    "additional_distinct_f32_witnesses": 587747,
+    "all_inputs_gpu_checkpoint_and_function_raw_comparison": true,
+    "exhaustive_all_f32": false,
+    "finite_inputs_cpu_checkpoint_and_e4_comparison": 650215,
+    "gpu_output_bytes": 41810112,
+    "gpu_output_words_per_input": 16,
+    "half_bit_patterns": 65536,
+    "input_count": 653283,
+    "nonfinite_cpu_silu_raw_payloads_not_oracle": 3068,
+    "nonfinite_direct_publication_input_bits_preserved": true,
+    "signed_zero_exemptions": false
+  },
+  "status": "isolated-corrected-SiLU-diagnostic-pass-production-qualification-pending"
+}

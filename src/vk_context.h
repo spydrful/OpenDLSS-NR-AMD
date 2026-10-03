@@ -36,6 +36,7 @@ struct DeviceCapabilities {
   bool fp8Matrix16 = false;
   bool fp16Accumulator16 = false;
   bool halfPublicationRte = false;
+  bool float32SignedZeroInfNan = false;
   VkPhysicalDeviceFloatControlsProperties floatControls{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FLOAT_CONTROLS_PROPERTIES};
   bool pipelineStatistics = false;
   bool cudaLaunch = false;

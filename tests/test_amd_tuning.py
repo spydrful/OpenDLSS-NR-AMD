@@ -85,6 +85,45 @@ class AmdTuningTests(unittest.TestCase):
             paths.append(self.write(suite + ".json", value))
         return paths
 
+    def add_vit_evidence(self, value):
+        """Synthetic byte fixtures exercise metadata binding without Vulkan."""
+        value["coverage"].append(tune.VIT_COVERAGE)
+        cases = []
+        for K, N, rows, flags, partition, batches in tune.VIT_CASES:
+            name = f"gemm-vit-K{K}-N{N}-R{rows}-F{flags}-P{partition}-B{batches}"
+            cases.append(dict(name=name, K=K, N=N, rows=rows, flags=flags,
+                              partition=partition, batches=batches))
+            allocation = ((rows + 63) // 64) * 64 * (32 + batches * N)
+            sizes = {name: allocation * (1 if flags & 16 else 2)}
+            if flags & 32:
+                sizes[name + "-dual"] = allocation
+            for buffer_name, size in sizes.items():
+                filename = buffer_name + ".u8"
+                (self.root / filename).write_bytes(bytes([0xA5]) * size)
+                value["pairs"].append(dict(name=buffer_name, baseline=filename, candidate=filename))
+        value["extended_vit"] = dict(coverage_marker=tune.VIT_COVERAGE,
+                                     case_count=len(cases), cases=cases)
+        if value.get("model_free"):
+            value["checks"] = len(value["pairs"])
+            value["operators"] += len(cases)
+        return value
+
+    def add_raw_overdispatch_evidence(self, value, buffers=True):
+        policy = value["selected"]
+        value["raw_gemm_overdispatch"] = dict(variant=tune.GEMM_VARIANTS[policy["gemm"]],
+            tile_n=policy["tile_n"], stage_k=16, publication_interval=16,
+            required_subgroup_size=32, dispatch_count=3)
+        if buffers:
+            for name, size in (("gemm-overdispatch-v0", 10240), ("gemm-overdispatch-v3", 22528),
+                               ("gemm-overdispatch-v5", 45056), ("gemm-overdispatch-v5-dual", 22528)):
+                filename = name + ".u8"
+                (self.root / filename).write_bytes(bytes([0xA5]) * size)
+                value["pairs"].append(dict(name=name, baseline=filename, candidate=filename))
+            if value.get("model_free"):
+                value["checks"] = len(value["pairs"])
+                value["operators"] += 3
+        return value
+
     def test_complete_protocol_and_statistics(self):
         report = tune.analyze(self.paired())
         self.assertTrue(report["protocol_complete"])
@@ -1203,6 +1242,304 @@ class AmdTuningTests(unittest.TestCase):
             self.assertEqual(environment["DLSS5VK_CHAIN"],"0")
         evolved=tune.read_json(args.output/"evolved-sequence.json")
         self.assertEqual(evolved["frames"][1]["metadata"]["candidate"]["history_frame_ids"],[0])
+
+
+    def rte32_pairs(self, mode="bench", candidate_gemm="direct-rte-init", extra=None):
+        def rte(value, role, pair):
+            gemm = "direct-rte" if role == "baseline" else candidate_gemm
+            value["selected"].update(gemm=gemm, window_layout="register-rte")
+            if "dispatches" in value:
+                value["dispatches"][0].update(variant=tune.GEMM_VARIANTS[gemm],
+                    geometry={"threads":128,"required_subgroup_size":32,"tile_m":64})
+            if extra: extra(value, role, pair)
+        path = self.direct32_pairs(mode, rte)
+        value = tune.read_json(path); value["comparison_anchor"] = "rte32"
+        path.write_text(json.dumps(value), encoding="utf-8")
+        return path
+
+    def test_rte32_preserves_frozen_policy_without_changing_previous_anchors(self):
+        for gemm in ("direct-rte-init", "direct-rte-epilogue"):
+            report = tune.analyze(self.rte32_pairs(candidate_gemm=gemm), comparison_anchor="rte32")
+            with self.subTest(gemm=gemm):
+                self.assertEqual(report["selections"]["baseline"]["gemm"], "direct-rte")
+                self.assertEqual(report["selections"]["baseline"]["window_layout"], "register-rte")
+                self.assertEqual(report["selections"]["candidate"]["gemm"], gemm)
+                self.assertTrue(report["default_performance_eligible"])
+                with self.assertRaisesRegex(ValueError, "explicit --comparison-anchor"):
+                    tune.analyze(self.rte32_pairs(candidate_gemm=gemm), comparison_anchor="direct32")
+        self.assertEqual(tune.anchor_gemm("direct32"), "direct")
+        self.assertEqual(tune.anchor_window_layout("direct32"), "staged")
+        self.assertEqual(tune.anchor_gemm("qualified32"), "shared")
+        self.assertEqual(tune.anchor_queries("compact64"), 64)
+
+    def test_rte32_rejects_inherited_or_changed_baseline_policy(self):
+        for key, replacement in (("gemm","direct"),("gemm","direct-rte-init"),
+                                 ("window_layout","staged"),("window_layout","register"),
+                                 ("window_queries",16),("tile_n",32),("fusion",True)):
+            def wrong(value, role, pair):
+                if role == "baseline":
+                    value["selected"][key] = replacement
+                    if key == "fusion":
+                        value["selected"].update(ffn32_fusion=True,qkv32_fusion=True)
+            with self.subTest(key=key,value=replacement), self.assertRaisesRegex(ValueError,"rte32 preserving"):
+                tune.analyze(self.rte32_pairs(extra=wrong),comparison_anchor="rte32")
+        for key in ("gemm", "window_layout"):
+            def missing(value,role,pair):
+                if role == "baseline":value["selected"].pop(key)
+            with self.subTest(missing=key),self.assertRaisesRegex(ValueError,"rte32 preserving"):
+                tune.analyze(self.rte32_pairs(extra=missing),comparison_anchor="rte32")
+
+    def test_new_rte_variants_require_staging_publication_and_actual_profile_resources(self):
+        for gemm in ("direct-rte-init", "direct-rte-epilogue"):
+            policy = {**self.record("candidate")["selected"],"gemm":gemm}
+            self.assertEqual(tune.selected_policy(policy)["gemm"],gemm)
+            for stage in (32,64):
+                with self.subTest(gemm=gemm,stage=stage),self.assertRaisesRegex(ValueError,"stage_k=16"):
+                    tune.selected_policy({**policy,"stage_k":stage})
+            with self.subTest(gemm=gemm),self.assertRaisesRegex(ValueError,"scalar RTE"):
+                tune.selected_policy({**policy,"hardware_publication":True})
+            for tamper in ("variant","tile_n","stage_k","threads","required_subgroup_size","tile_m","missing"):
+                value=self.record("candidate","profile")
+                value["selected"].update(policy)
+                dispatch=value["dispatches"][0]
+                dispatch.update(variant=tune.GEMM_VARIANTS[gemm],geometry={"threads":128,"required_subgroup_size":32,"tile_m":64})
+                if tamper=="missing":dispatch.pop("geometry")
+                elif tamper in ("threads","required_subgroup_size","tile_m"):dispatch["geometry"][tamper]=16
+                else:dispatch[tamper]="amd_gemm_direct_rte" if tamper=="variant" else 32
+                with self.subTest(gemm=gemm,tamper=tamper),self.assertRaisesRegex(ValueError,"module/resources"):
+                    tune.benchmark(self.write("new-rte-malformed-profile.json",value))
+
+    def test_new_rte_variant_profile_qualification_emits_exact_module(self):
+        for gemm in ("direct-rte-init", "direct-rte-epilogue"):
+            network=self.rte32_pairs(candidate_gemm=gemm)
+            profile=self.rte32_pairs("profile",candidate_gemm=gemm)
+            performance=self.write("new-rte-performance.json",tune.analyze(profile,network_manifest=network,comparison_anchor="rte32"))
+            exact=self.exact_suites()
+            for path in exact:
+                value=tune.read_json(path);value["comparison_anchor"]="rte32"
+                value["baseline_selected"].update(kernels="optimized",gemm="direct-rte",window_queries=32,window_layout="register-rte")
+                value["selected"].update(kernels="optimized",gemm=gemm,window_queries=32,window_layout="register-rte",tile_n=32)
+                if value["suite"] == "operators":
+                    self.add_vit_evidence(value)
+                    self.add_raw_overdispatch_evidence(value)
+                path.write_text(json.dumps(value),encoding="utf-8")
+            qualification=self.write("new-rte-qualification.json",tune.qualify(argparse.Namespace(exact=exact,sequence=[],arithmetic="k16",comparison_anchor="rte32")))
+            result=tune.tuning(performance,qualification,"rte32")
+            self.assertEqual(result["records"][0]["variant"],tune.GEMM_VARIANTS[gemm])
+            self.assertEqual(result["default_selection"]["gemm"],gemm)
+            self.assertEqual(result["default_selection"]["window_layout"],"register-rte")
+            # A predecessor's module name cannot qualify a new selected route.
+            original=tune.read_json(performance)
+            original["operators"][0]["candidate_variants"][0]["variant"]="amd_gemm_direct_rte"
+            performance.write_text(json.dumps(original),encoding="utf-8")
+            with mock.patch.object(tune,"analyze",return_value=original),self.assertRaisesRegex(ValueError,"GEMM dispatch variant"):
+                tune.tuning(performance,qualification,"rte32")
+
+    def test_new_rte_model_free_proof_binds_actual_raw_overdispatch(self):
+        for gemm in ("direct-rte-init", "direct-rte-epilogue"):
+            path=self.exact_suites()[0];value=tune.read_json(path)
+            value.update(comparison_anchor="rte32",model_free=True,passed=True,validationErrors=0,
+                         mismatchedChecks=0,checks=len(value["pairs"]),operators=9,fixture_sha256="e"*64)
+            value["identity"].pop("model_sha256");value["baseline_identity"].pop("model_sha256")
+            value["baseline_selected"].update(kernels="optimized",gemm="direct-rte",window_queries=32,window_layout="register-rte")
+            value["selected"].update(kernels="optimized",gemm=gemm,window_queries=32,window_layout="register-rte")
+            path.write_text(json.dumps(value),encoding="utf-8")
+            with self.assertRaisesRegex(ValueError,"raw_gemm_overdispatch provenance"):tune.exact_manifest(path,"rte32")
+            raw={"variant":tune.GEMM_VARIANTS[gemm],"tile_n":16,"stage_k":16,"publication_interval":16,
+                 "required_subgroup_size":32,"dispatch_count":3}
+            value["raw_gemm_overdispatch"]=raw
+            path.write_text(json.dumps(value),encoding="utf-8")
+            with self.assertRaisesRegex(ValueError,"requires extended ViT"):
+                tune.exact_manifest(path,"rte32")
+            self.add_vit_evidence(value)
+            self.add_raw_overdispatch_evidence(value)
+            path.write_text(json.dumps(value),encoding="utf-8")
+            report=tune.exact_manifest(path,"rte32")
+            self.assertTrue(report["passed"])
+            self.assertEqual(report["raw_gemm_overdispatch"],raw)
+            for key,wrong in (("variant","amd_gemm_direct"),("tile_n",32),("stage_k",32),
+                              ("publication_interval",32),("required_subgroup_size",64),("dispatch_count",True)):
+                altered=copy.deepcopy(value);altered["raw_gemm_overdispatch"][key]=wrong
+                path.write_text(json.dumps(altered),encoding="utf-8")
+                with self.subTest(gemm=gemm,key=key),self.assertRaisesRegex(ValueError,"module/resources"):
+                    tune.exact_manifest(path,"rte32")
+
+    def test_extended_vit_requires_bound_depth_partition_flags_and_buffers(self):
+        for gemm in ("direct-rte-init", "direct-rte-epilogue"):
+            path = self.exact_suites()[0]
+            value = tune.read_json(path)
+            value["comparison_anchor"] = "rte32"
+            value["baseline_selected"].update(kernels="optimized", gemm="direct-rte",
+                                               window_queries=32, window_layout="register-rte")
+            value["selected"].update(kernels="optimized", gemm=gemm,
+                                      window_queries=32, window_layout="register-rte")
+            self.add_raw_overdispatch_evidence(value, buffers=False)
+            path.write_text(json.dumps(value), encoding="utf-8")
+            with self.subTest(gemm=gemm), self.assertRaisesRegex(ValueError, "requires extended ViT"):
+                tune.exact_manifest(path, "rte32")
+            self.add_vit_evidence(value)
+            self.add_raw_overdispatch_evidence(value)
+            path.write_text(json.dumps(value), encoding="utf-8")
+            report = tune.exact_manifest(path, "rte32")
+            self.assertTrue(report["passed"])
+            self.assertEqual(report["extended_vit"], value["extended_vit"])
+            self.assertEqual(sum(pair["name"].startswith("gemm-vit-") for pair in value["pairs"]), 18)
+            # Neither a marker alone nor altered geometry may stand in for execution.
+            mutations = [
+                ("marker-only", lambda item: item.pop("extended_vit")),
+                ("metadata-only", lambda item: item["coverage"].remove(tune.VIT_COVERAGE)),
+                ("count-bool", lambda item: item["extended_vit"].update(case_count=True)),
+                ("count-missing", lambda item: item["extended_vit"].pop("case_count")),
+                ("duplicate", lambda item: item["extended_vit"]["cases"].__setitem__(1, copy.deepcopy(item["extended_vit"]["cases"][0]))),
+                ("name-type", lambda item: item["extended_vit"]["cases"][0].update(name=[])),
+                ("depth", lambda item: item["extended_vit"]["cases"][0].update(K=512)),
+                ("partition", lambda item: item["extended_vit"]["cases"][0].update(partition=128)),
+                ("flags", lambda item: item["extended_vit"]["cases"][0].update(flags=16)),
+                ("batches-type", lambda item: item["extended_vit"]["cases"][0].update(batches=True)),
+                ("primary-missing", lambda item: item["pairs"].pop(len(tune.EXACT_COVERAGE))),
+                ("dual-missing", lambda item: item["pairs"].__setitem__(slice(None), [pair for pair in item["pairs"] if pair["name"] != item["extended_vit"]["cases"][4]["name"] + "-dual"])),
+                ("wrong-allocation", lambda item: item["pairs"][len(tune.EXACT_COVERAGE)].update(candidate="cand.u8")),
+            ]
+            for label, mutate in mutations:
+                altered = copy.deepcopy(value)
+                mutate(altered)
+                path.write_text(json.dumps(altered), encoding="utf-8")
+                with self.subTest(gemm=gemm, mutation=label), self.assertRaisesRegex(ValueError, "extended ViT"):
+                    tune.exact_manifest(path, "rte32")
+
+    def test_historical_operator_evidence_remains_valid_without_vit_marker(self):
+        path = self.exact_suites()[0]
+        value = tune.read_json(path)
+        value["comparison_anchor"] = "rte32"
+        value["baseline_selected"].update(kernels="optimized", gemm="direct-rte",
+                                           window_queries=32, window_layout="register-rte")
+        value["selected"].update(kernels="optimized", gemm="direct-rte",
+                                  window_queries=32, window_layout="register-rte")
+        path.write_text(json.dumps(value), encoding="utf-8")
+        report = tune.exact_manifest(path, "rte32")
+        self.assertTrue(report["passed"])
+        self.assertNotIn("extended_vit", report)
+
+    def test_new_raw_overdispatch_proof_cannot_bypass_requirement_with_model_free_label(self):
+        for gemm in ("direct-rte-init", "direct-rte-epilogue"):
+            value = tune.read_json(self.exact_suites()[0])
+            value["comparison_anchor"] = "rte32"
+            value["baseline_selected"].update(kernels="optimized", gemm="direct-rte",
+                                               window_queries=32, window_layout="register-rte")
+            value["selected"].update(kernels="optimized", gemm=gemm,
+                                      window_queries=32, window_layout="register-rte")
+            self.add_vit_evidence(value)
+            self.add_raw_overdispatch_evidence(value)
+            value.update(model_free=True, fixture_sha256="e" * 64, passed=True,
+                         validationErrors=0, mismatchedChecks=0, checks=len(value["pairs"]), operators=26)
+            for model_free in (True, False):
+                complete = copy.deepcopy(value)
+                complete["model_free"] = model_free
+                path = self.write("raw-label.json", complete)
+                self.assertTrue(tune.exact_manifest(path, "rte32")["passed"])
+                for raw in ("missing", None, {}, []):
+                    altered = copy.deepcopy(complete)
+                    if raw == "missing":
+                        altered.pop("raw_gemm_overdispatch")
+                    else:
+                        altered["raw_gemm_overdispatch"] = raw
+                    with self.subTest(gemm=gemm, model_free=model_free, raw=raw), self.assertRaisesRegex(ValueError, "raw_gemm_overdispatch provenance|module/resources"):
+                        tune.exact_manifest(self.write("raw-label.json", altered), "rte32")
+                altered = copy.deepcopy(complete)
+                altered["raw_gemm_overdispatch"]["variant"] = "amd_gemm_direct_rte"
+                with self.subTest(gemm=gemm, model_free=model_free), self.assertRaisesRegex(ValueError, "module/resources"):
+                    tune.exact_manifest(self.write("raw-label.json", altered), "rte32")
+
+    def test_raw_overdispatch_requires_four_executed_full_buffers_for_every_report(self):
+        # A legacy route remains compatible without metadata. Once metadata is
+        # supplied, its claimed execution has the same buffer contract.
+        names = ("gemm-overdispatch-v0", "gemm-overdispatch-v3",
+                 "gemm-overdispatch-v5", "gemm-overdispatch-v5-dual")
+        for gemm in ("direct-rte", "direct-rte-init", "direct-rte-epilogue"):
+            value = tune.read_json(self.exact_suites()[0])
+            value["comparison_anchor"] = "rte32"
+            value["baseline_selected"].update(kernels="optimized", gemm="direct-rte",
+                                               window_queries=32, window_layout="register-rte")
+            value["selected"].update(kernels="optimized", gemm=gemm,
+                                      window_queries=32, window_layout="register-rte")
+            if gemm != "direct-rte":
+                self.add_vit_evidence(value)
+            self.add_raw_overdispatch_evidence(value)
+            value.update(fixture_sha256="e" * 64, passed=True, validationErrors=0,
+                         mismatchedChecks=0, checks=len(value["pairs"]), operators=26)
+            for model_free in (True, False):
+                complete = copy.deepcopy(value)
+                complete["model_free"] = model_free
+                self.assertTrue(tune.exact_manifest(self.write("raw-buffers.json", complete), "rte32")["passed"])
+                for removed in (*[(name,) for name in names], names):
+                    altered = copy.deepcopy(complete)
+                    altered["pairs"] = [pair for pair in altered["pairs"] if pair["name"] not in removed]
+                    altered["checks"] = len(altered["pairs"])
+                    with self.subTest(gemm=gemm, model_free=model_free, removed=removed), self.assertRaisesRegex(ValueError, "raw GEMM overdispatch executed output/dual"):
+                        tune.exact_manifest(self.write("raw-buffers.json", altered), "rte32")
+                for name in names:
+                    for role in ("baseline", "candidate"):
+                        altered = copy.deepcopy(complete)
+                        pair = next(pair for pair in altered["pairs"] if pair["name"] == name)
+                        pair[role] = "base.u8"
+                        with self.subTest(gemm=gemm, model_free=model_free, name=name, role=role), self.assertRaisesRegex(ValueError, "raw GEMM overdispatch executed output/dual"):
+                            tune.exact_manifest(self.write("raw-buffers.json", altered), "rte32")
+
+    def test_collect_rte32_requires_explicit_frozen_baseline_before_child_or_output(self):
+        model=self.root/"rte-model";model.mkdir()
+        baseline_shaders=self.root/"rte-baseline";baseline_shaders.mkdir()
+        for missing in ("baseline_executable","baseline_shaders","both"):
+            args=argparse.Namespace(executable=Path(sys.executable),model=model,shaders=None,
+                 output=self.root/("rte-missing-"+missing),comparison_anchor="rte32",
+                 baseline_executable=Path(sys.executable),baseline_shaders=baseline_shaders)
+            if missing=="both":del args.baseline_executable;del args.baseline_shaders
+            else:setattr(args,missing,None)
+            with self.subTest(missing=missing),mock.patch.object(tune.subprocess,"run") as child:
+                with self.assertRaisesRegex(ValueError,"requires explicit --baseline-executable and --baseline-shaders"):
+                    tune.collect(args)
+                child.assert_not_called();self.assertFalse(args.output.exists())
+
+    def test_collect_rte32_forces_frozen_route_and_preserves_candidate_module(self):
+        model=self.root/"rte-collect-model";model.mkdir()
+        baseline_exe=self.root/"alpha4.exe";baseline_exe.write_bytes(b"frozen alpha4 test binary")
+        baseline_shaders=self.root/"alpha4-shaders";baseline_shaders.mkdir()
+        candidate_shaders=self.root/"candidate-shaders";candidate_shaders.mkdir()
+        for gemm in ("direct-rte-init","direct-rte-epilogue"):
+            args=argparse.Namespace(executable=Path(sys.executable),baseline_executable=baseline_exe,
+                model=model,shaders=candidate_shaders,baseline_shaders=baseline_shaders,
+                output=self.root/("rte-collect-"+gemm),mode="profile",kernels="optimized",arithmetic="k16",
+                gemm=gemm,tile_n=32,stage_k=16,width=1707,height=960,warmup=5,frames=30,pairs=3,
+                timeout=60,allow_arithmetic_change=False,window_queries=32,window_layout="register-rte",
+                comparison_anchor="rte32",fusion=True)
+            calls=[]
+            def child(command,**kwargs):
+                role="baseline" if len(calls)%2==0 else "candidate"
+                expected_gemm="direct-rte" if role=="baseline" else gemm
+                expected_exe=baseline_exe if role=="baseline" else Path(sys.executable)
+                expected_shaders=baseline_shaders if role=="baseline" else candidate_shaders
+                self.assertEqual(command[0],str(expected_exe.resolve()))
+                self.assertEqual(command[command.index("--shaders")+1],str(expected_shaders.resolve()))
+                self.assertEqual(command[command.index("--amd-gemm")+1],expected_gemm)
+                self.assertEqual(command[command.index("--amd-window-layout")+1],"register-rte")
+                self.assertEqual(kwargs["env"]["DLSS5VK_AMD_GEMM"],expected_gemm)
+                value=self.record(role,"profile")
+                value["selected"].update(kernels="optimized",gemm=expected_gemm,window_queries=32,
+                    window_layout="register-rte",tile_n=16 if role=="baseline" else 32,
+                    **{key:kwargs["env"]["DLSS5VK_AMD_"+key.upper()]=="1" for key in tune.FUSION_KEYS})
+                value["dispatches"][0].update(variant=tune.GEMM_VARIANTS[expected_gemm],
+                    tile_n=value["selected"]["tile_n"],geometry={"threads":128,"required_subgroup_size":32,"tile_m":64})
+                Path(command[command.index("--json")+1]).write_text(json.dumps(value),encoding="utf-8")
+                calls.append(value["selected"]);return subprocess.CompletedProcess(command,0)
+            with mock.patch.dict(os.environ,{"DLSS5VK_AMD_WINDOW_LAYOUT":"staged"}),mock.patch.object(tune.subprocess,"run",side_effect=child):
+                path=tune.collect(args)
+                self.assertEqual(os.environ["DLSS5VK_AMD_WINDOW_LAYOUT"],"staged")
+            manifest=tune.read_json(path)
+            self.assertTrue(all(tune.preserving_baseline(policy,"rte32") for policy in calls[::2]))
+            self.assertTrue(all(policy["fusion"] for policy in calls[1::2]))
+            self.assertEqual(manifest["comparison_anchor"],"rte32")
+            self.assertIn("alpha 4",manifest["comparison_anchor_scope"])
+            self.assertIn("independent release-identity proof",manifest["comparison_anchor_scope"])
+            self.assertTrue(all(run["executable_sha256"]==tune.sha256(baseline_exe) for run in manifest["runs"][::2]))
 
 
 if __name__ == "__main__":

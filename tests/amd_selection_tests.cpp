@@ -176,7 +176,7 @@ int main(int argc,char** argv){
     auto legacyBoth=record();field(legacyBoth,"fusion").boolean=true;
     const auto legacyPolicy=amd::tuningPolicy(legacyBoth,requested,1728,960,true);
     expect(legacyPolicy.ffn32Enabled() && legacyPolicy.qkv32Enabled(),"legacy shorthand no longer selects both routes");
-    for(const char* gemmMode:{"packed","direct","direct-rte"}){
+    for(const char* gemmMode:{"packed","direct","direct-rte","direct-rte-init","direct-rte-epilogue"}){
       auto alternative=bound;
       alternative.object.at("default_selection").object["gemm"]=json::parse(std::string("\"")+gemmMode+"\"");
       for(auto& op:alternative.object.at("records").array)op.object.at("evidence").object.at("selected")=alternative["default_selection"];
@@ -198,9 +198,23 @@ int main(int argc,char** argv){
         auto invalidStage=alternative;number(field(invalidStage,"stage_k"),stage);
         rejects([&]{validate(invalidStage);},"direct tuning claimed nonexistent larger staging");
       }
-      if(policy.gemm==amd::Gemm::DirectRte){
+      if(amd::Options::scalarRteGemm(policy.gemm)){
         auto packedRounding=alternative;field(packedRounding,"hardware_publication").boolean=true;
         rejects([&]{validate(packedRounding);},"scalar RTE tuning was mislabeled as packed publication");
+        auto siblingProof=alternative;
+        siblingProof.object.at("records").array[1].object.at("evidence").object.at("selected").object.at("gemm").string=
+            policy.gemm==amd::Gemm::DirectRteInit ? "direct-rte-epilogue" : "direct-rte-init";
+        rejects([&]{validate(siblingProof);},"another scalar RTE experiment's proof qualified this policy");
+        for(const uint32_t tile:{16u,32u,64u}){
+          auto wider=alternative;number(field(wider,"tile_n"),tile);
+          for(auto& op:wider.object.at("records").array)op.object.at("evidence").object.at("selected")=wider["default_selection"];
+          number(wider.object.at("records").array[1].object.at("tile_n"),tile);
+          validate(wider);const auto selected=amd::tuningPolicy(wider,requested,1728,960,true);
+          expect(selected.gemm==policy.gemm && selected.tileN==tile && selected.stageK==16,
+                 "qualified scalar RTE tile experiment changed module or staging");
+          expect(amd::tuningPolicy(wider,selected,1728,960,false).gemm==policy.gemm,
+                 "matching forced scalar RTE tile experiment was rejected");
+        }
       }
     }
     for(const char* bad:{"DIRECT","optimized",""}){

@@ -174,6 +174,7 @@ int recordedComposite(int argc, char** argv, const std::filesystem::path& captur
       check(selected["kernels"].str()==kernels.selectedKernelMode() && selected["arithmetic"].str()==(context.isReference()?"reference":policy.arithmeticName()),"prior replay kernel/arithmetic selection differs");
       check(selected["tile_n"].integer()==policy.tileN && selected["stage_k"].integer()==policy.stageK && selected["window_queries"].integer()==policy.windowQueries,"prior replay specialization differs");
       check(amd::gemmPolicy(selected)==policy.gemm,"prior replay GEMM policy differs");
+      check(amd::windowLayoutPolicy(selected)==policy.windowLayout,"prior replay window layout differs");
       for(const auto& [name,value]:std::vector<std::pair<const char*,bool>>{{"fusion",policy.fusion},{"expert_fusion",policy.expertFusion},{"block_fusion",policy.blockFusion},{"hardware_publication",policy.hardwarePublication}})
         check(selected[name].kind==json::Value::Bool && selected[name].boolean==value,"prior replay fusion/publication selection differs");
       const auto previousFusion=amd::fusion32Policy(selected);
