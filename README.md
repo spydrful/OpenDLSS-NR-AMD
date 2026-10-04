@@ -66,6 +66,9 @@ passes its three generated SDR cases but fails all three HDR-highlight cases.
 The [cooperative publication screen](docs/amd-cooperative-publication-screen.md)
 preserves its tested bytes but measures 3.26–3.98% slower on seven C32 expansion
 stages.
+The [SiLU inner publication screen](docs/amd-silu-inner-normal-screen.md) also
+preserves its tested bytes, but its 1.16–3.80% operator improvements remain below
+the required 5% gate.
 These candidates remain excluded from shipping kernels and releases.
 See the [remaining performance work](docs/amd-performance-next-steps.md) for the
 next profiling and validation steps.

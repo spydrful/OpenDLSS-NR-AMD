@@ -26,6 +26,11 @@ also passes its recorded byte comparisons but regresses all seven pooled
 operator medians by 3.26–3.98%. Its static-scope follow-up only restores baseline
 operand-load overlap, retains the conversion work and increases offline VGPR
 use; it stops at CPU review without a new host or GPU run.
+The [SiLU inner publication screen](amd-silu-inner-normal-screen.md) passes its
+fresh bounded, generated inner-boundary and actual graph-input byte checks.
+Its seven pooled medians improve by 1.157–3.801%, with p95 regressions in blocks
+1 and 69; all 21 paired median gains also remain below 5%. It stops at the
+operator gate without a complete candidate graph or release change.
 
 The separate [alpha 6 candidate profile](performance/qkv-normalize-measurements/profile-target-candidate.json)
 records 503 dispatches. Median per-frame family totals are **30.09466 ms for FP8
@@ -33,6 +38,14 @@ GEMM**, **6.59034 ms for window attention**, **3.33166 ms for F16 GEMM** and
 **3.12548 ms for QKV normalization**. These instrumented spans guide the next
 experiment; they are not ordinary inference or game timings, and adding family
 medians does not reconstruct a measured frame.
+
+The next preserving fusion prototype targets expert expansion followed by
+contraction in the C64/C128/C256 families. Those 72 dispatches have a median
+same-frame summed span of **6.579260 ms** in that profile. The prototype keeps
+the hidden E4 publication in shared memory and leaves the following projection
+and residual placement unchanged. It must reproduce each original N16
+publication phase on the tested driver before timing. This is a candidate cost
+bound, with no qualified speed or quality result.
 
 Separately, [end-of-K32 arithmetic](amd-c32-expansion-arithmetic-screen.md)
 failed four of six matched SDR/HDR composed frames. The
