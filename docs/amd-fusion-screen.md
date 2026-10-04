@@ -33,3 +33,25 @@ The original QK bounded/model diagnostics and ordinary timing use the frozen bui
 The record contains scalar timings and artifact hashes only. NVIDIA DLLs, extracted weights, activation/output buffers and game captures are excluded. There is no new game FPS, bridge, VRAM, motion/HDR quality or full-model FFN qualification. NR remains disabled by default and the 8 ms NR-plus-bridge / 16.67 ms complete-frame targets are not established by these experiments.
 
 The [scalar record](performance/post-alpha5-fusion-normalization-rx9070xt-20261003.json) carries the measured samples, identities and scope. The [buffer visibility repair](amd-context-visibility.md) has separate fresh correctness evidence.
+
+## Register hidden bridge FFN v5 after alpha 6
+
+The private v5 candidate replaced the hidden shared-memory bridge with 32 subgroup shuffles using measured accumulator-to-A fragment ownership. One wave gathers sixteen rows in the original Pair publication order, then streams eight expansion tiles into two contraction accumulators. It retains software K16 half publication, corrected SiLU and the frozen AMD 26.9.1 E4 publication ancestry. Shared storage fell to 1,536 bytes, but every tested operator became slower. The prototype is excluded from releases; shipping kernels, defaults and caches are unchanged.
+
+| Ordinary block | Pair expansion + contraction median (ms) | Register FFN median (ms) | Change |
+|---|---:|---:|---:|
+| 1 | 0.50424 | 0.84090 | 66.77% slower |
+| 2 | 0.50442 | 0.82746 | 64.04% slower |
+| 3 | 0.51628 | 0.84204 | 63.10% slower |
+| 4 | 0.51298 | 0.83524 | 62.82% slower |
+| 67 | 0.52420 | 0.83606 | 59.49% slower |
+| 68 | 0.52490 | 0.83260 | 58.62% slower |
+| 69 | 0.52432 | 0.83368 | 59.00% slower |
+
+The seven isolated medians sum to 3.61134 ms baseline and 5.84798 ms candidate, a 61.93% regression and an estimated 2.23664 ms of added operator cost. All 21 interleaved pairs regressed by 52.00–71.32%; no block passed the 5% operator improvement gate. These GPU operator spans include compute barriers and exclude full inference, CPU submission, the D3D12 bridge, FSR and game FPS. The baseline has an additional middle timestamp. Five warmups and three pairs of 30 measured frames produced 90 samples per route per block, with no image readback, uploads or pipeline capture during measurement. Queue completion uses `vkQueueWaitIdle` per submission. The unbalanced baseline/candidate, candidate/baseline, baseline/candidate order and all timing variation remain in the record; clock or thermal causes were not measured.
+
+Strict bounded tests passed 315 comparisons on 45 fixtures and 329 comparisons on 47 fixtures including target rows. A fresh capture using the final alpha6 graph executable with QKV normalization off reproduced all seven historical ordinary inputs and four graph anchors. Replaying those actual R414720/C32 model activations with imported weights passed 49 saved full-buffer comparisons (2,043,740,160 compared bytes). The timing run's 28 pre/post final-twin checks matched those separately saved outputs by hash. Passing timed buffers were not saved. These fixed generated-model inputs and bounded arithmetic cases establish no arbitrary-input, portable-reference, original NVIDIA, complete-model fusion or gameplay qualification.
+
+Separate installed-driver reports measured production 68 VGPR / 64 SGPR and capture 73 / 74, both wave32 with 1,536 bytes LDS and no scratch. They contain four static FP8 matrix instructions and 32 transport shuffles, with no FP8 downconversion or mode setters. Instrumented pipeline resources are separate from the timing runs. A source review also identified shared seed storage reused without an extra read-completion barrier. The frozen one-wave implementation passed the tested driver cases; explicit synchronization and native accumulator half publication are being investigated only in distinct private candidates.
+
+The [v5 scalar record](performance/c32-register-ffn-v5-rx9070xt-20261003.json) and [timing samples](performance/c32-register-ffn-v5-measurements/ordinary-target-interleaved.json) preserve this rejected result. They contain no prototype shader binaries, ISA, weights, activation buffers, NVIDIA DLLs or game captures. There is no complete-inference improvement or new game FPS claim.

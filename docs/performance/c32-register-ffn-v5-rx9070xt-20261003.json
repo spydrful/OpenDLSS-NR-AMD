@@ -1,0 +1,612 @@
+{
+  "format": "OpenNR-private-c32-register-v5-negative-experiment-scalar-v1",
+  "date": "2026-10-03",
+  "status": "CPU_AUDITED_REJECTED_PERFORMANCE",
+  "disposition": "REJECTED_OPERATOR_PERFORMANCE",
+  "scalarOnly": true,
+  "releaseDefaultsChanged": false,
+  "prototypeInReleasePackage": false,
+  "gameFpsMeasured": false,
+  "fullModelFusionQualified": false,
+  "device": {
+    "name": "AMD Radeon RX 9070 XT",
+    "id": "1002:7550",
+    "driver": "AMD proprietary driver|26.9.1 (LLPC)|8389003"
+  },
+  "scope": {
+    "ordinaryBlocks": [
+      1,
+      2,
+      3,
+      4,
+      67,
+      68,
+      69
+    ],
+    "K": 32,
+    "hidden": 128,
+    "N": 32,
+    "batches": 1,
+    "partition": 0,
+    "residual": "E4",
+    "arithmetic": "K16",
+    "validGeometry": [
+      1707,
+      960
+    ],
+    "paddedGeometry": [
+      1728,
+      960
+    ],
+    "ordinaryRows": 414720,
+    "inputOrigin": "seven generated-model graph activations; no gameplay capture"
+  },
+  "baseline": {
+    "kind": "explicit frozen Pair/Arena diagnostic route; automatic/default route unchanged",
+    "gemm": "direct-rte-pair",
+    "windowLayout": "arena-rte",
+    "windowQueries": 32,
+    "tileN": 16,
+    "stageK": 16,
+    "arithmetic": "k16",
+    "allFusionOff": true,
+    "hardwarePublicationOff": true,
+    "selectedShaderAggregateSha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+    "gemmSpirvSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e"
+  },
+  "candidate": {
+    "name": "private register hidden bridge FFN v5",
+    "localSize": [
+      32,
+      1,
+      1
+    ],
+    "logicalRowsPerWave": 16,
+    "groupsPer64Rows": 4,
+    "hiddenBridge": "32 scalar subgroup shuffles using measured Acc/B-to-A ownership; raw E4 reinterpretation",
+    "declaredLdsBytes": 1536,
+    "publication": "unchanged preserving v3b software matrix/residual K16 half, corrected SiLU, frozen AMD26.9.1 Pair E4 wave-ancestry compatibility",
+    "arbitraryInputEquivalenceClaim": false,
+    "portableReferenceParityClaim": false,
+    "executableSha256": "917fd61c601bda53a9f90d6dcf3fb38cd4181279693b1200f950cf586e00c215",
+    "productionSpirvSha256": "638688a4fe8363f6688c4cd6ac551243b5a4bdd149c9015064c7dff840a2f76e",
+    "captureSpirvSha256": "5c0805be91b41fc1ca7175d721ed41e9b1c9efb38a83f877cd4f1c992acefe05"
+  },
+  "strictEvidence": {
+    "smallFixtures": 45,
+    "smallComparisons": 315,
+    "targetRowFixtures": 47,
+    "targetRowComparisons": 329,
+    "currentGraphExecutableSha256": "65f6440fb6a48c4e8acf90c7be75cd042bf7903d7a3c464abe7c1d51bcfb54da",
+    "currentGraphQkvNormalization": "off",
+    "currentGraphPinnedSpirvCount": 32,
+    "freshGraphAnchors": 4,
+    "freshOrdinaryInputs": 7,
+    "actualTargetFixtures": 7,
+    "actualTargetComparisons": 49,
+    "actualTargetSavedRawFiles": 98,
+    "actualTargetComparedBytes": 2043740160,
+    "freshInputsEqualHistoricalTimedInputs": true,
+    "timedPrePostFinalTwinRecords": 28,
+    "timedPassingRawBuffersSaved": false,
+    "timedTwinHashesMatchSavedActualReplay": true,
+    "validationLayerEnabled": false
+  },
+  "protocol": {
+    "warmupsPerRoute": 5,
+    "interleavedPairs": 3,
+    "measuredFramesPerRoutePerPair": 30,
+    "routeOrder": [
+      "baseline-candidate",
+      "candidate-baseline",
+      "baseline-candidate"
+    ],
+    "frameInputsFixed": true,
+    "inputsResidualWeightsSharedAcrossRoutes": true,
+    "buffersPreallocatedPerFixture": true,
+    "commandBuffersPreRecordedReusable": true,
+    "pipelineCaptureStatistics": false,
+    "queueWaitIdlePerRoute": true,
+    "timestampStage": "ALL_COMMANDS",
+    "spanIncludesComputeBarriers": true,
+    "baselineDispatchCount": 2,
+    "candidateDispatchCount": 1,
+    "baselineTimestampCount": 3,
+    "candidateTimestampCount": 2,
+    "readbackDuringMeasuredFrames": false,
+    "imageUploadsDuringMeasuredFrames": false,
+    "hostTimestampReadsOnly": true,
+    "byteReadback": "before warmups and after all measured pairs only",
+    "explicitReadbackDeviceTransferHostBarriers": true,
+    "percentileMethod": "linear interpolation on n-1 index",
+    "variation": "population standard deviation / mean * 100",
+    "timingDomain": "instrumented GPU operator spans, excludes CPU submission and bridge"
+  },
+  "timing": {
+    "measuredSubmissions": 1260,
+    "samplesPerRoutePerFixture": 90,
+    "scalarSamplesIncludingExpandContract": 2520,
+    "recomputedStatisticFields": 560,
+    "splitTimestampSpansRecomputed": 630,
+    "sumIsolatedBaselineMediansMs": 3.6113399999999998,
+    "sumIsolatedCandidateMediansMs": 5.84798,
+    "sumSlowdownPercent": 61.933797426993856,
+    "addedSelectedOperatorEstimateMs": 2.23664,
+    "all21InterleavedPairsRegressed": true,
+    "pairSlowdownRangePercent": [
+      52.00469535233481,
+      71.31765415347505
+    ],
+    "allSevenFailFivePercentOperatorGate": true,
+    "fullInferenceMeasurementPerformed": false,
+    "blocks": [
+      {
+        "block": 1,
+        "rows": 414720,
+        "baseline": {
+          "medianMs": 0.50424,
+          "p95Ms": 0.540496,
+          "p99Ms": 0.6115875999999999,
+          "minMs": 0.49028,
+          "maxMs": 0.64644,
+          "meanMs": 0.5094826666666666,
+          "stddevMs": 0.020875969640820145,
+          "variationCvPercent": 4.097483782402833
+        },
+        "candidate": {
+          "medianMs": 0.8409,
+          "p95Ms": 0.947596,
+          "p99Ms": 0.9560171999999999,
+          "minMs": 0.8124,
+          "maxMs": 0.95648,
+          "meanMs": 0.8490671111111111,
+          "stddevMs": 0.032124129153590184,
+          "variationCvPercent": 3.783461723249617
+        },
+        "slowdownPercent": 66.7658257972394,
+        "passesFivePercentOperatorGate": false,
+        "pairs": [
+          {
+            "pair": 1,
+            "baselineMedianMs": 0.5036,
+            "candidateMedianMs": 0.83834,
+            "slowdownPercent": 66.46942017474184
+          },
+          {
+            "pair": 2,
+            "baselineMedianMs": 0.50336,
+            "candidateMedianMs": 0.8401799999999999,
+            "slowdownPercent": 66.91433566433564
+          },
+          {
+            "pair": 3,
+            "baselineMedianMs": 0.50482,
+            "candidateMedianMs": 0.8434999999999999,
+            "slowdownPercent": 67.08925953805314
+          }
+        ],
+        "orderVariation": {
+          "baselinePairMedianRangePercent": 0.2900508582326822,
+          "candidatePairMedianRangePercent": 0.6155020636018804
+        },
+        "inputSha256": "2e6cd1cb885efcad98e93a81801b3e7a4f1d9141d9e7ba51bd3040c19a00a9d2",
+        "timingTwinRecords": 4,
+        "twinsMatchSeparateSavedActualReplay": true
+      },
+      {
+        "block": 2,
+        "rows": 414720,
+        "baseline": {
+          "medianMs": 0.50442,
+          "p95Ms": 0.549918,
+          "p99Ms": 0.6383648,
+          "minMs": 0.48535999999999996,
+          "maxMs": 0.65232,
+          "meanMs": 0.5127786666666666,
+          "stddevMs": 0.02652218472650145,
+          "variationCvPercent": 5.172248077110876
+        },
+        "candidate": {
+          "medianMs": 0.82746,
+          "p95Ms": 0.9449799999999999,
+          "p99Ms": 0.9940207999999999,
+          "minMs": 0.7864399999999999,
+          "maxMs": 1.0058399999999998,
+          "meanMs": 0.8426568888888888,
+          "stddevMs": 0.04504324045093767,
+          "variationCvPercent": 5.34538328053436
+        },
+        "slowdownPercent": 64.04186987034615,
+        "passesFivePercentOperatorGate": false,
+        "pairs": [
+          {
+            "pair": 1,
+            "baselineMedianMs": 0.5021800000000001,
+            "candidateMedianMs": 0.82244,
+            "slowdownPercent": 63.7739455971962
+          },
+          {
+            "pair": 2,
+            "baselineMedianMs": 0.50414,
+            "candidateMedianMs": 0.8266199999999999,
+            "slowdownPercent": 63.96635855119608
+          },
+          {
+            "pair": 3,
+            "baselineMedianMs": 0.50478,
+            "candidateMedianMs": 0.82844,
+            "slowdownPercent": 64.11902214826259
+          }
+        ],
+        "orderVariation": {
+          "baselinePairMedianRangePercent": 0.5177426420805098,
+          "candidatePairMedianRangePercent": 0.7295365011429356
+        },
+        "inputSha256": "b5291ead897fce6ffd167868af1cafbe39be33f5bbb22b6a4039681381901246",
+        "timingTwinRecords": 4,
+        "twinsMatchSeparateSavedActualReplay": true
+      },
+      {
+        "block": 3,
+        "rows": 414720,
+        "baseline": {
+          "medianMs": 0.51628,
+          "p95Ms": 0.558026,
+          "p99Ms": 0.63409,
+          "minMs": 0.50136,
+          "maxMs": 0.6545599999999999,
+          "meanMs": 0.5240324444444444,
+          "stddevMs": 0.02334051310066831,
+          "variationCvPercent": 4.454020614203166
+        },
+        "candidate": {
+          "medianMs": 0.8420399999999999,
+          "p95Ms": 0.942546,
+          "p99Ms": 0.9769643999999998,
+          "minMs": 0.80512,
+          "maxMs": 1.0482,
+          "meanMs": 0.8552404444444444,
+          "stddevMs": 0.04370605144754903,
+          "variationCvPercent": 5.110381733167453
+        },
+        "slowdownPercent": 63.09754396838924,
+        "passesFivePercentOperatorGate": false,
+        "pairs": [
+          {
+            "pair": 1,
+            "baselineMedianMs": 0.5155,
+            "candidateMedianMs": 0.8487199999999999,
+            "slowdownPercent": 64.64015518913675
+          },
+          {
+            "pair": 2,
+            "baselineMedianMs": 0.5158400000000001,
+            "candidateMedianMs": 0.8406199999999999,
+            "slowdownPercent": 62.961383374689795
+          },
+          {
+            "pair": 3,
+            "baselineMedianMs": 0.51686,
+            "candidateMedianMs": 0.8426400000000001,
+            "slowdownPercent": 63.030607901559435
+          }
+        ],
+        "orderVariation": {
+          "baselinePairMedianRangePercent": 0.2638215324927362,
+          "candidatePairMedianRangePercent": 0.9635745045323718
+        },
+        "inputSha256": "41069080bde8bf358ffcef33f8e51b777ceee9f035b669ff4cf397c50d690a3f",
+        "timingTwinRecords": 4,
+        "twinsMatchSeparateSavedActualReplay": true
+      },
+      {
+        "block": 4,
+        "rows": 414720,
+        "baseline": {
+          "medianMs": 0.51298,
+          "p95Ms": 0.556136,
+          "p99Ms": 0.657638,
+          "minMs": 0.49135999999999996,
+          "maxMs": 0.67704,
+          "meanMs": 0.5223537777777778,
+          "stddevMs": 0.028755128569730448,
+          "variationCvPercent": 5.5049144455433785
+        },
+        "candidate": {
+          "medianMs": 0.83524,
+          "p95Ms": 0.943658,
+          "p99Ms": 0.9500488,
+          "minMs": 0.7925599999999999,
+          "maxMs": 0.95012,
+          "meanMs": 0.850303111111111,
+          "stddevMs": 0.04259614921678678,
+          "variationCvPercent": 5.009525269303719
+        },
+        "slowdownPercent": 62.82116261842567,
+        "passesFivePercentOperatorGate": false,
+        "pairs": [
+          {
+            "pair": 1,
+            "baselineMedianMs": 0.53064,
+            "candidateMedianMs": 0.90908,
+            "slowdownPercent": 71.31765415347505
+          },
+          {
+            "pair": 2,
+            "baselineMedianMs": 0.5127599999999999,
+            "candidateMedianMs": 0.83294,
+            "slowdownPercent": 62.44246821124897
+          },
+          {
+            "pair": 3,
+            "baselineMedianMs": 0.5135799999999999,
+            "candidateMedianMs": 0.8353999999999999,
+            "slowdownPercent": 62.6620974337007
+          }
+        ],
+        "orderVariation": {
+          "baselinePairMedianRangePercent": 3.487011467353174,
+          "candidatePairMedianRangePercent": 9.141114606094082
+        },
+        "inputSha256": "70201726935d452e5c5695e741b53d887263095b01704d07f637d56d8ce6ff7c",
+        "timingTwinRecords": 4,
+        "twinsMatchSeparateSavedActualReplay": true
+      },
+      {
+        "block": 67,
+        "rows": 414720,
+        "baseline": {
+          "medianMs": 0.5242,
+          "p95Ms": 0.5919659999999999,
+          "p99Ms": 0.658948,
+          "minMs": 0.5045999999999999,
+          "maxMs": 0.6649999999999999,
+          "meanMs": 0.5347795555555556,
+          "stddevMs": 0.031000301213988626,
+          "variationCvPercent": 5.796837386908701
+        },
+        "candidate": {
+          "medianMs": 0.83606,
+          "p95Ms": 0.958116,
+          "p99Ms": 1.0201415999999999,
+          "minMs": 0.7963199999999999,
+          "maxMs": 1.042,
+          "meanMs": 0.8559079999999999,
+          "stddevMs": 0.05434153539727538,
+          "variationCvPercent": 6.3489925783233
+        },
+        "slowdownPercent": 59.49256009156811,
+        "passesFivePercentOperatorGate": false,
+        "pairs": [
+          {
+            "pair": 1,
+            "baselineMedianMs": 0.54462,
+            "candidateMedianMs": 0.86422,
+            "slowdownPercent": 58.68311850464545
+          },
+          {
+            "pair": 2,
+            "baselineMedianMs": 0.52362,
+            "candidateMedianMs": 0.83412,
+            "slowdownPercent": 59.29872808525267
+          },
+          {
+            "pair": 3,
+            "baselineMedianMs": 0.52464,
+            "candidateMedianMs": 0.83762,
+            "slowdownPercent": 59.65614516620921
+          }
+        ],
+        "orderVariation": {
+          "baselinePairMedianRangePercent": 4.0105419961040445,
+          "candidatePairMedianRangePercent": 3.608593487747558
+        },
+        "inputSha256": "f108ae37424ab9671154ad646f9f072c8857d0fcb4fc36b502528b54c89232a8",
+        "timingTwinRecords": 4,
+        "twinsMatchSeparateSavedActualReplay": true
+      },
+      {
+        "block": 68,
+        "rows": 414720,
+        "baseline": {
+          "medianMs": 0.5248999999999999,
+          "p95Ms": 0.5967719999999999,
+          "p99Ms": 0.6345376,
+          "minMs": 0.50776,
+          "maxMs": 0.66672,
+          "meanMs": 0.5336817777777778,
+          "stddevMs": 0.028616214773282255,
+          "variationCvPercent": 5.36203707243643
+        },
+        "candidate": {
+          "medianMs": 0.8326,
+          "p95Ms": 0.9336319999999999,
+          "p99Ms": 1.0181588,
+          "minMs": 0.7968799999999999,
+          "maxMs": 1.0582799999999999,
+          "meanMs": 0.846531111111111,
+          "stddevMs": 0.04924989124510145,
+          "variationCvPercent": 5.817847755230012
+        },
+        "slowdownPercent": 58.62068965517244,
+        "passesFivePercentOperatorGate": false,
+        "pairs": [
+          {
+            "pair": 1,
+            "baselineMedianMs": 0.54522,
+            "candidateMedianMs": 0.8287599999999999,
+            "slowdownPercent": 52.00469535233481
+          },
+          {
+            "pair": 2,
+            "baselineMedianMs": 0.52342,
+            "candidateMedianMs": 0.82924,
+            "slowdownPercent": 58.427266822054946
+          },
+          {
+            "pair": 3,
+            "baselineMedianMs": 0.52418,
+            "candidateMedianMs": 0.8336399999999999,
+            "slowdownPercent": 59.036972032507904
+          }
+        ],
+        "orderVariation": {
+          "baselinePairMedianRangePercent": 4.164915364334587,
+          "candidatePairMedianRangePercent": 0.5888315073121264
+        },
+        "inputSha256": "be12e288affb9d10cb336d6d9f80ca6c50ba4c959947fb2334730633e2105d95",
+        "timingTwinRecords": 4,
+        "twinsMatchSeparateSavedActualReplay": true
+      },
+      {
+        "block": 69,
+        "rows": 414720,
+        "baseline": {
+          "medianMs": 0.52432,
+          "p95Ms": 0.5694539999999999,
+          "p99Ms": 0.6567932,
+          "minMs": 0.5068,
+          "maxMs": 0.6622399999999999,
+          "meanMs": 0.5333151111111111,
+          "stddevMs": 0.026577162345159937,
+          "variationCvPercent": 4.983388205481176
+        },
+        "candidate": {
+          "medianMs": 0.83368,
+          "p95Ms": 0.95024,
+          "p99Ms": 1.0296816,
+          "minMs": 0.79396,
+          "maxMs": 1.03908,
+          "meanMs": 0.8517173333333333,
+          "stddevMs": 0.053880683918780724,
+          "variationCvPercent": 6.326122741674162
+        },
+        "slowdownPercent": 59.00213610009154,
+        "passesFivePercentOperatorGate": false,
+        "pairs": [
+          {
+            "pair": 1,
+            "baselineMedianMs": 0.55392,
+            "candidateMedianMs": 0.8656200000000001,
+            "slowdownPercent": 56.27166377816293
+          },
+          {
+            "pair": 2,
+            "baselineMedianMs": 0.5223599999999999,
+            "candidateMedianMs": 0.8305799999999999,
+            "slowdownPercent": 59.00528371238225
+          },
+          {
+            "pair": 3,
+            "baselineMedianMs": 0.52452,
+            "candidateMedianMs": 0.8343799999999999,
+            "slowdownPercent": 59.074963776405085
+          }
+        ],
+        "orderVariation": {
+          "baselinePairMedianRangePercent": 6.0418102458075,
+          "candidatePairMedianRangePercent": 4.218738712706815
+        },
+        "inputSha256": "e1bfb7007541e775faf4ab69348cc986a28f67752f4b31b7f7b5539fb1bd691b",
+        "timingTwinRecords": 4,
+        "twinsMatchSeparateSavedActualReplay": true
+      }
+    ]
+  },
+  "installedDriverResources": [
+    {
+      "role": "fused-production",
+      "resources": {
+        "numUsedVgprs": 68,
+        "numUsedSgprs": 64,
+        "ldsSizePerLocalWorkGroup": 1536,
+        "scratchMemUsageInBytes": 0
+      },
+      "staticInstructionCounts": {
+        "wmma": 4,
+        "fp8Downconversion": 0,
+        "modeSetters": 0,
+        "bpermute": 32
+      },
+      "reportSha256": "f20c156a7477cf896a0699c856042e12daafb41a9ecdcf571cb2f1d64dd69f37"
+    },
+    {
+      "role": "fused-hidden-activated-capture",
+      "resources": {
+        "numUsedVgprs": 73,
+        "numUsedSgprs": 74,
+        "ldsSizePerLocalWorkGroup": 1536,
+        "scratchMemUsageInBytes": 0
+      },
+      "staticInstructionCounts": {
+        "wmma": 4,
+        "fp8Downconversion": 0,
+        "modeSetters": 0,
+        "bpermute": 32
+      },
+      "reportSha256": "0e91861ada318a636375f2fb20926d3f33881fdb99c7386b73a185c0a68ab43a"
+    }
+  ],
+  "resourcesCaveat": "Installed-driver pipeline statistics/ISA were captured separately with instrumentation flags; they are not ordinary timing runs and static counts are not execution counts.",
+  "synchronizationCaveat": "The frozen one-wave shader reads expansionSeed from shared scratch then reuses that allocation without a separate read-completion barrier. Tested installed-driver results pass; explicit synchronization is being added only in a distinct private fork before any integration.",
+  "variationCaveat": "Unbalanced B/C,C/B,B/C order; retain all role/order variation and long-tail samples. Thermal/clock/driver cause was not measured. Every pair still regressed.",
+  "measurementCaveat": "Sum of seven isolated GPU operator medians is an estimate, not complete inference, bridge, FSR or game frame time. Baseline has a middle timestamp; GPU spans include barriers and exclude CPU submission. Queue completion uses vkQueueWaitIdle, not a reusable VkFence.",
+  "privacyReview": {
+    "scalarTimingSchemaReviewed": true,
+    "weightsOrActivationsCopied": false,
+    "rawOutputBuffersCopied": false,
+    "shaderOrIsaPayloadCopied": false,
+    "nvidiaDllCopied": false,
+    "gameCapturesCopied": false
+  },
+  "evidence": {
+    "publicTiming": {
+      "path": "docs/performance/c32-register-ffn-v5-measurements/ordinary-target-interleaved.json",
+      "sha256": "16a929acce4f90c529e66b21549f69a3f36413f11ac0e130bb5cb2ad95d425e6",
+      "bytes": 81412
+    },
+    "privateTimingSource": {
+      "path": "build/release/c32-register-ffn-v5-20261003-a1/gpu-all7-target-timing/interleaved.json",
+      "bytes": 81412,
+      "sha256": "16a929acce4f90c529e66b21549f69a3f36413f11ac0e130bb5cb2ad95d425e6",
+      "distributed": false
+    },
+    "operatorCpuAudit": {
+      "path": "build/release/c32-register-v5-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 6049,
+      "sha256": "4a8bfb1aacb193fbb67a7f01d4383ad207f010da61b736227523965bd493cdc6",
+      "distributed": false
+    },
+    "actualInputCpuAudit": {
+      "path": "build/release/c32-register-v5-actual-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 9063,
+      "sha256": "43fd43642801168568dd7a1b33ea2e508ed5d125e12cb9a1be9b6acc6f92e005",
+      "distributed": false
+    },
+    "timingCpuAudit": {
+      "path": "build/release/c32-register-v5-timing-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 14637,
+      "sha256": "b5eb4a3d9ecc988b415343da394d731bf5ccd570843af21e2df7dde03907168c",
+      "distributed": false
+    }
+  },
+  "decision": "Keep prototype private and excluded from releases. No production fusion, cache or default change. Synchronization/native-half follow-ups are separately identified unqualified candidates.",
+  "unmetGates": [
+    "complete-model fusion and production/capture parity",
+    "complete-inference improvement",
+    "history/lifecycle proof for this fusion",
+    "visual quality and gameplay",
+    "8ms NR-plus-bridge budget",
+    "16.67ms complete-frame/60 real FPS target"
+  ],
+  "secondIndependentReview": {
+    "path": "build/release/c32-register-v5-negative-public-second-audit-20261003-a1/audit.json",
+    "bytes": 1666,
+    "sha256": "330504e3e53004722b06fe0d942854b0ef2271b1f32660b2fa86b2abeb720329",
+    "distributed": false,
+    "status": "PASS",
+    "reviewedDraftSha256": "18f5ed37a751ab126a8a367a2ba3a80d4f7f82e75c938ea38d08cd3aa1017436",
+    "onlyStatusAndReviewMetadataChanged": true,
+    "timingAndProseUnchanged": true
+  }
+}
