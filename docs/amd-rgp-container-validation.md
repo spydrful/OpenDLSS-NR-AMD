@@ -64,6 +64,11 @@ from that profiler run are excluded from performance evidence. Whole-file hashin
 streams the capture bytes; only 1,536 metadata bytes are interpreted, and no SQTT
 or code-object payload is decoded or exported.
 
+The [headless decoder investigation](amd-headless-trace-decoder.md) separately
+records a Windows static build, 22 public-API lifecycle checks and 16 known
+synthetic GFX12 parsing assertions. Real-capture decoder compatibility and
+dynamic analysis remain unqualified.
+
 ## Schema provenance and CPU tests
 
 The tool records immutable source links and source-file hashes in each report; it downloads or loads no schema files at runtime. It is an independently implemented reader, not AMD's `rdfi` executable or RGP's analysis backend. No AMD library source or profiler binaries are vendored.

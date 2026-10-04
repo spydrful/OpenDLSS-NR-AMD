@@ -1,0 +1,157 @@
+{
+  "schema": "open-nr-cpu-decoder-feasibility-v1",
+  "date_utc": "2026-10-04",
+  "status": "PASS_WINDOWS_STATIC_BUILD_LIFECYCLE_AND_KNOWN_SYNTHETIC_GFX12_ONLY",
+  "source": {
+    "repository": "ROCm/rocm-systems",
+    "commit": "4bab22839f1badc03e1c254421665d4ae551c18b",
+    "project_tree_sha1": "08c3cab7d60bc724459f658e00bd90d84d4048ce",
+    "project": "projects/rocprof-trace-decoder",
+    "compiled_version": "0.2.2",
+    "license": "MIT",
+    "text_files_git_blob_and_sha256_verified": 125,
+    "text_file_bytes": 1210485,
+    "upstream_binary_fixtures_downloaded": false
+  },
+  "build": {
+    "cmake": "4.4.2",
+    "generator": "Visual Studio 17 2022",
+    "msvc_toolset_directory_version": "14.44.35207",
+    "compiler_version_from_cmake": "19.44.35228.0",
+    "windows_sdk": "10.0.26100.0",
+    "architecture": "x64",
+    "target": "rocprof-trace-decoder-static",
+    "configuration": "Release",
+    "cxx_standard": 20,
+    "runtime": "MultiThreadedDLL",
+    "cxx_flags": "/utf-8 /EHsc",
+    "release_object_exception_handling": "Sync",
+    "tests_python_llvm_comgr_arch_model_doxygen_enabled": false,
+    "install_or_package_target_run": false,
+    "msbuild_nodes": 1,
+    "msbuild_node_reuse": false,
+    "configure_compile_deadline_seconds": 180,
+    "known_owned_process_cleanup_verified": true,
+    "full_sdk_compiler_dependency_closure_frozen": false,
+    "cross_machine_or_path_byte_reproducibility_verified": false,
+    "retained_compiler_warnings": {
+      "C4244": 1
+    },
+    "exception_unwinding_warning_C4530_count": 0,
+    "static_library": {
+      "bytes": 6812024,
+      "sha256": "fa1051f4755394b5f95abd34a95599d4e46b09c1813eace7ce4f447aba31332c"
+    },
+    "library_distributed": false
+  },
+  "initial_build": {
+    "explicit_flags_omitted_EHsc": true,
+    "C4530_warnings_retained": 17,
+    "library_excluded_from_api_execution": true,
+    "corrected_fresh_build_used_for_tests": true
+  },
+  "lifecycle": {
+    "public_handle_api": true,
+    "checks": 22,
+    "failures": 0,
+    "trace_callback_calls": 0,
+    "isa_callback_calls": 0,
+    "runtime_stderr_bytes": 0,
+    "trace_payload_parsed": false,
+    "executable": {
+      "bytes": 204800,
+      "sha256": "f1c0f57bb275f7b1f3ef931d4ad777d17b2aca4b923a5a228f5993062a047feb"
+    },
+    "consumer_dependencies": [
+      "Windows CRT",
+      "Kernel32"
+    ],
+    "llvm_comgr_or_separate_decoder_dll_imported": false,
+    "fast_runtime_creation_timestamp_observed": false,
+    "exit_and_final_cleanup_verified": true
+  },
+  "synthetic": {
+    "public_handle_api": true,
+    "checks": 16,
+    "failures": 0,
+    "isa_callback_calls": 0,
+    "runtime_stderr_bytes": 0,
+    "executable": {
+      "bytes": 209408,
+      "sha256": "91e6ba17c2aacf9764e7e97d56f4e806a21c4eb61f6a1aadc0649f0980959855"
+    },
+    "cases": [
+      {
+        "name": "upstream-derived realtime",
+        "bytes": 16,
+        "status": "SUCCESS",
+        "callback_order": [
+          "GFXIP",
+          "REALTIME"
+        ],
+        "shader_clock": 0,
+        "realtime_clock": 591751049
+      },
+      {
+        "name": "upstream-derived wave lifecycle",
+        "bytes": 22,
+        "status": "SUCCESS",
+        "callback_order": [
+          "GFXIP",
+          "OCCUPANCY"
+        ],
+        "occupancy_records": 2,
+        "times": [
+          1,
+          8
+        ],
+        "different_wave_from_header_target": true,
+        "instruction_stitching_tested": false
+      },
+      {
+        "name": "unsupported header version 6",
+        "bytes": 8,
+        "status": "INVALID_SHADER_DATA",
+        "callbacks": 0
+      },
+      {
+        "name": "short header",
+        "bytes": 7,
+        "status": "INVALID_SHADER_DATA",
+        "callbacks": 0
+      }
+    ],
+    "fast_runtime_creation_timestamp_observed": false,
+    "exit_and_final_cleanup_verified": true
+  },
+  "acceptance": {
+    "gpu_used": false,
+    "real_capture_parsed": false,
+    "pal_rgp_format_compatibility_qualified": false,
+    "code_object_or_pc_mapping_qualified": false,
+    "trace_completeness_qualified": false,
+    "actual_captured_event_qualified": false,
+    "dynamic_instruction_or_utilization_analysis_qualified": false,
+    "network_bridge_or_game_performance_improvement_claim": false,
+    "runtime_or_defaults_changed": false
+  },
+  "evidence_sha256": {
+    "source_feasibility_preparation": "e9d4ce538e1cb0afcc6e494e601a9c03915b17f90d32a85d4dca78f7cc7781c8",
+    "source_manifest": "2547f329c92745182955eca347ce9eb3f5581b00479011e67915c32dcad2e318",
+    "independent_source_audit": "9de7d8569f7569107bd4167bedc851061eaba81a2f4f277a849dd40e0d3a5bf3",
+    "corrected_static_build_receipt": "17627f0c4aceaa391a5d9c85f54babf41fa9186813efabd04c16efa19c7a5947",
+    "lifecycle_receipt": "5ab57ad07f21376c0b80f202d28f3f5fb03b74a3080cf2e0d9747eb2717d0702",
+    "synthetic_receipt": "dbffa9e7f1ebe3f4702b30f7c05bf98ecee21760ca966fcf6c730ce38043cf18",
+    "independent_static_lifecycle_saved_audit": "2dc5951c6a5fccde50ec6790cef439c5e27e23978ac1188403808b0752e86699",
+    "independent_synthetic_source_audit": "ae39c76366d25883487735b5684f8c48586b399f094d04c9bbcb143046fd071e",
+    "independent_synthetic_runner_source_audit": "228c7e713a6c7f8bee3243aca1752bccaad6abf86de2c8ac12da8f2c3bcec5f1",
+    "independent_synthetic_saved_audit": "9ef60734542f1e42e7f22ae26ecceced3f959bfa5c712e76946041148cc4cbae"
+  },
+  "notes": [
+    "These are CPU build/API/synthetic-format checks, not an NR benchmark.",
+    "Synthetic hardware headers belong only to the known upstream-derived test streams; no header was fabricated for a real capture.",
+    "MSVC quick_scan is unavailable in the pinned source; full public handle parsing requires a custom ISA callback in this no-disassembly build.",
+    "Static compilation and decoder success do not establish healthy or complete real instruction traces.",
+    "Raw captures, proprietary DLLs and imported model weights remain outside commits and release packages."
+  ]
+}

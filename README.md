@@ -390,6 +390,9 @@ identical and independently evolved histories, and exports qualified tuning.
 captures; see the [CPU validation guide](docs/amd-rgp-container-validation.md)
 for supported schemas, tests and exit codes. A structural pass does not qualify
 trace completeness, dynamic instruction timing or performance.
+The [headless decoder investigation](docs/amd-headless-trace-decoder.md) records
+a tested Windows static build and known synthetic GFX12 parsing cases.
+PAL/RGP analysis remains unqualified.
 For RTE preservation comparisons, pass `--comparison-anchor direct32` to
 amdcheck and the collection, analysis, qualification and tuning tools. This
 selects Direct/K16/N16/stage16/Q32/staged with all experiments off as the baseline;
