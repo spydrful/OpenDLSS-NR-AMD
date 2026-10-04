@@ -482,8 +482,10 @@ median **50.41260 → 47.74616 ms** at the target geometry. It remains an explic
 selection with the existing auto cache and NR default unchanged. Shared-memory
 FFN candidates were slower and remain excluded; their bounded preservation and
 separate arithmetic experiments are retained in the
-[fusion screen](docs/amd-fusion-screen.md). Register-fragment work remains a
-diagnostic investigation until its actual compiler mapping and full gates pass.
+[fusion screen](docs/amd-fusion-screen.md). The later register FFN prototypes
+also missed the operator gate: the [synchronized native-half variant](docs/amd-register-ffn-v7-experiment.md)
+matches tested bytes but is 36.81–44.14% slower. It remains excluded; expansion
+reuse and separately labeled arithmetic experiments continue privately.
 
 1. Improve the now-dominant FP8 matrix family, then remaining window-attention
    cost and fusion. Preserve publication boundaries and compare every change
