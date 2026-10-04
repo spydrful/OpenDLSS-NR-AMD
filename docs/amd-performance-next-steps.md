@@ -39,13 +39,21 @@ GEMM**, **6.59034 ms for window attention**, **3.33166 ms for F16 GEMM** and
 experiment; they are not ordinary inference or game timings, and adding family
 medians does not reconstruct a measured frame.
 
-The next preserving fusion prototype targets expert expansion followed by
-contraction in the C64/C128/C256 families. Those 72 dispatches have a median
-same-frame summed span of **6.579260 ms** in that profile. The prototype keeps
-the hidden E4 publication in shared memory and leaves the following projection
-and residual placement unchanged. It must reproduce each original N16
-publication phase on the tested driver before timing. This is a candidate cost
-bound, with no qualified speed or quality result.
+The [expert W1–W2 shared-memory fusion screen](amd-expert-w1-w2-fusion-screen.md)
+passes 903 synthetic and 252 model-weight byte comparisons, but all 36 timed
+C64/C128/C256 operators are **87.47–171.20% slower**. Their isolated summed
+medians are **6.14538→13.74014 ms**, not complete inference timing. The earlier
+profile's **6.579260 ms** same-frame W1+W2 span is a separate instrumented cost
+bound. The candidate stops before actual graph-input replay, checkpoints,
+quality, history, bridge or game validation; the qualified runtime is unchanged.
+
+The next source-only hypothesis retains the logical 64-row tile but streams
+two 32-row W1→W2 subpasses, using one F32 accumulator per wave and planned
+8 KiB scratch/hidden storage. It must carry each original N16/logical-wave
+publication state across row 32 while preserving K16, original SiLU and software
+E4 publication. Duplicated A loads and extra staging barriers are tradeoffs.
+It has no compilation, GPU, preservation, occupancy or performance
+qualification and inherits none from the rejected prototype.
 
 Separately, [end-of-K32 arithmetic](amd-c32-expansion-arithmetic-screen.md)
 failed four of six matched SDR/HDR composed frames. The

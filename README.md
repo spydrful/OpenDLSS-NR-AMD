@@ -69,6 +69,9 @@ stages.
 The [SiLU inner publication screen](docs/amd-silu-inner-normal-screen.md) also
 preserves its tested bytes, but its 1.16–3.80% operator improvements remain below
 the required 5% gate.
+The [expert W1–W2 shared-memory fusion screen](docs/amd-expert-w1-w2-fusion-screen.md)
+passes its evaluated synthetic and model-weight byte checks, but all 36
+operator medians are 87.47–171.20% slower.
 These candidates remain excluded from shipping kernels and releases.
 See the [remaining performance work](docs/amd-performance-next-steps.md) for the
 next profiling and validation steps.
