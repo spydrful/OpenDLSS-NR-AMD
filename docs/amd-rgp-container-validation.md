@@ -53,6 +53,17 @@ left no owned processes. Actual event identity, trace completeness and dynamic
 instruction analysis remain unqualified. All 1,440 timing samples from that
 profiler run are excluded from performance evidence.
 
+The [fresh C32 metadata screen](performance/rgp-c32-metadata-rx9070xt-20261004.json)
+records a 6,734,577-byte capture requested for the original Pair block 1 expansion
+using model-generated target-resolution activations and imported weights. Its
+21 container entries and four SQTT headers passed structural checks; all recorded
+SQTT lengths are below capacity. The application replay passed all seven C32
+fixtures and 14 canonical output checks. Capture completeness, actual event
+identity and dynamic instruction analysis remain unqualified. All 1,260 timings
+from that profiler run are excluded from performance evidence. Whole-file hashing
+streams the capture bytes; only 1,536 metadata bytes are interpreted, and no SQTT
+or code-object payload is decoded or exported.
+
 ## Schema provenance and CPU tests
 
 The tool records immutable source links and source-file hashes in each report; it downloads or loads no schema files at runtime. It is an independently implemented reader, not AMD's `rdfi` executable or RGP's analysis backend. No AMD library source or profiler binaries are vendored.
