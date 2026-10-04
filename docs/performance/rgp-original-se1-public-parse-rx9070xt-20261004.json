@@ -1,0 +1,168 @@
+{
+  "format": "OpenNR-original-SE1-public-handle-exploratory-scalar-v1",
+  "status": "EXPLORATORY_ORIGINAL_BUFFER_PARSE_SUCCESS_ALL_ANALYSIS_UNQUALIFIED",
+  "date": "2026-10-04",
+  "summary": "One original unmodified SE1 SQTT buffer returned SUCCESS through the public handle API without ISA requests or reported INFO warnings.",
+  "executionKind": "CPU_DIAGNOSTIC_ONLY",
+  "decoder": {
+    "repository": "ROCm/rocm-systems",
+    "project": "projects/rocprof-trace-decoder",
+    "commit": "4bab22839f1badc03e1c254421665d4ae551c18b",
+    "version": "0.2.2",
+    "platform": "Windows x64",
+    "build": "Release static library",
+    "disassemblyComgrAndArchitectureModelEnabled": false,
+    "explicitCppFlags": [
+      "/utf-8",
+      "/EHsc"
+    ],
+    "staticLibrary": {
+      "bytes": 6812024,
+      "sha256": "fa1051f4755394b5f95abd34a95599d4e46b09c1813eace7ce4f447aba31332c"
+    },
+    "consumerExecutable": {
+      "bytes": 207872,
+      "sha256": "3d6111903481cabfac93dcaa9355e18672d5245575980c72a16fc37358731821"
+    }
+  },
+  "inputScope": {
+    "origin": "Existing private C32 RGP capture",
+    "shaderEngine": 1,
+    "originalBufferBytes": 475712,
+    "instructionTimingEnabled": false,
+    "wholeCaptureAndExactRdfSqttMetadataValidatedBeforeParse": true,
+    "originalBufferDigestIndependentlyRecheckedByConsumer": true,
+    "existingPrefixMatchedPriorPrivateReport": true,
+    "bytesPrependedOrRewritten": 0,
+    "rawBufferFileExported": false,
+    "rawCaptureAndBufferIdentitiesExcludedFromPublicRecord": true,
+    "frozenInputRequired": true,
+    "concurrentMutationCryptographicallyExcluded": false
+  },
+  "publicApiResults": {
+    "parseAttempts": 1,
+    "createStatus": "SUCCESS",
+    "setIsaCallbackStatus": "SUCCESS",
+    "parseStatus": "SUCCESS",
+    "destroyStatus": "SUCCESS",
+    "isaRequestsRejected": 0,
+    "fakeIsaSupplied": false,
+    "gfxip12CallbackCalls": 1,
+    "countSaturated": false,
+    "callbackContractInvalid": false,
+    "unknownRecordTypes": 0,
+    "unknownInfoEnums": 0,
+    "callbackReturnEnforcesStop": false,
+    "reportedRecordsAreUnqualifiedCounts": [
+      {
+        "reportedType": "GFXIP",
+        "callbackCalls": 1,
+        "reportedElements": 0
+      },
+      {
+        "reportedType": "OCCUPANCY",
+        "callbackCalls": 1,
+        "reportedElements": 103682
+      },
+      {
+        "reportedType": "PERFEVENT",
+        "callbackCalls": 0,
+        "reportedElements": 0
+      },
+      {
+        "reportedType": "WAVE",
+        "callbackCalls": 1622,
+        "reportedElements": 1622
+      },
+      {
+        "reportedType": "INFO",
+        "callbackCalls": 0,
+        "reportedElements": 0
+      },
+      {
+        "reportedType": "EVENT",
+        "callbackCalls": 298,
+        "reportedElements": 298
+      },
+      {
+        "reportedType": "SHADERDATA",
+        "callbackCalls": 0,
+        "reportedElements": 0
+      },
+      {
+        "reportedType": "REALTIME",
+        "callbackCalls": 1,
+        "reportedElements": 3430
+      },
+      {
+        "reportedType": "RT_FREQUENCY",
+        "callbackCalls": 0,
+        "reportedElements": 0
+      },
+      {
+        "reportedType": "INST_OTHER_SIMD",
+        "callbackCalls": 0,
+        "reportedElements": 0
+      },
+      {
+        "reportedType": "DISPATCH",
+        "callbackCalls": 2,
+        "reportedElements": 2
+      }
+    ],
+    "reportedInfoEnumCounts": {
+      "NONE": 0,
+      "DATA_LOST": 0,
+      "STITCH_INCOMPLETE": 0,
+      "WAVE_INCOMPLETE": 0
+    }
+  },
+  "supervision": {
+    "deadlineSeconds": 5,
+    "outputLimitBytesPerStream": 8192,
+    "returncode": 0,
+    "timedOut": false,
+    "outputLimitExceeded": false,
+    "stdoutBytes": 785,
+    "stderrBytes": 0,
+    "remainingIoWorkers": 0,
+    "exactOwnedHandleCleanupVerified": true,
+    "knownRemainingOwnedProcesses": 0,
+    "runtimeCreationTimestampObserved": false,
+    "childContainmentOrGlobalProcessAbsenceQualified": false,
+    "limitsAreDiagnosticControlsNotLatencyMeasurements": true
+  },
+  "evidenceIdentities": {
+    "privateRootReceiptSha256": "88f331ad9a1583e79d329dce20671219f17caed992cea36a9c0a83d1a777d429",
+    "independentSavedAuditSha256": "10fa0eaa6f3a66b5ddc8dd46f5ad70841a66bc008475373b5dbe50eb4f307d43",
+    "sourcePreparationSha256": "f5048919da2e2eff13a32c9d651f2a6f3dc0faf1639e32cf52d551568b949714",
+    "runtimeSupervisorSha256": "37c39a21e80373638265d6c923551ee42875423223deab9d70e20faa5ec84a1f",
+    "independentRuntimeSourceReviewSha256": "e0156460f72bf257b8b856e98bfb74897b6331d9564b109aa0737b05c45abe14",
+    "staticBuildReceiptSha256": "17627f0c4aceaa391a5d9c85f54babf41fa9186813efabd04c16efa19c7a5947"
+  },
+  "scope": {
+    "originalSE1BufferActuallyPassedToDecoder": true,
+    "allShaderEnginesParsed": false,
+    "instructionTimedSE0Parsed": false,
+    "actualPalRgpCorrespondenceQualified": false,
+    "actualEventMappingQualified": false,
+    "pcMappingQualified": false,
+    "tokenConsumptionCompletenessQualified": false,
+    "traceCompletenessQualified": false,
+    "reconstructedInstructionsQualified": false,
+    "measuredGpuOccupancyQualified": false,
+    "dynamicUtilizationQualified": false,
+    "gpuProfilerOrServicesUsedByThisTrial": false,
+    "inferenceBridgeOrGamePerformanceEvidence": false,
+    "historicalCpuAndSyntheticRecordsRewritten": false,
+    "rawCaptureBufferAddressesTokensCodeWeightsOrLogsPublished": false
+  },
+  "limitations": [
+    "SUCCESS and zero INFO warnings do not prove full consumption, PAL compatibility, event identity or trace completeness.",
+    "Record names and callback element counts are opaque decoder-reported scalars, not validated events, occupancy, reconstructed instructions or dispatch counts.",
+    "The custom ISA callback rejects every instruction request; no request occurred in this non-instruction-timed SE1 trial.",
+    "Trace callback return values do not enforce stopping. Fixed counters bound exported metadata, not decoder-internal allocation.",
+    "Only exact launched-handle cleanup and final known-identity checks were established; runtime creation-time inventory, child containment and global process absence were not.",
+    "No latency, inference, bridge, game FPS, model-quality, 60 FPS or release-default claim follows from this diagnostic."
+  ]
+}
