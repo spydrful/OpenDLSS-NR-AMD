@@ -95,6 +95,7 @@ void configureAmdArguments(int argc, char** argv) {
       {"--amd-tile-n","DLSS5VK_AMD_TILE_N"}, {"--amd-stage-k","DLSS5VK_AMD_STAGE_K"},
       {"--amd-window-queries","DLSS5VK_AMD_WINDOW_QUERIES"},
       {"--amd-window-layout","DLSS5VK_AMD_WINDOW_LAYOUT"},
+      {"--amd-qkv-normalize","DLSS5VK_AMD_QKV_NORMALIZE"},
       {"--amd-fusion","DLSS5VK_AMD_FUSION"}, {"--amd-expert-fusion","DLSS5VK_AMD_EXPERT_FUSION"},
       {"--amd-ffn32-fusion","DLSS5VK_AMD_FFN32_FUSION"}, {"--amd-qkv32-fusion","DLSS5VK_AMD_QKV32_FUSION"},
       {"--amd-block-fusion","DLSS5VK_AMD_BLOCK_FUSION"}, {"--amd-hardware-publication","DLSS5VK_AMD_HARDWARE_PUBLICATION"},
@@ -183,6 +184,7 @@ void writeBenchmarkJson(const std::string& path, const char* command, const vk::
       << ",\"tile_n\":" << (optimized ? options.tileN : 16u) << ",\"stage_k\":" << (optimized ? options.stageK : 16u)
       << ",\"window_queries\":" << (optimized ? options.windowQueries : 64u)
       << ",\"window_layout\":" << jsonQuote(optimized ? options.windowLayoutName() : "staged")
+      << ",\"qkv_normalize\":" << jsonQuote(options.qkvNormalizeName())
       << ",\"fusion\":" << (optimized && options.fusion ? "true" : "false")
       << ",\"ffn32_fusion\":" << (optimized && options.ffn32Enabled() ? "true" : "false")
       << ",\"qkv32_fusion\":" << (optimized && options.qkv32Enabled() ? "true" : "false")
@@ -969,6 +971,7 @@ int runCommand(int argc, char** argv) {
       "AMD: --amd-kernels auto|baseline|optimized --amd-arithmetic k16|k32|final --amd-tile-n 16|32|64 --amd-stage-k 16|32|64\n"
       "     --amd-gemm shared|packed|direct|direct-rte|direct-rte-init|direct-rte-epilogue|direct-rte-pair --amd-fusion 0|1 (both C32 routes)\n"
       "     --amd-window-queries 16|32|64 --amd-window-layout staged|register|register-rte|arena-rte\n"
+      "     --amd-qkv-normalize off|c32 (opt-in; c32 requires optimized Pair/Arena Q32/K16/N16, no other fusion/tuning)\n"
       "     direct-rte-pair requires N16/stageK16; arena-rte requires Q16 or Q32\n"
       "     --amd-ffn32-fusion 0|1 --amd-qkv32-fusion 0|1\n"
       "     --amd-expert-fusion 0|1 --amd-block-fusion 0|1 --amd-hardware-publication 0|1 --amd-tuning path\n");

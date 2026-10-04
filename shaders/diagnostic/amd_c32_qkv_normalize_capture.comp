@@ -1,0 +1,109 @@
+#version 460
+// Diagnostic raw-QKV capture twin of the private wave6 production candidate.
+// Six independent wave32 tiles bridge through explicit shared row-major storage.
+// This is not a qualified route. Strict installed-driver edge tests are required.
+#extension GL_EXT_float_e4m3 : require
+#extension GL_KHR_cooperative_matrix : require
+#extension GL_KHR_memory_scope_semantics : require
+#extension GL_KHR_shader_subgroup_basic : require
+#extension GL_KHR_shader_subgroup_shuffle : require
+#extension GL_KHR_shader_subgroup_shuffle_relative : require
+#extension GL_GOOGLE_include_directive : require
+#define NR_AMD_MATRIX 1
+#define NR_AMD_HARDWARE_NUMERIC 1
+#define DLSS_E4M3_HW 1
+#include "portable_numeric.glsl"
+#include "amd_half_publication_rte.glsl"
+#include "amd_silu_rte.glsl" // Retain the baseline Pair's float-control closure.
+
+layout(local_size_x = 256) in;
+layout(push_constant) uniform Push {
+  uint rows, inputStride, inputColumnBase, weightColumnOffset;
+  uint scaleWordOffset, initialZeroBits;
+} pc;
+layout(std430, binding = 0) readonly buffer Input { uint inputWords[]; };
+layout(std430, binding = 1) readonly buffer Weights { uint weightWords[]; };
+layout(std430, binding = 4) readonly buffer Aux { uint auxWords[]; };
+layout(std430, binding = 5) writeonly buffer Output { uint8_t normalized[]; };
+layout(std430, binding = 2) writeonly buffer RawQkv { float16_t rawQkv[]; };
+shared float matrixScratch[6 * 16 * 16]; // 6144 bytes.
+shared float16_t qkvBridge[16 * 96];     // 3072 bytes.
+#define ACC coopmat<float, gl_ScopeSubgroup, 16, 16, gl_MatrixUseAccumulator>
+#define MA coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseA>
+#define MB coopmat<floate4m3_t, gl_ScopeSubgroup, 16, 16, gl_MatrixUseB>
+
+void main() {
+  uint thread = gl_LocalInvocationID.x;
+  uint rowBase = (gl_WorkGroupID.x + gl_WorkGroupID.y * 65535u) * 16u;
+  // The host guard is head1/K32/N96/P0, no residual/activation, padded 64-row
+  // input allocation, subgroup size32, input stride/base divisible by4 and +0 seed.
+  // This uniform guard precedes barriers and all global matrix reads.
+  if (rowBase >= pc.rows) return;
+  uint wave = gl_SubgroupID;
+  if (wave < 6u) {
+    ACC accumulator = ACC(uintBitsToFloat(pc.initialZeroBits));
+    for (uint step = 0u; step < 32u; step += 16u) {
+      MA ma;
+      MB mb;
+      coopMatLoad(ma, inputWords,
+                  (rowBase * pc.inputStride + pc.inputColumnBase + step) / 4u,
+                  pc.inputStride / 4u, gl_CooperativeMatrixLayoutRowMajor);
+      // K32-packed weight columns; one full N16 tile per active wave.
+      uint weightByte = (pc.weightColumnOffset + wave * 16u) * 32u + step;
+      coopMatLoad(mb, weightWords, weightByte / 4u, 8u,
+                  gl_CooperativeMatrixLayoutColumnMajor);
+      accumulator = coopMatMulAdd(ma, mb, accumulator);
+      // Preserve the two original K16 publication boundaries and operation order.
+      for (uint i = 0u; i < accumulator.length(); ++i)
+        accumulator[i] = nrHalfPublishRte(accumulator[i]);
+    }
+    coopMatStore(accumulator, matrixScratch, wave * 256u, 16u,
+                 gl_CooperativeMatrixLayoutRowMajor);
+  }
+  barrier();
+  // Conventional row/column shared bridge, independent of WMMA register mapping.
+  // Each of 1536 entries has one owner; 256 threads publish six entries each.
+  for (uint i = thread; i < 16u * 96u; i += 256u) {
+    uint row = i / 96u, column = i % 96u;
+    uint source = (column / 16u) * 256u + row * 16u + column % 16u;
+    qkvBridge[i] = float16_t(matrixScratch[source]);
+    if (rowBase + row < pc.rows)
+      rawQkv[(rowBase + row) * 96u + column] = qkvBridge[i];
+  }
+  barrier();
+  uint localRow = thread / 16u, component = thread & 15u;
+  uint row = rowBase + localRow;
+  // Only complete 16-lane row groups return; each XOR remains in its own row.
+  if (row >= pc.rows) return;
+  uint base = localRow * 96u;
+  float16_t q0 = qkvBridge[base + component];
+  float16_t q1 = qkvBridge[base + 16u + component];
+  float16_t k0 = qkvBridge[base + 32u + component];
+  float16_t k1 = qkvBridge[base + 48u + component];
+  precise float16_t qHigh = q1 * q1, kHigh = k1 * k1;
+  float16_t qSum = fma(q0, q0, qHigh), kSum = fma(k0, k0, kHigh);
+  for (uint distance = 8u; distance != 0u; distance >>= 1u) {
+    // Deliberately retain scalar half adds and F32 shuffle conversion boundaries.
+    // A packed half2 sum changed tested overflow ancestry and failed strict tests.
+    precise float16_t qNext = qSum + float16_t(subgroupShuffleXor(float(qSum), distance));
+    precise float16_t kNext = kSum + float16_t(subgroupShuffleXor(float(kSum), distance));
+    qSum = qNext; kSum = kNext;
+  }
+  float16_t qNorm = float16_t(inversesqrt(float(qSum)));
+  float16_t kNorm = float16_t(inversesqrt(float(kSum)));
+  float16_t scale = float16_t(uintBitsToFloat(auxWords[pc.scaleWordOffset]));
+  precise float16_t nq0 = q0 * qNorm, nq1 = q1 * qNorm;
+  precise float16_t nqs0 = nq0 * scale, nqs1 = nq1 * scale;
+  precise float16_t nk0 = k0 * kNorm, nk1 = k1 * kNorm;
+  uint outputBase = row * 96u;
+  // Preserve six scalar publisher calls in per-thread order. No half/matrix
+  // operation follows their terminal sequence; installed-driver scheduling
+  // must nevertheless be proven against the decomposed Pair+normalize chain.
+  normalized[outputBase + component] = e4m3Hw(nqs0);
+  normalized[outputBase + 16u + component] = e4m3Hw(nqs1);
+  normalized[outputBase + 32u + component] = e4m3Hw(nk0);
+  normalized[outputBase + 48u + component] = e4m3Hw(nk1);
+  normalized[outputBase + 64u + component] = e4m3Hw(qkvBridge[base + 64u + component]);
+  normalized[outputBase + 80u + component] = e4m3Hw(qkvBridge[base + 80u + component]);
+}
+

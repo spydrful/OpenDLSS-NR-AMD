@@ -179,6 +179,8 @@ int recordedComposite(int argc, char** argv, const std::filesystem::path& captur
         check(selected[name].kind==json::Value::Bool && selected[name].boolean==value,"prior replay fusion/publication selection differs");
       const auto previousFusion=amd::fusion32Policy(selected);
       check(previousFusion.ffn==policy.ffn32Enabled() && previousFusion.qkv==policy.qkv32Enabled(),"prior replay independent fusion selection differs");
+      const auto previousNormalize=selected.has("qkv_normalize") ? amd::Options::parseQkvNormalize(selected["qkv_normalize"].str()) : amd::QkvNormalize::Off;
+      check(previousNormalize==policy.qkvNormalize,"prior replay QKV normalization selection differs");
       check(recorded.has("history_frame_ids")&&recorded["history_frame_ids"].size()==1&&recorded["history_frame_ids"][0].integer()==prior["sourceFrameId"].integer(),"recorded history ancestor differs from prior replay");
       previous=read(previousReplay/"recorded-published-history.f32");
       check(previous.size()==pixels*16&&sameDigest(digest(previous),prior["publishedHistorySha256"].str()),"prior replay history bytes/identity differ");
@@ -240,7 +242,8 @@ int recordedComposite(int argc, char** argv, const std::filesystem::path& captur
     << ",\"window_layout\":" << quoteText(policy.windowLayoutName())
     << ",\"window_queries\":" << policy.windowQueries << ",\"fusion\":" << (policy.fusion?"true":"false") << ",\"expert_fusion\":" << (policy.expertFusion?"true":"false")
     << ",\"ffn32_fusion\":" << (policy.ffn32Enabled()?"true":"false") << ",\"qkv32_fusion\":" << (policy.qkv32Enabled()?"true":"false")
-    << ",\"block_fusion\":" << (policy.blockFusion?"true":"false") << ",\"hardware_publication\":" << (policy.hardwarePublication?"true":"false") << "}}";
+    << ",\"block_fusion\":" << (policy.blockFusion?"true":"false") << ",\"hardware_publication\":" << (policy.hardwarePublication?"true":"false")
+    << ",\"qkv_normalize\":" << quoteText(policy.qkvNormalizeName()) << "}}";
   text+=selected.str();write(destination / "manifest.json", text.data(), text.size());
   context.destroyPipeline(pre); context.destroyPipeline(composite);
   printf("RECORDED COMPOSITE REPLAY (%s, %s history): %ux%u frame %lld; preprocessing %s captured features; identical replay repeatable; alpha preserved; runtime head %s, runtime composed %s\n",
@@ -330,7 +333,8 @@ int runCompositeValidation(int argc, char** argv) {
     << ",\"window_layout\":" << quoteText(policy.windowLayoutName())
     << ",\"window_queries\":" << policy.windowQueries << ",\"fusion\":" << (policy.fusion?"true":"false") << ",\"expert_fusion\":" << (policy.expertFusion?"true":"false")
     << ",\"ffn32_fusion\":" << (policy.ffn32Enabled()?"true":"false") << ",\"qkv32_fusion\":" << (policy.qkv32Enabled()?"true":"false")
-    << ",\"block_fusion\":" << (policy.blockFusion?"true":"false") << ",\"hardware_publication\":" << (policy.hardwarePublication?"true":"false") << "}}";
+    << ",\"block_fusion\":" << (policy.blockFusion?"true":"false") << ",\"hardware_publication\":" << (policy.hardwarePublication?"true":"false")
+    << ",\"qkv_normalize\":" << quoteText(policy.qkvNormalizeName()) << "}}";
   const auto text = manifest.str(); write(destination / "manifest.json", text.data(), text.size());
   printf("COMPOSITE DIAGNOSTIC EXECUTED (%s): shipping game shaders, verified model, six generated scene/history cases; no captured-game or NVIDIA quality acceptance\n", vk::backendName(context.backend())); return 0;
 }

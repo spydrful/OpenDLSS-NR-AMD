@@ -1,4 +1,5 @@
 #include "nr_graph.h"
+#include "amd_qkv_normalize_validation.h"
 #include "amd_fusion.h"
 
 #include <algorithm>
@@ -505,14 +506,22 @@ void Graph::encodeFusedBlock(VkCommandBuffer commands, Temporaries& temps, const
                           model_.relativeBias(tensor, layout.relative, layout.heads), *temps.attended, width, height,
                           layout.heads, shiftX, shiftY, qc);
   } else {
-    GemmFp8Args qkv;
-    qkv.input = temps.ffnQuantized; qkv.rows = rows; qkv.K = channels; qkv.N = channels * 3;
-    qkv.weights = &qkvWeights; qkv.Nmatrix = channels * 3;
-    qkv.output = temps.qkv; qkv.quantize = false;
-    kernels_.gemmFp8(commands, qkv);
-    if (options_.captureIntermediates) capture(commands, prefix + "qkv", *temps.qkv);
-    kernels_.windowNormalize(commands, *temps.qkv, tensor, layout.scale, *temps.normalized, rows, layout.heads);
-    if (options_.captureIntermediates) capture(commands, prefix + "normalized", *temps.normalized);
+    if(!options_.captureIntermediates && kernels_.amdQkvNormalizeBlock(block)) {
+      if(channels!=32 || layout.heads!=1 || !amd::qkvNormalizeLayout(block,layout.qkv,layout.scale) || tensor.block!=block)
+        throw std::runtime_error("C32 QKV normalization model layout mismatch");
+      kernels_.amdQkvNormalizeC32(commands,*temps.ffnQuantized,qkvWeights,tensor,layout.scale,*temps.normalized,rows);
+    } else {
+      // Intermediate capture keeps selected Pair K16 publication and the original
+      // scalar normalization. Modelcheck separately binds fused production head.
+      GemmFp8Args qkv;
+      qkv.input = temps.ffnQuantized; qkv.rows = rows; qkv.K = channels; qkv.N = channels * 3;
+      qkv.weights = &qkvWeights; qkv.Nmatrix = channels * 3;
+      qkv.output = temps.qkv; qkv.quantize = false;
+      kernels_.gemmFp8(commands, qkv);
+      if (options_.captureIntermediates) capture(commands, prefix + "qkv", *temps.qkv);
+      kernels_.windowNormalize(commands, *temps.qkv, tensor, layout.scale, *temps.normalized, rows, layout.heads);
+      if (options_.captureIntermediates) capture(commands, prefix + "normalized", *temps.normalized);
+    }
     kernels_.windowAttend(commands, *temps.normalized, model_.relativeBias(tensor, layout.relative, layout.heads),
                           *temps.attended, width, height, layout.heads, shiftX, shiftY);
   }

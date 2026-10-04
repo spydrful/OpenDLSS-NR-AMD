@@ -7,6 +7,20 @@ LUID. Supported arithmetic is E4M3 16×16×16 with FP32 matrix accumulation and
 FP16 publication, executing in wave32. Capability success is not a game quality
 or performance result.
 
+Alpha 6 adds independent C32 QKV projection/normalization behind the process
+selection `DLSS5VK_AMD_QKV_NORMALIZE=off|c32`, read once at session creation.
+It defaults to `off`; NR and the existing qualified auto cache keep their
+defaults. `c32` requires explicit optimized Pair/Arena, K16/N16/stage16/Q32,
+every other fusion/hardware-publication override off and an empty tuning path.
+See the [process-only launch example](../docs/INSTALL.md#optional-pairarena-selection).
+The route covers only blocks 0–4/66–70 and is independent of the older
+QKV/attention fusion flag. Its shared bridge and ordered publications are
+capability-, model- and module-checked; intermediate capture decomposes the
+same selected arithmetic. Logs and captures record `qkvNormalize` separately.
+The version 1 C ABI, frame-slot ownership and D3D12 queue/fence ordering are
+unchanged. The [delivery record](../docs/amd-qkv-normalize-delivery.md) distinguishes
+ordinary network timings from native lifecycle and game performance evidence.
+
 Create a session on a direct queue from the supplied D3D12 device and prepare
 its local assets. Per frame, set metadata, prepare, record inputs, record
 outputs, then submit the producer. At the safe submission boundary call

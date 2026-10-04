@@ -61,6 +61,7 @@ try {
   Assert-Nr ($taskManifest.nrEnabledByDefault -eq $false -and (Get-Content -LiteralPath (Join-Path $taskOutput 'payload\OptiScaler.ini') -Raw) -match '(?m)^Enabled=false\s*$') 'generated configuration must make NR opt-in'
   Assert-Nr ((Get-Content -LiteralPath (Join-Path $taskOutput 'payload\OptiScaler.ini') -Raw) -match '(?m)^\[Spoofing\]\r?\nStreamlineSpoofing=false\r?$') 'generated AMD configuration must disable NVIDIA Streamline capability spoofing'
   Assert-Nr ($taskManifest.amdArithmeticDefault -eq 'k16' -and $null -eq $taskManifest.amdTuning -and -not (Test-Path -LiteralPath (Join-Path $taskOutput 'payload\open-nr\shaders\amd-tuning.json'))) 'absent optional tuning changed alpha arithmetic or entered payload'
+  Assert-Nr ($taskManifest.amdQkvNormalizeDefault -eq 'off') 'C32 QKV normalization must remain opt-in'
   Assert-Nr ((Get-Content -LiteralPath (Join-Path $taskOutput 'PACKAGE-README.txt') -Raw) -match 'Insert\s*\r?\n?-> Neural -> Enable NR') 'package instructions do not explain how to enable NR'
   Assert-Nr (-not (Test-Path -LiteralPath (Join-Path $taskOutput 'payload\open-nr\shaders\experimental.spv'))) 'unselected experimental shader entered payload'
   Assert-Nr (@($taskManifest.releaseGates.PSObject.Properties | Where-Object { $_.Value.status -ne 'unmet' }).Count -eq 0 -and @($taskManifest.releaseGates.PSObject.Properties).Count -eq 4) 'unmet numerical/game release gates missing'

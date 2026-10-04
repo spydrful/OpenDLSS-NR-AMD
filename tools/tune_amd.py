@@ -46,7 +46,7 @@ MODEL_CHECKPOINTS = {f"block-{i}" for i in range(70)} | {
     "transition-0-1", "transition-4-5", "transition-8-9", "transition-14-15", "transition-22-23"}
 LEGACY_FUSION_KEYS = ("fusion", "expert_fusion", "block_fusion", "hardware_publication")
 FUSION_KEYS = (*LEGACY_FUSION_KEYS, "ffn32_fusion", "qkv32_fusion")
-SELECTION_KEYS = ("kernels", "arithmetic", "gemm", "tile_n", "stage_k", "window_queries", "window_layout", *FUSION_KEYS)
+SELECTION_KEYS = ("kernels", "arithmetic", "gemm", "tile_n", "stage_k", "window_queries", "window_layout", "qkv_normalize", *FUSION_KEYS)
 GEMM_VARIANTS = {"shared": "amd_gemm_optimized", "packed": "amd_gemm_packed", "direct": "amd_gemm_direct",
                  "direct-rte": "amd_gemm_direct_rte", "direct-rte-init": "amd_gemm_direct_rte_init",
                  "direct-rte-epilogue": "amd_gemm_direct_rte_epilogue",
@@ -120,7 +120,11 @@ def selected_policy(value, *, explicit_flags=False) -> dict:
     """Bind SPIR-V specialization constants as well as shader-file hashes."""
     if not isinstance(value, dict) or value.get("kernels") not in ("baseline", "optimized") or value.get("arithmetic") not in ("k16", "k32", "final"):
         raise ValueError("missing actual selected AMD kernel/arithmetic policy")
-    result = {"window_queries": 64, "window_layout": "staged", "gemm": "shared", **value}
+    if "private_qkv_normalize" in value:
+        raise ValueError("private QKV graph routes cannot serve public tuning evidence")
+    result = {"window_queries": 64, "window_layout": "staged", "gemm": "shared", "qkv_normalize": "off", **value}
+    if type(result["qkv_normalize"]) is not str or result["qkv_normalize"] not in ("off", "c32"):
+        raise ValueError("selected.qkv_normalize must be off or c32")
     if type(result["gemm"]) is not str or result["gemm"] not in GEMM_VARIANTS:
         raise ValueError("selected.gemm must be " + ", ".join(GEMM_VARIANTS))
     for key in ("tile_n", "stage_k", "window_queries"):
@@ -149,6 +153,11 @@ def selected_policy(value, *, explicit_flags=False) -> dict:
         raise ValueError("selected independent fusion policy contradicts legacy summary")
     if result["gemm"] in SCALAR_RTE_GEMMS and result["hardware_publication"]:
         raise ValueError("scalar RTE GEMM requires packed hardware publication off")
+    if result["qkv_normalize"] == "c32" and (result["kernels"] != "optimized" or result["arithmetic"] != "k16"
+            or result["gemm"] != "direct-rte-pair" or result["window_layout"] != "arena-rte"
+            or result["window_queries"] != 32 or result["tile_n"] != 16 or result["stage_k"] != 16
+            or any(result[key] for key in FUSION_KEYS)):
+        raise ValueError("C32 QKV normalization requires optimized Pair/Arena Q32/K16/N16/stage16 with other fusions off")
     return {key: result[key] for key in SELECTION_KEYS}
 
 
@@ -250,6 +259,7 @@ def preserving_baseline(selected: dict, anchor="legacy") -> bool:
     return (selected["kernels"] == mode and selected["arithmetic"] == "k16" and selected.get("gemm", "shared") == anchor_gemm(anchor)
             and selected["tile_n"] == 16 and selected["stage_k"] == 16 and selected["window_queries"] == window_queries
             and selected.get("window_layout", "staged") == anchor_window_layout(anchor)
+            and selected.get("qkv_normalize", "off") == "off"
             and not any(selected[key] for key in FUSION_KEYS))
 
 
@@ -326,6 +336,16 @@ def benchmark(path: Path, *, explicit_policy=False) -> dict:
                 raise ValueError("dispatch must name actual variant")
             for name in ("tile_n", "stage_k"):
                 integer(entry.get(name), "dispatch." + name)
+            if entry["family"] == "qkv_normalize":
+                geometry = entry.get("geometry")
+                if (value["selected"]["qkv_normalize"] != "c32" or entry["variant"] != "amd_qkv32_normalize_wave6"
+                        or entry["tile_n"] != 96 or entry["stage_k"] != 16
+                        or any(entry["shape"][key] != expected for key, expected in
+                               {"N":96,"K":32,"batches":1,"flags":0,"partition":0}.items())
+                        or not isinstance(geometry,dict)
+                        or any(type(geometry.get(key)) is not int or geometry[key] != expected for key, expected in
+                               {"tile_m":16,"threads":256,"required_subgroup_size":32}.items())):
+                    raise ValueError("C32 QKV normalization dispatch module/resources differ from selected policy")
             compact_window = entry["variant"].startswith(("amd_window_small", "amd_window_register", "amd_window_arena"))
             if entry["family"]=="window_attention" or compact_window:
                 geometry=entry.get("geometry",{})
@@ -503,6 +523,12 @@ def collect(args) -> Path:
     if type(requested_layout) is not str or requested_layout not in WINDOW_LAYOUTS or (requested_layout != "staged" and
             (getattr(args,"window_queries",64) not in (16,32) or args.kernels == "baseline")):
         raise ValueError("register/arena attention requires optimized Q16/Q32 and a valid window layout")
+    selected_policy({"kernels": "optimized" if args.kernels == "auto" else args.kernels, "arithmetic": args.arithmetic,
+                     "gemm": requested_gemm, "window_layout": requested_layout,
+                     "window_queries": getattr(args,"window_queries",64), "tile_n": args.tile_n, "stage_k": args.stage_k,
+                     "qkv_normalize": getattr(args,"qkv_normalize","off"), **requested_fusion_policy(args)})
+    if getattr(args,"qkv_normalize","off") == "c32" and args.kernels != "optimized":
+        raise ValueError("C32 QKV normalization requires explicitly optimized kernels")
     for name in ("width", "height", "frames", "pairs", "timeout"):
         integer(getattr(args, name), name, 1)
     integer(args.warmup, "warmup")
@@ -560,6 +586,8 @@ def collect(args) -> Path:
                          "DLSS5VK_AMD_WINDOW_LAYOUT":window_layout,
                          "DLSS5VK_AMD_GEMM":gemm,
                          "DLSS5VK_PIPELINE_CACHE": str(output / "pipeline-cache")}
+            qkv_normalize = getattr(args, "qkv_normalize", "off") if role == "candidate" else "off"
+            overrides["DLSS5VK_AMD_QKV_NORMALIZE"] = qkv_normalize
             requested_fusion = requested_fusion_policy(args, role == "candidate")
             overrides.update({"DLSS5VK_AMD_" + key.upper(): "1" if enabled else "0" for key,enabled in requested_fusion.items()})
             print(f"{stem}: {args.mode} {args.width}x{args.height}, anchor={anchor}, {kernels}/{arithmetic}/{gemm}, N{tile_n}/K{stage_k}/Q{window_queries}", flush=True)
@@ -580,6 +608,7 @@ def collect(args) -> Path:
             expected_policy["gemm"] = gemm
             expected_policy["window_queries"]=window_queries
             expected_policy["window_layout"]=window_layout
+            expected_policy["qkv_normalize"]=qkv_normalize
             expected_policy.update(requested_fusion)
             if kernels != "auto":
                 expected_policy["kernels"] = kernels
@@ -610,6 +639,8 @@ def exact_manifest(path: Path, comparison_anchor="legacy") -> dict:
         raise ValueError("optimized anchors require explicitly recorded window_queries")
     selected = selected_policy(selected_value, explicit_flags=True)
     baseline_selected = selected_policy(baseline_value, explicit_flags=True)
+    if selected["qkv_normalize"] != "off" or baseline_selected["qkv_normalize"] != "off":
+        raise ValueError("C32 QKV normalization needs a new fused-operator proof schema; legacy exact suites cannot qualify it")
     if not preserving_baseline(baseline_selected, anchor) or selected["kernels"] != "optimized" or selected["arithmetic"] != "k16":
         raise ValueError(f"exact qualification must compare the explicit {anchor} anchor with preserving optimized k16")
     common_keys = tuple(key for key in COMMON_KEYS if key != "model_sha256" or not model_free)
@@ -820,6 +851,8 @@ def qualify(args) -> dict:
 
 def tuning(performance_path: Path, qualification_path: Path, comparison_anchor="legacy") -> dict:
     report, qualification = read_json(performance_path), read_json(qualification_path)
+    if selected_policy(report.get("selections", {}).get("candidate"))["qkv_normalize"] != "off":
+        raise ValueError("C32 QKV normalization remains opt-in; automatic tuning requires a new fused-operator proof schema")
     anchor = require_anchor(report, comparison_anchor)
     require_anchor(qualification, anchor)
     if report.get("format") != "OpenNR-amd-performance-v1" or qualification.get("format") != "OpenNR-amd-qualification-v1":
@@ -887,7 +920,7 @@ def tuning(performance_path: Path, qualification_path: Path, comparison_anchor="
     return {"format": "OpenNR-amd-tuning-v1", "comparison_anchor": anchor, "records": records,
             "identity": candidate_identity, "geometry": report["geometry"],
             "optimized_default_eligible": bool(records) and qualified and report.get("default_performance_eligible") is True,
-            "default_selection": report["selections"]["candidate"],
+            "default_selection": selected_policy(report["selections"]["candidate"], explicit_flags=True),
             "fallback": "qualified preserving baseline; invalid/missing records never select experimental arithmetic"}
 
 
@@ -966,6 +999,12 @@ def replay_sequence(args) -> dict:
     if type(requested_layout) is not str or requested_layout not in WINDOW_LAYOUTS or (requested_layout != "staged" and
             (getattr(args,"window_queries",64) not in (16,32) or args.kernels == "baseline")):
         raise ValueError("register/arena attention requires optimized Q16/Q32 and a valid window layout")
+    selected_policy({"kernels": "optimized" if args.kernels == "auto" else args.kernels, "arithmetic": args.arithmetic,
+                     "gemm": requested_gemm, "window_layout": requested_layout,
+                     "window_queries": getattr(args,"window_queries",64), "tile_n": args.tile_n, "stage_k": args.stage_k,
+                     "qkv_normalize": getattr(args,"qkv_normalize","off"), **requested_fusion_policy(args)})
+    if getattr(args,"qkv_normalize","off") == "c32" and args.kernels != "optimized":
+        raise ValueError("C32 QKV normalization requires explicitly optimized kernels")
     frames=captured_sequence(args.capture_sequence.resolve(strict=True),args.allow_nongame)
     executable=args.executable.resolve(strict=True);model=args.model.resolve(strict=True)
     args.output.mkdir(parents=True,exist_ok=False);output=args.output.resolve()
@@ -999,6 +1038,7 @@ def replay_sequence(args) -> dict:
                            "DLSS5VK_AMD_STAGE_K":str(args.stage_k if candidate else 16),
                            "DLSS5VK_AMD_WINDOW_QUERIES":str(getattr(args,"window_queries",64) if candidate else 64),
                            "DLSS5VK_AMD_WINDOW_LAYOUT":getattr(args,"window_layout","staged") if candidate else "staged"}
+                overrides["DLSS5VK_AMD_QKV_NORMALIZE"] = getattr(args,"qkv_normalize","off") if candidate else "off"
                 requested_fusion = requested_fusion_policy(args, candidate)
                 for flag,enabled in requested_fusion.items():
                     overrides["DLSS5VK_AMD_"+flag.upper()]="1" if enabled else "0"
@@ -1031,6 +1071,7 @@ def replay_sequence(args) -> dict:
                     if (current_selection["arithmetic"]!=args.arithmetic or current_selection["gemm"]!=getattr(args,"gemm","shared") or current_selection["tile_n"]!=args.tile_n
                             or current_selection["stage_k"]!=args.stage_k or current_selection["window_queries"]!=getattr(args,"window_queries",64)
                             or current_selection["window_layout"]!=getattr(args,"window_layout","staged")
+                            or current_selection["qkv_normalize"]!=getattr(args,"qkv_normalize","off")
                             or (args.kernels!="auto" and current_selection["kernels"]!=args.kernels)
                             or any(current_selection[flag]!=requested_fusion[flag] for flag in FUSION_KEYS)):
                         raise ValueError("forced candidate replay selection was ignored or silently fell back")
@@ -1080,6 +1121,8 @@ def main() -> int:
     collect_parser.add_argument("--stage-k", type=int, choices=(16, 32, 64), default=16)
     collect_parser.add_argument("--window-queries",type=int,choices=(16,32,64),default=64)
     collect_parser.add_argument("--window-layout",choices=tuple(WINDOW_LAYOUTS),default="staged")
+    collect_parser.add_argument("--qkv-normalize",choices=("off","c32"),default="off",
+                                help="opt-in C32 QKV/normalization; automatic tuning export remains unavailable")
     collect_parser.add_argument("--allow-arithmetic-change", action="store_true")
     for flag in LEGACY_FUSION_KEYS:
         collect_parser.add_argument("--" + flag.replace("_","-"),action="store_true")
@@ -1123,6 +1166,7 @@ def main() -> int:
     replay_parser.add_argument("--stage-k",type=int,choices=(16,32,64),default=16)
     replay_parser.add_argument("--window-queries",type=int,choices=(16,32,64),default=64)
     replay_parser.add_argument("--window-layout",choices=tuple(WINDOW_LAYOUTS),default="staged")
+    replay_parser.add_argument("--qkv-normalize",choices=("off","c32"),default="off")
     replay_parser.add_argument("--timeout",type=int,default=900)
     replay_parser.add_argument("--coverage",choices=sorted(SCENE_COVERAGE),action="append",default=[])
     replay_parser.add_argument("--allow-nongame",action="store_true")

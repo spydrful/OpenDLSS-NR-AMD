@@ -167,6 +167,7 @@ struct Session {
       float gpuExposure=0;memcpy(&gpuExposure,(const uint8_t*)captured.data[0].mapped+uint64_t(width)*height*32,4);if(!std::isfinite(gpuExposure)||gpuExposure<=0)throw std::runtime_error("capture GPU exposure is invalid");
       manifest << std::setprecision(9) << "{\n  \"format\": \"OpenNR-game-capture-v1\",\n  \"gameCapture\": " << (gameCapture?"true":"false") << ",\n  \"performanceRepresentative\": false,\n  \"outputPublication\": \"Vulkan f32 scene result before D3D12 RGBA16F conversion\",\n  \"backend\": \"amd\",\n  \"arithmetic\": \"" << options.arithmeticName() << "\",\n  \"kernelMode\": \"" << kernels->selectedKernelMode() << "\",\n  \"tileN\": " << options.tileN << ",\n  \"stageK\": " << options.stageK << ",\n  \"windowQueries\": " << options.windowQueries
         << ",\n  \"fusion\": " << (options.fusion?"true":"false") << ",\n  \"ffn32Fusion\": " << (options.ffn32Enabled()?"true":"false") << ",\n  \"qkv32Fusion\": " << (options.qkv32Enabled()?"true":"false")
+        << ",\n  \"qkvNormalize\": \"" << options.qkvNormalizeName() << '"'
         << ",\n  \"gemm\": \"" << options.gemmName() << '"'
         << ",\n  \"windowLayout\": \"" << options.windowLayoutName() << '"'
         << ",\n  \"expertFusion\": " << (options.expertFusion?"true":"false") << ",\n  \"blockFusion\": " << (options.blockFusion?"true":"false") << ",\n  \"hardwarePublication\": " << (options.hardwarePublication?"true":"false")
@@ -223,6 +224,7 @@ struct Session {
       << "; GEMM " << amdPolicy.gemmName()
       << "; tile N" << amdPolicy.tileN << "/K" << amdPolicy.stageK << "; fusion " << amdPolicy.fusion
       << "; FFN32 fusion " << amdPolicy.ffn32Enabled() << "; QKV32 fusion " << amdPolicy.qkv32Enabled()
+      << "; QKV normalization " << amdPolicy.qkvNormalizeName()
       << "; window queries " << amdPolicy.windowQueries
       << "; window layout " << amdPolicy.windowLayoutName()
       << "; expert fusion " << amdPolicy.expertFusion << "; block fusion " << amdPolicy.blockFusion

@@ -144,7 +144,7 @@ foreach ($taskNotice in @('LICENSE', 'NOTICE', 'tools\MODEL_IMPORTER_NOTICE.txt'
   Copy-Item -LiteralPath (Join-Path $taskRoot $taskNotice) -Destination $taskStage
 }
 if (Test-Path -LiteralPath $taskInstallGuide -PathType Leaf) { Copy-Item -LiteralPath $taskInstallGuide -Destination (Join-Path $taskStage 'INSTALL.md') }
-foreach ($taskGuide in @('amd-performance-implementation.md', 'amd-performance-research.md', 'amd-gemm-delivery.md', 'amd-rte-delivery.md', 'amd-performance-experiments.md', 'amd-pair-arena-delivery.md')) {
+foreach ($taskGuide in @('amd-performance-implementation.md', 'amd-performance-research.md', 'amd-gemm-delivery.md', 'amd-rte-delivery.md', 'amd-performance-experiments.md', 'amd-pair-arena-delivery.md', 'amd-context-visibility.md', 'amd-fusion-screen.md', 'amd-qkv-normalize-delivery.md')) {
   $taskGuideSource = Join-Path $taskRoot ('docs\' + $taskGuide)
   if (Test-Path -LiteralPath $taskGuideSource -PathType Leaf) { Copy-Item -LiteralPath $taskGuideSource -Destination $taskStage }
 }
@@ -270,6 +270,11 @@ are read once at session creation. Direct GEMM requires stage K16; Pair also
 requires N16. Register/Arena attention requires Q16 or Q32. Scalar RTE is distinct from the rejected packed
 half-publication override; direct-rte requires that override off. K32/final
 arithmetic is experimental and is not an alpha auto default.
+--amd-qkv-normalize off|c32 and DLSS5VK_AMD_QKV_NORMALIZE select an independent
+C32 QKV/normalization route, off by default. C32 requires explicit optimized
+Pair/Arena Q32, K16/N16/stage16, all other fusion/publication overrides off,
+and no tuning file. The dedicated source-only probe is described in
+amd-qkv-normalize-delivery.md; legacy amdcheck/cache proofs do not qualify it.
 scripts/benchmark_amd.ps1 and tools/tune_amd.py save paired ordinary
 network measurements separately from per-dispatch profile runs. Profile
 instrumentation and captures do not qualify ordinary game performance.
@@ -317,6 +322,7 @@ $taskManifest = [pscustomobject]@{
   sourceCommit = if ($SourceCommit) { $SourceCommit } else { $null };
   nrEnabledByDefault = if ($Configuration) { $null } else { $false };
   amdArithmeticDefault = 'k16';
+  amdQkvNormalizeDefault = 'off';
   amdTuning = if (Test-Path -LiteralPath (Join-Path $taskStage 'payload\open-nr\shaders\amd-tuning.json') -PathType Leaf) { [ordered]@{ file = 'payload/open-nr/shaders/amd-tuning.json'; sha256 = Get-NrHash (Join-Path $taskStage 'payload\open-nr\shaders\amd-tuning.json'); installedInGame = $true; identityAndGeometryCheckedAtRuntime = $true } } else { $null };
   installationGuide = if (Test-Path -LiteralPath (Join-Path $taskStage 'INSTALL.md') -PathType Leaf) { [ordered]@{ file = 'INSTALL.md'; sha256 = Get-NrHash (Join-Path $taskStage 'INSTALL.md') } } else { $null };
   performanceGuide = if (Test-Path -LiteralPath (Join-Path $taskStage 'amd-performance-implementation.md') -PathType Leaf) { [ordered]@{ file = 'amd-performance-implementation.md'; sha256 = Get-NrHash (Join-Path $taskStage 'amd-performance-implementation.md') } } else { $null };

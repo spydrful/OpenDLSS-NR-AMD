@@ -95,6 +95,12 @@ class Kernels {
   bool amdQkv32Enabled() const;
   bool amdExpertFfnEnabled() const;
   bool amdBlock32Enabled() const;
+  bool amdQkvNormalizeSupported() const;
+  bool amdQkvNormalizeC32Enabled() const;
+  bool amdQkvNormalizeBlock(int block) const;
+  void amdQkvNormalizeC32(VkCommandBuffer commands,const Activation& input,
+                          const vk::Buffer& weights,const Tensor& tensor,uint32_t scaleByteOffset,
+                          Activation& normalized,uint32_t rows);
   void amdFfn32(VkCommandBuffer commands, const AmdFfn32Args& args);
   void amdQkv32(VkCommandBuffer commands, const AmdQkv32Args& args);
   void amdExpertFfn(VkCommandBuffer commands, const AmdExpertFfnArgs& args);

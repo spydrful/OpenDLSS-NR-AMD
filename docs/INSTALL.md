@@ -1,34 +1,38 @@
 # Install the RX 9070 XT alpha
 
-This guide covers the **v0.1.0-alpha.5** development package for
+This guide covers the **v0.1.0-alpha.6** development package for
 Cyberpunk 2077 on Windows. The existing
+[alpha 5 download](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.5)
+and [its installation guide](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.5/docs/INSTALL.md),
 [alpha 4 download](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.4)
 and [its installation guide](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.4/docs/INSTALL.md),
 [alpha 3 download](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.3)
 and [its installation guide](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/INSTALL.md)
 remain available unchanged for those older packages.
 
-The opt-in repaired Pair/Arena kernels measure **58.685 → 50.501 ms median**, a
-**13.95%** improvement against frozen published alpha 4 Direct-RTE/Register-RTE at 1707×960
-input, padded to 1728×960. Three interleaved pairs use five warmups and 30 measured
-frames per run. This is **network-only** GPU timing, excluding the bridge, FSR
+The opt-in C32 QKV projection/normalization route measures **50.41260 → 47.74616
+ms median**, a **5.28923%** improvement with that route off versus on in the same
+final production build. Both use explicit Pair/Arena K16/N16/stage16/Q32 at
+1707×960 input, padded to 1728×960. Three interleaved pairs use five warmups and
+30 measured frames per run, 90 retained samples per condition. This is
+**network-only** GPU timing, excluding the bridge, FSR
 and game; it establishes neither game FPS nor the 8 ms NR-plus-bridge target.
-See the [Pair/Arena delivery record](amd-pair-arena-delivery.md) and
-[scalar evidence](performance/pair-arena-rx9070xt-20261003.json).
+See the [QKV normalization delivery record](amd-qkv-normalize-delivery.md) and
+[scalar evidence](performance/qkv-normalize-rx9070xt-20261003.json).
 Performance and broad game-quality gates remain unmet. NR ships **disabled**,
 using preserving K16 publication arithmetic and the retained qualified auto
-cache. Pair/Arena is an additional explicit selection; installing alpha 5 does
-not activate those kernels automatically.
+cache. Pair/Arena and C32 QKV normalization are explicit selections; installing
+alpha 6 does not activate them automatically. QKV normalization defaults to off.
 
-**Alpha 5 game FPS has not been measured.** Historical alpha 3 benchmarks averaged
+**Alpha 6 game FPS has not been measured.** Historical alpha 3 benchmarks averaged
 **97.12 FPS NR off / 10.69 FPS NR on**; those values belong to the
 [alpha 3 game record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/performance/cyberpunk-alpha3-20261002.json).
-Replaying the existing SDR frames preserves their outputs but adds no new
-scene or visual coverage. Ten-minute active gameplay, broad temporal review and
+Final-build replay of eight existing SDR frames passes 80 raw checks in both
+history modes: 48 fresh candidate outputs and 32 copied original runtime anchors.
+Sixteen computed composed outputs match the AMD Pair/Arena baseline exactly;
+this adds no new scene or visual coverage. Ten-minute active gameplay, broad temporal review and
 scene-linear highlight acceptance remain incomplete; existing HDR reference-quality
-failures are unchanged. The new preview has not been installed into the game;
-Windows UI activation/recovery failed before that step and game settings remain
-unchanged.
+failures are unchanged. Complete Cyberpunk measurements remain pending.
 
 ## Requirements
 
@@ -48,8 +52,8 @@ unchanged.
 ## Download and check the package
 
 1. Open the
-   [v0.1.0-alpha.5 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.5)
-   Download **OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip** and its **.zip.sha256** asset.
+   [v0.1.0-alpha.6 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.6)
+   Download **OpenNR-AMD-v0.1.0-alpha.6-rx9070xt.zip** and its **.zip.sha256** asset.
    GitHub's automatic **Source code** archives do not contain the built DLLs.
 2. Compare the ZIP's SHA-256 with the sidecar, then extract it to a writable
    folder, for example `D:\OpenNR-AMD-alpha`. Keep this package for removal.
@@ -59,9 +63,9 @@ unchanged.
 For example, in the download folder:
 
 ```powershell
-Get-FileHash './OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip' -Algorithm SHA256
-Get-Content './OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip.sha256'
-Expand-Archive './OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip' -DestinationPath 'D:\OpenNR-AMD-alpha'
+Get-FileHash './OpenNR-AMD-v0.1.0-alpha.6-rx9070xt.zip' -Algorithm SHA256
+Get-Content './OpenNR-AMD-v0.1.0-alpha.6-rx9070xt.zip.sha256'
+Expand-Archive './OpenNR-AMD-v0.1.0-alpha.6-rx9070xt.zip' -DestinationPath 'D:\OpenNR-AMD-alpha'
 ```
 
 The installer also validates the package's managed payload hashes. Do not edit
@@ -139,7 +143,7 @@ replay modes; broad scene coverage and motion/face/ghosting review remain
 incomplete. Unresolved
 scene-linear highlight failures are documented in
 the [validation record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.2/docs/rx9070xt-validation.md).
-The [Pair/Arena delivery record](amd-pair-arena-delivery.md) documents the current opt-in kernels,
+The [QKV normalization delivery record](amd-qkv-normalize-delivery.md) documents the current opt-in kernels,
 ordinary network measurements and preservation checks. The
 [alpha 3 GEMM record](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/amd-gemm-delivery.md)
 retains the prior release's evidence. The
@@ -148,8 +152,8 @@ retains its historical identities.
 
 ## Optional Pair/Arena selection
 
-Keep the normal auto selection for the existing qualified cache. To test the
-new Pair/Arena route, first close the game and start it directly from a fresh
+Keep the normal auto selection for the existing qualified cache. To test
+Pair/Arena with independent C32 QKV normalization, first close the game and start it directly from a fresh
 PowerShell window with these **process-only** selections. They select kernels
 without enabling NR; use Insert → Neural → Enable NR deliberately afterward.
 
@@ -162,6 +166,7 @@ $nrPolicy = @{
   DLSS5VK_AMD_FUSION = '0'; DLSS5VK_AMD_FFN32_FUSION = '0'; DLSS5VK_AMD_QKV32_FUSION = '0'
   DLSS5VK_AMD_EXPERT_FUSION = '0'; DLSS5VK_AMD_BLOCK_FUSION = '0'
   DLSS5VK_AMD_HARDWARE_PUBLICATION = '0'
+  DLSS5VK_AMD_QKV_NORMALIZE = 'c32'
 }
 foreach ($name in $nrPolicy.Keys) {
   [Environment]::SetEnvironmentVariable($name, $nrPolicy[$name], 'Process')
@@ -172,11 +177,16 @@ foreach ($name in $nrPolicy.Keys) {
 
 Use the game's executable directly: an already-running launcher may not inherit
 this window's environment. Verify `direct-rte-pair`, `arena-rte`, K16/N16/stage16/Q32
+and `QKV normalization c32`
 in `open-nr/runtime.log`. Unsupported forced choices fail visibly and the game
 host bypasses NR. These variables are read once when the session is created;
 restart the game after changing them. To revert, close the game and this
 PowerShell window, then launch normally. No persistent system variables or
 packaged tuning files are changed. Use Enable NR to disable the effect immediately.
+Change `DLSS5VK_AMD_QKV_NORMALIZE` to `off` before launching to compare Pair/Arena
+without the new route. Its `c32` selection requires the exact policy above,
+all other fusion/publication controls off and no tuning file. It covers only
+blocks 0–4/66–70 and is independent of `DLSS5VK_AMD_QKV32_FUSION`.
 
 ## Diagnostic kernel selection and measurements
 
@@ -204,18 +214,26 @@ The diagnostic CLI exposes these controls:
 | `--amd-arithmetic` | `k16`, `k32`, `final` | K16 is the alpha default; K32/final alter publication order |
 | `--amd-gemm` | `shared`, `packed`, `direct`, `direct-rte`, `direct-rte-init`, `direct-rte-epilogue`, `direct-rte-pair` | Direct routes require stage K16; Pair additionally requires N16; RTE requires float controls |
 | `--amd-window-layout` | `staged`, `register`, `register-rte`, `arena-rte` | Register/Arena require Q16/Q32 and FP16 accumulators; RTE layouts also require float controls |
+| `--amd-qkv-normalize` | `off`, `c32` | Independent projection/normalization route; default off, c32 requires the explicit Pair/Arena policy above |
 | `--amd-window-queries` | `16`, `32`, `64` | Queries per compact attention workgroup |
 | `--amd-tile-n`, `--amd-stage-k` | `16`, `32`, `64` | GEMM output tile and staged K width |
 | `--amd-fusion`, `--amd-expert-fusion`, `--amd-block-fusion`, `--amd-hardware-publication` | `0`, `1` | Experimental overrides; default `0` |
 | `--amd-ffn32-fusion`, `--amd-qkv32-fusion` | `0`, `1` | Independent C32 route overrides; `--amd-fusion` remains shorthand for both |
 | `--amd-tuning` | JSON path | Explicit qualified tuning file |
 
+For source-built C32 operator reproduction, use
+[probe_amd_c32_qkv_normalize.ps1](../scripts/probe_amd_c32_qkv_normalize.ps1).
+It defaults to CPU-only `Build`. GPU `Bounded`, `Capture`, `Check` and `Timing`
+modes require `-Run`, a completed `-BuildDirectory` and a fresh output path
+under `build/`. `Timing` also requires the matching `Check` report. Captured
+network tensors are local diagnostics and are excluded from release packages.
+
 The corresponding runtime environment variables are `DLSS5VK_AMD_KERNELS`,
 `DLSS5VK_AMD_ARITHMETIC`, `DLSS5VK_AMD_WINDOW_QUERIES`, `DLSS5VK_AMD_WINDOW_LAYOUT`, `DLSS5VK_AMD_TILE_N`,
 `DLSS5VK_AMD_STAGE_K`, `DLSS5VK_AMD_GEMM`, `DLSS5VK_AMD_FUSION`,
 `DLSS5VK_AMD_FFN32_FUSION`, `DLSS5VK_AMD_QKV32_FUSION`, `DLSS5VK_AMD_EXPERT_FUSION`,
 `DLSS5VK_AMD_BLOCK_FUSION`, `DLSS5VK_AMD_HARDWARE_PUBLICATION` and
-`DLSS5VK_AMD_TUNING`. They are read once at session creation. Scalar RTE paths
+`DLSS5VK_AMD_TUNING`, plus `DLSS5VK_AMD_QKV_NORMALIZE`. They are read once at session creation. Scalar RTE paths
 require FP16 RTE rounding, denormal preservation and signed-zero/Inf/NaN preservation
 with compatible independence controls; register/arena layouts also require the enumerated
 16×16 FP16 accumulator type. Pair/Epilogue additionally require F32 signed-zero/Inf/NaN

@@ -7,21 +7,24 @@ patched OptiScaler host connects D3D12 resources to Vulkan through shared GPU
 buffers and fences. The AMD path requires no CUDA, PTX, DXVK or Proton.
 
 **Status: development alpha; performance and broad game-quality gates remain
-unmet. NR ships disabled.** Alpha 5 adds opt-in Pair GEMM and Arena attention,
-reducing ordinary target-resolution inference from **58.685 to 50.501 ms median**,
-a **13.95%** improvement against frozen alpha 4 Direct-RTE/Register-RTE.
-The tested AMD output bytes match. The existing qualified auto cache stays
-unchanged; Pair/Arena requires an explicit selection. These are network-only
-GPU timings, excluding the bridge,
+unmet. NR ships disabled.** Alpha 6 adds an independent, opt-in **C32 QKV
+projection → normalization** route. The final production build reduces ordinary
+target-resolution inference from **50.41260 to 47.74616 ms median**, a **5.28923%**
+improvement with that route off versus on in the same build. Both use explicit
+Pair/Arena, K16/N16/stage16/Q32. The existing qualified auto cache stays unchanged;
+the new route defaults to off. These are network-only GPU timings, excluding the bridge,
 FSR and game. The **8 ms NR-plus-bridge** and **16.67 ms / 60 real FPS** targets
 remain unmet.
 
-Download the development package:
-[RX 9070 XT alpha 5](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.5).
-See the [alpha 5 release notes](docs/releases/v0.1.0-alpha.5.md),
+Download **OpenNR-AMD-v0.1.0-alpha.6-rx9070xt.zip** and its SHA-256 sidecar from the
+[alpha 6 release page](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.6).
+See the [alpha 6 release notes](docs/releases/v0.1.0-alpha.6.md),
 [installation and optional-selection guide](docs/INSTALL.md),
-[Pair/Arena delivery record](docs/amd-pair-arena-delivery.md)
-and [measured evidence](docs/performance/pair-arena-rx9070xt-20261003.json).
+[QKV normalization delivery record](docs/amd-qkv-normalize-delivery.md)
+and [measured evidence](docs/performance/qkv-normalize-rx9070xt-20261003.json).
+The published [alpha 5 download](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.5)
+and [its installation guide](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.5/docs/INSTALL.md)
+remain unchanged.
 The [verified alpha 5 publication record](docs/performance/alpha5-release-identities.json)
 binds the source tag, download hashes and corresponding-source rebuild. All 33
 shipped shader modules match that fresh rebuild exactly.
@@ -35,13 +38,13 @@ The [published alpha 3](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag
 and [its installation guide](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.3/docs/INSTALL.md)
 remain unchanged and available.
 
-**Alpha 5 game FPS has not been measured.** Historical alpha 3 Cyberpunk benchmarks
+**Alpha 6 game FPS has not been measured.** Historical alpha 3 Cyberpunk benchmarks
 average **97.12 FPS NR off / 10.69 FPS NR on**; those values do not describe the
 new runtime. New complete game benchmarks, ten minutes of active gameplay and
 broad temporal review remain pending. [Alpha 3 game evidence](docs/performance/cyberpunk-alpha3-20261002.json)
 retains its original identities.
 
-Current development source fixes buffer visibility around uploads, fills and
+Alpha 6 source fixes buffer visibility around uploads, fills and
 diagnostic readback. Fresh strict model and native lifecycle checks pass; see
 the [buffer synchronization validation](docs/amd-context-visibility.md).
 The [subsequent fusion and normalization screens](docs/amd-fusion-screen.md)
@@ -93,6 +96,42 @@ See [AMD arithmetic and optimization notes](docs/amd-numerics.md) and the
 [game runtime API](game/README.md).
 
 ## Measured progress
+
+The final alpha 6 production build compares the independent C32 QKV
+normalization route **off versus c32** with explicit Pair/Arena, preserving K16,
+N16/stage16/Q32 and every other fusion/packed-publication override off. At valid
+1707×960, padded to 1728×960, ordinary network median is **50.41260 → 47.74616 ms**,
+P95 **50.63238 → 48.02880 ms** and P99 **50.78920 → 48.68730 ms**. Five warmups
+and three interleaved pairs of 30 measured frames retain 90 samples per condition;
+image readback and dispatch instrumentation are off. This is a same-build
+comparison, separate from earlier frozen-release comparisons.
+The separate 1920×1080 comparison, padded to 1920×1152, measures **67.998940 →
+64.429200 ms median** (**5.249699%** improvement), P95 **68.305334 → 64.769944 ms**
+and P99 **68.329182 → 64.847955 ms** with the same protocol. It adds no 1080p
+image-quality or game-performance claim.
+
+The fused route covers exactly blocks 0–4/66–70. It preserves ordered K16 matrix
+publication and the original scalar half normalization, bridges through shared
+memory and uses explicit barriers. Installed-driver inspection reports **9,216
+bytes LDS, 32 VGPRs, 22 SGPRs and 0 scratch bytes**. It avoids an intermediate
+global QKV buffer; reduced dispatch count alone is not the performance proof.
+
+Fresh final-build checks pass all 75 decomposed model boundaries plus the F32
+head at 320×320, a separately executed fused production head, and target head
+reproduction. Eighteen synthetic SDR/HDR buffer comparisons match previous AMD
+outputs, retaining existing absolute-reference highlight failures. Eight existing
+genuine SDR frames pass both history modes: **80 raw checks / 2,107,883,520 bytes**
+include 48 fresh candidate outputs and 32 copied original runtime anchors;
+16 freshly computed composed RGB outputs match the Pair/Arena AMD baseline
+exactly. Independently evolved history starts from each variant's own reset;
+it does not reproduce original captured ancestry. Native DLL
+lifecycle checks pass eight sequential frames and separate eight-live-slot pool
+checks at 320×320 and target geometry. The
+[QKV delivery record](docs/amd-qkv-normalize-delivery.md) binds the evidence.
+These checks add no new visual coverage, original NVIDIA parity or complete-game
+performance claim.
+
+### Historical alpha 4 comparison
 
 The published alpha 4 preserving comparison uses Windows 11, RX 9070 XT and Adrenalin
 26.9.1 (LLPC), valid **1707×960** input and **1728×960** padded model geometry.
@@ -180,9 +219,9 @@ and the [GEMM continuation](docs/amd-gemm-delivery.md).
 
 ## Install the alpha
 
-1. Download **OpenNR-AMD-v0.1.0-alpha.5-rx9070xt.zip**
+1. Download **OpenNR-AMD-v0.1.0-alpha.6-rx9070xt.zip**
    and its **.zip.sha256** from the
-   [alpha 5 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.5).
+   [alpha 6 release](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.6).
    Check the ZIP hash, extract it to a writable folder and open **PowerShell 7**
    in the folder containing `package-manifest.json`. GitHub's automatic
    **Source code** archives do not include built DLLs.
@@ -205,7 +244,7 @@ write permission is required; elevate that PowerShell window if needed.
 4. Launch with **FSR Quality**, ray tracing and frame generation off. NR ships
    **disabled**, with K16 publication arithmetic. Press **Insert → Neural →
    Enable NR** to opt in. Performance remains far outside the gameplay budget;
-   alpha 5 has no measured game FPS yet. The optional Pair/Arena selection is
+   alpha 6 has no measured game FPS yet. The optional Pair/Arena and C32 QKV selection is
    documented in the [installation guide](docs/INSTALL.md#optional-pairarena-selection).
    Historical alpha 3 NR-on
    benchmarks average 10.69 FPS. Use the checkbox to disable it; zero effect
@@ -276,6 +315,20 @@ The CLI also accepts `--amd-window-queries 16|32|64`, `--amd-tile-n 16|32|64`,
 `--amd-stage-k 16|32|64`,
 `--amd-gemm shared|packed|direct|direct-rte|direct-rte-init|direct-rte-epilogue|direct-rte-pair`,
 `--amd-window-layout staged|register|register-rte|arena-rte`, and `--amd-tuning <path>`.
+`--amd-qkv-normalize off|c32` selects the independent QKV projection/normalization
+route; the runtime reads `DLSS5VK_AMD_QKV_NORMALIZE` once at session creation.
+It defaults to `off`. The `c32` route requires explicit optimized Pair/Arena,
+K16/N16/stage16/Q32, every other fusion and hardware-publication override off,
+and an empty tuning path. It is independent of the older QKV/attention fusion flag.
+Capabilities and the pinned model/module identity are checked before dispatch;
+intermediate capture decomposes the same selected Pair arithmetic and original
+normalization. See the [installation example](docs/INSTALL.md#optional-pairarena-selection).
+The source-only [C32 diagnostic script](scripts/probe_amd_c32_qkv_normalize.ps1)
+builds isolated operator, capture and timing tools. Its default `Build` mode is
+CPU-only; GPU modes require explicit `-Run`. `Capture` generates local inputs,
+`Check` compares all ten C32 blocks and conversion/tail fixtures, and `Timing`
+requires the matching passed strict report. Generated tensors stay under ignored
+`build/` and are excluded from releases.
 Direct GEMM routes require stage K16; the experimental Pair route also requires
 N16. Register and arena attention layouts require Q16 or
 Q32 and enumerated FP16 accumulator support. RTE routes additionally require
@@ -419,6 +472,14 @@ a separate source-included production-pool harness verifies eight live prepared
 slots at the full target resolution, including ordered and cancel/reset paths.
 Broad scene-quality review and complete game measurements remain pending. The
 published alpha 4 package and qualified cache remain unchanged.
+
+Alpha 6's independent C32 QKV normalization reduces same-build ordinary network
+median **50.41260 → 47.74616 ms** at the target geometry. It remains an explicit
+selection with the existing auto cache and NR default unchanged. Shared-memory
+FFN candidates were slower and remain excluded; their bounded preservation and
+separate arithmetic experiments are retained in the
+[fusion screen](docs/amd-fusion-screen.md). Register-fragment work remains a
+diagnostic investigation until its actual compiler mapping and full gates pass.
 
 1. Improve the now-dominant FP8 matrix family, then remaining window-attention
    cost and fusion. Preserve publication boundaries and compare every change

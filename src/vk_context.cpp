@@ -310,6 +310,12 @@ std::string Context::capabilityReport() const {
 }
 void Context::initCommon() {
   if (isAmd()) amdOptions_ = amd::Options::fromEnvironment();
+  else {
+    const char* qkvNormalizeSelection = std::getenv("DLSS5VK_AMD_QKV_NORMALIZE");
+    if (qkvNormalizeSelection && *qkvNormalizeSelection &&
+        amd::Options::parseQkvNormalize(qkvNormalizeSelection) != amd::QkvNormalize::Off)
+      throw std::runtime_error("C32 QKV normalization requires an AMD backend");
+  }
   const auto& properties = capabilities_.properties;
   deviceName_ = properties.deviceName;
   timestampPeriod_ = properties.limits.timestampPeriod;

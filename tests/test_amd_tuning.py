@@ -19,6 +19,54 @@ spec.loader.exec_module(tune)
 
 
 class AmdTuningTests(unittest.TestCase):
+    def test_qkv_normalize_legacy_and_explicit_policy(self):
+        legacy = self.record("candidate")["selected"]
+        self.assertEqual(tune.selected_policy(legacy)["qkv_normalize"], "off")
+        selected = {**legacy, "gemm":"direct-rte-pair", "window_layout":"arena-rte", "window_queries":32,
+                    "qkv_normalize":"c32"}
+        self.assertEqual(tune.selected_policy(selected)["qkv_normalize"], "c32")
+        for invalid in (None, True, 1, "ordinary7", "auto"):
+            with self.subTest(invalid=invalid), self.assertRaisesRegex(ValueError,"qkv_normalize"):
+                tune.selected_policy({**selected,"qkv_normalize":invalid})
+        for key, value in (("arithmetic","k32"),("gemm","direct-rte"),("window_queries",16),
+                           ("tile_n",32),("kernels","baseline"),("expert_fusion",True)):
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                tune.selected_policy({**selected,key:value})
+        with self.assertRaisesRegex(ValueError,"private QKV"):
+            tune.selected_policy({**legacy,"private_qkv_normalize":"all-c32"})
+
+    def test_qkv_normalize_cannot_inherit_legacy_operator_qualification(self):
+        path = self.exact_suites()[0]
+        value = tune.read_json(path)
+        value["selected"].update(gemm="direct-rte-pair",window_layout="arena-rte",window_queries=32,qkv_normalize="c32")
+        path.write_text(json.dumps(value),encoding="utf-8")
+        with self.assertRaisesRegex(ValueError,"new fused-operator proof schema"):
+            tune.exact_manifest(path)
+
+    def test_qkv_normalize_cannot_export_automatic_tuning(self):
+        selected = {**self.record("candidate")["selected"], "gemm":"direct-rte-pair",
+                    "window_layout":"arena-rte", "window_queries":32, "qkv_normalize":"c32"}
+        performance = self.write("qkv-performance.json",{"selections":{"candidate":selected}})
+        qualification = self.write("qkv-qualification.json",{})
+        with self.assertRaisesRegex(ValueError,"remains opt-in"):
+            tune.tuning(performance,qualification)
+
+    def test_qkv_normalize_profile_binds_workgroup_and_actual_route(self):
+        value = self.record("candidate","profile")
+        value["selected"].update(gemm="direct-rte-pair",window_layout="arena-rte",window_queries=32,qkv_normalize="c32")
+        value["dispatches"] = [{"family":"qkv_normalize","variant":"amd_qkv32_normalize_wave6",
+            "shape":{"rows":414720,"N":96,"K":32,"batches":1,"flags":0,"partition":0},
+            "tile_n":96,"stage_k":16,"geometry":{"tile_m":16,"threads":256,"required_subgroup_size":32},
+            "frame_ms":[.21]*30}]
+        self.assertEqual(tune.benchmark(self.write("qkv-valid.json",value))["dispatches"][0]["tile_n"],96)
+        for field, wrong in (("tile_n",16),("variant","amd_qkv32"),("stage_k",32)):
+            changed = copy.deepcopy(value);changed["dispatches"][0][field] = wrong
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError,"C32 QKV normalization dispatch"):
+                tune.benchmark(self.write("qkv-"+field+".json",changed))
+        changed = copy.deepcopy(value);changed["selected"]["qkv_normalize"] = "off"
+        with self.assertRaisesRegex(ValueError,"C32 QKV normalization dispatch"):
+            tune.benchmark(self.write("qkv-off.json",changed))
+
     def setUp(self):
         self.scratch = tempfile.TemporaryDirectory()
         self.addCleanup(self.scratch.cleanup)
@@ -1746,6 +1794,7 @@ class AmdTuningTests(unittest.TestCase):
         args=argparse.Namespace(capture_sequence=directory,executable=Path(sys.executable),model=model,
             shaders=None,game_shaders=None,output=self.root/"prototype-replay",history_mode="both",
             kernels="optimized",arithmetic="k16",gemm="direct-rte-pair",window_layout="arena-rte",window_queries=32,
+            qkv_normalize="c32",
             tile_n=16,stage_k=16,timeout=30,reference_backend="reference",coverage=["sdr"],
             allow_nongame=False,allow_arithmetic_change=False)
         calls=[]
@@ -1754,10 +1803,12 @@ class AmdTuningTests(unittest.TestCase):
             capture=tune.read_json(Path(command[command.index("--recorded-frame")+1])/"manifest.json")
             environment=kwargs["env"];candidate=environment["DLSS5VK_AMD_GEMM"]=="direct-rte-pair"
             self.assertEqual(environment["DLSS5VK_AMD_WINDOW_LAYOUT"],"arena-rte" if candidate else "staged")
+            self.assertEqual(environment["DLSS5VK_AMD_QKV_NORMALIZE"],"c32" if candidate else "off")
             selected=tune.selected_policy({**self.record("candidate")["selected"],
                 "kernels":"optimized" if candidate else "baseline",
                 "gemm":"direct-rte-pair" if candidate else "shared",
-                "window_layout":"arena-rte" if candidate else "staged","window_queries":32 if candidate else 64})
+                "window_layout":"arena-rte" if candidate else "staged","window_queries":32 if candidate else 64,
+                "qkv_normalize":"c32" if candidate else "off"})
             frame=capture["frame_id"];mode=command[command.index("--history-mode")+1]
             report=dict(sourceFrameId=frame,historyMode=mode,seed=frame,reset=frame==0,
                 historyFrameIds=[] if frame==0 else [frame-1],identity=self.identity(),selected=selected)
@@ -1771,6 +1822,7 @@ class AmdTuningTests(unittest.TestCase):
             value=tune.read_json(args.output/(mode+"-sequence.json"))
             self.assertEqual(value["selected"]["gemm"],"direct-rte-pair")
             self.assertEqual(value["selected"]["window_layout"],"arena-rte")
+            self.assertEqual(value["selected"]["qkv_normalize"],"c32")
 
 
 if __name__ == "__main__":

@@ -12,32 +12,57 @@ FSR Quality, ray tracing and ray reconstruction off, and frame generation off.
 The goal is 60 real rendered frames per second, including the game, NR, and
 FSR. It is a goal, not a measured result. Running NR at native 2560×1440 instead
 processes more pixels and needs a separate performance budget.
-The alpha 4 candidate's ordinary network-only comparison measures
-**82.224740 → 58.527400 ms median**, a **28.8202%** reduction against immutable
-alpha 3 Direct/K16/N16/stage16/Q32/staged. P95 improves **82.513122 → 58.883906 ms**
-and P99 **82.560180 → 58.993574 ms** at valid 1707×960, padded to 1728×960.
-Three interleaved pairs use five warmup and 30 measured frames per run, without
-image readback or dispatch instrumentation. This excludes the bridge, game and
-FSR and remains far above the 8 ms NR-plus-bridge budget. See the
-[RTE kernel delivery record](amd-rte-delivery.md) and
-[scalar evidence](performance/rte-kernels-rx9070xt-20261003.json).
+Alpha 6's final production build measures **50.41260 → 47.74616 ms median**,
+**50.63238 → 48.02880 ms P95** and **50.78920 → 48.68730 ms P99** with its
+independent C32 QKV normalization route off versus on: **5.28923% median
+improvement**. Both conditions use explicit Pair/Arena, K16/N16/stage16/Q32,
+valid 1707×960 input and 1728×960 padded model geometry. Five warmups and three
+interleaved pairs of 30 measured frames retain 90 samples per condition, with
+image readback and dispatch instrumentation off. This same-build comparison is
+**network-only**, excluding the bridge, game and FSR. The 8 ms NR-plus-bridge and
+16.67 ms complete-frame targets remain unmet. See the
+[QKV normalization delivery record](amd-qkv-normalize-delivery.md) and
+[scalar evidence](performance/qkv-normalize-rx9070xt-20261003.json).
+A separate 1920×1080 run, padded to 1920×1152, measures **67.998940 → 64.429200 ms
+median** (**5.249699%** improvement), **68.305334 → 64.769944 ms P95** and
+**68.329182 → 64.847955 ms P99** with the same protocol, without new 1080p quality
+qualification.
 
-The current source adds scalar FP16 RTE GEMM publication and separate register
-attention modules, retaining K16 accumulation/publication order. The measured
-Direct-RTE/Register-RTE policy passes strict operator outputs, all 75 model
-checkpoints plus the F32 head at 320×320, target output reproduction, synthetic
-SDR/HDR preservation and replay of existing SDR frames. A 68-record qualified
-target cache selects the actual N16/stage16/Q32/K16 policy. Fusion and packed
-hardware publication remain off. The version 1 C lifecycle ABI and explicit
-queue/fence ordering remain unchanged. NR ships **disabled**.
+`--amd-qkv-normalize off|c32` and process variable
+`DLSS5VK_AMD_QKV_NORMALIZE` select this independent route. It defaults to **off**
+and requires explicit optimized Pair/Arena, K16/N16/stage16/Q32, every other
+fusion and hardware-publication override off, and no tuning path. It covers
+exactly blocks 0–4/66–70: K32/N96/head1, raw model weights and scale, ordered K16
+matrix publication, a shared QKV bridge and the original scalar half reductions
+and terminal FP8 publication. The old QKV/attention fusion controls retain their
+separate meaning. Compiled installed-driver resources are **9,216 bytes LDS,
+32 VGPRs, 22 SGPRs and 0 scratch bytes**. Capabilities, model and module identity,
+formats, bounds and output aliasing are checked before dispatch.
 
-**Alpha 4 complete game measurements are pending.** Windows UI
-activation and recovery failed with `GetCursorPos` access denied before the new
-test preview was installed; game settings remain unchanged. Current network
-numbers do not establish Cyberpunk FPS, in-game bridge time or game VRAM use.
-The controlled native harness passes eight sequential target frames and the
-DLL ABI/lifecycle tests. Eight-slot queued-output ownership and prefetched/serialized
-equality are checked at 320×320, not at target resolution.
+The final build passes all 75 decomposed model boundaries plus the F32 head at
+320×320, a separately executed fused production head and target head
+reproduction. Intermediate capture uses the same selected Pair K16 arithmetic
+and original normalization. Eighteen synthetic SDR/HDR buffers and 80 raw checks
+across eight existing genuine SDR frames in both history modes match the AMD
+Pair/Arena baseline. The aggregate includes 48 fresh candidate outputs and
+32 copied original runtime anchors. The 16 freshly computed composed RGB outputs
+are byte-exact; independently evolved history uses each variant's own reset,
+rather than the original captured ancestry. This does not fix
+absolute-reference highlight errors or add new visual coverage. Native DLL
+ABI/lifecycle tests pass eight sequential frames and separate eight-live-slot
+pool tests at both 320×320 and target geometry, including ordered and
+cancel/gap/reset outputs. These diagnostic readbacks do not measure overlapping
+inference or game performance.
+
+The retained **68-record qualified auto cache**, NR-off default and version 1 C
+lifecycle ABI stay unchanged. QKV normalization is an additional explicit
+selection. The [installation guide](INSTALL.md#optional-pairarena-selection)
+shows process-only opt-in and removal. **Alpha 6 publication is pending.**
+
+**Alpha 6 game FPS, in-game bridge time and game VRAM have not been measured.**
+Complete Cyberpunk benchmarks, ten minutes of active gameplay and broad motion,
+face, moving-object, exposure, disocclusion, camera-cut and ghosting review remain
+pending. Original NVIDIA parity, RX 7000 and HDR display validation are unclaimed.
 
 | Historical Cyberpunk result | NR off | NR on | Scope |
 | --- | ---: | ---: | --- |
@@ -55,7 +80,7 @@ exact effective FSR version independently unverified. The
 Published prior release assets and tags remain unchanged. Prior temporary game
 installs were removed and original settings restored; imported models remain local.
 
-The new RTE route reproduces alpha 3 bytes for **36 synthetic SDR/HDR buffers**
+The historical alpha 4 RTE route reproduces alpha 3 bytes for **36 synthetic SDR/HDR buffers**
 and **80 checks / 2,107,883,520 bytes** across eight existing SDR frames in both
 identical and independently evolved history modes. This adds no new visual
 coverage and leaves the existing HDR reference-quality failures unchanged.
@@ -498,9 +523,10 @@ repeatable replay alone does not establish NVIDIA parity or visual quality.
 Local images/history may contain game content and should remain outside source
 archives and distributable packages.
 
-Current alpha 4 network and numerical/native qualification measurements are in
-the [RTE scalar record](performance/rte-kernels-rx9070xt-20261003.json).
-Alpha 4 game measurements remain pending. Historical alpha 3 game measurements
+Current alpha 6 network and numerical/native qualification measurements are in
+the [QKV normalization scalar record](performance/qkv-normalize-rx9070xt-20261003.json).
+Alpha 6 game measurements remain pending. Historical alpha 4 measurements stay in
+the [RTE scalar record](performance/rte-kernels-rx9070xt-20261003.json); historical alpha 3 game measurements
 are recorded in the [alpha 3 scalar record](performance/cyberpunk-alpha3-20261002.json). Final alpha 2
 settings and measured results are recorded in
 [cyberpunk-alpha2-validation.md](cyberpunk-alpha2-validation.md); historical

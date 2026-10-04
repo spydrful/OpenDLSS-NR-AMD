@@ -15,6 +15,7 @@ param(
     [ValidateSet(16, 32, 64)][int]$StageK = 16,
     [ValidateSet(16,32,64)][int]$WindowQueries = 64,
     [ValidateSet('staged','register','register-rte','arena-rte')][string]$WindowLayout = 'staged',
+    [ValidateSet('off','c32')][string]$QkvNormalize = 'off',
     [ValidateSet('legacy', 'compact64', 'qualified32', 'direct32', 'rte32')][string]$ComparisonAnchor = 'legacy',
     [ValidateRange(1, 32768)][int]$Width = 1707,
     [ValidateRange(1, 32768)][int]$Height = 960,
@@ -38,6 +39,7 @@ $taskArguments = @(
     '--arithmetic', $Arithmetic, '--gemm', $Gemm, '--tile-n', "$TileN", '--stage-k', "$StageK",
     '--window-queries',"$WindowQueries",
     '--window-layout', $WindowLayout,
+    '--qkv-normalize', $QkvNormalize,
     '--comparison-anchor', $ComparisonAnchor,
     '--width', "$Width", '--height', "$Height", '--warmup', "$Warmup",
     '--frames', "$Frames", '--pairs', "$Pairs", '--timeout', "$TimeoutSeconds"

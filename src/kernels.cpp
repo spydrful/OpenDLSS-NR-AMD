@@ -3,6 +3,7 @@
 #include "amd_qualified_fallback.h"
 #include "amd_window_resources.h"
 #include "shader_identity.h"
+#include "amd_qkv_normalize_validation.h"
 
 #include <fstream>
 #include <sstream>
@@ -56,6 +57,9 @@ template<class Handle> uint64_t handleIdentity(Handle handle) {
 Kernels::Kernels(vk::Context& context, const std::string& shaderDirectory)
     : context_(context), amdSelection_(context.amdOptions()), amdPolicy_(amdSelection_.current()) {
   shaderDirectory_ = shaderDirectory;
+  amdPolicy_.validateQkvNormalize();
+  check(!amdPolicy_.qkvNormalizeC32Enabled() || context_.isAmd(),
+        "C32 QKV normalization requires an AMD backend");
   ptxDirectory_ = getenv("DLSS5VK_PTX_DIR") ? getenv("DLSS5VK_PTX_DIR") : shaderDirectory + "/../ptx";
   if (nativePortable()) {
     const bool fast = context_.isAmd();
@@ -104,9 +108,17 @@ Kernels::Kernels(vk::Context& context, const std::string& shaderDirectory)
           modules_["amd_block32"] = loadCachedShaderModule("amd_block32"); names.push_back("amd_block32");
         }
       }
+      if(options.qkvNormalizeC32Enabled()) {
+        check(amdQkvNormalizeSupported(),"C32 QKV normalization requires FP8 matrix, half/F32 controls, relative shuffle, workgroup256 and LDS9216");
+        modules_[amd::qkvNormalizeShader]=loadCachedShaderModule(amd::qkvNormalizeShader);
+        check(sourceModules_.at(amd::qkvNormalizeShader)->sha256==amd::qkvNormalizeShaderSha256,
+              "C32 QKV normalization shader qualification identity mismatch");
+        names.push_back(amd::qkvNormalizeShader);
+      }
       shaderHash_ = loadedShaderSetHash(names);
       fprintf(stderr, "[amd] kernels %s (requested %s), arithmetic %s, GEMM %s, tile N%u/K%u, attention %s, FFN32 fusion %u, QKV32 fusion %u\n",
               selectedKernelMode(), options.kernelName(), options.arithmeticName(), options.gemmName(), options.tileN, options.stageK, options.windowLayoutName(), unsigned(options.ffn32Enabled()),unsigned(options.qkv32Enabled()));
+      fprintf(stderr,"[amd] QKV normalization %s (independent route; capture decomposes selected Pair plus original normalization)\n",options.qkvNormalizeName());
     } else {
       std::vector<std::string> names;for(const auto& entry:modules)names.push_back(entry.second);
       shaderHash_=loadedShaderSetHash(names);baselineShaderHash_=shaderHash_;
@@ -142,6 +154,8 @@ void Kernels::setSiluTable(const std::vector<uint16_t>& table) {
 
 void Kernels::setModelIdentity(const std::string& hash,uint32_t width,uint32_t height) {
   modelHash_=hash;modelWidth_=width;modelHeight_=height;
+  check(!amdPolicy_.qkvNormalizeC32Enabled() || hash==amd::qkvNormalizeModelSha256,
+        "C32 QKV normalization model qualification identity mismatch");
   if(context_.isAmd()) {
     // A resize, model change or replaced tuning file must never inherit the
     // previous graph's qualified policy. Start again from the immutable request.
@@ -174,6 +188,39 @@ bool Kernels::amdFfn32Enabled() const { return context_.isAmd() && amdOptimized_
 bool Kernels::amdQkv32Enabled() const { return context_.isAmd() && amdOptimized_ && amdPolicy_.qkv32Enabled(); }
 bool Kernels::amdExpertFfnEnabled() const { return context_.isAmd() && amdOptimized_ && amdPolicy_.expertFusion; }
 bool Kernels::amdBlock32Enabled() const { return context_.isAmd() && amdOptimized_ && amdPolicy_.blockFusion; }
+bool Kernels::amdQkvNormalizeSupported() const {return amd::qkvNormalizeSupported(context_.capabilities());}
+bool Kernels::amdQkvNormalizeC32Enabled() const {return context_.isAmd() && amdOptimized_ && amdPolicy_.qkvNormalizeC32Enabled();}
+bool Kernels::amdQkvNormalizeBlock(int block) const {return amdQkvNormalizeC32Enabled() && amd::qkvNormalizeBlock(block);}
+
+void Kernels::amdQkvNormalizeC32(VkCommandBuffer commands,const Activation& input,
+                                const vk::Buffer& weights,const Tensor& tensor,uint32_t scaleByteOffset,
+                                Activation& normalized,uint32_t rows) {
+  check(amdQkvNormalizeC32Enabled(),"C32 QKV normalization was not selected");
+  amdPolicy_.validateQkvNormalize();
+  check(amdQkvNormalizeSupported(),"C32 QKV normalization capability unavailable");
+  check(amdQkvNormalizeBlock(tensor.block),"C32 QKV normalization tensor outside supported blocks");
+  check(input.format==Format::E4 && input.channels==32 && normalized.format==Format::E4 && normalized.channels==96,
+        "C32 QKV normalization input/output formats");
+  check(amd::qkvNormalizeAddressableRows(rows) && input.rows==rows && normalized.rows==rows &&
+        input.allocRows>=alignRows(rows) && normalized.allocRows>=alignRows(rows),"C32 QKV normalization row allocation/address range");
+  check(input.buffer.size>=VkDeviceSize(alignRows(rows))*32 && normalized.buffer.size>=VkDeviceSize(alignRows(rows))*96 &&
+        weights.size>=32u*96u && scaleByteOffset%4==0 && VkDeviceSize(scaleByteOffset)+4<=tensor.raw.size,
+        "C32 QKV normalization buffer bounds");
+  check(normalized.buffer.buffer!=input.buffer.buffer && normalized.buffer.buffer!=weights.buffer &&
+        normalized.buffer.buffer!=tensor.raw.buffer,"C32 QKV normalization output aliases an input");
+  struct Push {uint32_t rows,inputStride,inputColumnBase,weightColumnOffset,scaleWordOffset,initialZeroBits;}
+    push{rows,32,0,0,scaleByteOffset/4,0};
+  const vk::Buffer* bindings[vk::kGenericBindings]={};
+  bindings[0]=&input.buffer;bindings[1]=&weights;bindings[4]=&tensor.raw;bindings[5]=&normalized.buffer;
+  dispatchLabel_="amd_qkv32_normalize "+std::to_string(rows)+" rows";
+  // The complete workgroup publishes 16x96. Its six active matrix waves each
+  // compute N16; the independent GEMM policy's N16 selection is unchanged.
+  dispatchDetails_={"qkv_normalize",amd::qkvNormalizeShader,rows,96,32,1,0,0,96,16};
+  dispatchDetails_.tileM=16;
+  const uint32_t groups=(rows+15u)/16u;
+  dispatch(commands,pipeline(amd::qkvNormalizeShader,{}),bindings,&push,sizeof(push),
+           std::min(groups,65535u),(groups+65534u)/65535u,1);
+}
 
 void Kernels::loadAmdOptimizedModules() {
   check(!amdPolicy_.requiresRtePublication() || context_.capabilities().halfPublicationRte,
@@ -193,6 +240,13 @@ void Kernels::loadAmdOptimizedModules() {
   if(amdPolicy_.qkv32Enabled())fusion("amd_qkv32");
   if(amdPolicy_.expertFusion)fusion("amd_expert_ffn");
   if(amdPolicy_.blockFusion)fusion("amd_block32");
+  if(amdPolicy_.qkvNormalizeC32Enabled()) {
+    amdPolicy_.validateQkvNormalize();
+    check(amdQkvNormalizeSupported(),"C32 QKV normalization capability unavailable");
+    fusion(amd::qkvNormalizeShader);
+    check(sourceModules_.at(amd::qkvNormalizeShader)->sha256==amd::qkvNormalizeShaderSha256,
+          "C32 QKV normalization shader qualification identity mismatch");
+  }
   shaderHash_=loadedShaderSetHash(names);
 }
 
@@ -367,7 +421,8 @@ VkPipeline Kernels::pipeline(const char* shader, const vk::SpecConstants& consta
   if(dispatchDetails_.variant.empty())dispatchDetails_.variant=shader;
   dispatchDetails_.subgroupSize=requiredSubgroupSize;
   dispatchDetails_.threads=!strcmp(shader,"preprocess")?64u:
-      (!strcmp(shader,"ops") || !strcmp(shader,"window_normalize") || !strcmp(shader,"global_normalize"))?256u:128u;
+      (!strcmp(shader,"ops") || !strcmp(shader,"window_normalize") || !strcmp(shader,"global_normalize") ||
+       !strcmp(shader,amd::qkvNormalizeShader))?256u:128u;
   if(!dispatchDetails_.tileM && (strstr(shader,"gemm") || !strcmp(shader,"gemm_f16")))dispatchDetails_.tileM=64;
   if(!strcmp(shader,"ops") && dispatchDetails_.family.empty() && !constants.data.empty())dispatchDetails_.flags=constants.data[0];
   std::string key = shader;

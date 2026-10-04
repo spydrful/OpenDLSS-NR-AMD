@@ -9,11 +9,13 @@ enum class KernelMode { Auto, Baseline, Optimized };
 enum class Arithmetic { K16, K32, Final };
 enum class Gemm { Shared, Packed, Direct, DirectRte, DirectRteInit, DirectRteEpilogue, DirectRtePair };
 enum class WindowLayout { Staged, Register, RegisterRte, ArenaRte };
+enum class QkvNormalize { Off, C32 };
 struct Options {
   KernelMode kernels = KernelMode::Auto;
   Arithmetic arithmetic = Arithmetic::K16;
   Gemm gemm = Gemm::Shared;
   WindowLayout windowLayout = WindowLayout::Staged;
+  QkvNormalize qkvNormalize = QkvNormalize::Off;
   uint32_t tileN = 16, stageK = 16;
   uint32_t windowQueries = 64;
   bool fusion = false, expertFusion = false, blockFusion = false, hardwarePublication = false;
@@ -24,6 +26,20 @@ struct Options {
   uint32_t publicationInterval() const { return arithmetic == Arithmetic::K16 ? 16u : arithmetic == Arithmetic::K32 ? 32u : 0u; }
   const char* kernelName() const { return kernels == KernelMode::Auto ? "auto" : kernels == KernelMode::Baseline ? "baseline" : "optimized"; }
   const char* arithmeticName() const { return arithmetic == Arithmetic::K16 ? "k16" : arithmetic == Arithmetic::K32 ? "k32" : "final"; }
+  const char* qkvNormalizeName() const { return qkvNormalize == QkvNormalize::Off ? "off" : "c32"; }
+  bool qkvNormalizeC32Enabled() const { return qkvNormalize == QkvNormalize::C32; }
+  static QkvNormalize parseQkvNormalize(const std::string& text) {
+    if(text=="off")return QkvNormalize::Off;
+    if(text=="c32")return QkvNormalize::C32;
+    throw std::runtime_error("invalid AMD QKV normalization selector (off|c32)");
+  }
+  void validateQkvNormalize() const {
+    if(!qkvNormalizeC32Enabled())return;
+    if(kernels!=KernelMode::Optimized || arithmetic!=Arithmetic::K16 || gemm!=Gemm::DirectRtePair ||
+       windowLayout!=WindowLayout::ArenaRte || tileN!=16 || stageK!=16 || windowQueries!=32 ||
+       ffn32Enabled() || qkv32Enabled() || expertFusion || blockFusion || hardwarePublication || !tuningPath.empty())
+      throw std::runtime_error("C32 QKV normalization requires explicit optimized Pair/Arena Q32/K16/N16/stage16, no other fusion/packed publication/tuning overrides");
+  }
   static bool scalarRteGemm(Gemm mode) { return mode == Gemm::DirectRte || mode == Gemm::DirectRteInit || mode == Gemm::DirectRteEpilogue || mode == Gemm::DirectRtePair; }
   static bool directGemm(Gemm mode) { return mode == Gemm::Direct || scalarRteGemm(mode); }
   bool directOperands() const { return directGemm(gemm); }
@@ -102,6 +118,7 @@ struct Options {
     const auto queries=value("DLSS5VK_AMD_WINDOW_QUERIES","64");
     if(queries=="16")out.windowQueries=16;else if(queries=="32")out.windowQueries=32;else if(queries!="64")throw std::runtime_error("invalid DLSS5VK_AMD_WINDOW_QUERIES (16|32|64)");
     out.windowLayout=parseWindowLayout(value("DLSS5VK_AMD_WINDOW_LAYOUT","staged"));
+    out.qkvNormalize=parseQkvNormalize(value("DLSS5VK_AMD_QKV_NORMALIZE","off"));
     if(out.registerWindowOperands() && out.windowQueries==64)
       throw std::runtime_error("register AMD window layout requires DLSS5VK_AMD_WINDOW_QUERIES=16 or 32");
     auto boolean = [&](const char* key) {
@@ -123,6 +140,7 @@ struct Options {
     if(scalarRteGemm(out.gemm) && out.hardwarePublication)
       throw std::runtime_error("scalar RTE GEMM specifies scalar publication; packed hardware publication must be off");
     out.tuningPath = value("DLSS5VK_AMD_TUNING", "");
+    out.validateQkvNormalize();
     if (out.kernels == KernelMode::Baseline && (out.arithmetic != Arithmetic::K16 || out.gemm != Gemm::Shared || out.windowLayout != WindowLayout::Staged || out.tileN != 16 || out.stageK != 16 || out.windowQueries != 64 || out.ffn32Enabled() || out.qkv32Enabled() || out.expertFusion || out.blockFusion || out.hardwarePublication))
       throw std::runtime_error("baseline AMD kernels require k16, shared GEMM, tile N16/K16 and no fusion/hardware publication override");
     return out;

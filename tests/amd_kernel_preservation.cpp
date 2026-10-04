@@ -60,6 +60,7 @@ struct Runner {
       environment.set("DLSS5VK_AMD_FUSION", "0");
       environment.set("DLSS5VK_AMD_FFN32_FUSION", "0");
       environment.set("DLSS5VK_AMD_QKV32_FUSION", "0");
+      environment.set("DLSS5VK_AMD_QKV_NORMALIZE", "off");
       environment.set("DLSS5VK_AMD_EXPERT_FUSION", "0");
       environment.set("DLSS5VK_AMD_BLOCK_FUSION", "0");
       environment.set("DLSS5VK_AMD_HARDWARE_PUBLICATION", "0");
@@ -446,6 +447,7 @@ std::string identity(const Runner& runner) {
       << ",\"ffn32_fusion\":" << (options.ffn32Enabled() ? "true" : "false") << ",\"qkv32_fusion\":" << (options.qkv32Enabled() ? "true" : "false")
       << ",\"gemm\":\"" << options.gemmName() << '"'
       << ",\"window_layout\":\"" << options.windowLayoutName() << '"'
+      << ",\"qkv_normalize\":" << quote(options.qkvNormalizeName())
       << ",\"expert_fusion\":" << (options.expertFusion ? "true" : "false")
       << ",\"block_fusion\":" << (options.blockFusion ? "true" : "false")
       << ",\"hardware_publication\":" << (options.hardwarePublication ? "true" : "false")
@@ -512,6 +514,9 @@ void manifest(const Results& results, const Runner& baseline, const Runner& cand
 
 int runAmdKernelPreservation(int argc, char** argv) {
   try {
+    const char* normalizeSelection = std::getenv("DLSS5VK_AMD_QKV_NORMALIZE");
+    if(normalizeSelection && *normalizeSelection && amd::Options::parseQkvNormalize(normalizeSelection)!=amd::QkvNormalize::Off)
+      throw std::runtime_error("amdcheck does not exercise the fused C32 QKV normalization operator; select off and use its dedicated qualification harness");
     const auto baselineDirectory = argument(argc, argv, "--baseline-shaders");
     const auto candidateDirectory = argument(argc, argv, "--shaders");
     const auto fixtureDirectory = argument(argc, argv, "--fixture");

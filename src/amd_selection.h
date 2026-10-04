@@ -9,7 +9,7 @@ namespace amd {
 inline bool diagnosticSelection(const Options& options) {
   return options.kernels == KernelMode::Optimized || options.arithmetic != Arithmetic::K16 || options.gemm != Gemm::Shared ||
       options.tileN != 16 || options.stageK != 16 || options.windowQueries != 64 || options.windowLayout != WindowLayout::Staged ||
-      options.ffn32Enabled() || options.qkv32Enabled() || options.expertFusion || options.blockFusion || options.hardwarePublication;
+      options.ffn32Enabled() || options.qkv32Enabled() || options.expertFusion || options.blockFusion || options.hardwarePublication || options.qkvNormalizeC32Enabled();
 }
 class Selection {
  public:
@@ -42,6 +42,12 @@ inline WindowLayout windowLayoutPolicy(const json::Value& value) {
   if(value["window_layout"].kind != json::Value::String)throw std::runtime_error("AMD tuning window layout must be a string");
   return Options::parseWindowLayout(value["window_layout"].string);
 }
+inline QkvNormalize qkvNormalizePolicy(const json::Value& value) {
+  if(!value.has("qkv_normalize"))return QkvNormalize::Off; // Immutable prior records are unfused here.
+  if(value["qkv_normalize"].kind!=json::Value::String)
+    throw std::runtime_error("AMD tuning QKV normalization policy must be a string");
+  return Options::parseQkvNormalize(value["qkv_normalize"].string);
+}
 inline Fusion32Policy fusion32Policy(const json::Value& value) {
   if(value["fusion"].kind != json::Value::Bool)
     throw std::runtime_error("AMD tuning legacy fusion summary must be Boolean");
@@ -66,6 +72,7 @@ inline void requireTuningPolicyMatch(const json::Value& value, const Options& po
   text("kernels","optimized");text("arithmetic","k16");
   require(gemmPolicy(value)==policy.gemm,"AMD tuning GEMM evidence policy mismatch");
   require(windowLayoutPolicy(value)==policy.windowLayout,"AMD tuning window layout evidence policy mismatch");
+  require(qkvNormalizePolicy(value)==policy.qkvNormalize,"AMD tuning QKV normalization evidence policy mismatch");
   number("tile_n",policy.tileN);number("stage_k",policy.stageK);number("window_queries",policy.windowQueries);
   const auto fusion=fusion32Policy(value);
   require(fusion.ffn == policy.ffn32Enabled() && fusion.qkv == policy.qkv32Enabled(),
@@ -116,6 +123,10 @@ inline Options tuningPolicy(const json::Value& doc, const Options& current,
   require(doc["optimized_default_eligible"].kind == json::Value::Bool && doc["optimized_default_eligible"].boolean,
           "AMD tuning combination lacks complete-inference qualification");
   const auto& selected=doc["default_selection"];
+  // This route is explicitly opt-in while its fused-operator proof schema is
+  // pending. A cache must not enable it or reuse an unfused historical proof.
+  require(qkvNormalizePolicy(selected)==QkvNormalize::Off && !current.qkvNormalizeC32Enabled(),
+          "C32 QKV normalization is not qualified for AMD tuning caches");
   require(selected["arithmetic"].str() == "k16" && selected["kernels"].str() == "optimized",
           "AMD auto tuning only accepts preserving arithmetic");
   require(current.arithmetic == Arithmetic::K16, "AMD tuning cannot qualify an experimental arithmetic override");

@@ -1,0 +1,229 @@
+{
+  "format": "OpenNR-context-visibility-source-publication-binding-v1",
+  "date": "2026-10-03",
+  "scope": "Supplemental source publication binding only; preserves the original measurement record and its precommit build-time scope.",
+  "originalMeasurementRecord": {
+    "path": "docs/performance/context-visibility-rx9070xt-20261003.json",
+    "sha256": "e5fa6512be2bbea9513b72d5f54363c0d3d8c4f8c363a396449258e317420335",
+    "bytes": 23348,
+    "exactPublicationCommitBlobMatch": true,
+    "modifiedByThisSupplement": false
+  },
+  "fixPublication": {
+    "commit": "a692d221b3ee43f29633f741599d1a2dfbacc14b",
+    "url": "https://github.com/spydrful/OpenDLSS-NR-AMD/commit/a692d221b3ee43f29633f741599d1a2dfbacc14b",
+    "recordedBuildPrecededCommit": true,
+    "recordedBuildScope": "The original record binds exact Windows working-tree bytes captured when the fresh CLI/native builds and diagnostics ran before the fix was committed. Its uncommitted wording is a historical build-time statement.",
+    "compiledCoreInputs": 23,
+    "additionalCpuTestAndRunnerInputs": 2,
+    "sourceBindings": [
+      {
+        "path": "scripts/test_vk_readback_cpu.ps1",
+        "recordedWindowsSha256": "79119b3b0af28832d5c87d46f36adfe3be9f0bfc44196baed60aaef09c78291b",
+        "publicationGitBlobSha256": "79119b3b0af28832d5c87d46f36adfe3be9f0bfc44196baed60aaef09c78291b",
+        "bytes": 1024,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/amd_config.h",
+        "recordedWindowsSha256": "cbb34d120f090db154f63a1394be9a0bb9b1e1f468671323c3eeff0e5548d568",
+        "publicationGitBlobSha256": "cbb34d120f090db154f63a1394be9a0bb9b1e1f468671323c3eeff0e5548d568",
+        "bytes": 8234,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/amd_fusion.h",
+        "recordedWindowsSha256": "eb746524607edbc8fe634d8ff1f5f3bca7b49978c6848e4e5e06911e285f697e",
+        "publicationGitBlobSha256": "eb746524607edbc8fe634d8ff1f5f3bca7b49978c6848e4e5e06911e285f697e",
+        "bytes": 2798,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/amd_fusion_validation.h",
+        "recordedWindowsSha256": "8360043da39ea5ec396ded3bd4068b120ba23b0d3461a3f07f2618719b253a0c",
+        "publicationGitBlobSha256": "8360043da39ea5ec396ded3bd4068b120ba23b0d3461a3f07f2618719b253a0c",
+        "bytes": 9598,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/amd_qualified_fallback.h",
+        "recordedWindowsSha256": "d4d9fdc135f086e6e0f770a76ddc0b6b39296c84522a780c88bcfe3b09acbc85",
+        "publicationGitBlobSha256": "d4d9fdc135f086e6e0f770a76ddc0b6b39296c84522a780c88bcfe3b09acbc85",
+        "bytes": 719,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/amd_selection.h",
+        "recordedWindowsSha256": "a85c934ba8e97c7d865506d33b19c623346d959fe23e96cf4beeeb18bb208b5d",
+        "publicationGitBlobSha256": "a85c934ba8e97c7d865506d33b19c623346d959fe23e96cf4beeeb18bb208b5d",
+        "bytes": 11255,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/amd_window_resources.h",
+        "recordedWindowsSha256": "39d98d6d7ab3d12b76192271b15138112dbf7ca020f8e74d8970dc9cf6e7aa46",
+        "publicationGitBlobSha256": "39d98d6d7ab3d12b76192271b15138112dbf7ca020f8e74d8970dc9cf6e7aa46",
+        "bytes": 2086,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/json.h",
+        "recordedWindowsSha256": "4634156197520e561c7aba2e4398bea3bb15b685934882c2008312afb6cc500b",
+        "publicationGitBlobSha256": "4634156197520e561c7aba2e4398bea3bb15b685934882c2008312afb6cc500b",
+        "bytes": 8739,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/kernels.cpp",
+        "recordedWindowsSha256": "9fb8593a082b0d6a875f874c5ced6a5d28b100d218f8d1d286ea2c8172af84b9",
+        "publicationGitBlobSha256": "9fb8593a082b0d6a875f874c5ced6a5d28b100d218f8d1d286ea2c8172af84b9",
+        "bytes": 96860,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/kernels.h",
+        "recordedWindowsSha256": "64567b8629dc3c0bb4484f6a0e16f94e97dc91a441e468abb9900c6964872cf3",
+        "publicationGitBlobSha256": "64567b8629dc3c0bb4484f6a0e16f94e97dc91a441e468abb9900c6964872cf3",
+        "bytes": 21806,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/main.cpp",
+        "recordedWindowsSha256": "a63761c0c33aa70662406a09b921111e67a1a83786f9349745f8d47d32c160f9",
+        "publicationGitBlobSha256": "a63761c0c33aa70662406a09b921111e67a1a83786f9349745f8d47d32c160f9",
+        "bytes": 54865,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/nr_graph.cpp",
+        "recordedWindowsSha256": "9cefbdf08b195d7be1c2bfbe6937f2504a0ead82bec37be59a69d83d050265ec",
+        "publicationGitBlobSha256": "9cefbdf08b195d7be1c2bfbe6937f2504a0ead82bec37be59a69d83d050265ec",
+        "bytes": 66341,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/nr_graph.h",
+        "recordedWindowsSha256": "d2a28efba1dbc97b903a8f6a0f074c22a59ea45da035afa265a4f2a3979a6418",
+        "publicationGitBlobSha256": "d2a28efba1dbc97b903a8f6a0f074c22a59ea45da035afa265a4f2a3979a6418",
+        "bytes": 8391,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/nr_model.cpp",
+        "recordedWindowsSha256": "2fa2e2302f326ffc845f025625b3aad61abca5aa13144c31caf26711e9ff4ff6",
+        "publicationGitBlobSha256": "2fa2e2302f326ffc845f025625b3aad61abca5aa13144c31caf26711e9ff4ff6",
+        "bytes": 12677,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/nr_model.h",
+        "recordedWindowsSha256": "c489334d83befd6f7b8771839cfc77aa22582c0d10f6ed6302d9d1c12e9fc70b",
+        "publicationGitBlobSha256": "c489334d83befd6f7b8771839cfc77aa22582c0d10f6ed6302d9d1c12e9fc70b",
+        "bytes": 3923,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/numeric.h",
+        "recordedWindowsSha256": "097f704525ac9b548645c8168de75e95758fab5c6395e422c7f7aea7545be5e1",
+        "publicationGitBlobSha256": "097f704525ac9b548645c8168de75e95758fab5c6395e422c7f7aea7545be5e1",
+        "bytes": 4311,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/reference.cpp",
+        "recordedWindowsSha256": "48f8cabfc108001e97a0b4eee087098d986dc07366fd264a058d60b665d851a6",
+        "publicationGitBlobSha256": "48f8cabfc108001e97a0b4eee087098d986dc07366fd264a058d60b665d851a6",
+        "bytes": 12628,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/reference.h",
+        "recordedWindowsSha256": "140a34b50c37958712b0a810fcdb12586225ba6e5b219158ee53957d1452716c",
+        "publicationGitBlobSha256": "140a34b50c37958712b0a810fcdb12586225ba6e5b219158ee53957d1452716c",
+        "bytes": 2352,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/sha256.h",
+        "recordedWindowsSha256": "7bc612aa8e483a8946e3a8fb911e3e16048e99175374b87a37c9aa45291b025b",
+        "publicationGitBlobSha256": "7bc612aa8e483a8946e3a8fb911e3e16048e99175374b87a37c9aa45291b025b",
+        "bytes": 2994,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/shader_identity.h",
+        "recordedWindowsSha256": "5b11267047476acc5ce0ecad027ae39e5ab854e0b6c63ae9c36b93d01ee5e049",
+        "publicationGitBlobSha256": "5b11267047476acc5ce0ecad027ae39e5ab854e0b6c63ae9c36b93d01ee5e049",
+        "bytes": 2107,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/verify.cpp",
+        "recordedWindowsSha256": "d9f756ea24f801d47543b63833c3aab29d95457aeb4fd8cd952b706c935d21d4",
+        "publicationGitBlobSha256": "d9f756ea24f801d47543b63833c3aab29d95457aeb4fd8cd952b706c935d21d4",
+        "bytes": 11538,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/vk_context.cpp",
+        "recordedWindowsSha256": "d924a2f24b70e9c2a824d3f64e7a8d1aa9f13a92f6c6b51d36c536815143bbbc",
+        "publicationGitBlobSha256": "d924a2f24b70e9c2a824d3f64e7a8d1aa9f13a92f6c6b51d36c536815143bbbc",
+        "bytes": 45267,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/vk_context.h",
+        "recordedWindowsSha256": "7fd39bd354ab9e75e3868d1d4036f814dd49580168db2604e7057ed44c59ab7f",
+        "publicationGitBlobSha256": "7fd39bd354ab9e75e3868d1d4036f814dd49580168db2604e7057ed44c59ab7f",
+        "bytes": 11076,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "src/vk_readback.h",
+        "recordedWindowsSha256": "00fc1f567eeb580dde31addef0cf189649fdbc8d7786143878a223f4024669e4",
+        "publicationGitBlobSha256": "00fc1f567eeb580dde31addef0cf189649fdbc8d7786143878a223f4024669e4",
+        "bytes": 1288,
+        "exactByteIdentical": true
+      },
+      {
+        "path": "tests/vk_readback_tests.cpp",
+        "recordedWindowsSha256": "d2d724763e2d8ee37190bc3eb4da3414ceedb99fa56fc6a661051af538a79f54",
+        "publicationGitBlobSha256": "d2d724763e2d8ee37190bc3eb4da3414ceedb99fa56fc6a661051af538a79f54",
+        "bytes": 3279,
+        "exactByteIdentical": true
+      }
+    ],
+    "allRecordedSourceBytesEqualPublicationGitBlobs": true,
+    "newlineNormalizationRequired": false
+  },
+  "recordedBinaryIdentities": {
+    "freshDiagnosticCliSha256": "122181c26202388a5016b0386f4cd34b86e8023cff0dcc9ae9105708cd746946",
+    "freshDiagnosticRuntimeDllSha256": "141aadeee9d460ea58b152a05b783df159465120320138bd4fe576211db86c36",
+    "freshInteropHarnessSha256": "3fbd83a3d3497b8336fa26b865d136355d83a552531242180b83080607f69773",
+    "scope": "Identities of the already recorded local diagnostic builds; this supplement publishes no binary payload."
+  },
+  "releaseBoundary": {
+    "existingAlpha5Release": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.5",
+    "existingReleaseReplaced": false,
+    "newReleasePublishedByThisSupplement": false,
+    "newBinaryPackagePublishedByThisSupplement": false,
+    "defaultTuningOrEnableStateChanged": false,
+    "arithmeticOrShaderPromotion": false
+  },
+  "noNewMeasurement": {
+    "gpuExecutedByThisSupplement": false,
+    "diagnosticOutputsReinterpreted": false,
+    "ordinaryInferenceTimingClaim": false,
+    "gamePerformanceClaim": false,
+    "sceneLinearQualityClaim": false,
+    "nvidiaParityClaim": false
+  },
+  "payloadExclusions": [
+    "NVIDIA DLLs",
+    "extracted model weights",
+    "raw activations",
+    "game captures",
+    "image buffers",
+    "private ISA text"
+  ]
+}

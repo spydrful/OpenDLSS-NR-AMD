@@ -1,0 +1,4517 @@
+{
+  "format": "OpenNR-qkv-normalize-delivery-evidence-v1",
+  "status": "FINAL_V3_PRODUCTION_EVIDENCE_AND_SOURCE_ONLY_DIAGNOSTIC_WORKFLOW_AUDITED",
+  "generatedDate": "2026-10-03",
+  "gpuExecutedByDraftAuthor": false,
+  "defaultPromotionQualified": false,
+  "productionIntegrationQualifiedByThisRecord": true,
+  "publicTuningExportQualified": false,
+  "releaseChanged": false,
+  "scope": "Frozen private C32 QKV GEMM plus window normalization candidate, bounded to model/driver/geometry; production opt-in metadata will be appended only after fresh validation.",
+  "modelManifestSha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+  "device": "AMD Radeon RX 9070 XT",
+  "deviceId": "1002:7550",
+  "driver": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+  "modules": {
+    "baselinePair": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+    "baselineNormalize": "c5c8161b72282e283b5ab108f732a328731da39fb5d02c2500a9230b754fe008",
+    "production": "9b1c585054bbbe3c9c2021d393699eae16e9ffcf889db6311d070d0049be5cc5",
+    "rawCapture": "313536a959921d0c444ae412783189509e4ba293cd961d244ee9b6cc3c8b33df"
+  },
+  "shaderSemantics": {
+    "K": 32,
+    "N": 96,
+    "heads": 1,
+    "orderedK16Publication": true,
+    "workgroupOutputTile": [
+      16,
+      96
+    ],
+    "perActiveWaveOutputTile": [
+      16,
+      16
+    ],
+    "workgroupThreads": 256,
+    "requiredFullSubgroup": 32,
+    "activeMatrixWaves": 6,
+    "declaredLdsBytes": 9216,
+    "initialAccumulator": "+0",
+    "flags": 0,
+    "partition": 0,
+    "batches": 1,
+    "retainedScalarNormalizationTreeAndLearnedScale": true,
+    "registerFragmentMappingAssumed": false,
+    "arbitraryInputOrCrossDriverPreservationEstablished": false
+  },
+  "privateSelectionIdentity": {
+    "baseline": "explicit optimized Pair/Arena Q32/K16/N16/stage16, private route off",
+    "candidate": "same policy, private route ordinary7 or all-c32 as bound in each report",
+    "baselineSelectedShaderSha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+    "candidateSelectedShaderSha256": "36875d0c4d07819b358caf50bd0c982744e4c8ac7af545ef7908dc8f57458fa3",
+    "publicSelectorAliasEstablished": false
+  },
+  "operatorCorrectness": [
+    {
+      "scope": "ordinary7-bounded",
+      "report": {
+        "path": "build/release/qkv32-normalize-chain-20261003-e769a572ef4548c4ad495ba26f5bb336/gpu-bounded-v1/manifest.json",
+        "sha256": "40c2e37b8b3e7e6d5883f0b3af684042ffb717fcd4edbc2863f9df71196f68fb",
+        "bytes": 183745
+      },
+      "executable": {
+        "path": "build/release/qkv32-normalize-chain-20261003-e769a572ef4548c4ad495ba26f5bb336/qkv32_normalize_check.exe",
+        "sha256": "fa9de92116ce3cceefaefd4e7530107b5e40b03a743f3ea2981ca4c11b50001e",
+        "bytes": 556544
+      },
+      "fixtures": 134,
+      "checks": 402,
+      "reportedExactComparedBytes": 5750784,
+      "reportedDifferentBytes": 0,
+      "fixtureTypes": {
+        "syntheticWeightsAndInputs": 120,
+        "importedWeightsSyntheticInputs": 14,
+        "importedWeightsActualInputs": 0
+      },
+      "allActualInputBlocks": [],
+      "comparisonLabels": [
+        "normalized-production",
+        "normalized-capture",
+        "raw-qkv-capture"
+      ],
+      "geometry": {
+        "threads": 256,
+        "rowsPerGroup": 16,
+        "matrixActiveWaves": 6,
+        "heads": 1,
+        "K": 32,
+        "N": 96,
+        "partition": 0,
+        "flags": 0,
+        "publication": 16,
+        "batches": 1,
+        "ldsBytes": 9216
+      },
+      "requiredSubgroupSizes": {
+        "gemm": 32,
+        "normalization": 0,
+        "production": 32,
+        "capture": 32
+      },
+      "deviceReportedDefaultSubgroup": 64,
+      "passingRawOperatorOutputsSaved": false,
+      "validationLayerEnabled": false,
+      "independentReviewScope": "Report sums, allocations, identities and equal hashes; no saved passing operator tensors to reopen.",
+      "fullModelQualifiedByOperatorReport": false,
+      "performanceQualifiedByOperatorReport": false
+    },
+    {
+      "scope": "ordinary7-actual-target",
+      "report": {
+        "path": "build/release/qkv32-normalize-chain-20261003-e769a572ef4548c4ad495ba26f5bb336/gpu-actual-v1/manifest.json",
+        "sha256": "4f15a42e45f00bec33ea679b4160f3203c23692c7a5f2c1f40ccc5f7040dfd1e",
+        "bytes": 193962
+      },
+      "executable": {
+        "path": "build/release/qkv32-normalize-chain-20261003-e769a572ef4548c4ad495ba26f5bb336/qkv32_normalize_check.exe",
+        "sha256": "fa9de92116ce3cceefaefd4e7530107b5e40b03a743f3ea2981ca4c11b50001e",
+        "bytes": 556544
+      },
+      "fixtures": 141,
+      "checks": 423,
+      "reportedExactComparedBytes": 1120518144,
+      "reportedDifferentBytes": 0,
+      "fixtureTypes": {
+        "syntheticWeightsAndInputs": 120,
+        "importedWeightsSyntheticInputs": 14,
+        "importedWeightsActualInputs": 7
+      },
+      "allActualInputBlocks": [
+        1,
+        2,
+        3,
+        4,
+        67,
+        68,
+        69
+      ],
+      "comparisonLabels": [
+        "normalized-production",
+        "normalized-capture",
+        "raw-qkv-capture"
+      ],
+      "geometry": {
+        "threads": 256,
+        "rowsPerGroup": 16,
+        "matrixActiveWaves": 6,
+        "heads": 1,
+        "K": 32,
+        "N": 96,
+        "partition": 0,
+        "flags": 0,
+        "publication": 16,
+        "batches": 1,
+        "ldsBytes": 9216
+      },
+      "requiredSubgroupSizes": {
+        "gemm": 32,
+        "normalization": 0,
+        "production": 32,
+        "capture": 32
+      },
+      "deviceReportedDefaultSubgroup": 64,
+      "passingRawOperatorOutputsSaved": false,
+      "validationLayerEnabled": false,
+      "independentReviewScope": "Report sums, allocations, identities and equal hashes; no saved passing operator tensors to reopen.",
+      "fullModelQualifiedByOperatorReport": false,
+      "performanceQualifiedByOperatorReport": false
+    },
+    {
+      "scope": "all10-actual-target",
+      "report": {
+        "path": "build/release/qkv32-full-c32-chain-5b0a8108a787497aa0b10e328dcaf34c/gpu-all10-target/manifest.json",
+        "sha256": "d45ae33efce936da308b028c3c5cf3573d41fab67d45f1170603d41e676f9d24",
+        "bytes": 206654
+      },
+      "executable": {
+        "path": "build/release/qkv32-full-c32-chain-5b0a8108a787497aa0b10e328dcaf34c/qkv32_normalize_check.exe",
+        "sha256": "ab155e807d05ea8c5159d47e73cc4732736e92d79133fe4dbc41118c152e1185",
+        "bytes": 556544
+      },
+      "fixtures": 150,
+      "checks": 450,
+      "reportedExactComparedBytes": 2554011648,
+      "reportedDifferentBytes": 0,
+      "fixtureTypes": {
+        "syntheticWeightsAndInputs": 120,
+        "importedWeightsSyntheticInputs": 20,
+        "importedWeightsActualInputs": 10
+      },
+      "allActualInputBlocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        66,
+        67,
+        68,
+        69,
+        70
+      ],
+      "comparisonLabels": [
+        "normalized-production",
+        "normalized-capture",
+        "raw-qkv-capture"
+      ],
+      "geometry": {
+        "threads": 256,
+        "rowsPerGroup": 16,
+        "matrixActiveWaves": 6,
+        "heads": 1,
+        "K": 32,
+        "N": 96,
+        "partition": 0,
+        "flags": 0,
+        "publication": 16,
+        "batches": 1,
+        "ldsBytes": 9216
+      },
+      "requiredSubgroupSizes": {
+        "gemm": 32,
+        "normalization": 0,
+        "production": 32,
+        "capture": 32
+      },
+      "deviceReportedDefaultSubgroup": 64,
+      "passingRawOperatorOutputsSaved": false,
+      "validationLayerEnabled": false,
+      "independentReviewScope": "Report sums, allocations, identities and equal hashes; no saved passing operator tensors to reopen.",
+      "fullModelQualifiedByOperatorReport": false,
+      "performanceQualifiedByOperatorReport": false
+    }
+  ],
+  "operatorTiming": {
+    "ordinary7": {
+      "report": {
+        "path": "build/release/qkv32-normalize-timing-20261003-9ed15ea431554de6b587320024803437/gpu-ordinary-v1/timing.json",
+        "sha256": "cb56c2de10c786928b598fae69bbe5e91bba2cb3bd57736eaa0dfaea13157def",
+        "bytes": 43098
+      },
+      "priorIndependentAudit": {
+        "path": "build/release/qkv32-normalize-timing-20261003-9ed15ea431554de6b587320024803437/cpu-audit-v1/audit.json",
+        "sha256": "dfea09fd16d0124236cfa2fac5dea8f3d9e645d3534f620eaa79206a24133067",
+        "bytes": 30857
+      },
+      "rawSamplesIndependentlyRecomputed": 1260,
+      "statisticFieldsIndependentlyRecomputed": 504,
+      "prePostReportedChecks": 42,
+      "operators": [
+        {
+          "block": 1,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.3683942222222222,
+            "median": 0.36566,
+            "p95": 0.389028,
+            "p99": 0.4247344,
+            "minimum": 0.36152,
+            "maximum": 0.42744,
+            "standardDeviation": 0.010730100649603303,
+            "coefficientOfVariation": 0.029126680068100277
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.19905511111111104,
+            "median": 0.20568,
+            "p95": 0.21,
+            "p99": 0.21012,
+            "minimum": 0.17772,
+            "maximum": 0.21012,
+            "standardDeviation": 0.011354829148325146,
+            "coefficientOfVariation": 0.057043645274634354
+          },
+          "medianImprovementFraction": 0.43751025542854016,
+          "p95Ratio": 0.5398069033591413,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.3661,
+              "candidateMedianMs": 0.20668,
+              "medianImprovementFraction": 0.4354547937721933
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.3661,
+              "candidateMedianMs": 0.20744,
+              "medianImprovementFraction": 0.43337885823545474
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.3648,
+              "candidateMedianMs": 0.18358,
+              "medianImprovementFraction": 0.496765350877193
+            }
+          ]
+        },
+        {
+          "block": 2,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.36867511111111095,
+            "median": 0.36568,
+            "p95": 0.38902999999999993,
+            "p99": 0.431284,
+            "minimum": 0.36272,
+            "maximum": 0.44232,
+            "standardDeviation": 0.01227340080050662,
+            "coefficientOfVariation": 0.03329055971127835
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.19981733333333335,
+            "median": 0.20684000000000002,
+            "p95": 0.211748,
+            "p99": 0.2134348,
+            "minimum": 0.18016,
+            "maximum": 0.21404,
+            "standardDeviation": 0.012381236053893095,
+            "coefficientOfVariation": 0.06196277293541315
+          },
+          "medianImprovementFraction": 0.4343688470794136,
+          "p95Ratio": 0.5442973549597718,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36641999999999997,
+              "candidateMedianMs": 0.20776,
+              "medianImprovementFraction": 0.4330003820752142
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.366,
+              "candidateMedianMs": 0.2091,
+              "medianImprovementFraction": 0.42868852459016393
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.3646,
+              "candidateMedianMs": 0.18264000000000002,
+              "medianImprovementFraction": 0.49906747120131645
+            }
+          ]
+        },
+        {
+          "block": 3,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.36732355555555546,
+            "median": 0.36585999999999996,
+            "p95": 0.376826,
+            "p99": 0.4000436,
+            "minimum": 0.36156,
+            "maximum": 0.40072,
+            "standardDeviation": 0.007102526985534581,
+            "coefficientOfVariation": 0.019335887606751555
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.19804311111111114,
+            "median": 0.20673999999999998,
+            "p95": 0.21011,
+            "p99": 0.21041279999999998,
+            "minimum": 0.17392,
+            "maximum": 0.21084,
+            "standardDeviation": 0.013425038269711184,
+            "coefficientOfVariation": 0.06778846380664627
+          },
+          "medianImprovementFraction": 0.43492046137866947,
+          "p95Ratio": 0.5575782987373482,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36619999999999997,
+              "candidateMedianMs": 0.20742,
+              "medianImprovementFraction": 0.4335882031676679
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.36604000000000003,
+              "candidateMedianMs": 0.20751999999999998,
+              "medianImprovementFraction": 0.4330674243252105
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.36451999999999996,
+              "candidateMedianMs": 0.17959999999999998,
+              "medianImprovementFraction": 0.5072972676396357
+            }
+          ]
+        },
+        {
+          "block": 4,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.3679844444444444,
+            "median": 0.36597999999999997,
+            "p95": 0.379594,
+            "p99": 0.40506559999999997,
+            "minimum": 0.36044,
+            "maximum": 0.43084,
+            "standardDeviation": 0.009128728171256463,
+            "coefficientOfVariation": 0.024807375173258584
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.199308,
+            "median": 0.20566,
+            "p95": 0.20968,
+            "p99": 0.2101108,
+            "minimum": 0.1812,
+            "maximum": 0.21036,
+            "standardDeviation": 0.010828659012084553,
+            "coefficientOfVariation": 0.05433128129369896
+          },
+          "medianImprovementFraction": 0.43805672441116994,
+          "p95Ratio": 0.5523796477288894,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36662,
+              "candidateMedianMs": 0.20782,
+              "medianImprovementFraction": 0.433146036768316
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.36628,
+              "candidateMedianMs": 0.20694,
+              "medianImprovementFraction": 0.43502238724473075
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.36460000000000004,
+              "candidateMedianMs": 0.18452000000000002,
+              "medianImprovementFraction": 0.493911135490949
+            }
+          ]
+        },
+        {
+          "block": 67,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.36726400000000003,
+            "median": 0.36584,
+            "p95": 0.37795,
+            "p99": 0.39500959999999996,
+            "minimum": 0.35916,
+            "maximum": 0.40156,
+            "standardDeviation": 0.006159399104891103,
+            "coefficientOfVariation": 0.01677103964693273
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.19903333333333326,
+            "median": 0.2052,
+            "p95": 0.211002,
+            "p99": 0.21469760000000002,
+            "minimum": 0.1776,
+            "maximum": 0.21484,
+            "standardDeviation": 0.01192461096500287,
+            "coefficientOfVariation": 0.05991263254900121
+          },
+          "medianImprovementFraction": 0.4390990596982287,
+          "p95Ratio": 0.5582801957930943,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36607999999999996,
+              "candidateMedianMs": 0.20795999999999998,
+              "medianImprovementFraction": 0.4319274475524475
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.36644,
+              "candidateMedianMs": 0.20704,
+              "medianImprovementFraction": 0.43499617945639124
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.36519999999999997,
+              "candidateMedianMs": 0.18278,
+              "medianImprovementFraction": 0.4995071193866374
+            }
+          ]
+        },
+        {
+          "block": 68,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.36906266666666654,
+            "median": 0.36566,
+            "p95": 0.395616,
+            "p99": 0.4181992,
+            "minimum": 0.36248,
+            "maximum": 0.43664,
+            "standardDeviation": 0.011673485321683304,
+            "coefficientOfVariation": 0.03163008988992829
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.19809022222222225,
+            "median": 0.20429999999999998,
+            "p95": 0.208644,
+            "p99": 0.2087644,
+            "minimum": 0.17708,
+            "maximum": 0.2088,
+            "standardDeviation": 0.010868012286601832,
+            "coefficientOfVariation": 0.05486395120709109
+          },
+          "medianImprovementFraction": 0.44128425313132424,
+          "p95Ratio": 0.5273901965542344,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36636,
+              "candidateMedianMs": 0.20636,
+              "medianImprovementFraction": 0.4367289005349929
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.36546,
+              "candidateMedianMs": 0.20492,
+              "medianImprovementFraction": 0.43928200076615775
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.36524,
+              "candidateMedianMs": 0.1827,
+              "medianImprovementFraction": 0.4997809659402037
+            }
+          ]
+        },
+        {
+          "block": 69,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.3686426666666666,
+            "median": 0.36558,
+            "p95": 0.39125,
+            "p99": 0.433234,
+            "minimum": 0.363,
+            "maximum": 0.43448,
+            "standardDeviation": 0.012053962815421138,
+            "coefficientOfVariation": 0.032698230306370236
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.1989933333333333,
+            "median": 0.20614,
+            "p95": 0.210036,
+            "p99": 0.210986,
+            "minimum": 0.17724,
+            "maximum": 0.21152,
+            "standardDeviation": 0.011753398373803781,
+            "coefficientOfVariation": 0.05906428208886621
+          },
+          "medianImprovementFraction": 0.43612889107719244,
+          "p95Ratio": 0.5368332268370607,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36666,
+              "candidateMedianMs": 0.20644,
+              "medianImprovementFraction": 0.4369715813014782
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.36546,
+              "candidateMedianMs": 0.20766,
+              "medianImprovementFraction": 0.4317846002298473
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.36468,
+              "candidateMedianMs": 0.1824,
+              "medianImprovementFraction": 0.49983547219480096
+            }
+          ]
+        }
+      ]
+    },
+    "all10": {
+      "report": {
+        "path": "build/release/qkv32-all10-operator-timing-414683be95124b39b4ad77d443b1d0e6/gpu-all10-target/timing.json",
+        "sha256": "f16cefb660d09471a052269eec08988b1926a2d793c1f1ba34412e5f3d07d91f",
+        "bytes": 61651
+      },
+      "verification": {
+        "path": "build/release/qkv32-all10-operator-timing-414683be95124b39b4ad77d443b1d0e6/gpu-all10-target/verification/manifest.json",
+        "sha256": "e9b031f19072473c87e0d24087209e165164aee9c93c41267af2f974d04bb1d3",
+        "bytes": 30979
+      },
+      "secondIndependentAudit": {
+        "path": "build/release/qkv-all10-operator-timing-second-independent-cpu-audit.json",
+        "sha256": "aceaa2505ae3d2f0c6e1400c750721a5dc3e32a3a9cc4c087d738fe218a2cbd8",
+        "bytes": 20322
+      },
+      "prePostReportedChecks": 60,
+      "prePostReportedExactComparedBytes": 5096079360,
+      "prePostHashesMatchSavedGraphReferences": true,
+      "operators": [
+        {
+          "block": 0,
+          "rows": 1658880,
+          "baseline": {
+            "samples": 90,
+            "mean": 1.4536120000000006,
+            "median": 1.44152,
+            "p95": 1.519346,
+            "p99": 1.5445568,
+            "minimum": 1.43724,
+            "maximum": 1.54712,
+            "standardDeviation": 0.024230465634999445,
+            "coefficientOfVariation": 0.016669142546291194
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.7124688888888889,
+            "median": 0.70916,
+            "p95": 0.74245,
+            "p99": 0.7598416,
+            "minimum": 0.6906,
+            "maximum": 0.76568,
+            "standardDeviation": 0.016638401662315505,
+            "coefficientOfVariation": 0.02335316239318669
+          },
+          "medianImprovementFraction": 0.5080470614351518,
+          "p95Ratio": 0.4886642015709391,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 1.45186,
+              "candidateMedianMs": 0.71346,
+              "medianImprovementFraction": 0.5085889824087722,
+              "p95Ratio": 0.5021630152246566
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 1.4409999999999998,
+              "candidateMedianMs": 0.7107399999999999,
+              "medianImprovementFraction": 0.5067730742539902,
+              "p95Ratio": 0.48769157521238854
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 1.44194,
+              "candidateMedianMs": 0.7013199999999999,
+              "medianImprovementFraction": 0.5136274740973966,
+              "p95Ratio": 0.48525846958726915
+            }
+          ],
+          "candidateThirdVsFirstMedianFraction": -0.017015670114652548,
+          "candidateRunMedianRangeFraction": 0.017310215023099262
+        },
+        {
+          "block": 1,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.36890088888888883,
+            "median": 0.36668,
+            "p95": 0.38132,
+            "p99": 0.406406,
+            "minimum": 0.36168,
+            "maximum": 0.44788,
+            "standardDeviation": 0.010139700153844617,
+            "coefficientOfVariation": 0.02748624484040928
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.20250133333333334,
+            "median": 0.20882,
+            "p95": 0.217342,
+            "p99": 0.2192932,
+            "minimum": 0.18096,
+            "maximum": 0.2194,
+            "standardDeviation": 0.013177689158405413,
+            "coefficientOfVariation": 0.06507457971505741
+          },
+          "medianImprovementFraction": 0.4305116177593542,
+          "p95Ratio": 0.5699727263191021,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36762,
+              "candidateMedianMs": 0.21468,
+              "medianImprovementFraction": 0.41602741961808387,
+              "p95Ratio": 0.5663990245011419
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.36660000000000004,
+              "candidateMedianMs": 0.20882,
+              "medianImprovementFraction": 0.4303873431533006,
+              "p95Ratio": 0.5593983603245325
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.36619999999999997,
+              "candidateMedianMs": 0.18404,
+              "medianImprovementFraction": 0.4974330966684871,
+              "p95Ratio": 0.5053899094881734
+            }
+          ],
+          "candidateThirdVsFirstMedianFraction": -0.14272405440655855,
+          "candidateRunMedianRangeFraction": 0.1664855466202999
+        },
+        {
+          "block": 2,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.36942666666666646,
+            "median": 0.36734,
+            "p95": 0.38387,
+            "p99": 0.3946704,
+            "minimum": 0.35976,
+            "maximum": 0.39524,
+            "standardDeviation": 0.006581379794541565,
+            "coefficientOfVariation": 0.017815118366860998
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.20231866666666667,
+            "median": 0.21044000000000002,
+            "p95": 0.218202,
+            "p99": 0.218772,
+            "minimum": 0.17772,
+            "maximum": 0.21984,
+            "standardDeviation": 0.015109820735755494,
+            "coefficientOfVariation": 0.0746832755706616
+          },
+          "medianImprovementFraction": 0.4271247345783198,
+          "p95Ratio": 0.5684268111600281,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36792,
+              "candidateMedianMs": 0.21495999999999998,
+              "medianImprovementFraction": 0.4157425527288542,
+              "p95Ratio": 0.5646814490297782
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.36702,
+              "candidateMedianMs": 0.2107,
+              "medianImprovementFraction": 0.42591684376873196,
+              "p95Ratio": 0.5641941338329138
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.36714,
+              "candidateMedianMs": 0.18002,
+              "medianImprovementFraction": 0.5096693359481397,
+              "p95Ratio": 0.4972721899371793
+            }
+          ],
+          "candidateThirdVsFirstMedianFraction": -0.16254186825455885,
+          "candidateRunMedianRangeFraction": 0.19408954560604363
+        },
+        {
+          "block": 3,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.368967111111111,
+            "median": 0.36698,
+            "p95": 0.38183,
+            "p99": 0.40244719999999995,
+            "minimum": 0.36436,
+            "maximum": 0.40736,
+            "standardDeviation": 0.0073858906398084345,
+            "coefficientOfVariation": 0.020017747970995287
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.20270844444444439,
+            "median": 0.20934,
+            "p95": 0.21778,
+            "p99": 0.2188168,
+            "minimum": 0.17656,
+            "maximum": 0.2196,
+            "standardDeviation": 0.013104591554202256,
+            "coefficientOfVariation": 0.06464748713413263
+          },
+          "medianImprovementFraction": 0.42956019401602263,
+          "p95Ratio": 0.5703585365214886,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36807999999999996,
+              "candidateMedianMs": 0.21206,
+              "medianImprovementFraction": 0.4238752445120625,
+              "p95Ratio": 0.5776867800908804
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.36692,
+              "candidateMedianMs": 0.21066000000000001,
+              "medianImprovementFraction": 0.4258693993241034,
+              "p95Ratio": 0.5726106433881578
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.366,
+              "candidateMedianMs": 0.18536,
+              "medianImprovementFraction": 0.493551912568306,
+              "p95Ratio": 0.4841557079550479
+            }
+          ],
+          "candidateThirdVsFirstMedianFraction": -0.12590776195416398,
+          "candidateRunMedianRangeFraction": 0.1440440224428139
+        },
+        {
+          "block": 4,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.3688213333333332,
+            "median": 0.3667,
+            "p95": 0.382078,
+            "p99": 0.39836479999999996,
+            "minimum": 0.35904,
+            "maximum": 0.423,
+            "standardDeviation": 0.008208468689239317,
+            "coefficientOfVariation": 0.022255948740960353
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.20170666666666665,
+            "median": 0.20842,
+            "p95": 0.21714,
+            "p99": 0.2192484,
+            "minimum": 0.177,
+            "maximum": 0.21964,
+            "standardDeviation": 0.013879405686924147,
+            "coefficientOfVariation": 0.0688098510390872
+          },
+          "medianImprovementFraction": 0.43163348786473965,
+          "p95Ratio": 0.5683132763467146,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36722,
+              "candidateMedianMs": 0.21238,
+              "medianImprovementFraction": 0.42165459397636285,
+              "p95Ratio": 0.5628776104655352
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.3671,
+              "candidateMedianMs": 0.20950000000000002,
+              "medianImprovementFraction": 0.42931081449196395,
+              "p95Ratio": 0.5710393998244168
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.366,
+              "candidateMedianMs": 0.18208,
+              "medianImprovementFraction": 0.5025136612021859,
+              "p95Ratio": 0.5009089548089056
+            }
+          ],
+          "candidateThirdVsFirstMedianFraction": -0.1426688012053866,
+          "candidateRunMedianRangeFraction": 0.16641036906854145
+        },
+        {
+          "block": 66,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.36960133333333334,
+            "median": 0.36676,
+            "p95": 0.38771599999999995,
+            "p99": 0.42294679999999996,
+            "minimum": 0.35996,
+            "maximum": 0.44776,
+            "standardDeviation": 0.011365903708509543,
+            "coefficientOfVariation": 0.03075179303603579
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.2011533333333333,
+            "median": 0.20876,
+            "p95": 0.212804,
+            "p99": 0.21328439999999999,
+            "minimum": 0.1754,
+            "maximum": 0.21332,
+            "standardDeviation": 0.012324950304159445,
+            "coefficientOfVariation": 0.061271419667382004
+          },
+          "medianImprovementFraction": 0.4307994328716326,
+          "p95Ratio": 0.5488656645585945,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36738000000000004,
+              "candidateMedianMs": 0.20964,
+              "medianImprovementFraction": 0.4293646905111874,
+              "p95Ratio": 0.5494886184696244
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.36704000000000003,
+              "candidateMedianMs": 0.21051999999999998,
+              "medianImprovementFraction": 0.42643853530950315,
+              "p95Ratio": 0.5712944483787206
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.36568,
+              "candidateMedianMs": 0.18475999999999998,
+              "medianImprovementFraction": 0.4947495077663532,
+              "p95Ratio": 0.4838351431391906
+            }
+          ],
+          "candidateThirdVsFirstMedianFraction": -0.11867964128983022,
+          "candidateRunMedianRangeFraction": 0.13942411777441
+        },
+        {
+          "block": 67,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.36929022222222224,
+            "median": 0.36654,
+            "p95": 0.38874,
+            "p99": 0.4398472,
+            "minimum": 0.36116,
+            "maximum": 0.4412,
+            "standardDeviation": 0.012440212304170676,
+            "coefficientOfVariation": 0.03368681745568859
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.20079511111111106,
+            "median": 0.20845999999999998,
+            "p95": 0.211866,
+            "p99": 0.21288,
+            "minimum": 0.17816,
+            "maximum": 0.21288,
+            "standardDeviation": 0.01241224460356649,
+            "coefficientOfVariation": 0.06181547217401178
+          },
+          "medianImprovementFraction": 0.4312762590713156,
+          "p95Ratio": 0.5450069455162834,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36772,
+              "candidateMedianMs": 0.20948,
+              "medianImprovementFraction": 0.43032742303926896,
+              "p95Ratio": 0.5494545773684456
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.36684,
+              "candidateMedianMs": 0.20936,
+              "medianImprovementFraction": 0.42928797295823795,
+              "p95Ratio": 0.5625786848409836
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.36546,
+              "candidateMedianMs": 0.18356,
+              "medianImprovementFraction": 0.4977288896185629,
+              "p95Ratio": 0.48265158558000215
+            }
+          ],
+          "candidateThirdVsFirstMedianFraction": -0.12373496276494178,
+          "candidateRunMedianRangeFraction": 0.14120723469165397
+        },
+        {
+          "block": 68,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.36951288888888884,
+            "median": 0.36652,
+            "p95": 0.386914,
+            "p99": 0.44227639999999996,
+            "minimum": 0.36104,
+            "maximum": 0.45228,
+            "standardDeviation": 0.013315530218044429,
+            "coefficientOfVariation": 0.036035360655710065
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.2009017777777777,
+            "median": 0.2072,
+            "p95": 0.213724,
+            "p99": 0.21516439999999998,
+            "minimum": 0.17636,
+            "maximum": 0.2152,
+            "standardDeviation": 0.011619352685907516,
+            "coefficientOfVariation": 0.05783598738862312
+          },
+          "medianImprovementFraction": 0.43468296409472884,
+          "p95Ratio": 0.5523811492993275,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36756,
+              "candidateMedianMs": 0.2099,
+              "medianImprovementFraction": 0.42893677222766347,
+              "p95Ratio": 0.5560925683743674
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.36618,
+              "candidateMedianMs": 0.20756,
+              "medianImprovementFraction": 0.43317494128570655,
+              "p95Ratio": 0.5455834411384218
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.36556,
+              "candidateMedianMs": 0.18506,
+              "medianImprovementFraction": 0.4937629937629937,
+              "p95Ratio": 0.5114026323791321
+            }
+          ],
+          "candidateThirdVsFirstMedianFraction": -0.11834206765126254,
+          "candidateRunMedianRangeFraction": 0.1342267372743975
+        },
+        {
+          "block": 69,
+          "rows": 414720,
+          "baseline": {
+            "samples": 90,
+            "mean": 0.368527111111111,
+            "median": 0.36641999999999997,
+            "p95": 0.38287,
+            "p99": 0.423912,
+            "minimum": 0.35988,
+            "maximum": 0.42676,
+            "standardDeviation": 0.009900138859233175,
+            "coefficientOfVariation": 0.02686407203362653
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.20060044444444444,
+            "median": 0.2076,
+            "p95": 0.214422,
+            "p99": 0.2156604,
+            "minimum": 0.18076,
+            "maximum": 0.21712,
+            "standardDeviation": 0.012371545121421093,
+            "coefficientOfVariation": 0.06167257084441479
+          },
+          "medianImprovementFraction": 0.43343703946291134,
+          "p95Ratio": 0.5600386554182882,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 0.36678,
+              "candidateMedianMs": 0.2106,
+              "medianImprovementFraction": 0.4258138393587436,
+              "p95Ratio": 0.5714255407168543
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 0.36668,
+              "candidateMedianMs": 0.20766,
+              "medianImprovementFraction": 0.4336751390858514,
+              "p95Ratio": 0.5661086844461326
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 0.36564,
+              "candidateMedianMs": 0.18372,
+              "medianImprovementFraction": 0.497538562520512,
+              "p95Ratio": 0.47921446646443183
+            }
+          ],
+          "candidateThirdVsFirstMedianFraction": -0.1276353276353277,
+          "candidateRunMedianRangeFraction": 0.14630960156760286
+        },
+        {
+          "block": 70,
+          "rows": 1658880,
+          "baseline": {
+            "samples": 90,
+            "mean": 1.4565053333333338,
+            "median": 1.44208,
+            "p95": 1.536174,
+            "p99": 1.5540935999999999,
+            "minimum": 1.43644,
+            "maximum": 1.561,
+            "standardDeviation": 0.02916191394419935,
+            "coefficientOfVariation": 0.020021838078313026
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 0.7365328888888887,
+            "median": 0.70462,
+            "p95": 0.823448,
+            "p99": 0.8329608000000001,
+            "minimum": 0.68496,
+            "maximum": 0.8608,
+            "standardDeviation": 0.053660224152520704,
+            "coefficientOfVariation": 0.07285516364852478
+          },
+          "medianImprovementFraction": 0.5113863308554311,
+          "p95Ratio": 0.5360382352519962,
+          "pairedRuns": [
+            {
+              "pair": 1,
+              "baselineMedianMs": 1.45308,
+              "candidateMedianMs": 0.70088,
+              "medianImprovementFraction": 0.5176590414842954,
+              "p95Ratio": 0.4911969599340861
+            },
+            {
+              "pair": 2,
+              "baselineMedianMs": 1.44252,
+              "candidateMedianMs": 0.8151200000000001,
+              "medianImprovementFraction": 0.43493331114993206,
+              "p95Ratio": 0.5385973160987318
+            },
+            {
+              "pair": 3,
+              "baselineMedianMs": 1.4405999999999999,
+              "candidateMedianMs": 0.69906,
+              "medianImprovementFraction": 0.514743856726364,
+              "p95Ratio": 0.46974239622773306
+            }
+          ],
+          "candidateThirdVsFirstMedianFraction": -0.0025967355324734154,
+          "candidateRunMedianRangeFraction": 0.16602294509770266
+        }
+      ],
+      "isolatedMedianSumMs": {
+        "baseline": 5.81754,
+        "candidate": 3.08282
+      },
+      "pooledOperatorGatesPassed": 10,
+      "pairedOperatorGatesPassed": 30,
+      "minimumPairedImprovementPercent": 41.574255272885416,
+      "maximumPairedImprovementPercent": 51.76590414842954
+    },
+    "protocol": {
+      "warmupsPerRun": 5,
+      "pairs": 3,
+      "measuredFramesPerRun": 30,
+      "samplesPerRolePerBlock": 90,
+      "pairRoleOrder": [
+        "baseline-candidate",
+        "candidate-baseline",
+        "baseline-candidate"
+      ],
+      "persistentCommandBuffers": true,
+      "persistentDescriptors": true,
+      "persistentBuffers": true,
+      "waits": "Reusable VkFence between submissions",
+      "readbackDuringTiming": false,
+      "captureDuringTiming": false,
+      "statisticsCaptureDuringTiming": false,
+      "dispatchInstrumentation": false,
+      "timestampScope": "Compute timestamps around two decomposed baseline dispatches plus their barrier or one fused dispatch; initial reusable-buffer barrier excluded."
+    }
+  },
+  "wholeModelCorrectness": [
+    {
+      "route": "ordinary7",
+      "record": {
+        "path": "build/release/qkv32-normalize-graph-20261003-ordinary7-2c0f9e6d/gpu-whole-model-v1/record.json",
+        "sha256": "c7c86e63d8bde0456b17577ed727fd27f0433b9e4006d538a92ca337759a027d",
+        "bytes": 24090
+      },
+      "executableSha256": "5ad1ade7560addd37119c83442c53d94bfd7923b2f4746f0e6d308f517732e96",
+      "models": [
+        {
+          "scope": "model320",
+          "manifest": {
+            "path": "build/release/qkv32-normalize-graph-20261003-ordinary7-2c0f9e6d/gpu-whole-model-v1/model320/manifest.json",
+            "sha256": "d75a586f305d8942c64edd3db3da5a310cddcf3439f88400dc1d3289abb96d68",
+            "bytes": 6820
+          },
+          "report": {
+            "path": "build/release/qkv32-normalize-graph-20261003-ordinary7-2c0f9e6d/gpu-whole-model-v1/model320/modelcheck-report.json",
+            "sha256": "8cf9dcc073111ef5d479cb4170afe11d7f6014f9c1b5528172d1b7ba44129a24",
+            "bytes": 8897
+          },
+          "decomposedBoundaryCount": 75,
+          "decomposedBlock0IntermediateCount": 9,
+          "rawComparedFiles": 88,
+          "rawComparedBytes": 103739392,
+          "rawFileClosureSha256": "2b52fc73293bbe3b6864d017ed7fc14175e47f37a5e32b5786ec153514bbdd1f",
+          "differentBytes": 0,
+          "productionAndCaptureHeadIdentical": true,
+          "displayProxyRgbIdentical": true,
+          "sceneLinearQualityGateApplied": false
+        },
+        {
+          "scope": "target",
+          "manifest": {
+            "path": "build/release/qkv32-normalize-graph-20261003-ordinary7-2c0f9e6d/gpu-whole-model-v1/target/manifest.json",
+            "sha256": "23e3316ae50ecb05ecace411cf22bec3cbaf6685d6ce2c5922344274f5d10c92",
+            "bytes": 1413
+          },
+          "report": {
+            "path": "build/release/qkv32-normalize-graph-20261003-ordinary7-2c0f9e6d/gpu-whole-model-v1/target/modelcheck-report.json",
+            "sha256": "06bb06a3f89de338ebc2c196d6b1aa9e4c3d6f882547a211ea49e82b3ac78961",
+            "bytes": 1550
+          },
+          "decomposedBoundaryCount": 0,
+          "decomposedBlock0IntermediateCount": 0,
+          "rawComparedFiles": 4,
+          "rawComparedBytes": 178917120,
+          "rawFileClosureSha256": "02c27e6c54b47805b8fd704afcb96afe5b66f3b18f68f35de3002a6fbb2d7740",
+          "differentBytes": 0,
+          "productionAndCaptureHeadIdentical": true,
+          "displayProxyRgbIdentical": true,
+          "sceneLinearQualityGateApplied": false
+        }
+      ]
+    },
+    {
+      "route": "all-c32",
+      "record": {
+        "path": "build/release/qkv32-normalize-graph-20261003-all-c32-v2-93f7980e/gpu-whole-model-v1/record.json",
+        "sha256": "3eea094df2eedd6109126e63e8c243ee0d8f4e5a506e5ac4d1871c1e587767cc",
+        "bytes": 24088
+      },
+      "executableSha256": "d5cde0354c6fd5253b25080b26d46909d17e0e9eab45962483b722798737ff88",
+      "models": [
+        {
+          "scope": "model320",
+          "manifest": {
+            "path": "build/release/qkv32-normalize-graph-20261003-all-c32-v2-93f7980e/gpu-whole-model-v1/model320/manifest.json",
+            "sha256": "c070a42175b288955bf7f4fddb69c93c081bef6a29ee1f703cdee46d16f82dd9",
+            "bytes": 6818
+          },
+          "report": {
+            "path": "build/release/qkv32-normalize-graph-20261003-all-c32-v2-93f7980e/gpu-whole-model-v1/model320/modelcheck-report.json",
+            "sha256": "8b856d99e57e1acaa52c7b07732b7dfae2f207c852662ddcc74b07edcab93e5d",
+            "bytes": 8893
+          },
+          "decomposedBoundaryCount": 75,
+          "decomposedBlock0IntermediateCount": 9,
+          "rawComparedFiles": 88,
+          "rawComparedBytes": 103739392,
+          "rawFileClosureSha256": "2b52fc73293bbe3b6864d017ed7fc14175e47f37a5e32b5786ec153514bbdd1f",
+          "differentBytes": 0,
+          "productionAndCaptureHeadIdentical": true,
+          "displayProxyRgbIdentical": true,
+          "sceneLinearQualityGateApplied": false
+        },
+        {
+          "scope": "target",
+          "manifest": {
+            "path": "build/release/qkv32-normalize-graph-20261003-all-c32-v2-93f7980e/gpu-whole-model-v1/target/manifest.json",
+            "sha256": "d92a7978d40ccc31c7d6a912f52406e42f5fe485d7e62d801ee26d33d4d67e62",
+            "bytes": 1411
+          },
+          "report": {
+            "path": "build/release/qkv32-normalize-graph-20261003-all-c32-v2-93f7980e/gpu-whole-model-v1/target/modelcheck-report.json",
+            "sha256": "5b9731ccf343d82ed53f042402b0ba2f57879736d1f81f96e3eec468c4a69fa7",
+            "bytes": 1548
+          },
+          "decomposedBoundaryCount": 0,
+          "decomposedBlock0IntermediateCount": 0,
+          "rawComparedFiles": 4,
+          "rawComparedBytes": 178917120,
+          "rawFileClosureSha256": "02c27e6c54b47805b8fd704afcb96afe5b66f3b18f68f35de3002a6fbb2d7740",
+          "differentBytes": 0,
+          "productionAndCaptureHeadIdentical": true,
+          "displayProxyRgbIdentical": true,
+          "sceneLinearQualityGateApplied": false
+        }
+      ]
+    }
+  ],
+  "completeInferenceTiming": {
+    "record": {
+      "path": "build/release/qkv32-normalize-graph-20261003-all-c32-v2-93f7980e/ordinary-target-timing-v1/record.json",
+      "sha256": "87ed8d4775859010c937a677882aabebb1c52dffe93b9ae0876b9a40482024d5",
+      "bytes": 26094
+    },
+    "samplesPerRole": 90,
+    "statisticsFieldsRecomputed": 126,
+    "pooled": {
+      "baseline": {
+        "samples": 90,
+        "mean": 50.27484933237235,
+        "median": 50.28954000771046,
+        "p95": 50.541575993597505,
+        "p99": 50.61005879431963,
+        "min": 49.77355998754501,
+        "max": 50.68400001525879,
+        "standard_deviation": 0.1878966573235708,
+        "coefficient_of_variation": 0.0037373887703047327
+      },
+      "candidate": {
+        "samples": 90,
+        "mean": 47.72892533176475,
+        "median": 47.75856001675129,
+        "p95": 48.002500005066395,
+        "p99": 48.09691998124123,
+        "min": 47.202319979667664,
+        "max": 48.11116001009941,
+        "standard_deviation": 0.20117500486760623,
+        "coefficient_of_variation": 0.004214949393250206
+      }
+    },
+    "medianImprovementPercent": 5.032815950535863,
+    "perPairMedianImprovementPercent": [
+      5.062329921483933,
+      5.251657066139925,
+      4.891902614952349
+    ],
+    "baselineVariationCvPercent": 0.37373887703047326,
+    "candidateVariationCvPercent": 0.4214949393250206,
+    "fivePercentPooledMedianGatePassed": true,
+    "medianAndP95RegressionGatePassed": true,
+    "networkOnly": true,
+    "readbackOrProfileDuringTiming": false,
+    "sameFrozenPrivateCliBothRoles": true,
+    "baseline": "Pair/Arena diagnostic selection, private QKV normalization off",
+    "candidate": "same selection, private QKV normalization all-c32"
+  },
+  "independentAudits": [
+    {
+      "path": "build/release/ordinary7-qkv-graph-independent-cpu-audit.json",
+      "sha256": "cd3d2eab862faede3fc95e82b4f85f506e2a7813c5d95f3b16defefb61786010",
+      "bytes": 2820
+    },
+    {
+      "path": "build/release/all-c32-v2-qkv-graph-independent-cpu-audit.json",
+      "sha256": "c2a4d22f62541cb7b6c25dd0eb3f39cc13a84202dd24db92811fdbbad0b73a42",
+      "bytes": 2233
+    },
+    {
+      "path": "build/release/qkv-whole-model-timing-independent-cpu-audit.json",
+      "sha256": "affd8f04e292f7af412d701afc367e58f40dbb2ef9636414bfc0fcae87837f99",
+      "bytes": 7989
+    },
+    {
+      "path": "build/release/qkv-all10-operator-timing-second-independent-cpu-audit.json",
+      "sha256": "aceaa2505ae3d2f0c6e1400c750721a5dc3e32a3a9cc4c087d738fe218a2cbd8",
+      "bytes": 20322
+    },
+    {
+      "path": "build/release/qkv-normalize-scalar-draft-20261003-independent/final-v3-replay-independent-cpu-audit.json",
+      "sha256": "585e3bf506d25cc9f4f79404faba5644eee9e6009f2b25370d685eb94d357243",
+      "bytes": 14492
+    },
+    {
+      "path": "build/release/qkv-normalize-scalar-draft-20261003-independent/final-v3-1080-independent-cpu-audit.json",
+      "sha256": "b3e420215889e7271bf2494f36ed70422f860ff791d11a80d606e8d270fa9aec",
+      "bytes": 5852
+    },
+    {
+      "path": "build/release/qkv-normalize-scalar-draft-20261003-independent/final-v3-profile-independent-cpu-audit.json",
+      "sha256": "f58fd50460567a99debafb85cf0e3a1fe258ad7262b581e0c2913de775e1f08a",
+      "bytes": 27612
+    }
+  ],
+  "existingDefaultCache": {
+    "path": "docs/performance/rx9070xt-26.9.1-rte-k16.json",
+    "sha256": "4037216e4127c19281ddc0f986afc2118af49f125d2e3886648b6c7804deaefe",
+    "bytes": 117099
+  },
+  "existingDefaultCacheUnchanged": true,
+  "productionMetadata": {
+    "finalV3": {
+      "buildLabel": "compiled-v3",
+      "sourceScope": "Frozen precommit final-v3 production source, including non-AMD forced-C32 rejection; independently audited correctness, ordinary timing, synthetic scenes, bounded replay, native lifecycle and instrumented profile.",
+      "independentAudit": {
+        "path": "build/release/qkv-production-v3-model-timing-independent-cpu-audit.json",
+        "sha256": "83140d7293e7a96a3cafb89ec059996ee6538cf14036bbbe47d15128570ea79d",
+        "bytes": 16640
+      },
+      "sourceClosureAudit": {
+        "path": "build/release/qkv-production-v3-source-closure-independent-cpu-audit.json",
+        "sha256": "8fa2d6d86ea01243e8cf4a43083457f08fa7ac3ed66b09f51a415a51a221c105",
+        "bytes": 1708
+      },
+      "cpuPreparation": {
+        "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/cpu-preparation.json",
+        "sha256": "994bd9ac710f1f11ba1b185aec2807101d88a9de7f7e69cd2f335618e5e08c79",
+        "bytes": 14768
+      },
+      "executable": {
+        "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/dlss5vk.exe",
+        "sha256": "65f6440fb6a48c4e8acf90c7be75cd042bf7903d7a3c464abe7c1d51bcfb54da",
+        "bytes": 1159168
+      },
+      "sourceParent": "a692d221b3ee43f29633f741599d1a2dfbacc14b",
+      "sourceInputsRehashed": 106,
+      "sourceInputsRehashedFromFrozenSnapshot": 28,
+      "sourceInputsRehashedFromStillByteIdenticalCurrentFiles": 78,
+      "all31OriginalSpvsByteIdentical": true,
+      "newModuleByteIdenticalToFrozenPrivate": true,
+      "publicSelectedPolicyField": "qkv_normalize: off|c32",
+      "modelValidationRecord": {
+        "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/gpu-whole-model-v1/record.json",
+        "sha256": "a54fb6a8f2ff6df09a65bd7834d263a69abee106fc19c66edf6785b168bec8dd",
+        "bytes": 24113
+      },
+      "modelChecks": [
+        {
+          "scope": "model320",
+          "report": {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/gpu-whole-model-v1/model320/modelcheck-report.json",
+            "sha256": "9efd06d3f691de62b5c02e7b308f9c14ff445e3015de8c4152c57ba224f983bf",
+            "bytes": 8881
+          },
+          "manifest": {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/gpu-whole-model-v1/model320/manifest.json",
+            "sha256": "def1e6a692fb54d95bb0b4b55a118c5ed68d2bbee6ce70e38f632f70ae9dd8eb",
+            "bytes": 6806
+          },
+          "rawComparedFiles": 88,
+          "rawComparedBytes": 103739392,
+          "rawFileClosureSha256": "2b52fc73293bbe3b6864d017ed7fc14175e47f37a5e32b5786ec153514bbdd1f",
+          "differentBytes": 0,
+          "decomposedCheckpointCount": 75,
+          "decomposedBlock0IntermediateCount": 9,
+          "productionCaptureHeadExact": true,
+          "sceneLinearQualityGateApplied": false
+        },
+        {
+          "scope": "target",
+          "report": {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/gpu-whole-model-v1/target/modelcheck-report.json",
+            "sha256": "bdccfa772d855fc8c77fd95229aa42d17bb7503e7156871f356b0d227d5c62bf",
+            "bytes": 1536
+          },
+          "manifest": {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/gpu-whole-model-v1/target/manifest.json",
+            "sha256": "30441fb257d18c0e2c5cc4e603976ad72942b74343b43f014ba9a0d5fae13e62",
+            "bytes": 1399
+          },
+          "rawComparedFiles": 4,
+          "rawComparedBytes": 178917120,
+          "rawFileClosureSha256": "02c27e6c54b47805b8fd704afcb96afe5b66f3b18f68f35de3002a6fbb2d7740",
+          "differentBytes": 0,
+          "decomposedCheckpointCount": 0,
+          "decomposedBlock0IntermediateCount": 0,
+          "productionCaptureHeadExact": true,
+          "sceneLinearQualityGateApplied": false
+        }
+      ],
+      "completeInferenceTiming": {
+        "record": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/ordinary-target-timing-v1/record.json",
+          "sha256": "fc508dd5b1799d4fb8b1c3caef0134253b30bb2c82799451b14ffab7ea94d0fb",
+          "bytes": 26178
+        },
+        "pooled": {
+          "baseline": {
+            "samples": 90,
+            "mean": 50.372526219818326,
+            "median": 50.41259999573231,
+            "p95": 50.63237600177526,
+            "p99": 50.78920360594988,
+            "min": 49.473040014505386,
+            "max": 50.81836000084877,
+            "standard_deviation": 0.21870610377360314,
+            "coefficient_of_variation": 0.004341773585450167
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 47.74187555412451,
+            "median": 47.74615998566151,
+            "p95": 48.02880000025034,
+            "p99": 48.687303199470044,
+            "min": 47.20600000023842,
+            "max": 48.92859998345375,
+            "standard_deviation": 0.23971954410452315,
+            "coefficient_of_variation": 0.005021158915986771
+          }
+        },
+        "samplesPerRole": 90,
+        "statisticFieldsRecomputed": 126,
+        "medianImprovementPercent": 5.2892332676682585,
+        "perPairMedianImprovementPercent": [
+          5.095179458921129,
+          5.296891032159423,
+          5.360329768874628
+        ],
+        "medianAndP95RegressionGatePassed": true,
+        "fivePercentPooledMedianGatePassed": true,
+        "networkOnly": true,
+        "imageReadbackOrProfileDuringTiming": false
+      },
+      "sceneLinearQualityProof": {
+        "record": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/checks-scenes-v1/record.json",
+          "sha256": "a9e1b292a119c8dd2d09568091e6eb51e672a1b5b42060bd1a36b4c044ad804c",
+          "bytes": 7572
+        },
+        "quality": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/checks-scenes-v1/quality.json",
+          "sha256": "cf11296acbd58d40ac5352550052df5239fe79489b99b55ecf1aa7d1fa587524",
+          "bytes": 19671
+        },
+        "strictSavedOutputHistoryHeadPairsReopened": 18,
+        "strictSavedComparedBytes": 29491200,
+        "provenanceFilesRehashed": 72,
+        "pfmRgbAndRawRgbaCorrespondenceIndependentlyVerified": true,
+        "allFiniteSceneLinearRgb": true,
+        "allSixQualityGatesPassed": true,
+        "cases": [
+          {
+            "name": "sdr-reset",
+            "dimensions": [
+              320,
+              320
+            ],
+            "sceneLinearRgbBytesExact": true,
+            "fixedDataRange": 1.0,
+            "psnrDb": null,
+            "psnrInterpretation": "exact/infinite",
+            "ssim": 1.0,
+            "minimumRgb": -5.355104235604813e-07,
+            "maximumRgb": 0.8283277153968811,
+            "hdrSamplesAboveOne": 0,
+            "inputsFeaturesControlsIdentical": true
+          },
+          {
+            "name": "sdr-temporal",
+            "dimensions": [
+              320,
+              320
+            ],
+            "sceneLinearRgbBytesExact": true,
+            "fixedDataRange": 1.0,
+            "psnrDb": null,
+            "psnrInterpretation": "exact/infinite",
+            "ssim": 1.0,
+            "minimumRgb": 0.0021164356730878353,
+            "maximumRgb": 0.8545121550559998,
+            "hdrSamplesAboveOne": 0,
+            "inputsFeaturesControlsIdentical": true
+          },
+          {
+            "name": "sdr-camera-reset",
+            "dimensions": [
+              320,
+              320
+            ],
+            "sceneLinearRgbBytesExact": true,
+            "fixedDataRange": 1.0,
+            "psnrDb": null,
+            "psnrInterpretation": "exact/infinite",
+            "ssim": 1.0,
+            "minimumRgb": -5.355104235604813e-07,
+            "maximumRgb": 0.8283277153968811,
+            "hdrSamplesAboveOne": 0,
+            "inputsFeaturesControlsIdentical": true
+          },
+          {
+            "name": "hdr-reset",
+            "dimensions": [
+              320,
+              320
+            ],
+            "sceneLinearRgbBytesExact": true,
+            "fixedDataRange": 1.0,
+            "psnrDb": null,
+            "psnrInterpretation": "exact/infinite",
+            "ssim": 1.0,
+            "minimumRgb": 0.0008596715051680803,
+            "maximumRgb": 17.36393165588379,
+            "hdrSamplesAboveOne": 161205,
+            "inputsFeaturesControlsIdentical": true
+          },
+          {
+            "name": "hdr-temporal",
+            "dimensions": [
+              320,
+              320
+            ],
+            "sceneLinearRgbBytesExact": true,
+            "fixedDataRange": 1.0,
+            "psnrDb": null,
+            "psnrInterpretation": "exact/infinite",
+            "ssim": 1.0,
+            "minimumRgb": 0.004615298006683588,
+            "maximumRgb": 17.782495498657227,
+            "hdrSamplesAboveOne": 158287,
+            "inputsFeaturesControlsIdentical": true
+          },
+          {
+            "name": "hdr-camera-reset",
+            "dimensions": [
+              320,
+              320
+            ],
+            "sceneLinearRgbBytesExact": true,
+            "fixedDataRange": 1.0,
+            "psnrDb": null,
+            "psnrInterpretation": "exact/infinite",
+            "ssim": 1.0,
+            "minimumRgb": 0.0008596715051680803,
+            "maximumRgb": 17.36393165588379,
+            "hdrSamplesAboveOne": 161205,
+            "inputsFeaturesControlsIdentical": true
+          }
+        ],
+        "syntheticOnly": true,
+        "gameMotionVisualReviewCompleted": false
+      },
+      "runtimeLifecycleProof": {
+        "record": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/checks-runtime-v1/record.json",
+          "sha256": "7a5b91e92c13d08eb0800e89232a0ffcc2e07887c6b9d311260c2b48efd6d201",
+          "bytes": 2511
+        },
+        "runtimeSha256": "ca10713a5391e76189a8b406dc3e80bc21b13345b95165b05ccb44b6e408c76e",
+        "interopSha256": "cf5f87796f1a45ec379470a8c6536680744f6cc48afaf6814c69042ca00b30b6",
+        "runtimeAssetsNativeModulesRehashed": 32,
+        "gameBridgeModulesRehashed": 2,
+        "actualImportedModelManifestRehashed": true,
+        "geometryCases": [
+          {
+            "geometry": [
+              320,
+              320
+            ],
+            "paddedGeometry": [
+              320,
+              320
+            ],
+            "nativeDllRequestedGeometryFramesSerialized": 8,
+            "sourceIncludedPoolDistinctLivePreparedSlots": 8,
+            "sourceIncludedPoolContinuousFrames": 8,
+            "sourceIncludedPoolCancelGapResetFrames": 7,
+            "continuousReportedExactBytes": 6553600,
+            "cancelGapResetReportedExactBytes": 5734400,
+            "sourceIncludedPoolIsNativeDllEightSlotsTest": false,
+            "parallelInferenceClaim": false,
+            "gameplayClaim": false,
+            "runtimeOutputsPersistedAndReopenedByCpuAuditor": false,
+            "log": {
+              "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/checks-runtime-v1/320x320-8frames.log",
+              "sha256": "d21353f0d821e3db4a54ba059cd7f24406b4ade662f900b8068d1cd028752ffe",
+              "bytes": 11271
+            }
+          },
+          {
+            "geometry": [
+              1707,
+              960
+            ],
+            "paddedGeometry": [
+              1728,
+              960
+            ],
+            "nativeDllRequestedGeometryFramesSerialized": 8,
+            "sourceIncludedPoolDistinctLivePreparedSlots": 8,
+            "sourceIncludedPoolContinuousFrames": 8,
+            "sourceIncludedPoolCancelGapResetFrames": 7,
+            "continuousReportedExactBytes": 104878080,
+            "cancelGapResetReportedExactBytes": 91768320,
+            "sourceIncludedPoolIsNativeDllEightSlotsTest": false,
+            "parallelInferenceClaim": false,
+            "gameplayClaim": false,
+            "runtimeOutputsPersistedAndReopenedByCpuAuditor": false,
+            "log": {
+              "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/checks-runtime-v1/1707x960-8frames.log",
+              "sha256": "4dcb557af0f67df70479add3fc636cff3c909f9366c770fadcd0ac11aa4a6cc8",
+              "bytes": 11330
+            }
+          }
+        ],
+        "bothNativeDllLifecycleAndSeparateSourceIncludedPoolReportedPass": true,
+        "ordinaryPerformanceMeasuredByThisAudit": false
+      },
+      "recordedSequenceReplayProof": {
+        "byte_proof": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/gpu-game-replay-v1/byte-proof.json",
+          "sha256": "cc766171dd9d17310ac5aa8d094b09d1c9c8962a672ae6eba2ad9b751eb31f31",
+          "bytes": 53909
+        },
+        "report": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/gpu-game-replay-v1/replay-report.json",
+          "sha256": "39d0590d8dd0a663d2eec3e89dbc133957ac6411721ad1310cded76b5a023696",
+          "bytes": 41492
+        },
+        "raw_comparisons": 80,
+        "raw_compared_bytes": 2107883520,
+        "comparison_breakdown": {
+          "fresh_replay_outputs": {
+            "files": 48,
+            "bytes": 1263697920
+          },
+          "copied_original_runtime_anchors": {
+            "files": 32,
+            "bytes": 844185600
+          }
+        },
+        "raw_file_closure_sha256": "382bd6662d9d0d49bdcf81e9db6754870d3230dc56f9ab19d65148d760a52bb0",
+        "artifact_bindings_checked": 35,
+        "quality": [
+          {
+            "mode": "identical",
+            "frame_id": 7085,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "identical",
+            "frame_id": 7086,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "identical",
+            "frame_id": 7087,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "identical",
+            "frame_id": 7088,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "identical",
+            "frame_id": 7089,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "identical",
+            "frame_id": 7090,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "identical",
+            "frame_id": 7091,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "identical",
+            "frame_id": 7092,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "evolved",
+            "frame_id": 7085,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "evolved",
+            "frame_id": 7086,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "evolved",
+            "frame_id": 7087,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "evolved",
+            "frame_id": 7088,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "evolved",
+            "frame_id": 7089,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "evolved",
+            "frame_id": 7090,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "evolved",
+            "frame_id": 7091,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          },
+          {
+            "mode": "evolved",
+            "frame_id": 7092,
+            "exact": true,
+            "ssim": 1.0,
+            "psnr_db": null,
+            "data_range": 1.0,
+            "different_samples": 0
+          }
+        ],
+        "existing_sdr_frames": 8,
+        "composed_frame_checks": 16,
+        "minimum_ssim": 1.0,
+        "all_exact": true,
+        "visual_review_completed": false,
+        "performance_representative": false,
+        "evolved_original_capture_parity_claimed": false,
+        "freshVsCopiedScope": "48 newly computed replay head/history/composed files plus32 copied original-runtime anchors; sixteen composed RGB checks are freshly computed. Same existing eight SDR frames in identical and independently evolved own-history modes. Evolved results match the corresponding reset replay, not the original captured runtime histories."
+      },
+      "installedDriverStatisticsProof": {
+        "record": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/checks-stats-v1/record.json",
+          "sha256": "14cbe32ee8216bf81c003eb7a0c4a824b5b9fd797cd23bdc9511125fb4178a3c",
+          "bytes": 986
+        },
+        "rawLog": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/checks-stats-v1/driver-info.log",
+          "sha256": "2361bfb664081cb4b6dbfd77dddd5849fbc5c3bf3b8f72e1cc970d84ffb83092",
+          "bytes": 26055
+        },
+        "addressNormalizedLogSha256": "2a31b3707d897e4e968959d18061f163a26732518f049466b1fea322ea8c4e3a",
+        "nativeModuleSha256": "9b1c585054bbbe3c9c2021d393699eae16e9ffcf889db6311d070d0049be5cc5",
+        "actualInstalledDriverExecutableStatistics": {
+          "numUsedVgprs": 32,
+          "numUsedSgprs": 22,
+          "ldsSizePerLocalWorkGroup": 9216,
+          "ldsUsageSizeInBytes": 9216,
+          "scratchMemUsageInBytes": 0
+        },
+        "staticFp8WmmaInstructionCount": 2,
+        "staticWmmaOpcode": "v_wmma_f32_16x16x16_fp8_fp8",
+        "staticMode23SetToOneInstructionCount": 6,
+        "staticMode23SetToZeroInstructionCount": 0,
+        "rawExecutablePropertySubgroup": 256,
+        "requestedFullPipelineSubgroupSize": 32,
+        "waveSizeFromRawExecutablePropertyAccepted": false,
+        "captureFlagsEnabled": true,
+        "ordinaryTimingCodeIdentityEstablishedByThisCapture": false,
+        "runtimeInstructionExecutionCountsMeasured": false,
+        "isaTextIncludedInPublicScalar": false
+      },
+      "defaultPromotionQualified": false,
+      "publicTuningExportQualified": false,
+      "gameQualified": false,
+      "recordedWindowsBuildInputSha256": {
+        "src/json.h": "4634156197520e561c7aba2e4398bea3bb15b685934882c2008312afb6cc500b",
+        "src/kernels.cpp": "99d7e0aa73e56354ef8e9e1a3865b0fd3f090b68b9adc2978bf8b9529fabc64b",
+        "src/kernels.h": "140aa46e9f78d10a6b6f585f3a92d69293b7be223c08fa56b1b0dff2c2b6a8d7",
+        "src/main.cpp": "0f385bbfce8f8314e4171a069204db80654a193af04e07653b04d01e318ea01c",
+        "src/nr_graph.cpp": "1b9d695879a8c81f15de01d3309bf7d7306ab830fb65f418df933cafc2ba6ffe",
+        "src/nr_graph.h": "d2a28efba1dbc97b903a8f6a0f074c22a59ea45da035afa265a4f2a3979a6418",
+        "src/nr_model.cpp": "2fa2e2302f326ffc845f025625b3aad61abca5aa13144c31caf26711e9ff4ff6",
+        "src/nr_model.h": "c489334d83befd6f7b8771839cfc77aa22582c0d10f6ed6302d9d1c12e9fc70b",
+        "src/numeric.h": "097f704525ac9b548645c8168de75e95758fab5c6395e422c7f7aea7545be5e1",
+        "src/reference.cpp": "48f8cabfc108001e97a0b4eee087098d986dc07366fd264a058d60b665d851a6",
+        "src/reference.h": "140a34b50c37958712b0a810fcdb12586225ba6e5b219158ee53957d1452716c",
+        "src/sha256.h": "7bc612aa8e483a8946e3a8fb911e3e16048e99175374b87a37c9aa45291b025b",
+        "src/verify.cpp": "d9f756ea24f801d47543b63833c3aab29d95457aeb4fd8cd952b706c935d21d4",
+        "src/vk_context.cpp": "9164a41ef01d21543559ffb743a91f7aa1ffecdf3bb5e307c2944d8a061e14a4",
+        "src/vk_context.h": "7fd39bd354ab9e75e3868d1d4036f814dd49580168db2604e7057ed44c59ab7f",
+        "src/amd_fusion.h": "eb746524607edbc8fe634d8ff1f5f3bca7b49978c6848e4e5e06911e285f697e",
+        "src/amd_config.h": "ac9eadff257171a0a644a0c9533975f82cff1358b307bf084d04bf0fd94e4997",
+        "src/amd_fusion_validation.h": "8360043da39ea5ec396ded3bd4068b120ba23b0d3461a3f07f2618719b253a0c",
+        "src/amd_qualified_fallback.h": "d4d9fdc135f086e6e0f770a76ddc0b6b39296c84522a780c88bcfe3b09acbc85",
+        "src/amd_selection.h": "407f6193a4209399de1a7045d9db40b0991ce8920fbc8c42c6442f6a340f6f9c",
+        "src/shader_identity.h": "5b11267047476acc5ce0ecad027ae39e5ab854e0b6c63ae9c36b93d01ee5e049",
+        "src/amd_window_resources.h": "39d98d6d7ab3d12b76192271b15138112dbf7ca020f8e74d8970dc9cf6e7aa46",
+        "src/vk_readback.h": "00fc1f567eeb580dde31addef0cf189649fdbc8d7786143878a223f4024669e4",
+        "src/amd_qkv_normalize_validation.h": "dc4ff9e2396384ae24c21200c7f40d338249ede43e73cee800f8be22460155fd",
+        "game/open_nr_api.h": "55961e2a09529a7059852d1758180a85c2b108c5ee147087a6269f9e238b5e71",
+        "game/runtime.cpp": "d5b3169d45b404695b8b6ac53f7834deee72c611100c44e7eab74e3311d5688a",
+        "game/capture_request.h": "e38254490d27d10d067cc466768d8e6365fba9cfaf87b3dbcf7a10c0c3f26ca3",
+        "game/compat/LmxxfNrApi.h": "2bce53fa8d320a24ce310c1786a093e368bdf477bc16464cf990600a6bc2fedc",
+        "game/compat/MochizukiNrControls.h": "835c4cf8b3776b547ac7d2daa2ce462236e9a8f6ad30f63bc710257ccd3b9a3e",
+        "game/shaders/bridge.hlsl": "e5ea7086b4a15654179ede2e3ac7716ca04d339922846d11e3fd186126ed0814",
+        "game/shaders/frame_buffers.glsl": "66e3a82825990d7ba00c24c7c51f4b8ee1e16d2ac752aa2db6265f2d53a6905d",
+        "game/shaders/game_preprocess.comp": "70f9ee88688fc5f70b02a966ff88f3a5cba9a8d84bf3042fbba76e05231d8431",
+        "game/shaders/game_composite.comp": "a6f5c010dc37cb01775d6c2c99918eecfe301d3b02730800277fc13c96384337",
+        "shaders/attention_common.glsl": "41fb2921967eda0ea12172aaae93020ab5d178f0711660b0dea59a14828ea24d",
+        "shaders/common.glsl": "e8b0928a841d31983b0e0a57fa183c77578a8e45a9e83ed4391aad18f515b842",
+        "shaders/fused_block32.comp": "2f14b992b61ef7e884344032bf7ac601eb175abfaa0e0f2b8a3e70e9a1abf64c",
+        "shaders/gemm_f16.comp": "88e9019a9d4d1f9cf24c6e8fd1552a6b9576f2aa85d830c94e360137eaf418ea",
+        "shaders/gemm_fp8.comp": "b4d07f0b792855d6120c184960ceec144a9d7754067def566b8743288cfc7b4c",
+        "shaders/gemm_mlp.comp": "bd04ff3b09935cef29fd753c3bfea13b1387be1e54e70e4cdcf1949130be1493",
+        "shaders/gemm_reduce.comp": "5d2d0ce5d0e0b9c407d7b45068aa817e26e3e2fe15be425b5a222da939fe6696",
+        "shaders/global_attend.comp": "b5621e3b3b2fefb368533b77d99ae634ccd65cb2e95c19fb122bcf9f93fce433",
+        "shaders/global_attention.comp": "54b5c8d9bc6a1de9527bf9d75c881135d134166554e4b1b57083e8d4780db704",
+        "shaders/global_normalize.comp": "734f35616250ad2f6fcd97546e176c7393c876c9533bbd22fb67482be8186f0e",
+        "shaders/ops.comp": "313f04eddf5e3071efe9a1d7725a2281fb74bc2b811a6458983bb475cdab6d20",
+        "shaders/preprocess.comp": "5531b5d8ccf648e045ed7475896f3edba19c923797ffae1154de957a45f6b654",
+        "shaders/publish.glsl": "5c46cdcd9e7a962cfbc64e4bcb45e661adc265a6f38c84e0aca86ebc310fed97",
+        "shaders/qkv_attention.comp": "6f3c90fe958b0f4508c200db95a2281f830bddbc445a58a50524c4f3b6675a3a",
+        "shaders/window_attend.comp": "83e85d5fb24e622214b1ce9574e2e1911775dc65bccc57f45956b3b342dab94d",
+        "shaders/window_normalize.comp": "b841938652926d6bc08989ef1e192808c30ccb1d18a30fa03204ef2d7a81c1be",
+        "shaders/portable_numeric.glsl": "e38876828aa7a942ea60db4e684b61ff52cfa85d708388eba381f4bb4d61449c",
+        "shaders/portable_gemm.comp": "0a09480eaa0c2ff1ad53f4c067f8cd761181c53c90a9b76dc88567998e3b026f",
+        "shaders/amd_gemm.comp": "6fae131bb1e76593e38c0c0ae30634771fa63582edbde3f1106fa97049e63b96",
+        "shaders/portable_gemm_body.glsl": "50e7499f5baf273a69b0899ab762d2c4d40f752ab0dc81c46f69dc7c8c25de81",
+        "shaders/portable_f16.comp": "418aca0e546939f540373adfc055a6d8bbfb7d1329d4eb69a319fbb40354c248",
+        "shaders/portable_window.comp": "79f620b33dd2ab2c0cfa43dd3a5b5acd70d3b922e06a5e805cc52dd496d08dc0",
+        "shaders/amd_window.comp": "fbe2b3f9cb0887874a87725019a833c798a8ebcb34e37feddd77121d83873dee",
+        "shaders/portable_window_body.glsl": "421fe345748632438ededead286f07a2c87af193ceddb6002e6b735a1e73a6bf",
+        "shaders/portable_global.comp": "766191457f04b638bb06c03036584b2f6141ec14ad42e63d8f91e614b4d76ecd",
+        "shaders/amd_global.comp": "2b6ca5a1b4c581ce508bd94dae3a77b58b395327e052196a55705facf7dc5437",
+        "shaders/portable_global_body.glsl": "61b94991ba3c05e3caf62178f9bd653ad8943e0c7884019c556b2d60061b48e6",
+        "shaders/amd_normalize_body.glsl": "f1a90117d07a277bc589c234782fd830902be2e36f14f061256cfcaf70c4edba",
+        "shaders/amd_window_normalize.comp": "0b19d724ceae561627f14f76e54a8179ad794bb958d0c25641c008d430c165b5",
+        "shaders/amd_global_normalize.comp": "df88db7c35e6bb3ae8970de7c7b0deabdc9f84556470fa91849c11fa4ca79211",
+        "shaders/amd_global_matrix.comp": "531f31340825b313c8987f8e1929e7627abc380c2b234385c3deee1fa7394879",
+        "shaders/amd_window_optimized.comp": "1733b0cf4ec699a0c005b78d26cde23167d8015bfa705880fdd3cfe19204de14",
+        "shaders/amd_window_optimized_body.glsl": "9890d03b0df9dd169b75cf958c06335fd47d936d7c06d2a71e5cc4e2331c5ce2",
+        "shaders/amd_ffn32.comp": "06b901a6f7e90f099a66711920bdb9b8ddb21b34555e31fed7379b3919f1a916",
+        "shaders/amd_gemm_optimized.comp": "9aa2b6ac0c2568e23ffbd92e49534f6425e10900a25fa548570969109fdf4e5e",
+        "shaders/amd_qkv32.comp": "fdacac60c5c88dbaf8a83b96a7a8808e2e007feb6ff2caaa4cbc9b5c7b8fcbd4",
+        "shaders/amd_expert_ffn.comp": "eb471cab241803b95bb08801ebf60caccbc435c1bd050ae09263efb00830cee7",
+        "shaders/amd_block32.comp": "a8a53e325036267d58340fb3830c92e3ea7f43c1817ac38329a6540565a73de1",
+        "shaders/amd_global_matrix_optimized.comp": "83dbd0ceac8411eb39c05b7299fd32efbf70063c1e2f378be83ebd696c454486",
+        "shaders/amd_window_small.comp": "50f01f5e7bbd08ca91bee861ae00cfa146d86e0098031e6a0e1b411b385a3c0e",
+        "shaders/amd_gemm_packed.comp": "9216a1ddde1c3f652cb01082411bf038f75c11137ad069031b1ece3433844013",
+        "shaders/amd_gemm_direct.comp": "da5128a97d6799f196bdaf83df3b16c88625415774f8cb3e737d2554d3c647fd",
+        "shaders/amd_window_register.comp": "14258c415c6466e7498f07a37fcd16e846fa6791950708b0ac3e7793ea7049b5",
+        "shaders/amd_half_publication_rte.glsl": "5eff0205c9ca593639db0b12e828c2d1bd85c6e7d66897c624be9584c8fdd211",
+        "shaders/amd_gemm_direct_rte.comp": "fd31a2bee61bb9ba96b650581e694c477cd8d060cd820472a27c96ec80bd736c",
+        "shaders/amd_window_register_rte.comp": "6a2206473449ad3b0eb0ed1eb02b02da90f657f9b61d04952556abc064e30d30",
+        "shaders/amd_gemm_direct_rte_init.comp": "a1fa13a7335f35433cc5ef66926c0c900162f0624fb59158b2305fdea9203977",
+        "shaders/amd_gemm_direct_rte_epilogue.comp": "9e07e89cd279276e4453c34e19d00f3a522948e1b987f54d24620ba92e23251b",
+        "shaders/amd_silu_rte.glsl": "8dc0ba981f8fe2a0810b393e84d933dacdfc07c908b077821c77fde2ab80e533",
+        "shaders/amd_gemm_direct_rte_pair.comp": "1a802384502a44d329224c27a237bf980c8846f06ea6acf23e82d6acb086c35f",
+        "shaders/amd_window_arena_rte.comp": "495535f60edb5d91b30a055276ac47282811d9c1fbaf14c761da56ee35bd5aa6",
+        "shaders/amd_qkv32_normalize_wave6.comp": "8bf81807a17b1a2e56bb74bc32a26d386749c78b8522fed93db63dd782e21dfb",
+        "shaders/diagnostic/amd_half_publication_rte.glsl": "b44d4383c02516f504856933b2e9e4887a8911799f123c5f0fd80830182500f6",
+        "shaders/diagnostic/amd_half_publication_rte.comp": "e68d46755573f1bfcc8a5255ea74d22c07cda638fdb7cae183f4a55890ae40f9",
+        "shaders/diagnostic/amd_silu_rte.comp": "c2ab5223b34dc68439bd8251cd5d19dd7492b3981cbeda0471bc99a0c1567c80",
+        "tests/model_importer_tests.cpp": "14d79ae522503ca1d2ce2fe6b09abece20f2e513b6985d304a43f13a488cd456",
+        "tests/native_selftest.cpp": "aff379bd5a3c3fe8742ae40e84d43a393fcf926b65f181f03db6a2b79ba66c42",
+        "tests/interop_selftest.cpp": "5f0126fb96452f9c70034e9accfde1b4fc8e1c45e5bc80f8c63376504aaeb349",
+        "tests/model_validation.cpp": "51bd1283424e2a9f1ea6ca9ad279b43a433c1cee88e2c5e5689549b9ab03a37e",
+        "tests/composite_validation.cpp": "9ac7107e0025f93340834d0feb34245eeb38652e77fb9c451f34c80c999af77c",
+        "tests/host_job_lifetime_tests.cpp": "f56243c7408803335f1902175d399cde0883d90296229870c2cd526b5078a9e5",
+        "tests/amd_kernel_preservation.cpp": "2cca4add4ad690c1b38646e30474c30c24cbfb940733102825bbb6c2e203abb6",
+        "tests/capture_request_tests.cpp": "e3ccfb104fb05c6c7f1ee95617815f7e755261cd352436b777429c09d9cc8820",
+        "tests/amd_fusion_validation_test.cpp": "27891435fa6ddcbe73cb426b8d15dccf2dfc7c366d0fc0506b39d2c9acae5c11",
+        "tests/amd_config_tests.cpp": "6fa4f520810185ddf5500c9d4594b71a1aabfa0981fbf6488032f6d581f8a181",
+        "tests/amd_selection_tests.cpp": "201300d7f87385880dd69917f8d1ef8d2471df9d16b56a4f5a4850311bfda69b",
+        "tests/shader_identity_tests.cpp": "b7e963e77f14062cc9400f1b1c096abb7d45a15bf2d1da8afd5c70a879c1057e",
+        "tests/amd_window_resources_tests.cpp": "277fec30f5419ddd2a4a24972a7f43f17a07c5ce4c2f8d9171ab3bc628754c13",
+        "tests/json_parser_tests.cpp": "a815362d9ab051ec6cc75518ce755f06e04def1932249ad919bb10a1f46903e7",
+        "tests/amd_publication_probe.cpp": "8f896f295408d7dc42351305d017e1422314b025a4670a506f0861e0754756c3",
+        "tests/amd_silu_rte_probe.cpp": "0d4734f9f1b8575e659c2ce417a601372409137ee89a876f03cb42b06e3ae0d6",
+        "tests/vk_readback_tests.cpp": "d2d724763e2d8ee37190bc3eb4da3414ceedb99fa56fc6a661051af538a79f54",
+        "tests/amd_qkv_normalize_tests.cpp": "05b0a2697eb056a0da7a20b9a08b776ef68fd150bdd9ed4c4ec8eb8ed8082df7"
+      },
+      "sourceHashScope": "SHA256 of exact Windows host bytes used by this precommit build; eventual Git index/commit line-ending bindings require separate verification. Compiler/SDK identity is not independently frozen by this preparation record.",
+      "compiledNativeModulesSha256": {
+        "amd_block32.spv": "e9638615189dfd1dd5cc9620fed839dcb1d0de9daf031e92cd8ac580ed13af5e",
+        "amd_expert_ffn.spv": "e0e8e15e636cafd2b32d1f3a6237a4134bd46658757ad7886863a111927dbac1",
+        "amd_ffn32.spv": "1b4aa577e62bf3ff67b61b6da972b95d91058d7259488d82e1a75dfcf4e14ccc",
+        "amd_gemm_direct_rte_epilogue.spv": "82bdcb6cc9b295578081467c03bfdf017b1f06aab0955326d791c5ef8a685f0f",
+        "amd_gemm_direct_rte_init.spv": "bf90bffb6b28731566b8c70cf4a75fb091bb60e7ba56cc6503c35a7a89d85c3c",
+        "amd_gemm_direct_rte_pair.spv": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+        "amd_gemm_direct_rte.spv": "f2fe7abcb5a4d714dcd466a9ba96834d54b9160ccb3d20a75e8aeab84f3a8677",
+        "amd_gemm_direct.spv": "f7cb8e5e596fa92792de7b1acc1013d765b1c0cf181d82b08d0e8dc16ed685d9",
+        "amd_gemm_optimized.spv": "8673dfb3bb0f30d987c44e4d77df3850bcf44818c5b095e0065a1378e6d6fc23",
+        "amd_gemm_packed.spv": "583da6f979a7bb20ca61b71e3a80b0597167ac41adde9ab8afca6dd59a36d31c",
+        "amd_gemm.spv": "848a6b21bcf5470ad083d64680cba6dc25c11a6b6b3a286982698eea088c3305",
+        "amd_global_matrix_optimized.spv": "f5d52ffd0e14da7136bb17b71ee37ced4a029efd8a6d4aa0e68d896b0fcb7626",
+        "amd_global_matrix.spv": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+        "amd_global_normalize.spv": "caeb9fbaf68519e06219ee7455a2521f28f5bf9fda6b17bc8e5631763541a8aa",
+        "amd_global.spv": "733d41fa9b48317e863dfa35a039418f4e950155cff67ecfb6e30a002289901d",
+        "amd_qkv32_normalize_wave6.spv": "9b1c585054bbbe3c9c2021d393699eae16e9ffcf889db6311d070d0049be5cc5",
+        "amd_qkv32.spv": "2dbdfd7e725e2cfd09e8c09e0aa60ce09a487272bc93d47bd328818d5824224b",
+        "amd_window_arena_rte.spv": "93af10965760ea7b9308f8a3cad63260d035b6dd22d1babbf9223a0195f6b8de",
+        "amd_window_normalize.spv": "c5c8161b72282e283b5ab108f732a328731da39fb5d02c2500a9230b754fe008",
+        "amd_window_optimized.spv": "02bd200ba23be279bc1b3f6a4fc998d9648f576c7c940db09db21cfeb9ff7f75",
+        "amd_window_register_rte.spv": "9ff6958330657dbf8fe6dbc86d1dd520fb3b0c80e9afbdf39cf78a3995314569",
+        "amd_window_register.spv": "73081387738a6697a27d9559ea4cc76157f39761e85dc841f634499e08338462",
+        "amd_window_small.spv": "8406622ac4c6162646d3cc3185eaa0a60bbb03443efeca614fa9f644a80faab2",
+        "amd_window.spv": "76307130e55cb4281ab14c671e1afea404e9df2f83f1c3ade391a7111e0ebf78",
+        "global_normalize.spv": "a8d7ca16a8020fb8f033c11119540869e2daf680b102d7c1d08771f87aaaa8cd",
+        "ops.spv": "6fc879c4d5563225548dd40f2050d81dbbda8e61bf0e77408e743bfba712c7f2",
+        "portable_f16.spv": "843388324a4c1211dca82b2711cc22b4db144e3404b79ab4bb74170ac04fba6b",
+        "portable_gemm.spv": "c64d7598632790ca581211581994a60ff24b04e3d904cfae0eadf930ea8f7d85",
+        "portable_global.spv": "b76b366a52de8de92a27a92072ae4e1c3902fee84f9ca649c0ac9f97c3bbb06f",
+        "portable_window.spv": "4953c2c4f53921b92da407df604cefb44789d00de08ec60d3d0fa736de1ac675",
+        "preprocess.spv": "3674eed6b58a4c6a3fa868a1628b704b93ebd693d5c81981eddf3f66ee65adba",
+        "window_normalize.spv": "c9218555db0fb623a049b984ec04e82313efeecd89745c020152e82dac18b6ac"
+      },
+      "compiledGameBridgeModulesSha256": {
+        "game_composite.spv": "7af79e07a1e56f0916f93038a6068fb5d7bc3ccd2fc28d5e7f7808762c0bb61d",
+        "game_preprocess.spv": "ef4acf9c54e25c84bb8898e6a1682d35cedfc3c22cd08d1f35019e915b6f7775"
+      },
+      "smoke": {
+        "record": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/checks-smoke-v1/record.json",
+          "sha256": "cc72b27f6fdf0aece3c1f763658583d8eb9d90e91b241aa1e834eb24c5dc2e86",
+          "bytes": 1825
+        },
+        "fourExpectedExitsAndReasonsVerified": true
+      },
+      "ordinary1080Timing": {
+        "record": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/ordinary-1080-timing-v1/record.json",
+          "sha256": "4e60804b251599536aa13699449aa4718ae0d1781d3abedc673099733ee60c94",
+          "bytes": 26156
+        },
+        "benchmark_files": [
+          {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/ordinary-1080-timing-v1/pair-01-baseline.json",
+            "sha256": "b233dfe64661132486a94cd4cd641ef899791b5fab458a74b3e5a7d8f2e3efc5",
+            "bytes": 1641
+          },
+          {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/ordinary-1080-timing-v1/pair-01-candidate.json",
+            "sha256": "901f3641b3aa3a0ba4afcf87d8bffb053eeb163e2d6d9b4583e805e99d8ca7cd",
+            "bytes": 1648
+          },
+          {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/ordinary-1080-timing-v1/pair-02-candidate.json",
+            "sha256": "a7338eb5c53c8776b48b8c76bbda09bee6dc88ef8b1e108860318a990c3bbfe3",
+            "bytes": 1644
+          },
+          {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/ordinary-1080-timing-v1/pair-02-baseline.json",
+            "sha256": "6598274c353196c01d1aec60822e60a12d89879fb8291f2c73dd40c0b1c91b7f",
+            "bytes": 1642
+          },
+          {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/ordinary-1080-timing-v1/pair-03-baseline.json",
+            "sha256": "42c1993fe1e018eee3250e10e8644934ce1554cdff028727ee741ea52b7cf093",
+            "bytes": 1645
+          },
+          {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/ordinary-1080-timing-v1/pair-03-candidate.json",
+            "sha256": "d1e867f1cf6591abd121d700cbf16b3ce7494f603d88e0d949a9d66f928373a8",
+            "bytes": 1644
+          }
+        ],
+        "sample_count": 180,
+        "scalar_stats_checked": 72,
+        "pooled": {
+          "baseline": {
+            "samples": 90,
+            "mean": 67.9968293365505,
+            "median": 67.99894000589848,
+            "p95": 68.30533399879933,
+            "p99": 68.3291824221611,
+            "min": 67.32304000854492,
+            "max": 68.34684002399445,
+            "standard_deviation": 0.20862248545069587,
+            "coefficient_of_variation": 0.0030681207857224967
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 64.41455066899458,
+            "median": 64.42920000851154,
+            "p95": 64.76994400471449,
+            "p99": 64.84795521080494,
+            "min": 63.8430800139904,
+            "max": 64.89808002114296,
+            "standard_deviation": 0.25057198506179457,
+            "coefficient_of_variation": 0.003889990420788658
+          }
+        },
+        "median_improvement_fraction": 0.05249699476311365,
+        "per_pair": [
+          {
+            "pair": 1,
+            "baseline": {
+              "samples": 30,
+              "mean": 67.96065066854159,
+              "median": 67.99149999022484,
+              "p95": 68.1713540121913,
+              "p99": 68.18324401050806,
+              "min": 67.32304000854492,
+              "max": 68.18452000617981,
+              "standard_deviation": 0.15949544204372473,
+              "coefficient_of_variation": 0.002346879267263311
+            },
+            "candidate": {
+              "samples": 30,
+              "mean": 64.35372666915258,
+              "median": 64.40708000957966,
+              "p95": 64.67509001493454,
+              "p99": 64.6912312066555,
+              "min": 63.8430800139904,
+              "max": 64.69492000341415,
+              "standard_deviation": 0.2754484717073911,
+              "coefficient_of_variation": 0.004280225652253097
+            },
+            "medianImprovementFraction": 0.05271864837752538
+          },
+          {
+            "pair": 2,
+            "baseline": {
+              "samples": 30,
+              "mean": 68.05190533598264,
+              "median": 68.10583999752998,
+              "p95": 68.32073601782322,
+              "p99": 68.34108642339706,
+              "min": 67.58360001444817,
+              "max": 68.34684002399445,
+              "standard_deviation": 0.2133049938093247,
+              "coefficient_of_variation": 0.0031344455788005553
+            },
+            "candidate": {
+              "samples": 30,
+              "mean": 64.4200040012598,
+              "median": 64.39669999480247,
+              "p95": 64.8071460083127,
+              "p99": 64.88174721777439,
+              "min": 63.96331998705864,
+              "max": 64.89808002114296,
+              "standard_deviation": 0.22855729334830524,
+              "coefficient_of_variation": 0.003547924233966759
+            },
+            "medianImprovementFraction": 0.054461408931481214
+          },
+          {
+            "pair": 3,
+            "baseline": {
+              "samples": 30,
+              "mean": 67.97793200512727,
+              "median": 67.95970000326633,
+              "p95": 68.28011801242829,
+              "p99": 68.31179679960013,
+              "min": 67.46803998947144,
+              "max": 68.31819999217987,
+              "standard_deviation": 0.2343775523016034,
+              "coefficient_of_variation": 0.0034478476380235476
+            },
+            "candidate": {
+              "samples": 30,
+              "mean": 64.46992133657137,
+              "median": 64.50079999864101,
+              "p95": 64.79255601018667,
+              "p99": 64.81675641804934,
+              "min": 64.05956000089645,
+              "max": 64.82048001885414,
+              "standard_deviation": 0.23120002934106454,
+              "coefficient_of_variation": 0.003586168938132602
+            },
+            "medianImprovementFraction": 0.050896340102429494
+          }
+        ],
+        "geometry": [
+          1920,
+          1080
+        ],
+        "padded_geometry": [
+          1920,
+          1152
+        ],
+        "quality_claim_at_this_geometry": false,
+        "network_only": true,
+        "ordinary_instrumentation": false
+      },
+      "instrumentedTargetProfile": {
+        "record": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/instrumented-target-profile-v1/record.json",
+          "sha256": "a335f6d09916fca859beaf40d16a37722b57e2e90feecc4ae287212a7c39c610",
+          "bytes": 3531
+        },
+        "roles": {
+          "baseline": {
+            "profile": {
+              "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/instrumented-target-profile-v1/baseline.json",
+              "sha256": "859962bad1891fb9caeec09fa2b396d152b0d48452481ff56b4610de9cec7580",
+              "bytes": 490424
+            },
+            "dispatch_count": 513,
+            "frame_aligned_dispatch_sum_stats": {
+              "samples": 30,
+              "mean": 50.21176266471545,
+              "median": 50.21181999146938,
+              "p95": 50.434271997213365,
+              "p99": 50.44739398449659,
+              "min": 49.95611998438835,
+              "max": 50.44895997643471,
+              "standard_deviation": 0.15598431168329308,
+              "coefficient_of_variation": 0.003106529295234353
+            },
+            "outer_inference_stats": {
+              "samples": 30,
+              "mean": 50.211758664250375,
+              "median": 50.211820006370544,
+              "p95": 50.43427201062441,
+              "p99": 50.44736560940743,
+              "min": 49.95611998438835,
+              "max": 50.448920011520386,
+              "standard_deviation": 0.15598264112338908,
+              "coefficient_of_variation": 0.0031064962724447484
+            },
+            "maximum_dispatch_sum_vs_outer_timestamp_difference_ms": 4.0024518966674805e-05,
+            "family_frame_aligned_sum_stats": {
+              "convert": {
+                "samples": 30,
+                "mean": 0.3048719982306162,
+                "median": 0.31515999138355255,
+                "p95": 0.3364919975399971,
+                "p99": 0.4056035995483399,
+                "min": 0.25751999020576477,
+                "max": 0.43320000171661377,
+                "standard_deviation": 0.035918852247693256,
+                "coefficient_of_variation": 0.11781617352907214
+              },
+              "f16_gemm": {
+                "samples": 30,
+                "mean": 3.3397026667992273,
+                "median": 3.3131400048732758,
+                "p95": 3.4714339941740033,
+                "p99": 3.4943256157636644,
+                "min": 3.251560002565384,
+                "max": 3.4993600249290466,
+                "standard_deviation": 0.07572925399946392,
+                "coefficient_of_variation": 0.022675447952988845
+              },
+              "fp8_gemm": {
+                "samples": 30,
+                "mean": 32.11443067689736,
+                "median": 32.12315998971462,
+                "p95": 32.41140201240778,
+                "p99": 32.48183676809072,
+                "min": 31.78400018811226,
+                "max": 32.50332000851631,
+                "standard_deviation": 0.15902272993083016,
+                "coefficient_of_variation": 0.004951753046185206
+              },
+              "window_normalize": {
+                "samples": 30,
+                "mean": 4.870575990279516,
+                "median": 4.846379965543747,
+                "p95": 5.089744034409523,
+                "p99": 5.135951250493527,
+                "min": 4.710119962692261,
+                "max": 5.14312008023262,
+                "standard_deviation": 0.12025682764689977,
+                "coefficient_of_variation": 0.02469047354705134
+              },
+              "window_attention": {
+                "samples": 30,
+                "mean": 6.49575200577577,
+                "median": 6.486159920692444,
+                "p95": 6.6503420367836945,
+                "p99": 6.719007149636745,
+                "min": 6.38824000954628,
+                "max": 6.728959888219833,
+                "standard_deviation": 0.07847100991126797,
+                "coefficient_of_variation": 0.012080358031140137
+              },
+              "downsample2x": {
+                "samples": 30,
+                "mean": 0.255758661031723,
+                "median": 0.25581999123096466,
+                "p95": 0.2614480033516884,
+                "p99": 0.26226838886737824,
+                "min": 0.24472001194953918,
+                "max": 0.2622799873352051,
+                "standard_deviation": 0.0033426637140114893,
+                "coefficient_of_variation": 0.013069601242543579
+              },
+              "global_normalize": {
+                "samples": 30,
+                "mean": 0.04802266160647074,
+                "median": 0.04819996654987335,
+                "p95": 0.04904797822237015,
+                "p99": 0.04923363626003265,
+                "min": 0.04532000422477722,
+                "max": 0.04928004741668701,
+                "standard_deviation": 0.0007922705209913129,
+                "coefficient_of_variation": 0.01649784694325563
+              },
+              "global_attention": {
+                "samples": 30,
+                "mean": 2.350192001461983,
+                "median": 2.3380799889564514,
+                "p95": 2.465381997823715,
+                "p99": 2.488841609954834,
+                "min": 2.250879943370819,
+                "max": 2.4972400069236755,
+                "standard_deviation": 0.06649954491915065,
+                "coefficient_of_variation": 0.028295366879720174
+              },
+              "upsampleResidual": {
+                "samples": 30,
+                "mean": 0.11380000313123068,
+                "median": 0.10759998857975006,
+                "p95": 0.14613800644874556,
+                "p99": 0.20501399964094166,
+                "min": 0.10451996326446533,
+                "max": 0.2175999879837036,
+                "standard_deviation": 0.02271072285712112,
+                "coefficient_of_variation": 0.1995669791935929
+              },
+              "postBlend": {
+                "samples": 30,
+                "mean": 0.3186559995015462,
+                "median": 0.31007999181747437,
+                "p95": 0.3799680173397064,
+                "p99": 0.4160804000496865,
+                "min": 0.3092399835586548,
+                "max": 0.43035998940467834,
+                "standard_deviation": 0.027083062979388308,
+                "coefficient_of_variation": 0.08499153639583959
+              }
+            },
+            "family_dispatch_counts": {
+              "convert": 1,
+              "f16_gemm": 2,
+              "fp8_gemm": 358,
+              "window_normalize": 62,
+              "window_attention": 62,
+              "downsample2x": 6,
+              "global_normalize": 8,
+              "global_attention": 8,
+              "upsampleResidual": 5,
+              "postBlend": 1
+            },
+            "independently_minimized_dispatch_sum_ms": 47.404199719429016,
+            "independently_minimized_sum_is_measured_frame": false,
+            "actual_frames": 30
+          },
+          "candidate": {
+            "profile": {
+              "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/instrumented-target-profile-v1/candidate.json",
+              "sha256": "338ba5e6b3dd8987c282f61a6dcfd2e87cbe93ab10bd6ae531e20094e9f674a9",
+              "bytes": 482039
+            },
+            "dispatch_count": 503,
+            "frame_aligned_dispatch_sum_stats": {
+              "samples": 30,
+              "mean": 47.605888000130655,
+              "median": 47.62824000418186,
+              "p95": 47.82832597792149,
+              "p99": 47.89688239604234,
+              "min": 47.32668000459671,
+              "max": 47.91876000165939,
+              "standard_deviation": 0.1508456273454649,
+              "coefficient_of_variation": 0.0031686338325429596
+            },
+            "outer_inference_stats": {
+              "samples": 30,
+              "mean": 47.60588000019391,
+              "median": 47.62824000418186,
+              "p95": 47.82832600772381,
+              "p99": 47.89688240468502,
+              "min": 47.32668000459671,
+              "max": 47.91876000165939,
+              "standard_deviation": 0.15084241291187075,
+              "coefficient_of_variation": 0.0031685668432398758
+            },
+            "maximum_dispatch_sum_vs_outer_timestamp_difference_ms": 7.998943328857422e-05,
+            "family_frame_aligned_sum_stats": {
+              "convert": {
+                "samples": 30,
+                "mean": 0.2958413302898407,
+                "median": 0.30167998373508453,
+                "p95": 0.3229980006814003,
+                "p99": 0.3281583884358406,
+                "min": 0.25727999210357666,
+                "max": 0.3301999866962433,
+                "standard_deviation": 0.023366743856117235,
+                "coefficient_of_variation": 0.0789840413211516
+              },
+              "f16_gemm": {
+                "samples": 30,
+                "mean": 3.3551586737235386,
+                "median": 3.3316600173711777,
+                "p95": 3.470643995702267,
+                "p99": 3.518583208322525,
+                "min": 3.266959995031357,
+                "max": 3.5371200144290924,
+                "standard_deviation": 0.073114500472025,
+                "coefficient_of_variation": 0.02179166697677606
+              },
+              "fp8_gemm": {
+                "samples": 30,
+                "mean": 30.054111979405086,
+                "median": 30.094660058617592,
+                "p95": 30.389647935330867,
+                "p99": 30.48526359587908,
+                "min": 29.606519788503647,
+                "max": 30.505319982767105,
+                "standard_deviation": 0.21575565290074225,
+                "coefficient_of_variation": 0.007178906269085282
+              },
+              "qkv_normalize": {
+                "samples": 30,
+                "mean": 3.1571053246657055,
+                "median": 3.1254800111055374,
+                "p95": 3.3162500277161597,
+                "p99": 3.3719976064562798,
+                "min": 3.077720046043396,
+                "max": 3.3930400013923645,
+                "standard_deviation": 0.08031488265019814,
+                "coefficient_of_variation": 0.02543940552844951
+              },
+              "window_attention": {
+                "samples": 30,
+                "mean": 6.582600017388661,
+                "median": 6.590340048074722,
+                "p95": 6.730851998925209,
+                "p99": 6.772137619853019,
+                "min": 6.359079897403717,
+                "max": 6.779840022325516,
+                "standard_deviation": 0.10386376732217954,
+                "coefficient_of_variation": 0.015778532350106643
+              },
+              "downsample2x": {
+                "samples": 30,
+                "mean": 0.25759600698947904,
+                "median": 0.2504200339317322,
+                "p95": 0.3000139862298964,
+                "p99": 0.3290851825475693,
+                "min": 0.24876001477241516,
+                "max": 0.3325999677181244,
+                "standard_deviation": 0.019229101292236317,
+                "coefficient_of_variation": 0.07464828945512998
+              },
+              "window_normalize": {
+                "samples": 30,
+                "mean": 1.0740093400080999,
+                "median": 1.053159937262535,
+                "p95": 1.202602058649063,
+                "p99": 1.2317408919334412,
+                "min": 1.0371601283550262,
+                "max": 1.2376801371574402,
+                "standard_deviation": 0.04978966936917802,
+                "coefficient_of_variation": 0.04635869308995257
+              },
+              "global_normalize": {
+                "samples": 30,
+                "mean": 0.05583199659983317,
+                "median": 0.04831996560096741,
+                "p95": 0.07336997687816615,
+                "p99": 0.19422197073698058,
+                "min": 0.04476001858711243,
+                "max": 0.24067997932434082,
+                "standard_deviation": 0.03495293824677582,
+                "coefficient_of_variation": 0.626037762849417
+              },
+              "global_attention": {
+                "samples": 30,
+                "mean": 2.3459053337574005,
+                "median": 2.3408400267362595,
+                "p95": 2.4708399951457976,
+                "p99": 2.5519228050112726,
+                "min": 2.2450399696826935,
+                "max": 2.5846000015735626,
+                "standard_deviation": 0.07953227400877061,
+                "coefficient_of_variation": 0.03390259311162611
+              },
+              "upsampleResidual": {
+                "samples": 30,
+                "mean": 0.11209066808223725,
+                "median": 0.1101599782705307,
+                "p95": 0.12507597506046295,
+                "p99": 0.12688679695129396,
+                "min": 0.10616001486778259,
+                "max": 0.12720000743865967,
+                "standard_deviation": 0.005318685030413963,
+                "coefficient_of_variation": 0.0474498468196462
+              },
+              "postBlend": {
+                "samples": 30,
+                "mean": 0.3156373292207718,
+                "median": 0.3078799843788147,
+                "p95": 0.3374360084533691,
+                "p99": 0.4417788124084474,
+                "min": 0.3065599799156189,
+                "max": 0.4795600175857544,
+                "standard_deviation": 0.031465207164134035,
+                "coefficient_of_variation": 0.0996878513761779
+              }
+            },
+            "family_dispatch_counts": {
+              "convert": 1,
+              "f16_gemm": 2,
+              "fp8_gemm": 348,
+              "qkv_normalize": 10,
+              "window_attention": 62,
+              "downsample2x": 6,
+              "window_normalize": 52,
+              "global_normalize": 8,
+              "global_attention": 8,
+              "upsampleResidual": 5,
+              "postBlend": 1
+            },
+            "independently_minimized_dispatch_sum_ms": 44.84403997659683,
+            "independently_minimized_sum_is_measured_frame": false,
+            "actual_frames": 30
+          }
+        },
+        "unchanged_dispatch_metadata_pairs": 493,
+        "replaced_baseline_dispatches": 20,
+        "new_fused_dispatches": 10,
+        "qkv_operator_chain_comparisons": [
+          {
+            "block": 0,
+            "baseline_qkv_plus_normalize_actual_sum_stats": {
+              "samples": 30,
+              "mean": 1.4765679975350698,
+              "median": 1.4609199911355972,
+              "p95": 1.5419139936566353,
+              "p99": 1.6293840074539185,
+              "min": 1.4567599892616272,
+              "max": 1.6625600159168243,
+              "standard_deviation": 0.04089759141110259,
+              "coefficient_of_variation": 0.027697736561658914
+            },
+            "candidate_fused_stats": {
+              "samples": 30,
+              "mean": 0.7609586666027705,
+              "median": 0.7541000097990036,
+              "p95": 0.8016840070486069,
+              "p99": 0.8349419975280762,
+              "min": 0.7445999979972839,
+              "max": 0.8465999960899353,
+              "standard_deviation": 0.02071220842155366,
+              "coefficient_of_variation": 0.027218572217623065
+            },
+            "median_improvement_fraction": 0.4838184059533409,
+            "candidate_geometry": {
+              "grid": [
+                65535,
+                2,
+                1
+              ],
+              "threads": 256,
+              "required_subgroup_size": 32,
+              "tile_m": 16
+            },
+            "tile_n": 96,
+            "stage_k": 16,
+            "shape": {
+              "rows": 1658880,
+              "N": 96,
+              "K": 32,
+              "batches": 1,
+              "flags": 0,
+              "partition": 0
+            }
+          },
+          {
+            "block": 1,
+            "baseline_qkv_plus_normalize_actual_sum_stats": {
+              "samples": 30,
+              "mean": 0.366033332546552,
+              "median": 0.36173999309539795,
+              "p95": 0.3887979969382286,
+              "p99": 0.3978639844059944,
+              "min": 0.3601199984550476,
+              "max": 0.3985599875450134,
+              "standard_deviation": 0.009911274692007853,
+              "coefficient_of_variation": 0.027077519479041818
+            },
+            "candidate_fused_stats": {
+              "samples": 30,
+              "mean": 0.1924800008535385,
+              "median": 0.1885399967432022,
+              "p95": 0.21193800270557392,
+              "p99": 0.2575524184107781,
+              "min": 0.18463999032974243,
+              "max": 0.26928001642227173,
+              "standard_deviation": 0.016058049040104324,
+              "coefficient_of_variation": 0.08342710395311762
+            },
+            "median_improvement_fraction": 0.47879692502376836,
+            "candidate_geometry": {
+              "grid": [
+                25920,
+                1,
+                1
+              ],
+              "threads": 256,
+              "required_subgroup_size": 32,
+              "tile_m": 16
+            },
+            "tile_n": 96,
+            "stage_k": 16,
+            "shape": {
+              "rows": 414720,
+              "N": 96,
+              "K": 32,
+              "batches": 1,
+              "flags": 0,
+              "partition": 0
+            }
+          },
+          {
+            "block": 2,
+            "baseline_qkv_plus_normalize_actual_sum_stats": {
+              "samples": 30,
+              "mean": 0.3742960005998611,
+              "median": 0.36277998983860016,
+              "p95": 0.43920799940824495,
+              "p99": 0.5059623792767525,
+              "min": 0.3614000082015991,
+              "max": 0.5231999754905701,
+              "standard_deviation": 0.03465154512623009,
+              "coefficient_of_variation": 0.09257791980330057
+            },
+            "candidate_fused_stats": {
+              "samples": 30,
+              "mean": 0.1971426635980606,
+              "median": 0.18929998576641083,
+              "p95": 0.24881400167942036,
+              "p99": 0.30243037760257724,
+              "min": 0.18663999438285828,
+              "max": 0.31699997186660767,
+              "standard_deviation": 0.027028063934275606,
+              "coefficient_of_variation": 0.13709900962574545
+            },
+            "median_improvement_fraction": 0.47819617655695434,
+            "candidate_geometry": {
+              "grid": [
+                25920,
+                1,
+                1
+              ],
+              "threads": 256,
+              "required_subgroup_size": 32,
+              "tile_m": 16
+            },
+            "tile_n": 96,
+            "stage_k": 16,
+            "shape": {
+              "rows": 414720,
+              "N": 96,
+              "K": 32,
+              "batches": 1,
+              "flags": 0,
+              "partition": 0
+            }
+          },
+          {
+            "block": 3,
+            "baseline_qkv_plus_normalize_actual_sum_stats": {
+              "samples": 30,
+              "mean": 0.3813453326622645,
+              "median": 0.362759992480278,
+              "p95": 0.4591239914298057,
+              "p99": 0.4921464025974274,
+              "min": 0.36055999994277954,
+              "max": 0.5031200051307678,
+              "standard_deviation": 0.03884148295570297,
+              "coefficient_of_variation": 0.10185383071176231
+            },
+            "candidate_fused_stats": {
+              "samples": 30,
+              "mean": 0.19074133336544036,
+              "median": 0.19051998853683472,
+              "p95": 0.19280799031257628,
+              "p99": 0.1937796002626419,
+              "min": 0.1881600022315979,
+              "max": 0.1940000057220459,
+              "standard_deviation": 0.0013288075095077767,
+              "coefficient_of_variation": 0.006966541997281319
+            },
+            "median_improvement_fraction": 0.47480429902370613,
+            "candidate_geometry": {
+              "grid": [
+                25920,
+                1,
+                1
+              ],
+              "threads": 256,
+              "required_subgroup_size": 32,
+              "tile_m": 16
+            },
+            "tile_n": 96,
+            "stage_k": 16,
+            "shape": {
+              "rows": 414720,
+              "N": 96,
+              "K": 32,
+              "batches": 1,
+              "flags": 0,
+              "partition": 0
+            }
+          },
+          {
+            "block": 4,
+            "baseline_qkv_plus_normalize_actual_sum_stats": {
+              "samples": 30,
+              "mean": 0.37328000168005626,
+              "median": 0.3621399998664856,
+              "p95": 0.4045279920101166,
+              "p99": 0.5137136140465738,
+              "min": 0.36027997732162476,
+              "max": 0.5578400194644928,
+              "standard_deviation": 0.03661106801981947,
+              "coefficient_of_variation": 0.09807937166481089
+            },
+            "candidate_fused_stats": {
+              "samples": 30,
+              "mean": 0.19505333602428437,
+              "median": 0.19162000715732574,
+              "p95": 0.20034000426530835,
+              "p99": 0.25781599462032323,
+              "min": 0.1889200210571289,
+              "max": 0.2791599929332733,
+              "standard_deviation": 0.01585936770153223,
+              "coefficient_of_variation": 0.08130785161017559
+            },
+            "median_improvement_fraction": 0.470867600298303,
+            "candidate_geometry": {
+              "grid": [
+                25920,
+                1,
+                1
+              ],
+              "threads": 256,
+              "required_subgroup_size": 32,
+              "tile_m": 16
+            },
+            "tile_n": 96,
+            "stage_k": 16,
+            "shape": {
+              "rows": 414720,
+              "N": 96,
+              "K": 32,
+              "batches": 1,
+              "flags": 0,
+              "partition": 0
+            }
+          },
+          {
+            "block": 66,
+            "baseline_qkv_plus_normalize_actual_sum_stats": {
+              "samples": 30,
+              "mean": 0.3724520007769267,
+              "median": 0.3643199950456619,
+              "p95": 0.39061399847269046,
+              "p99": 0.5093892031908036,
+              "min": 0.36239999532699585,
+              "max": 0.5507200062274933,
+              "standard_deviation": 0.03404995977962187,
+              "coefficient_of_variation": 0.0914210682412617
+            },
+            "candidate_fused_stats": {
+              "samples": 30,
+              "mean": 0.20098932981491088,
+              "median": 0.19898000359535217,
+              "p95": 0.2063919961452484,
+              "p99": 0.23918278068304066,
+              "min": 0.19727998971939087,
+              "max": 0.25039997696876526,
+              "standard_deviation": 0.009494521800102294,
+              "coefficient_of_variation": 0.04723893456854504
+            },
+            "median_improvement_fraction": 0.45383177892716786,
+            "candidate_geometry": {
+              "grid": [
+                25920,
+                1,
+                1
+              ],
+              "threads": 256,
+              "required_subgroup_size": 32,
+              "tile_m": 16
+            },
+            "tile_n": 96,
+            "stage_k": 16,
+            "shape": {
+              "rows": 414720,
+              "N": 96,
+              "K": 32,
+              "batches": 1,
+              "flags": 0,
+              "partition": 0
+            }
+          },
+          {
+            "block": 67,
+            "baseline_qkv_plus_normalize_actual_sum_stats": {
+              "samples": 30,
+              "mean": 0.3703426649173101,
+              "median": 0.3617199957370758,
+              "p95": 0.4136399984359741,
+              "p99": 0.476492410004139,
+              "min": 0.3599199950695038,
+              "max": 0.5004000067710876,
+              "standard_deviation": 0.027380486138305373,
+              "coefficient_of_variation": 0.07393284309929257
+            },
+            "candidate_fused_stats": {
+              "samples": 30,
+              "mean": 0.21053866644700367,
+              "median": 0.1978600174188614,
+              "p95": 0.2880959853529928,
+              "p99": 0.3526559835672379,
+              "min": 0.19635999202728271,
+              "max": 0.36587998270988464,
+              "standard_deviation": 0.03773421151379325,
+              "coefficient_of_variation": 0.17922699022742988
+            },
+            "median_improvement_fraction": 0.4530022676360963,
+            "candidate_geometry": {
+              "grid": [
+                25920,
+                1,
+                1
+              ],
+              "threads": 256,
+              "required_subgroup_size": 32,
+              "tile_m": 16
+            },
+            "tile_n": 96,
+            "stage_k": 16,
+            "shape": {
+              "rows": 414720,
+              "N": 96,
+              "K": 32,
+              "batches": 1,
+              "flags": 0,
+              "partition": 0
+            }
+          },
+          {
+            "block": 68,
+            "baseline_qkv_plus_normalize_actual_sum_stats": {
+              "samples": 30,
+              "mean": 0.3799213320016861,
+              "median": 0.36184000968933105,
+              "p95": 0.4662379950284958,
+              "p99": 0.48504959732294084,
+              "min": 0.3596799969673157,
+              "max": 0.4925200045108795,
+              "standard_deviation": 0.039725902727824315,
+              "coefficient_of_variation": 0.10456349612831957
+            },
+            "candidate_fused_stats": {
+              "samples": 30,
+              "mean": 0.19787332912286124,
+              "median": 0.1966400146484375,
+              "p95": 0.20546398311853406,
+              "p99": 0.21452398508787157,
+              "min": 0.19415998458862305,
+              "max": 0.21695998311042786,
+              "standard_deviation": 0.004317071344740467,
+              "coefficient_of_variation": 0.021817348320146573
+            },
+            "median_improvement_fraction": 0.45655535766409894,
+            "candidate_geometry": {
+              "grid": [
+                25920,
+                1,
+                1
+              ],
+              "threads": 256,
+              "required_subgroup_size": 32,
+              "tile_m": 16
+            },
+            "tile_n": 96,
+            "stage_k": 16,
+            "shape": {
+              "rows": 414720,
+              "N": 96,
+              "K": 32,
+              "batches": 1,
+              "flags": 0,
+              "partition": 0
+            }
+          },
+          {
+            "block": 69,
+            "baseline_qkv_plus_normalize_actual_sum_stats": {
+              "samples": 30,
+              "mean": 0.36870400309562684,
+              "median": 0.3616200089454651,
+              "p95": 0.38368799686431876,
+              "p99": 0.4905535978078843,
+              "min": 0.36083999276161194,
+              "max": 0.5288800001144409,
+              "standard_deviation": 0.030421772948863706,
+              "coefficient_of_variation": 0.08251001533328493
+            },
+            "candidate_fused_stats": {
+              "samples": 30,
+              "mean": 0.1975066691637039,
+              "median": 0.1959800124168396,
+              "p95": 0.19928000420331954,
+              "p99": 0.2268672162294388,
+              "min": 0.1947999894618988,
+              "max": 0.23740002512931824,
+              "standard_deviation": 0.0074871045538024384,
+              "coefficient_of_variation": 0.03790811006790223
+            },
+            "median_improvement_fraction": 0.4580498656909363,
+            "candidate_geometry": {
+              "grid": [
+                25920,
+                1,
+                1
+              ],
+              "threads": 256,
+              "required_subgroup_size": 32,
+              "tile_m": 16
+            },
+            "tile_n": 96,
+            "stage_k": 16,
+            "shape": {
+              "rows": 414720,
+              "N": 96,
+              "K": 32,
+              "batches": 1,
+              "flags": 0,
+              "partition": 0
+            }
+          },
+          {
+            "block": 70,
+            "baseline_qkv_plus_normalize_actual_sum_stats": {
+              "samples": 30,
+              "mean": 1.5067853351434073,
+              "median": 1.4717199951410294,
+              "p95": 1.5990379974246025,
+              "p99": 1.6109499922394752,
+              "min": 1.4601200222969055,
+              "max": 1.6147199869155884,
+              "standard_deviation": 0.056472894831116636,
+              "coefficient_of_variation": 0.0374790579082334
+            },
+            "candidate_fused_stats": {
+              "samples": 30,
+              "mean": 0.8138213296731313,
+              "median": 0.7906000018119812,
+              "p95": 0.8934139981865882,
+              "p99": 0.9756360006332399,
+              "min": 0.7844399809837341,
+              "max": 1.003360003232956,
+              "standard_deviation": 0.04855697997778175,
+              "coefficient_of_variation": 0.05966540591567501
+            },
+            "median_improvement_fraction": 0.46280542194018304,
+            "candidate_geometry": {
+              "grid": [
+                65535,
+                2,
+                1
+              ],
+              "threads": 256,
+              "required_subgroup_size": 32,
+              "tile_m": 16
+            },
+            "tile_n": 96,
+            "stage_k": 16,
+            "shape": {
+              "rows": 1658880,
+              "N": 96,
+              "K": 32,
+              "batches": 1,
+              "flags": 0,
+              "partition": 0
+            }
+          }
+        ],
+        "instrumented": true,
+        "ordinary_performance_measured": false,
+        "game_fps_measured": false
+      },
+      "legacyOffOperatorRegression": {
+        "record": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/legacy-preserving-operators-v1/record.json",
+          "sha256": "02af201486b534f191fad5d4d5cc451985bc5d43b80930e7c09e0ff59abd4d25",
+          "bytes": 1455
+        },
+        "manifest": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/legacy-preserving-operators-v1/operators/manifest.json",
+          "sha256": "d9e665565f4c775cdf41b78a742f2fbcdc656579c45a746b9e73d4f38bc62d00",
+          "bytes": 322024
+        },
+        "log": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/legacy-preserving-operators-v1/run.log",
+          "sha256": "43b318f373b99d9feb13c89dd13d7d0b1fca12b8e4718241ab6de4bf6456105b",
+          "bytes": 1877
+        },
+        "operators": 724,
+        "checks": 934,
+        "rawPairsReopened": 934,
+        "comparedBytes": 15264768,
+        "differentBytes": 0,
+        "validationErrorsReported": 0,
+        "validationLayerEnabled": false,
+        "qkvNormalize": "off",
+        "fusedC32OperatorExercised": false
+      },
+      "independentChecksAudit": {
+        "path": "build/release/qkv-production-v3-scenes-driver-runtime-independent-cpu-audit.json",
+        "sha256": "05fcac04679afe1ea8407cf3cc3872b2427b9ab00ddaf6d6e11fa2974d202cef",
+        "bytes": 9583
+      }
+    },
+    "historicalV2": {
+      "buildLabel": "compiled-v2",
+      "sourceScope": "Frozen precommit production-v2. Predates non-AMD forced-selector rejection; not a final-v3 build or result.",
+      "independentAudit": {
+        "path": "build/release/qkv-production-v2-independent-cpu-audit.json",
+        "sha256": "e7a26de390ac589eb0b72eb960e63ba4e8e08a2ea4a9ecdbbae5e7e9d33149a0",
+        "bytes": 16560
+      },
+      "cpuPreparation": {
+        "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v2/cpu-preparation.json",
+        "sha256": "fb15f33f9605a2d1c1dfa23f64e27908ba34ca1c58662374a8a1874363b72b53",
+        "bytes": 14768
+      },
+      "executable": {
+        "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v2/dlss5vk.exe",
+        "sha256": "73e3b89a41f79a6dc06d5d5f759bca1c80d8725a24e233424d2044e49c7f976d",
+        "bytes": 1158656
+      },
+      "sourceParent": "a692d221b3ee43f29633f741599d1a2dfbacc14b",
+      "sourceInputsRehashed": 106,
+      "sourceInputsRehashedFromFrozenSnapshot": 28,
+      "sourceInputsRehashedFromStillByteIdenticalCurrentFiles": 78,
+      "all31OriginalSpvsByteIdentical": true,
+      "newModuleByteIdenticalToFrozenPrivate": true,
+      "publicSelectedPolicyField": "qkv_normalize: off|c32",
+      "modelValidationRecord": {
+        "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v2/gpu-whole-model-v1/record.json",
+        "sha256": "e8b4e138efcfe8dbb972ec812620f889c1a5ae5cdb4427d342a110d2cf89c280",
+        "bytes": 24113
+      },
+      "modelChecks": [
+        {
+          "scope": "model320",
+          "report": {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v2/gpu-whole-model-v1/model320/modelcheck-report.json",
+            "sha256": "df0384198d0216b7d84d5e51bc54fc55cb09e00608536b2744c1f1f96eb93ec7",
+            "bytes": 8881
+          },
+          "manifest": {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v2/gpu-whole-model-v1/model320/manifest.json",
+            "sha256": "def1e6a692fb54d95bb0b4b55a118c5ed68d2bbee6ce70e38f632f70ae9dd8eb",
+            "bytes": 6806
+          },
+          "rawComparedFiles": 88,
+          "rawComparedBytes": 103739392,
+          "rawFileClosureSha256": "2b52fc73293bbe3b6864d017ed7fc14175e47f37a5e32b5786ec153514bbdd1f",
+          "differentBytes": 0,
+          "decomposedCheckpointCount": 75,
+          "decomposedBlock0IntermediateCount": 9,
+          "productionCaptureHeadExact": true,
+          "sceneLinearQualityGateApplied": false
+        },
+        {
+          "scope": "target",
+          "report": {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v2/gpu-whole-model-v1/target/modelcheck-report.json",
+            "sha256": "636b303fd0bc915f76b35976855a0517ce265db18893bb0fde904db50d43a2e1",
+            "bytes": 1536
+          },
+          "manifest": {
+            "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v2/gpu-whole-model-v1/target/manifest.json",
+            "sha256": "30441fb257d18c0e2c5cc4e603976ad72942b74343b43f014ba9a0d5fae13e62",
+            "bytes": 1399
+          },
+          "rawComparedFiles": 4,
+          "rawComparedBytes": 178917120,
+          "rawFileClosureSha256": "02c27e6c54b47805b8fd704afcb96afe5b66f3b18f68f35de3002a6fbb2d7740",
+          "differentBytes": 0,
+          "decomposedCheckpointCount": 0,
+          "decomposedBlock0IntermediateCount": 0,
+          "productionCaptureHeadExact": true,
+          "sceneLinearQualityGateApplied": false
+        }
+      ],
+      "completeInferenceTiming": {
+        "record": {
+          "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v2/ordinary-target-timing-v1/record.json",
+          "sha256": "58270f7917edbd9d8a082856107bff25e94c05d5704ec7c6ac891a29ad2c1b9a",
+          "bytes": 26187
+        },
+        "pooled": {
+          "baseline": {
+            "samples": 90,
+            "mean": 50.473888888955116,
+            "median": 50.48733998835087,
+            "p95": 50.81764599531889,
+            "p99": 50.85579760283232,
+            "min": 49.94691997766495,
+            "max": 50.857719987630844,
+            "standard_deviation": 0.1964216348135036,
+            "coefficient_of_variation": 0.0038915494553161986
+          },
+          "candidate": {
+            "samples": 90,
+            "mean": 47.79895955324173,
+            "median": 47.801500007510185,
+            "p95": 48.075695990026,
+            "p99": 48.160456402897836,
+            "min": 47.08664000034332,
+            "max": 48.257679998874664,
+            "standard_deviation": 0.2082276907426347,
+            "coefficient_of_variation": 0.004356322662435707
+          }
+        },
+        "samplesPerRole": 90,
+        "statisticFieldsRecomputed": 126,
+        "medianImprovementPercent": 5.319828656967063,
+        "perPairMedianImprovementPercent": [
+          5.298793369154364,
+          5.318277822866069,
+          5.326271303613684
+        ],
+        "medianAndP95RegressionGatePassed": true,
+        "fivePercentPooledMedianGatePassed": true,
+        "networkOnly": true,
+        "imageReadbackOrProfileDuringTiming": false
+      },
+      "lifecycleTestedByV2Record": false,
+      "sceneLinearQualityGateApplied": false,
+      "defaultPromotionQualified": false,
+      "publicTuningExportQualified": false,
+      "finalV3Results": null
+    }
+  },
+  "scopeCaveats": [
+    "Ordinary target and1080 timings measure neural inference only: D3D12 bridge,FSR,presentation and Cyberpunk game FPS are excluded. Target47.74616ms remains above the8ms NR-plus-bridge goal.",
+    "Target75-checkpoint coverage is not claimed:75 same-policy decomposed model checkpoints and nineblock0 intermediates are captured at320x320, while target captures validate production/captured F32head only plus input/displayproxy.",
+    "Synthetic scene-linear SDR/HDR/reset/temporal cases at320x320 compare C32 with the prior AMD Pair/Arena policy and pass with fixed data range1.0 and exact finite RGB. Existing absolute-reference highlight failures are unchanged; this is not complete release-quality acceptance, HDRdisplay validation or broad game motion/face/ghosting visual review.",
+    "Recorded replay reuses the existing eight SDR frames.48 fresh replay head/history/composed checks and32 copied original-runtime anchor checks account for the80total;16 freshly composed RGB checks are exact. Evolved own histories start from a reset and do not claim parity with the original captured runtime history.",
+    "NativeDLL eight requested-geometry frames are serialized. Eight distinct simultaneously prepared frame slots and cancellation/gap/reset are tested separately in a source-included pool; no parallel inference claim.",
+    "Runtime outputs are compared inside the harness, with hash-bound logs; these output buffers are not persisted for independent CPU reopening.",
+    "All10 isolated-operator timing is a distinct frozen private harness. Passing operator outputs are reported by matching hashes, not saved. Counts overlap across fixture suites. Order-dependent variation remains unresolved.",
+    "Instrumented profile actual frame/family sums are separate from ordinary timing. The sum of independently minimized dispatch spans is explicitly not a measured frame. Raw executable subgroup256 does not override required full subgroup32.",
+    "Installed driver ISA counts are static, do not establish dynamic matrix delivery counts, and do not bind ordinary no-capture code identity. No raw ISA is published.",
+    "Existing automatic/default cache, all previous release assets and NR-disabled default remain unchanged. C32 is explicit opt-in; public auto-tuning export is blocked pending a dedicated fused-operator proof schema.",
+    "Preservation claims are bounded to the recorded RX9070XT/AMD26.9.1 model/fixtures. No arbitrary-input,cross-driver,NVIDIA parity,game FPS,ten-minute gameplay or60FPS qualification.",
+    "Precommit build identities remain distinct from historical private graph/production-v2 runs and eventual publication/package commits. The scalar record publishes no weights,NVIDIA DLLs,gamecaptures,raw tensors orISA text."
+  ],
+  "latestCompleteInferenceTiming": {
+    "record": {
+      "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/ordinary-target-timing-v1/record.json",
+      "sha256": "fc508dd5b1799d4fb8b1c3caef0134253b30bb2c82799451b14ffab7ea94d0fb",
+      "bytes": 26178
+    },
+    "pooled": {
+      "baseline": {
+        "samples": 90,
+        "mean": 50.372526219818326,
+        "median": 50.41259999573231,
+        "p95": 50.63237600177526,
+        "p99": 50.78920360594988,
+        "min": 49.473040014505386,
+        "max": 50.81836000084877,
+        "standard_deviation": 0.21870610377360314,
+        "coefficient_of_variation": 0.004341773585450167
+      },
+      "candidate": {
+        "samples": 90,
+        "mean": 47.74187555412451,
+        "median": 47.74615998566151,
+        "p95": 48.02880000025034,
+        "p99": 48.687303199470044,
+        "min": 47.20600000023842,
+        "max": 48.92859998345375,
+        "standard_deviation": 0.23971954410452315,
+        "coefficient_of_variation": 0.005021158915986771
+      }
+    },
+    "samplesPerRole": 90,
+    "statisticFieldsRecomputed": 126,
+    "medianImprovementPercent": 5.2892332676682585,
+    "perPairMedianImprovementPercent": [
+      5.095179458921129,
+      5.296891032159423,
+      5.360329768874628
+    ],
+    "medianAndP95RegressionGatePassed": true,
+    "fivePercentPooledMedianGatePassed": true,
+    "networkOnly": true,
+    "imageReadbackOrProfileDuringTiming": false
+  },
+  "publicMeasurements": [
+    {
+      "path": "docs/performance/qkv-normalize-measurements/target-pair-01-baseline.json",
+      "sha256": "2f47fe7b1f0738d0daffdd121e21109e5c7e89452b48f43947caa35c3a4ba22b",
+      "bytes": 2044,
+      "originalSha256": "62a1952171b943e2e11faad2610821513c72ee4db98311a7139a9fdf0656e106",
+      "sourceRecordSha256": "fc508dd5b1799d4fb8b1c3caef0134253b30bb2c82799451b14ffab7ea94d0fb",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms"
+      ],
+      "sampleCount": 30,
+      "role": "baseline",
+      "pair": 1,
+      "geometry": [
+        1707,
+        960
+      ],
+      "scope": "ordinary neural-inference-only; no readback or dispatch instrumentation"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/target-pair-01-candidate.json",
+      "sha256": "b9b1466097e52480bbad6491b030d8608213ad5a645ac9299332334523dd4fd0",
+      "bytes": 2046,
+      "originalSha256": "f6dc649566ada0f769f2cbf9be4f569eb3f17b5bdb7cb81087eff2d32b3dbd58",
+      "sourceRecordSha256": "fc508dd5b1799d4fb8b1c3caef0134253b30bb2c82799451b14ffab7ea94d0fb",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms"
+      ],
+      "sampleCount": 30,
+      "role": "candidate",
+      "pair": 1,
+      "geometry": [
+        1707,
+        960
+      ],
+      "scope": "ordinary neural-inference-only; no readback or dispatch instrumentation"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/target-pair-02-candidate.json",
+      "sha256": "8174d21a9d686db2dfd3cc58074379ec18f4270e0922e1aad67afa3fb373c33b",
+      "bytes": 2047,
+      "originalSha256": "59303442086193d7b21c6012b5eafab85630eb705d2f16d66de0eeb2ca5a2dd7",
+      "sourceRecordSha256": "fc508dd5b1799d4fb8b1c3caef0134253b30bb2c82799451b14ffab7ea94d0fb",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms"
+      ],
+      "sampleCount": 30,
+      "role": "candidate",
+      "pair": 2,
+      "geometry": [
+        1707,
+        960
+      ],
+      "scope": "ordinary neural-inference-only; no readback or dispatch instrumentation"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/target-pair-02-baseline.json",
+      "sha256": "a652304a538dd406f4ee1446c7425bbccdf2c9fd458fd12c8b66f9dcf47a1b2f",
+      "bytes": 2051,
+      "originalSha256": "b1ae01857a116d059d9cec9a9fe1fa1429372efa42887b143221285db52e2446",
+      "sourceRecordSha256": "fc508dd5b1799d4fb8b1c3caef0134253b30bb2c82799451b14ffab7ea94d0fb",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms"
+      ],
+      "sampleCount": 30,
+      "role": "baseline",
+      "pair": 2,
+      "geometry": [
+        1707,
+        960
+      ],
+      "scope": "ordinary neural-inference-only; no readback or dispatch instrumentation"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/target-pair-03-baseline.json",
+      "sha256": "f17da333c551bc59795831d16b09add0deb41f12a55caf18ac3b96f8cc786c1a",
+      "bytes": 2043,
+      "originalSha256": "5bd10c91def1313f227bd90ec061eef477b84fa9f2a69687df113dc62bc6462f",
+      "sourceRecordSha256": "fc508dd5b1799d4fb8b1c3caef0134253b30bb2c82799451b14ffab7ea94d0fb",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms"
+      ],
+      "sampleCount": 30,
+      "role": "baseline",
+      "pair": 3,
+      "geometry": [
+        1707,
+        960
+      ],
+      "scope": "ordinary neural-inference-only; no readback or dispatch instrumentation"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/target-pair-03-candidate.json",
+      "sha256": "84d9efae5055a0804506b223723b6e957fd8f3edaa18208f8f1fb521e6f823de",
+      "bytes": 2047,
+      "originalSha256": "f92911bfd1152e2e98c48f509cadfc1076dc20e433e6d5db8bfec52729715969",
+      "sourceRecordSha256": "fc508dd5b1799d4fb8b1c3caef0134253b30bb2c82799451b14ffab7ea94d0fb",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms"
+      ],
+      "sampleCount": 30,
+      "role": "candidate",
+      "pair": 3,
+      "geometry": [
+        1707,
+        960
+      ],
+      "scope": "ordinary neural-inference-only; no readback or dispatch instrumentation"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/1080-pair-01-baseline.json",
+      "sha256": "0a7353d0913c41b4e89b6f94b6604ea30bbb01592307773658ba84b977ebef6a",
+      "bytes": 2038,
+      "originalSha256": "b233dfe64661132486a94cd4cd641ef899791b5fab458a74b3e5a7d8f2e3efc5",
+      "sourceRecordSha256": "4e60804b251599536aa13699449aa4718ae0d1781d3abedc673099733ee60c94",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms"
+      ],
+      "sampleCount": 30,
+      "role": "baseline",
+      "pair": 1,
+      "geometry": [
+        1920,
+        1080
+      ],
+      "scope": "ordinary neural-inference-only; no readback or dispatch instrumentation"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/1080-pair-01-candidate.json",
+      "sha256": "60a21d592b64bbd5d1e38ff61e2e98c080a06490a016eb901cfd62a85fa311d7",
+      "bytes": 2038,
+      "originalSha256": "901f3641b3aa3a0ba4afcf87d8bffb053eeb163e2d6d9b4583e805e99d8ca7cd",
+      "sourceRecordSha256": "4e60804b251599536aa13699449aa4718ae0d1781d3abedc673099733ee60c94",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms"
+      ],
+      "sampleCount": 30,
+      "role": "candidate",
+      "pair": 1,
+      "geometry": [
+        1920,
+        1080
+      ],
+      "scope": "ordinary neural-inference-only; no readback or dispatch instrumentation"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/1080-pair-02-candidate.json",
+      "sha256": "e21bbd8afd96658f64bd8e975f68d809b2f1bf46a699024ee0d841a93aeba0be",
+      "bytes": 2038,
+      "originalSha256": "a7338eb5c53c8776b48b8c76bbda09bee6dc88ef8b1e108860318a990c3bbfe3",
+      "sourceRecordSha256": "4e60804b251599536aa13699449aa4718ae0d1781d3abedc673099733ee60c94",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms"
+      ],
+      "sampleCount": 30,
+      "role": "candidate",
+      "pair": 2,
+      "geometry": [
+        1920,
+        1080
+      ],
+      "scope": "ordinary neural-inference-only; no readback or dispatch instrumentation"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/1080-pair-02-baseline.json",
+      "sha256": "1a43a7c7c9a9254397f207b14707ed02ad25085ea710f48557ba06c5de83318e",
+      "bytes": 2040,
+      "originalSha256": "6598274c353196c01d1aec60822e60a12d89879fb8291f2c73dd40c0b1c91b7f",
+      "sourceRecordSha256": "4e60804b251599536aa13699449aa4718ae0d1781d3abedc673099733ee60c94",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms"
+      ],
+      "sampleCount": 30,
+      "role": "baseline",
+      "pair": 2,
+      "geometry": [
+        1920,
+        1080
+      ],
+      "scope": "ordinary neural-inference-only; no readback or dispatch instrumentation"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/1080-pair-03-baseline.json",
+      "sha256": "94060658cd3c78654bb86728fb7e7ce6e18bbbeb073b2f3f4732025d671d8c1a",
+      "bytes": 2039,
+      "originalSha256": "42c1993fe1e018eee3250e10e8644934ce1554cdff028727ee741ea52b7cf093",
+      "sourceRecordSha256": "4e60804b251599536aa13699449aa4718ae0d1781d3abedc673099733ee60c94",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms"
+      ],
+      "sampleCount": 30,
+      "role": "baseline",
+      "pair": 3,
+      "geometry": [
+        1920,
+        1080
+      ],
+      "scope": "ordinary neural-inference-only; no readback or dispatch instrumentation"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/1080-pair-03-candidate.json",
+      "sha256": "fdeb03c4c6a566ee457be290b68db4d1fc188f20e284b4ede57b0961e9f9e644",
+      "bytes": 2034,
+      "originalSha256": "d1e867f1cf6591abd121d700cbf16b3ce7494f603d88e0d949a9d66f928373a8",
+      "sourceRecordSha256": "4e60804b251599536aa13699449aa4718ae0d1781d3abedc673099733ee60c94",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms"
+      ],
+      "sampleCount": 30,
+      "role": "candidate",
+      "pair": 3,
+      "geometry": [
+        1920,
+        1080
+      ],
+      "scope": "ordinary neural-inference-only; no readback or dispatch instrumentation"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/profile-target-baseline.json",
+      "sha256": "9634849b7408dea4da25e47d0dd6c9ae99116054ef30e95fe841c89902c73b3e",
+      "bytes": 778576,
+      "originalSha256": "859962bad1891fb9caeec09fa2b396d152b0d48452481ff56b4610de9cec7580",
+      "sourceRecordSha256": "a335f6d09916fca859beaf40d16a37722b57e2e90feecc4ae287212a7c39c610",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms",
+        "dispatches",
+        "dispatch_span_total_ms",
+        "independently_minimized_dispatch_sum_ms",
+        "dispatch_minima_description",
+        "dispatch_overhead_probe_ms",
+        "family_totals_ms"
+      ],
+      "sampleCount": 30,
+      "role": "baseline",
+      "dispatchCount": 513,
+      "scope": "instrumented neural-inference-only; distinct from ordinary performance"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/profile-target-candidate.json",
+      "sha256": "ba545c295b6d2db62e335481e7bd3f012a85bc59792854ce7df42dd93e900f4f",
+      "bytes": 764904,
+      "originalSha256": "338ba5e6b3dd8987c282f61a6dcfd2e87cbe93ab10bd6ae531e20094e9f674a9",
+      "sourceRecordSha256": "a335f6d09916fca859beaf40d16a37722b57e2e90feecc4ae287212a7c39c610",
+      "allowlistedFields": [
+        "format",
+        "command",
+        "backend",
+        "arithmetic_mode",
+        "readback",
+        "instrumented",
+        "timing_scope",
+        "samples_order",
+        "width",
+        "height",
+        "padded_width",
+        "padded_height",
+        "frames",
+        "warmup",
+        "identity",
+        "requested",
+        "selected",
+        "frame_ms",
+        "dispatches",
+        "dispatch_span_total_ms",
+        "independently_minimized_dispatch_sum_ms",
+        "dispatch_minima_description",
+        "dispatch_overhead_probe_ms",
+        "family_totals_ms"
+      ],
+      "sampleCount": 30,
+      "role": "candidate",
+      "dispatchCount": 503,
+      "scope": "instrumented neural-inference-only; distinct from ordinary performance"
+    },
+    {
+      "path": "docs/performance/qkv-normalize-measurements/public-c32-operator-timing.json",
+      "sha256": "3119e5c197d22fe6fb6e1214ac158347b329705ba2826ea1649e10f31da25f54",
+      "bytes": 75943,
+      "originalSha256": "ac524867244faf4224f8c1e291ac9153bc2e251139a8b16a046980c15d22aa5e",
+      "sourceRecordSha256": "884f4b6ad97e7d3ba5cb05686794b161ddddbd759809643b1be9aa85cfa5f2f9",
+      "allowlistedFields": [
+        "format",
+        "status",
+        "gpuExecuted",
+        "scope",
+        "rowsPerFixture",
+        "rowGeometry",
+        "normalizationGrid",
+        "heads",
+        "K",
+        "N",
+        "publication",
+        "flags",
+        "partition",
+        "batches",
+        "warmupPerRun",
+        "pairs",
+        "measuredFramesPerRun",
+        "samplesPerRolePerFixture",
+        "persistentCommandBuffers",
+        "persistentDescriptorSets",
+        "persistentBuffers",
+        "vkFenceWaitBetweenSubmissions",
+        "readbackDuringTiming",
+        "captureTwinDuringTiming",
+        "pipelineStatisticsCapture",
+        "dispatchInstrumentation",
+        "timestampScope",
+        "verificationPhases",
+        "verificationChecks",
+        "verificationFailures",
+        "modelManifestSha256",
+        "inputCatalogSha256",
+        "strictReportSha256",
+        "sourceBuildSha256",
+        "selected",
+        "driver",
+        "device",
+        "vendorId",
+        "deviceId",
+        "moduleSha256",
+        "executableSha256",
+        "cpuChecks",
+        "validationErrors",
+        "wholeModelQualified",
+        "defaultPromotionQualified",
+        "runs",
+        "pooledOperators"
+      ],
+      "sampleCount": 1800,
+      "kind": "standalone_c32_operator_timing",
+      "scope": "source-only public diagnostic reproduction; ten isolated operators, distinct from private-harness measurements and ordinary inference timing"
+    }
+  ],
+  "publicMeasurementsAreScalarOnly": true,
+  "publicDiagnosticReproduction": {
+    "status": "CPU_BUILD_CAPTURE_CHECK_TIMING_PASS",
+    "sourceOnly": true,
+    "independentCpuAudit": {
+      "path": "build/release/qkv-normalize-scalar-draft-20261003-independent/public-diagnostic-v3-independent-cpu-audit.json",
+      "sha256": "f9d49c33121ee33d9ca190ecd0ebf37dc75f4bab6892005d36d280066c819b87",
+      "bytes": 3288
+    },
+    "build": {
+      "path": "build/release/c32-qkv-public-diagnostic-cpu-20261003-v3/diagnostic-build.json",
+      "sha256": "a73cb58d53b5179e7fe27c49abd65f35de0b91b78cb4bfd9c3042df995e2b678",
+      "bytes": 17849
+    },
+    "sourceFilesRehashed": 91,
+    "cpuChecks": {
+      "probe": 69862,
+      "timing": 69904,
+      "capture": 69863
+    },
+    "negativeCliChecks": 24,
+    "negativeCliProof": {
+      "path": "build/release/c32-qkv-public-diagnostic-cpu-20261003-v3/cpu-negative-cli/verification.json",
+      "sha256": "5e022e437e734114a0c34e26ba3e39a8dc22c75ccf1767a88f4ccba597216337",
+      "bytes": 5406
+    },
+    "executablesSha256": {
+      "amd_c32_qkv_normalize_probe.exe": "6584d94a2cf8c9ce84e9512862db946f3c169e3f39981dff590d9ba6d5bb3465",
+      "amd_c32_qkv_normalize_timing.exe": "fc45ba4bc42260813b3d942814c5709efa7f9d0f483a592671b91ac26fb7f201",
+      "amd_c32_qkv_normalize_capture.exe": "d3d2f4ec9b959bd7caab39fb946fb5218ba1b4e9b6be837c145991ec36a30411"
+    },
+    "modulesSha256": {
+      "baseline-shaders/amd_gemm_direct_rte_pair.spv": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+      "baseline-shaders/amd_window_normalize.spv": "c5c8161b72282e283b5ab108f732a328731da39fb5d02c2500a9230b754fe008",
+      "shaders/amd_qkv32_normalize_wave6.spv": "9b1c585054bbbe3c9c2021d393699eae16e9ffcf889db6311d070d0049be5cc5",
+      "shaders/amd_qkv32_normalize_wave6_capture.spv": "313536a959921d0c444ae412783189509e4ba293cd961d244ee9b6cc3c8b33df"
+    },
+    "all32GeneratedApplicationSpvsMatchFrozenFinalV3": true,
+    "selectedGraphTensorNames": 30,
+    "deviceScope": "1002:7550 RX9070XT / AMD26.9.1 required before pipelines; exact vendor/device/name required by timing proof",
+    "captureProvenanceScope": "current build manifest and current capture executable digests must both match",
+    "compiler": {
+      "path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+      "sha256": "88c8344236a27a6e727e0a8edc49aaa2690bdc7a9464b9d18cc7abe70a9f1c0d",
+      "fileVersion": "19.44.35228.0",
+      "productVersion": "14.44.35228.0"
+    },
+    "sdkIndependentlyFrozen": false,
+    "shippingPipelineOrDefaultChanged": false,
+    "tunerProofSchemaSupported": false,
+    "diagnosticCaptureShaderShipping": false,
+    "newGpuPreservationOrPerformanceClaimByCpuBuild": false,
+    "freshCaptureGpuProof": {
+      "independentAudit": {
+        "path": "build/release/qkv-normalize-scalar-draft-20261003-independent/public-diagnostic-v3-capture-check-independent-cpu-audit.json",
+        "sha256": "a92bdb2115f271a7af25347b6040e11ba0dffdda9cf08a1e59e4477f93bf9e9f",
+        "bytes": 2878
+      },
+      "launch": {
+        "path": "build/release/c32-qkv-public-diagnostic-gpu-20261003-capture-v3/launch.json",
+        "sha256": "ba7deb49027419e8d3097769e1460fe3755ff66066810e956c1474e8a95d3d7e",
+        "bytes": 2841
+      },
+      "captureProvenance": {
+        "path": "build/release/c32-qkv-public-diagnostic-gpu-20261003-capture-v3/result/capture-provenance.json",
+        "sha256": "5e6db5575c69f6a5a3f9ec5ed8ac3f9b0e9cac28e3111b429d0ab744e8877d94",
+        "bytes": 914
+      },
+      "catalog": {
+        "path": "build/release/c32-qkv-public-diagnostic-gpu-20261003-capture-v3/result/qkv-inputs.json",
+        "sha256": "56ae9dcf35976bf424cf676a03069fa709aa13c723c49dabb4e7c4875f52555c",
+        "bytes": 6225
+      },
+      "targetGeometry": [
+        1707,
+        960
+      ],
+      "paddedGeometry": [
+        1728,
+        960
+      ],
+      "graphReferenceFilesReopened": 30,
+      "graphReferenceBytesReopened": 2123366400,
+      "graphReferenceClosureSha256": "e9c9b59213073af2230b76f233f8062cd58b99a537d7e7fa492fabd84e5c88f1",
+      "anchorProductionCapturedHeadReopenedExact": true,
+      "selectiveProductionHeadExactReportedInsideHarness": true,
+      "selectiveProductionHeadSeparatelySaved": false,
+      "gameCapture": false
+    },
+    "freshCheckGpuProof": {
+      "independentAudit": {
+        "path": "build/release/qkv-normalize-scalar-draft-20261003-independent/public-diagnostic-v3-capture-check-independent-cpu-audit.json",
+        "sha256": "a92bdb2115f271a7af25347b6040e11ba0dffdda9cf08a1e59e4477f93bf9e9f",
+        "bytes": 2878
+      },
+      "launch": {
+        "path": "build/release/c32-qkv-public-diagnostic-gpu-20261003-check-v3/launch.json",
+        "sha256": "c8c8faca1ca56eea28d733bdb191de057f8974b75f9e130b632953a7675a22ae",
+        "bytes": 1100
+      },
+      "strictReport": {
+        "path": "build/release/c32-qkv-public-diagnostic-gpu-20261003-check-v3/result/manifest.json",
+        "sha256": "eb13688623713956f7876b5ff105117660c2d887db9772b8ae0d76ea79350350",
+        "bytes": 207203
+      },
+      "fixtures": 150,
+      "fixtureBreakdown": {
+        "synthetic": 120,
+        "actualWeightsSyntheticInput": 20,
+        "actualTargetNetworkActivations": 10
+      },
+      "comparisons": 450,
+      "reportedComparedBytes": 2554011648,
+      "differentBytes": 0,
+      "passingRawOperatorOutputsSaved": false,
+      "actualFixtureIdentitiesIndependentlyRecreated": 30,
+      "tenQkvMatricesAndScalesIndependentlyRepacked": true,
+      "graphReferenceOutputHashesMatchedByOperator": 20,
+      "validationEnabled": false,
+      "validationErrorsReported": 0,
+      "fullModelOrQualityQualifiedByStandaloneCheck": false
+    },
+    "freshTimingGpuProof": {
+      "provenanceAudit": {
+        "path": "build/release/qkv-normalize-scalar-draft-20261003-independent/public-diagnostic-v3-timing-provenance-independent-cpu-audit.json",
+        "sha256": "acdd99d59e525d86f9e119ffa15f2ef007d45cc6ada67eaca0d9c2b594cd37aa",
+        "bytes": 2343
+      },
+      "statisticsAudit": {
+        "path": "build/release/qkv-normalize-scalar-draft-20261003-independent/public-diagnostic-v3-timing-statistics-independent-cpu-audit.json",
+        "sha256": "698951e98873cb619b90183eebe59ec71479aecc1c4c17036b661b4a5b13f86f",
+        "bytes": 16529
+      },
+      "result": {
+        "path": "build/release/c32-qkv-public-diagnostic-gpu-20261003-timing-v3/result/timing.json",
+        "sha256": "ac524867244faf4224f8c1e291ac9153bc2e251139a8b16a046980c15d22aa5e",
+        "bytes": 62580
+      },
+      "launch": {
+        "path": "build/release/c32-qkv-public-diagnostic-gpu-20261003-timing-v3/launch.json",
+        "sha256": "884f4b6ad97e7d3ba5cb05686794b161ddddbd759809643b1be9aa85cfa5f2f9",
+        "bytes": 1301
+      },
+      "log": {
+        "path": "build/release/c32-qkv-public-diagnostic-gpu-20261003-timing-v3/run.log",
+        "sha256": "3676ed2be309295a3af895959b03a6b01ca759dabc7f19f37e8e7a28028dc75a",
+        "bytes": 4634
+      },
+      "verification": {
+        "path": "build/release/c32-qkv-public-diagnostic-gpu-20261003-timing-v3/result/verification/manifest.json",
+        "sha256": "15786bf3eff91df40e972d3c7a67be0ff0da4d56bd6053ba369ba233f37f1c5c",
+        "bytes": 31528
+      },
+      "strictReport": {
+        "path": "build/release/c32-qkv-public-diagnostic-gpu-20261003-check-v3/result/manifest.json",
+        "sha256": "eb13688623713956f7876b5ff105117660c2d887db9772b8ae0d76ea79350350",
+        "bytes": 207203
+      },
+      "catalog": {
+        "path": "build/release/c32-qkv-public-diagnostic-gpu-20261003-capture-v3/result/qkv-inputs.json",
+        "sha256": "56ae9dcf35976bf424cf676a03069fa709aa13c723c49dabb4e7c4875f52555c",
+        "bytes": 6225
+      },
+      "prePostReportedChecks": 60,
+      "prePostReportedComparedBytes": 5096079360,
+      "matchingReferenceGraphOutputHashes": true,
+      "passingRawOperatorOutputsSaved": false,
+      "samples": 1800,
+      "interleavedPairsPerFixture": 3,
+      "warmupsPerRun": 5,
+      "readbacksOrCaptureDuringMeasuredRuns": false,
+      "operatorOnly": true,
+      "wholeNetworkGameDefaultQualifiedByThisTiming": false,
+      "timingStatistics": {
+        "format": "OpenNR-public-C32-v3-scalar-timing-independent-CPU-audit-v1",
+        "status": "PASS",
+        "gpuExecutedByAuditor": false,
+        "docsOrSourceEdited": false,
+        "timingJsonSha256": "ac524867244faf4224f8c1e291ac9153bc2e251139a8b16a046980c15d22aa5e",
+        "statisticFieldsRecomputed": 720,
+        "sampleCount": 1800,
+        "checks": 1089,
+        "fixtureResults": [
+          {
+            "fixture": "actual-input-block0-0",
+            "block": 0,
+            "baselineMedian": 1.44218,
+            "candidateMedian": 0.70372,
+            "improvementFraction": 0.5120442663190448,
+            "p95Ratio": 0.4756736840565097,
+            "allThreePairsAboveFivePercent": true,
+            "orderVariation": {
+              "baseline": {
+                "pairMedians": [
+                  1.45192,
+                  1.4415200000000001,
+                  1.44162
+                ],
+                "runMedianRangeFraction": 0.007214606803929158,
+                "thirdRelativeToFirst": -0.007094054768857938
+              },
+              "candidate": {
+                "pairMedians": [
+                  0.70476,
+                  0.7033400000000001,
+                  0.70158
+                ],
+                "runMedianRangeFraction": 0.004532626357649949,
+                "thirdRelativeToFirst": -0.00451217435722806
+              }
+            }
+          },
+          {
+            "fixture": "actual-input-block1-1",
+            "block": 1,
+            "baselineMedian": 0.3658,
+            "candidateMedian": 0.20457999999999998,
+            "improvementFraction": 0.44073264078731555,
+            "p95Ratio": 0.5343618152946437,
+            "allThreePairsAboveFivePercent": true,
+            "orderVariation": {
+              "baseline": {
+                "pairMedians": [
+                  0.36668,
+                  0.36573999999999995,
+                  0.3649
+                ],
+                "runMedianRangeFraction": 0.004878048780487809,
+                "thirdRelativeToFirst": -0.004854368932038833
+              },
+              "candidate": {
+                "pairMedians": [
+                  0.20616,
+                  0.20508,
+                  0.18566
+                ],
+                "runMedianRangeFraction": 0.1104168910912422,
+                "thirdRelativeToFirst": -0.09943733022894852
+              }
+            }
+          },
+          {
+            "fixture": "actual-input-block2-2",
+            "block": 2,
+            "baselineMedian": 0.36578,
+            "candidateMedian": 0.2051,
+            "improvementFraction": 0.4392804417956149,
+            "p95Ratio": 0.5434687185313332,
+            "allThreePairsAboveFivePercent": true,
+            "orderVariation": {
+              "baseline": {
+                "pairMedians": [
+                  0.36656,
+                  0.36566,
+                  0.36488
+                ],
+                "runMedianRangeFraction": 0.004604253453190044,
+                "thirdRelativeToFirst": -0.00458315146224364
+              },
+              "candidate": {
+                "pairMedians": [
+                  0.20622000000000001,
+                  0.20748,
+                  0.18434
+                ],
+                "runMedianRangeFraction": 0.12552891396332866,
+                "thirdRelativeToFirst": -0.10610028125303084
+              }
+            }
+          },
+          {
+            "fixture": "actual-input-block3-3",
+            "block": 3,
+            "baselineMedian": 0.36616,
+            "candidateMedian": 0.20482,
+            "improvementFraction": 0.44062704828490273,
+            "p95Ratio": 0.5507087991007307,
+            "allThreePairsAboveFivePercent": true,
+            "orderVariation": {
+              "baseline": {
+                "pairMedians": [
+                  0.36694,
+                  0.36616,
+                  0.36526000000000003
+                ],
+                "runMedianRangeFraction": 0.004599463395936976,
+                "thirdRelativeToFirst": -0.004578405188859103
+              },
+              "candidate": {
+                "pairMedians": [
+                  0.20746,
+                  0.20532,
+                  0.18494
+                ],
+                "runMedianRangeFraction": 0.12176922245052446,
+                "thirdRelativeToFirst": -0.10855104598476817
+              }
+            }
+          },
+          {
+            "fixture": "actual-input-block4-4",
+            "block": 4,
+            "baselineMedian": 0.36568,
+            "candidateMedian": 0.20462,
+            "improvementFraction": 0.44043972872456794,
+            "p95Ratio": 0.5534173574691253,
+            "allThreePairsAboveFivePercent": true,
+            "orderVariation": {
+              "baseline": {
+                "pairMedians": [
+                  0.36636,
+                  0.36588,
+                  0.36484
+                ],
+                "runMedianRangeFraction": 0.004166209845411828,
+                "thirdRelativeToFirst": -0.004148924555082534
+              },
+              "candidate": {
+                "pairMedians": [
+                  0.20566,
+                  0.20657999999999999,
+                  0.18508
+                ],
+                "runMedianRangeFraction": 0.11616598227793373,
+                "thirdRelativeToFirst": -0.10006807351940106
+              }
+            }
+          },
+          {
+            "fixture": "actual-input-block66-5",
+            "block": 66,
+            "baselineMedian": 0.3658,
+            "candidateMedian": 0.20516,
+            "improvementFraction": 0.43914707490431926,
+            "p95Ratio": 0.5535991117442494,
+            "allThreePairsAboveFivePercent": true,
+            "orderVariation": {
+              "baseline": {
+                "pairMedians": [
+                  0.36618,
+                  0.36594,
+                  0.36494000000000004
+                ],
+                "runMedianRangeFraction": 0.003397818819531828,
+                "thirdRelativeToFirst": -0.0033863127423670036
+              },
+              "candidate": {
+                "pairMedians": [
+                  0.20712,
+                  0.2082,
+                  0.18342
+                ],
+                "runMedianRangeFraction": 0.13509977101733717,
+                "thirdRelativeToFirst": -0.11442641946697563
+              }
+            }
+          },
+          {
+            "fixture": "actual-input-block67-6",
+            "block": 67,
+            "baselineMedian": 0.3666,
+            "candidateMedian": 0.20608,
+            "improvementFraction": 0.437861429350791,
+            "p95Ratio": 0.4909392228288974,
+            "allThreePairsAboveFivePercent": true,
+            "orderVariation": {
+              "baseline": {
+                "pairMedians": [
+                  0.3672,
+                  0.3667,
+                  0.36550000000000005
+                ],
+                "runMedianRangeFraction": 0.0046511627906975495,
+                "thirdRelativeToFirst": -0.004629629629629539
+              },
+              "candidate": {
+                "pairMedians": [
+                  0.20608,
+                  0.20908,
+                  0.17980000000000002
+                ],
+                "runMedianRangeFraction": 0.1628476084538375,
+                "thirdRelativeToFirst": -0.12752329192546585
+              }
+            }
+          },
+          {
+            "fixture": "actual-input-block68-7",
+            "block": 68,
+            "baselineMedian": 0.36604,
+            "candidateMedian": 0.20608,
+            "improvementFraction": 0.4370014206097693,
+            "p95Ratio": 0.5469413599789965,
+            "allThreePairsAboveFivePercent": true,
+            "orderVariation": {
+              "baseline": {
+                "pairMedians": [
+                  0.36634,
+                  0.36636,
+                  0.365
+                ],
+                "runMedianRangeFraction": 0.0037260273972603564,
+                "thirdRelativeToFirst": -0.003657804225582817
+              },
+              "candidate": {
+                "pairMedians": [
+                  0.20796,
+                  0.20794,
+                  0.18325999999999998
+                ],
+                "runMedianRangeFraction": 0.1347811852013534,
+                "thirdRelativeToFirst": -0.11877284093094842
+              }
+            }
+          },
+          {
+            "fixture": "actual-input-block69-8",
+            "block": 69,
+            "baselineMedian": 0.3657,
+            "candidateMedian": 0.2042,
+            "improvementFraction": 0.44161881323489205,
+            "p95Ratio": 0.523920177025944,
+            "allThreePairsAboveFivePercent": true,
+            "orderVariation": {
+              "baseline": {
+                "pairMedians": [
+                  0.3668,
+                  0.36574,
+                  0.36478
+                ],
+                "runMedianRangeFraction": 0.005537584297384823,
+                "thirdRelativeToFirst": -0.005507088331515919
+              },
+              "candidate": {
+                "pairMedians": [
+                  0.20514,
+                  0.20484,
+                  0.1834
+                ],
+                "runMedianRangeFraction": 0.1185387131952016,
+                "thirdRelativeToFirst": -0.10597640635663441
+              }
+            }
+          },
+          {
+            "fixture": "actual-input-block70-9",
+            "block": 70,
+            "baselineMedian": 1.44164,
+            "candidateMedian": 0.69644,
+            "improvementFraction": 0.5169112954690491,
+            "p95Ratio": 0.48868781334622047,
+            "allThreePairsAboveFivePercent": true,
+            "orderVariation": {
+              "baseline": {
+                "pairMedians": [
+                  1.4505,
+                  1.4408400000000001,
+                  1.44066
+                ],
+                "runMedianRangeFraction": 0.006830202823705722,
+                "thirdRelativeToFirst": -0.006783867631851015
+              },
+              "candidate": {
+                "pairMedians": [
+                  0.69754,
+                  0.6933199999999999,
+                  0.69686
+                ],
+                "runMedianRangeFraction": 0.006086655512606232,
+                "thirdRelativeToFirst": -0.0009748544886315491
+              }
+            }
+          }
+        ],
+        "pairResults": [
+          {
+            "block": 0,
+            "pair": 1,
+            "baselineMedian": 1.45192,
+            "candidateMedian": 0.70476,
+            "improvementFraction": 0.5146013554465811,
+            "p95Ratio": 0.4812585879316552
+          },
+          {
+            "block": 0,
+            "pair": 2,
+            "baselineMedian": 1.4415200000000001,
+            "candidateMedian": 0.7033400000000001,
+            "improvementFraction": 0.5120844663965813,
+            "p95Ratio": 0.4634668253465059
+          },
+          {
+            "block": 0,
+            "pair": 3,
+            "baselineMedian": 1.44162,
+            "candidateMedian": 0.70158,
+            "improvementFraction": 0.5133391601115411,
+            "p95Ratio": 0.48406733387845574
+          },
+          {
+            "block": 1,
+            "pair": 1,
+            "baselineMedian": 0.36668,
+            "candidateMedian": 0.20616,
+            "improvementFraction": 0.4377658994218392,
+            "p95Ratio": 0.546873111226737
+          },
+          {
+            "block": 1,
+            "pair": 2,
+            "baselineMedian": 0.36573999999999995,
+            "candidateMedian": 0.20508,
+            "improvementFraction": 0.4392738010608628,
+            "p95Ratio": 0.5320903844473793
+          },
+          {
+            "block": 1,
+            "pair": 3,
+            "baselineMedian": 0.3649,
+            "candidateMedian": 0.18566,
+            "improvementFraction": 0.4912030693340641,
+            "p95Ratio": 0.48758840516818297
+          },
+          {
+            "block": 2,
+            "pair": 1,
+            "baselineMedian": 0.36656,
+            "candidateMedian": 0.20622000000000001,
+            "improvementFraction": 0.4374181580096027,
+            "p95Ratio": 0.5437124015463172
+          },
+          {
+            "block": 2,
+            "pair": 2,
+            "baselineMedian": 0.36566,
+            "candidateMedian": 0.20748,
+            "improvementFraction": 0.4325876497292567,
+            "p95Ratio": 0.5583651013231675
+          },
+          {
+            "block": 2,
+            "pair": 3,
+            "baselineMedian": 0.36488,
+            "candidateMedian": 0.18434,
+            "improvementFraction": 0.4947928085946064,
+            "p95Ratio": 0.4843557933663193
+          },
+          {
+            "block": 3,
+            "pair": 1,
+            "baselineMedian": 0.36694,
+            "candidateMedian": 0.20746,
+            "improvementFraction": 0.4346214639995639,
+            "p95Ratio": 0.5471155377258181
+          },
+          {
+            "block": 3,
+            "pair": 2,
+            "baselineMedian": 0.36616,
+            "candidateMedian": 0.20532,
+            "improvementFraction": 0.43926152501638627,
+            "p95Ratio": 0.5611656975510378
+          },
+          {
+            "block": 3,
+            "pair": 3,
+            "baselineMedian": 0.36526000000000003,
+            "candidateMedian": 0.18494,
+            "improvementFraction": 0.4936757378305865,
+            "p95Ratio": 0.49573838928509306
+          },
+          {
+            "block": 4,
+            "pair": 1,
+            "baselineMedian": 0.36636,
+            "candidateMedian": 0.20566,
+            "improvementFraction": 0.4386395894748335,
+            "p95Ratio": 0.5585510137676096
+          },
+          {
+            "block": 4,
+            "pair": 2,
+            "baselineMedian": 0.36588,
+            "candidateMedian": 0.20657999999999999,
+            "improvementFraction": 0.4353886520170548,
+            "p95Ratio": 0.5604390890029335
+          },
+          {
+            "block": 4,
+            "pair": 3,
+            "baselineMedian": 0.36484,
+            "candidateMedian": 0.18508,
+            "improvementFraction": 0.4927091327705295,
+            "p95Ratio": 0.4900292018676703
+          },
+          {
+            "block": 66,
+            "pair": 1,
+            "baselineMedian": 0.36618,
+            "candidateMedian": 0.20712,
+            "improvementFraction": 0.43437653612977223,
+            "p95Ratio": 0.5452227721494817
+          },
+          {
+            "block": 66,
+            "pair": 2,
+            "baselineMedian": 0.36594,
+            "candidateMedian": 0.2082,
+            "improvementFraction": 0.4310542711919987,
+            "p95Ratio": 0.5649493099335492
+          },
+          {
+            "block": 66,
+            "pair": 3,
+            "baselineMedian": 0.36494000000000004,
+            "candidateMedian": 0.18342,
+            "improvementFraction": 0.49739683235600374,
+            "p95Ratio": 0.49262729984425735
+          },
+          {
+            "block": 67,
+            "pair": 1,
+            "baselineMedian": 0.3672,
+            "candidateMedian": 0.20608,
+            "improvementFraction": 0.4387799564270153,
+            "p95Ratio": 0.47117341971571697
+          },
+          {
+            "block": 67,
+            "pair": 2,
+            "baselineMedian": 0.3667,
+            "candidateMedian": 0.20908,
+            "improvementFraction": 0.42983365148622865,
+            "p95Ratio": 0.5785713510757179
+          },
+          {
+            "block": 67,
+            "pair": 3,
+            "baselineMedian": 0.36550000000000005,
+            "candidateMedian": 0.17980000000000002,
+            "improvementFraction": 0.5080711354309166,
+            "p95Ratio": 0.4920618793747895
+          },
+          {
+            "block": 68,
+            "pair": 1,
+            "baselineMedian": 0.36634,
+            "candidateMedian": 0.20796,
+            "improvementFraction": 0.43233062182671833,
+            "p95Ratio": 0.5474517418148571
+          },
+          {
+            "block": 68,
+            "pair": 2,
+            "baselineMedian": 0.36636,
+            "candidateMedian": 0.20794,
+            "improvementFraction": 0.4324162026422098,
+            "p95Ratio": 0.546790493556263
+          },
+          {
+            "block": 68,
+            "pair": 3,
+            "baselineMedian": 0.365,
+            "candidateMedian": 0.18325999999999998,
+            "improvementFraction": 0.4979178082191781,
+            "p95Ratio": 0.49406829547684333
+          },
+          {
+            "block": 69,
+            "pair": 1,
+            "baselineMedian": 0.3668,
+            "candidateMedian": 0.20514,
+            "improvementFraction": 0.4407306434023992,
+            "p95Ratio": 0.5377591772544801
+          },
+          {
+            "block": 69,
+            "pair": 2,
+            "baselineMedian": 0.36574,
+            "candidateMedian": 0.20484,
+            "improvementFraction": 0.439930004921529,
+            "p95Ratio": 0.5376626464916953
+          },
+          {
+            "block": 69,
+            "pair": 3,
+            "baselineMedian": 0.36478,
+            "candidateMedian": 0.1834,
+            "improvementFraction": 0.4972312078513076,
+            "p95Ratio": 0.4842153289402055
+          },
+          {
+            "block": 70,
+            "pair": 1,
+            "baselineMedian": 1.4505,
+            "candidateMedian": 0.69754,
+            "improvementFraction": 0.5191037573250603,
+            "p95Ratio": 0.4654250916400616
+          },
+          {
+            "block": 70,
+            "pair": 2,
+            "baselineMedian": 1.4408400000000001,
+            "candidateMedian": 0.6933199999999999,
+            "improvementFraction": 0.5188084728352906,
+            "p95Ratio": 0.5040173677128039
+          },
+          {
+            "block": 70,
+            "pair": 3,
+            "baselineMedian": 1.44066,
+            "candidateMedian": 0.69686,
+            "improvementFraction": 0.5162911443366235,
+            "p95Ratio": 0.48691198066533364
+          }
+        ],
+        "sumOfIsolatedOperatorMedians": {
+          "baseline": 5.81138,
+          "candidate": 3.0408
+        },
+        "sumImprovementFraction": 0.4767507889692293,
+        "perPairImprovementRange": [
+          0.42983365148622865,
+          0.5191037573250603
+        ],
+        "operatorGates": "All10 pooled and all30 pair medians improve at least5%; all pooled p95 ratios below1.02.",
+        "scope": "Scalar timing recomputation only; separate auditor binds provenance/outputs/source closure. Sums are isolated operator measurements, not network/game timings.",
+        "variationCaveat": "B,C / C,B / B,C is not balanced over3 pairs; role/order clock/thermal/compiler-driver causes remain unmeasured. Pair/run median shifts are retained, not discarded.",
+        "sourceBuildSha256": "a73cb58d53b5179e7fe27c49abd65f35de0b91b78cb4bfd9c3042df995e2b678",
+        "strictReportSha256": "eb13688623713956f7876b5ff105117660c2d887db9772b8ae0d76ea79350350",
+        "inputCatalogSha256": "56ae9dcf35976bf424cf676a03069fa709aa13c723c49dabb4e7c4875f52555c",
+        "device": "AMD Radeon RX 9070 XT",
+        "driver": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+        "executableSha256": "fc45ba4bc42260813b3d942814c5709efa7f9d0f483a592671b91ac26fb7f201",
+        "verificationChecksReported": 60,
+        "verificationFailuresReported": 0
+      }
+    }
+  }
+}
