@@ -1,0 +1,1383 @@
+{
+  "format": "OpenNR-AMD-private-strided-expansion-v11-negative-scalar-evidence-v1",
+  "date": "2026-10-03",
+  "status": "CPU_AUDITED_REJECTED_OPERATOR_TIMING",
+  "disposition": "Private terminal hardware E4 candidate rejected: all seven pooled operators and all21 measured pairs regressed against frozen Pair.",
+  "scalarOnly": true,
+  "privatePrototype": true,
+  "prototypeInReleasePackage": false,
+  "releaseDefaultsChanged": false,
+  "device": {
+    "vendorId": "1002",
+    "deviceId": "7550",
+    "name": "AMD Radeon RX 9070 XT",
+    "driverId": "AMD proprietary driver|26.9.1 (LLPC)|8389003"
+  },
+  "scope": {
+    "operation": "C32 expansion only: FLAGS24 K32 N128 Nmatrix128 P0 B1 E4 input/output, corrected mixed3 SiLU",
+    "blocks": [
+      1,
+      2,
+      3,
+      4,
+      67,
+      68,
+      69
+    ],
+    "rowsForActualTiming": 414720,
+    "graphSourceGeometry": [
+      1707,
+      960
+    ],
+    "graphSourcePaddedGeometry": [
+      1728,
+      960
+    ],
+    "graphInternalTensorGeometry": [
+      864,
+      480,
+      32
+    ],
+    "tileOnly": true,
+    "contractionFused": false,
+    "completeCandidateGraphExecuted": false,
+    "qkvNormalize": "off",
+    "capturesAreGameFrames": false,
+    "baselineIsAutomaticDefault": false
+  },
+  "baseline": {
+    "kernels": "optimized",
+    "gemm": "direct-rte-pair",
+    "attention": "arena-rte",
+    "arithmetic": "k16",
+    "tileN": 16,
+    "stageK": 16,
+    "windowQueries": 32,
+    "qkvNormalize": "off",
+    "fusions": false,
+    "aggregateSha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+    "pairSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e"
+  },
+  "source": {
+    "sourceFeasibility": {
+      "path": "build/release/c32-strided-expansion-v11-terminal-hardware-20261003-a1/cpu-feasibility.json",
+      "bytes": 9335,
+      "sha256": "ababba9e3487ef46bf2075e856069fd64c5ca21ce31f545559d5bfa5ad632e00",
+      "distributed": false
+    },
+    "boundedPreparation": {
+      "path": "build/release/c32-strided-expansion-v11-terminal-hardware-host-20261003-a1/cpu-preparation.json",
+      "bytes": 90848,
+      "sha256": "0c4be211498cf6658ef62e48ce81e659dca3d173103481ed04e28cbc644d3da8",
+      "distributed": false
+    },
+    "actualTimingPreparation": {
+      "path": "build/release/c32-strided-expansion-v11-terminal-hardware-actual-timing-20261003-a2/cpu-preparation.json",
+      "bytes": 91869,
+      "sha256": "a7734d60c059afb31bc60452886bd175af5edbfd62d990df9de0e02db6d89bcd",
+      "distributed": false
+    },
+    "boundedExecutableSha256": "e1afc4f23a0ec7426e9b5399f32b8ea7d79d9ee0b0d2aae2481e3486e74355a6",
+    "actualTimingExecutableSha256": "462eb28c04b1031bda7b9c4da693365571dba83d09530eab227e5bf0523272cf",
+    "compiledModules": [
+      {
+        "module": "amd_expand32_terminal_hardware_tile",
+        "sha256": "846d5d82f2f7e5c0ea4f82fbaed58f7f11305ffe3e39445102e4c1ee81d243fe",
+        "executionModes": [
+          [
+            17,
+            32,
+            1,
+            1
+          ],
+          [
+            4459,
+            16
+          ],
+          [
+            4461,
+            32
+          ],
+          [
+            4462,
+            16
+          ],
+          [
+            4461,
+            16
+          ]
+        ],
+        "staticControlBarriers": 3,
+        "offlineResources": {
+          "vgprs": 42,
+          "vgprSpills": 0,
+          "sgprs": 24,
+          "sgprSpills": 0,
+          "scratchBytes": 0,
+          "staticScratchInstructionCount": 0,
+          "wavefrontSize": 32,
+          "ldsBytes": 2048,
+          "threadgroupDimensions": [
+            32,
+            1,
+            1
+          ]
+        },
+        "offlineAnalysis": {
+          "path": "build/release/c32-strided-expansion-v11-terminal-hardware-20261003-a1/offline-amd_expand32_terminal_hardware_tile/analysis.json",
+          "bytes": 6662,
+          "sha256": "b39986d7ec3720606bebff7ea86f719485946771ebe9ca46795e61439e31a7ff",
+          "distributed": false
+        },
+        "offlineIsaIdentity": {
+          "path": "build/release/c32-strided-expansion-v11-terminal-hardware-20261003-a1/offline-amd_expand32_terminal_hardware_tile/wave32.isa",
+          "bytes": 460852,
+          "sha256": "fb1fcb879736576498ea36e8b9b16e0d24caa6b62451403b507b1c20eccc151c",
+          "distributed": false
+        },
+        "offlineIsaTextDistributed": false,
+        "offlineStaticWmmaCount": 2,
+        "offlineStaticFp8DownconverterCount": 8,
+        "offlineStaticMode23SetOneCount": 8,
+        "offlineSetterBeforeConverter": true,
+        "allOfflineHalfNarrowingBeforeFirstModeSetter": true,
+        "installedEquivalentClaim": false
+      },
+      {
+        "module": "amd_expand32_terminal_hardware_tile_capture",
+        "sha256": "f9ae91d17cf402b60b784c8e301098c88427760ec29b7931a857f9d9bc79ae35",
+        "executionModes": [
+          [
+            17,
+            32,
+            1,
+            1
+          ],
+          [
+            4459,
+            16
+          ],
+          [
+            4461,
+            32
+          ],
+          [
+            4462,
+            16
+          ],
+          [
+            4461,
+            16
+          ]
+        ],
+        "staticControlBarriers": 3,
+        "offlineResources": {
+          "vgprs": 47,
+          "vgprSpills": 0,
+          "sgprs": 30,
+          "sgprSpills": 0,
+          "scratchBytes": 0,
+          "staticScratchInstructionCount": 0,
+          "wavefrontSize": 32,
+          "ldsBytes": 2048,
+          "threadgroupDimensions": [
+            32,
+            1,
+            1
+          ]
+        },
+        "offlineAnalysis": {
+          "path": "build/release/c32-strided-expansion-v11-terminal-hardware-20261003-a1/offline-amd_expand32_terminal_hardware_tile_capture/analysis.json",
+          "bytes": 6718,
+          "sha256": "e1f59fb1c26751603248dc87161c69c2bb766be535369a3e3fc0591bd880bb5d",
+          "distributed": false
+        },
+        "offlineIsaIdentity": {
+          "path": "build/release/c32-strided-expansion-v11-terminal-hardware-20261003-a1/offline-amd_expand32_terminal_hardware_tile_capture/wave32.isa",
+          "bytes": 496816,
+          "sha256": "22f1028111c6c76f8093201730af407a840e93fc3744b9645e6a5e2e3b2d2b9d",
+          "distributed": false
+        },
+        "offlineIsaTextDistributed": false,
+        "offlineStaticWmmaCount": 2,
+        "offlineStaticFp8DownconverterCount": 8,
+        "offlineStaticMode23SetOneCount": 8,
+        "offlineSetterBeforeConverter": true,
+        "allOfflineHalfNarrowingBeforeFirstModeSetter": true,
+        "installedEquivalentClaim": false
+      }
+    ],
+    "publication": "Frozen Pair typed-half saturated hardware E4 spelling with original terminal scalar phase visits; a frozen-driver fidelity hypothesis, not the separate portable native-clamp arithmetic experiment.",
+    "matrixArithmetic": "Two ordered K16 updates with native RTE accumulator half publication.",
+    "activation": "Unchanged corrected mixed3 SiLU: three native half publications and two software stages.",
+    "design": "All matrix/SiLU/FP16 narrowing finishes before a512B shared half-bit bridge and barrier. Tile-only terminal loop reconstructs half bits in original Pair scalar publication phases, with no later matrix, SiLU or numerical half narrowing.",
+    "declaredLdsBytes": 2048,
+    "guards": "Pinned1002:7550/26.9.1, FP8 M16 and float controls, full wave32/local32, VOTE/ARITH, component length8, strides/allocation bounds, tile-only two modules. Exact bounded audit and recorded source/manifest/log/driver pins are rehashed before output creation or Vulkan.",
+    "exactReferenceUnchanged": true,
+    "portableNativeClampArithmeticPolicy": false,
+    "arbitraryInputPreservingClaim": false
+  },
+  "cpu": {
+    "shaderFeasibilityChecks": 845579,
+    "boundedHostChecks": 1105956,
+    "actualTimingHostChecksWithCatalog": 1106024,
+    "negativeCliChecksPerHost": 9,
+    "strictActualMetadataMutationCases": 10,
+    "reservedPositiveZeroCases": 33,
+    "sourceBitTransportScope": "CPU half-bit/classification/phase/source checks do not establish hardware publication parity.",
+    "hostGateBeforeVulkan": true
+  },
+  "boundedValidation": {
+    "runs": [
+      {
+        "label": "gpu-small",
+        "manifest": {
+          "path": "build/release/c32-strided-expansion-v11-terminal-hardware-host-20261003-a1/gpu-small/manifest.json",
+          "bytes": 97827,
+          "sha256": "59bf07f9df0c517c6c774a5b5687b2e499b7ea1723a638429c61915faa390bd6",
+          "distributed": false
+        },
+        "rootCompletionLog": {
+          "path": "build/release/c32-strided-expansion-v11-terminal-hardware-host-20261003-a1/root-gpu-small.log",
+          "bytes": 3394,
+          "sha256": "52e9f3873ba80f9e2c3fb69b9d678a0782f78219e788c3be7f85189d03f10d53",
+          "distributed": false
+        },
+        "fixtures": 45,
+        "comparisons": 180,
+        "comparedBytes": 2969600,
+        "rawBuffersReopened": 360,
+        "fullAllocationCanaryBytesChecked": 3258880,
+        "zeroDifferentBytes": true,
+        "inheritedFixturesBoundToV7": true,
+        "importedWeightsUseSyntheticInputs": true,
+        "actualGraphInputs": false,
+        "validationLayerEnablementRecorded": false
+      },
+      {
+        "label": "gpu-target",
+        "manifest": {
+          "path": "build/release/c32-strided-expansion-v11-terminal-hardware-host-20261003-a1/gpu-target/manifest.json",
+          "bytes": 102219,
+          "sha256": "85cd4b66e9cc4514ae83891a20aa7214cde2410b791a508544f62ca83d71457b",
+          "distributed": false
+        },
+        "rootCompletionLog": {
+          "path": "build/release/c32-strided-expansion-v11-terminal-hardware-host-20261003-a1/root-gpu-target.log",
+          "bytes": 3532,
+          "sha256": "23241aeac3b95d5873b1f58a28b43329ec9b27fa8a7ce1d4c71b09649f1518af",
+          "distributed": false
+        },
+        "fixtures": 47,
+        "comparisons": 188,
+        "comparedBytes": 566988800,
+        "rawBuffersReopened": 376,
+        "fullAllocationCanaryBytesChecked": 69614080,
+        "zeroDifferentBytes": true,
+        "inheritedFixturesBoundToV7": true,
+        "importedWeightsUseSyntheticInputs": true,
+        "actualGraphInputs": false,
+        "validationLayerEnablementRecorded": false
+      }
+    ],
+    "edgeScope": "All inherited early/delayed finite/NaN/Inf/464-boundary/signed-zero/tail/overdispatch fixtures retained with no waived comparisons; model weights in bounded fixtures use synthetic inputs.",
+    "rootDriverCompletionLog": {
+      "path": "build/release/c32-strided-expansion-v11-terminal-hardware-host-20261003-a1/root-driver-info.log",
+      "bytes": 412,
+      "sha256": "f57403290d1e600d7a573276f834e1559b823123a8c3f27385f146bd93b4086e",
+      "distributed": false
+    },
+    "enabledValidationLayerClaim": false
+  },
+  "actualValidation": {
+    "fixtures": 7,
+    "comparisons": 28,
+    "comparedBytes": 1990656000,
+    "rawBuffersReopened": 56,
+    "fullAllocationCanaryBytesChecked": 265420800,
+    "zeroDifferentBytes": true,
+    "independentlyRepackedMatrices": 14,
+    "independentlyRepackedScales": 7,
+    "expansionConsumesW1Only": true,
+    "inheritedFixtureIdentityIncludesW2ScalesAndResidual": true,
+    "graphModulesRehashed": 32,
+    "graphSourceSnapshotFilesRehashed": 32,
+    "fourHistoricalAnchorsExact": true,
+    "rootCompletionLog": {
+      "path": "build/release/c32-strided-expansion-v11-terminal-hardware-actual-timing-20261003-a2/root-actual7-target.log",
+      "bytes": 1137,
+      "sha256": "3104d7e3cbb81c7e95913b98bb1bcc34a8262f58aa87dfa38dfebf289806b107",
+      "distributed": false
+    },
+    "manifest": {
+      "path": "build/release/c32-strided-expansion-v11-terminal-hardware-actual-timing-20261003-a2/gpu-actual7-target/manifest.json",
+      "bytes": 18301,
+      "sha256": "2c9730a3bf89d3a9dd0a77df886c2d62f85e877167e132d72ed5c7bbbc14e353",
+      "distributed": false
+    },
+    "strictActualProof": {
+      "path": "build/release/c32-strided-expansion-v11-terminal-hardware-actual-timing-20261003-a2/gpu-actual7-target/actual-proof.json",
+      "bytes": 1465,
+      "sha256": "2822b3a4e340ac7b39a86546f0324bd43f263dcd496d554e222bbf32b660a7f3",
+      "distributed": false
+    },
+    "captureCatalog": {
+      "path": "build/release/c32-register-v5-actual-input-check-20261003-a1/capture-target/catalog.json",
+      "bytes": 2503,
+      "sha256": "81b2654ca5f013270d480c71cda042b549d567c7e6bfd90fd2cb12c2f219421c",
+      "distributed": false
+    },
+    "captureRecord": {
+      "path": "build/release/c32-register-v5-actual-input-check-20261003-a1/capture-target/capture-record.json",
+      "bytes": 15302,
+      "sha256": "313e4c0578c843d5a8e61a74a5fc41f13a302eeda2efac46c97afb09cd803537",
+      "distributed": false
+    },
+    "captureManifest": {
+      "path": "build/release/c32-register-v5-actual-input-check-20261003-a1/capture-target/boundaries/manifest.json",
+      "bytes": 6895,
+      "sha256": "07778dc62cb7c34d65deec5285d2e7d8dfebaff06a13a7adca45de996db332c3",
+      "distributed": false
+    },
+    "fixturesBoundToCurrentModel": [
+      {
+        "block": 1,
+        "rows": 414720,
+        "outputStride": 144,
+        "inputSha256": "2e6cd1cb885efcad98e93a81801b3e7a4f1d9141d9e7ba51bd3040c19a00a9d2",
+        "rawExpandSha256": "95760be853b14b7239c9a448311cbf9163bc60516efb4fd75889f510b8e142a3",
+        "rawContractAncestrySha256": "85844c8fe694efe34a09397fea740b95c8daad7c5c9e31002c551092524d1457",
+        "scalesAncestrySha256": "007ccbc8f20aaa23d414448425683a34fe5ad55423d29c85c36d18872665f650",
+        "inheritedFixtureIdentitySha256": "d956396ec319a0789d1d01d6b93146b6b180762246408a71581572b7c607110d",
+        "canonicalE4Sha256": "d45ccdac416398d45916c005ff1048d049d6f22dd4cd548616553f056345e3eb"
+      },
+      {
+        "block": 2,
+        "rows": 414720,
+        "outputStride": 128,
+        "inputSha256": "b5291ead897fce6ffd167868af1cafbe39be33f5bbb22b6a4039681381901246",
+        "rawExpandSha256": "aed4a0d79509a3d734a1b7fd78d8e69f23c17d874f42217b966a2a5446db0e85",
+        "rawContractAncestrySha256": "9a1e2754aabdd8b3338bb56ab5a418fc3bce05724ff3b5630096e9516f164d6b",
+        "scalesAncestrySha256": "e9f8c68f4aaf41f3366d4eaa6d8b741a968526b92faf274d16c2b007d5c68e37",
+        "inheritedFixtureIdentitySha256": "ec700988fba3b58dc18f44b18d2e404f91ca5cc0d5551f84b3a631a531744a73",
+        "canonicalE4Sha256": "7fd16a1db7155504525f3c89cf082d3fa2ae1272261493971a4c9ec62c9b27bf"
+      },
+      {
+        "block": 3,
+        "rows": 414720,
+        "outputStride": 144,
+        "inputSha256": "41069080bde8bf358ffcef33f8e51b777ceee9f035b669ff4cf397c50d690a3f",
+        "rawExpandSha256": "9bf9c9d71a9a4f6da6dcf06279ffd2f5844ccdbce00a830f6cfc6dea4f1f8244",
+        "rawContractAncestrySha256": "112b19fbd7f1fc6d1b46ef5886868b5640e3737453da16bcb55e8b28b6a54300",
+        "scalesAncestrySha256": "7c85f9b77de08b16133b43ef3260247dbd72f03ad7d4eb23a63e615583373bc9",
+        "inheritedFixtureIdentitySha256": "9077d2b5f2da8659a1c9bf94c31eebf0053dd0bf255575e96fa358bfa31681ba",
+        "canonicalE4Sha256": "6ff9e479b2837348262e4bf651731d1470d0d97b90ff3bcf0a92fa8dd6b9db96"
+      },
+      {
+        "block": 4,
+        "rows": 414720,
+        "outputStride": 128,
+        "inputSha256": "70201726935d452e5c5695e741b53d887263095b01704d07f637d56d8ce6ff7c",
+        "rawExpandSha256": "2e3b228af94526b2cc1636e98fbde280f6a921af0024b671bbcb1591a0b0276c",
+        "rawContractAncestrySha256": "f91022eeb15ceb20f63f3e46e97c8651f74414585dc5d2e69d2b30a6bfbddaba",
+        "scalesAncestrySha256": "5b8c3ca99ca1ba804e8411e2d82f8999454311d3f3f12e0e50e1b024243004c0",
+        "inheritedFixtureIdentitySha256": "b50b5c1ab2b9951e1fccec50affc9f30c6948891b4a31cf3d7ebf9b0f95cb0ad",
+        "canonicalE4Sha256": "17a74a31cec97d33022a84a766ef31c933ff6ab897d63828a03185ff1be8fb5b"
+      },
+      {
+        "block": 67,
+        "rows": 414720,
+        "outputStride": 144,
+        "inputSha256": "f108ae37424ab9671154ad646f9f072c8857d0fcb4fc36b502528b54c89232a8",
+        "rawExpandSha256": "c2f7e09ed445d0b3212fcd830de798391a310e957a9752dfd08a010c4560e4ee",
+        "rawContractAncestrySha256": "944baba5267a19b15f003994f5306c444431b03413feafa2eeb22a9662f70d81",
+        "scalesAncestrySha256": "b31f7bb4f6ebb9349fe5aed67993c247c0659cfe4eb0b2d38c1bd14218245219",
+        "inheritedFixtureIdentitySha256": "cc0be6def2c71fc17d402960e0c5707758257a043fba41116706acd1f5596da8",
+        "canonicalE4Sha256": "742fe240b344eae37d813d86218505791061b4a47769c1aa7fc9c2f5b0bbe18e"
+      },
+      {
+        "block": 68,
+        "rows": 414720,
+        "outputStride": 128,
+        "inputSha256": "be12e288affb9d10cb336d6d9f80ca6c50ba4c959947fb2334730633e2105d95",
+        "rawExpandSha256": "cac9f9ca360abac6889d3bebb3f5f4672da0d3cc1f459b536f835c65ec6cd50d",
+        "rawContractAncestrySha256": "0bebe86f87b246caa1408101c072335875063e2dfe558edf6242fd75c5a0f7a7",
+        "scalesAncestrySha256": "d6f9a11a049c09ed19c977464b7365f9765e96bc7a89cfa66f95a3ac0eab6e6d",
+        "inheritedFixtureIdentitySha256": "bce8b7951118bb6c9b3fea3abf0f6e8d7bfd9c6bb19ee540e58e090e3dfe745f",
+        "canonicalE4Sha256": "a210697f44ffc07d277ece896d51028d5f72189c6e5bc370c289e114735d66e2"
+      },
+      {
+        "block": 69,
+        "rows": 414720,
+        "outputStride": 144,
+        "inputSha256": "e1bfb7007541e775faf4ab69348cc986a28f67752f4b31b7f7b5539fb1bd691b",
+        "rawExpandSha256": "286c318e2c0bc755235eee487908d65d8fc6f185b32263d4541d9ef8090624f7",
+        "rawContractAncestrySha256": "a4818d2c4f5a35a6a5f89735f1554607b628c9ecaaa33ead68efd00948dc18f0",
+        "scalesAncestrySha256": "99bbcab901337cbcbeb3a83f1d032f4fa1c127ed87eb2757fdfacbf3cf43b6fb",
+        "inheritedFixtureIdentitySha256": "3c4bd5d2e305497334e935b5bedff7cbb03460486ef646ba4d3a304354f620d1",
+        "canonicalE4Sha256": "8dc6a8b18a3d07c7d0bf598f68dc852939698e4ef9a3401171ead2b70bf0d153"
+      }
+    ],
+    "activatedF16Trace": "Separate Pair F40 diagnostic; agreement does not expose original F24 pre-E4 half bits.",
+    "canonicalTimingOutput": "Pre/post packed E4 hashes derived from the full strict actual allocations.",
+    "enabledValidationLayerClaim": false
+  },
+  "installedDriver": [
+    {
+      "module": "amd_expand32_terminal_hardware_tile",
+      "moduleSha256": "846d5d82f2f7e5c0ea4f82fbaed58f7f11305ffe3e39445102e4c1ee81d243fe",
+      "report": {
+        "path": "build/release/c32-strided-expansion-v11-terminal-hardware-host-20261003-a1/driver-info/amd_expand32_terminal_hardware_tile.txt",
+        "bytes": 86260,
+        "sha256": "c5ebe36ac946c6c0d2094efeb5f61837da75f558d34248de9d66180fa6a2c592",
+        "distributed": false
+      },
+      "resources": {
+        "numUsedVgprs": 43,
+        "numUsedSgprs": 23,
+        "ldsSizePerLocalWorkGroup": 2048,
+        "ldsUsageSizeInBytes": 2048,
+        "scratchMemUsageInBytes": 0
+      },
+      "subgroupSizeReported": 32,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "halfDowncasts": 40,
+        "halfUpcasts": 48,
+        "halfConversionInstructionsTotal": 88,
+        "fp8Downconversion": 8,
+        "mode23SetOne": 8
+      },
+      "converterBeforeCorrespondingMode23SetOne": true,
+      "allHalfNarrowingBeforeFirstConverter": true,
+      "offlineSetterBeforeConverter": true,
+      "offlineResourcesSeparate": {
+        "vgprs": 42,
+        "vgprSpills": 0,
+        "sgprs": 24,
+        "sgprSpills": 0,
+        "scratchBytes": 0,
+        "staticScratchInstructionCount": 0,
+        "wavefrontSize": 32,
+        "ldsBytes": 2048,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ]
+      },
+      "installedMatchesOfflineOrdering": false,
+      "pipelineCaptureInstrumented": true,
+      "ordinaryTiming": false
+    },
+    {
+      "module": "amd_expand32_terminal_hardware_tile_capture",
+      "moduleSha256": "f9ae91d17cf402b60b784c8e301098c88427760ec29b7931a857f9d9bc79ae35",
+      "report": {
+        "path": "build/release/c32-strided-expansion-v11-terminal-hardware-host-20261003-a1/driver-info/amd_expand32_terminal_hardware_tile_capture.txt",
+        "bytes": 90342,
+        "sha256": "cb49a27de85c9a66609cf14b9ece42c1556758d1f18a3ff57d438c8ae1ea7170",
+        "distributed": false
+      },
+      "resources": {
+        "numUsedVgprs": 48,
+        "numUsedSgprs": 30,
+        "ldsSizePerLocalWorkGroup": 2048,
+        "ldsUsageSizeInBytes": 2048,
+        "scratchMemUsageInBytes": 0
+      },
+      "subgroupSizeReported": 32,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "halfDowncasts": 40,
+        "halfUpcasts": 48,
+        "halfConversionInstructionsTotal": 88,
+        "fp8Downconversion": 8,
+        "mode23SetOne": 8
+      },
+      "converterBeforeCorrespondingMode23SetOne": true,
+      "allHalfNarrowingBeforeFirstConverter": true,
+      "offlineSetterBeforeConverter": true,
+      "offlineResourcesSeparate": {
+        "vgprs": 47,
+        "vgprSpills": 0,
+        "sgprs": 30,
+        "sgprSpills": 0,
+        "scratchBytes": 0,
+        "staticScratchInstructionCount": 0,
+        "wavefrontSize": 32,
+        "ldsBytes": 2048,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ]
+      },
+      "installedMatchesOfflineOrdering": false,
+      "pipelineCaptureInstrumented": true,
+      "ordinaryTiming": false
+    }
+  ],
+  "orderingObservation": "Installed driver places FP8 converters before corresponding MODE23=1 setters; offline placed setters first. This matches the observed frozen Pair first-overflow ancestry on the tested driver and explains why the offline risk did not reproduce in the bounded corpus. This is not a portable compiler guarantee.",
+  "timing": {
+    "variant": "tile",
+    "protocol": {
+      "warmupsPerRoute": 5,
+      "interleavedPairs": 3,
+      "measuredFramesPerRoutePerPair": 30,
+      "routeOrder": [
+        "baseline-candidate",
+        "candidate-baseline",
+        "baseline-candidate"
+      ],
+      "frameInputsFixed": true,
+      "inputsWeightsSharedAcrossRoutes": true,
+      "preallocatedBuffers": true,
+      "persistentCommandBuffers": true,
+      "persistentDescriptorPools": true,
+      "reusableVkFence": true,
+      "queueWaitIdleDuringTiming": false,
+      "pipelineCaptureStatistics": false,
+      "imageReadbackDuringTiming": false,
+      "imageUploadsDuringTiming": false,
+      "timestampStage": "ALL_COMMANDS",
+      "baselineDispatchCount": 1,
+      "candidateDispatchCount": 1,
+      "timestampsPerRoute": 2,
+      "spanIncludesComputeBarriers": true,
+      "timingDomain": "GPU operator spans; excludes uploads, CPU submission/wait, readback and bridge",
+      "percentileMethod": "linear interpolation on n-1 index",
+      "variation": "population stddev/mean*100"
+    },
+    "operators": [
+      {
+        "block": 1,
+        "baseline": {
+          "medianMs": 0.30676000000000003,
+          "p95Ms": 0.35498399999999997,
+          "p99Ms": 0.43225959999999997,
+          "minMs": 0.29503999999999997,
+          "maxMs": 0.43792,
+          "meanMs": 0.325032,
+          "stddevMs": 0.029714577761690564,
+          "variationCvPercent": 9.14204686359822
+        },
+        "candidate": {
+          "medianMs": 0.3719,
+          "p95Ms": 0.426708,
+          "p99Ms": 0.5444836,
+          "minMs": 0.35216,
+          "maxMs": 0.54872,
+          "meanMs": 0.38964533333333334,
+          "stddevMs": 0.03965586416492101,
+          "variationCvPercent": 10.177425666996571
+        },
+        "medianRegressionPercent": 21.234841569956963,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.34975999999999996,
+              "p95Ms": 0.35498399999999997,
+              "p99Ms": 0.41393120000000005,
+              "minMs": 0.34412,
+              "maxMs": 0.43792,
+              "meanMs": 0.35292133333333336,
+              "stddevMs": 0.01606843525535562,
+              "variationCvPercent": 4.552979300964791
+            },
+            "candidate": {
+              "medianMs": 0.41709999999999997,
+              "p95Ms": 0.4621119999999998,
+              "p99Ms": 0.5315172,
+              "minMs": 0.41119999999999995,
+              "maxMs": 0.54872,
+              "meanMs": 0.423892,
+              "stddevMs": 0.026832374773769093,
+              "variationCvPercent": 6.330002635994331
+            },
+            "medianRegressionPercent": 19.25320219579141
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.30396,
+              "p95Ms": 0.350502,
+              "p99Ms": 0.40816280000000005,
+              "minMs": 0.29503999999999997,
+              "maxMs": 0.43156,
+              "meanMs": 0.318708,
+              "stddevMs": 0.02900776567289065,
+              "variationCvPercent": 9.101674784721641
+            },
+            "candidate": {
+              "medianMs": 0.36796,
+              "p95Ms": 0.45499599999999985,
+              "p99Ms": 0.5261888,
+              "minMs": 0.35216,
+              "maxMs": 0.54396,
+              "meanMs": 0.3871213333333334,
+              "stddevMs": 0.042345420825502356,
+              "variationCvPercent": 10.938539723678971
+            },
+            "medianRegressionPercent": 21.05540202658245
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.299,
+              "p95Ms": 0.3365259999999998,
+              "p99Ms": 0.3645928,
+              "minMs": 0.29656,
+              "maxMs": 0.36507999999999996,
+              "meanMs": 0.3034666666666668,
+              "stddevMs": 0.01632028866847098,
+              "variationCvPercent": 5.3779510111393805
+            },
+            "candidate": {
+              "medianMs": 0.3569,
+              "p95Ms": 0.36696199999999995,
+              "p99Ms": 0.372774,
+              "minMs": 0.35296,
+              "maxMs": 0.37492,
+              "meanMs": 0.35792266666666656,
+              "stddevMs": 0.00437256822575576,
+              "variationCvPercent": 1.2216516675173112
+            },
+            "medianRegressionPercent": 19.364548494983282
+          }
+        ]
+      },
+      {
+        "block": 2,
+        "baseline": {
+          "medianMs": 0.34875999999999996,
+          "p95Ms": 0.36152999999999996,
+          "p99Ms": 0.4816684,
+          "minMs": 0.29656,
+          "maxMs": 0.4874,
+          "meanMs": 0.34769244444444447,
+          "stddevMs": 0.03006390151036108,
+          "variationCvPercent": 8.646693936187848
+        },
+        "candidate": {
+          "medianMs": 0.41678,
+          "p95Ms": 0.43791399999999997,
+          "p99Ms": 0.5034571999999999,
+          "minMs": 0.35444,
+          "maxMs": 0.5039199999999999,
+          "meanMs": 0.412008,
+          "stddevMs": 0.02599148250228652,
+          "variationCvPercent": 6.308489762889683
+        },
+        "medianRegressionPercent": 19.503383415529306,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.35052,
+              "p95Ms": 0.35742599999999997,
+              "p99Ms": 0.4500364000000001,
+              "minMs": 0.34296,
+              "maxMs": 0.4874,
+              "meanMs": 0.3549013333333333,
+              "stddevMs": 0.024831489112728533,
+              "variationCvPercent": 6.996730296700831
+            },
+            "candidate": {
+              "medianMs": 0.41828,
+              "p95Ms": 0.43263199999999996,
+              "p99Ms": 0.4841092,
+              "minMs": 0.40984,
+              "maxMs": 0.5034,
+              "meanMs": 0.42157333333333324,
+              "stddevMs": 0.01605734833512543,
+              "variationCvPercent": 3.808909877710189
+            },
+            "medianRegressionPercent": 19.33127924226863
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.34916,
+              "p95Ms": 0.40380199999999977,
+              "p99Ms": 0.46803760000000005,
+              "minMs": 0.34196,
+              "maxMs": 0.48096,
+              "meanMs": 0.3566266666666667,
+              "stddevMs": 0.02826691698002376,
+              "variationCvPercent": 7.926192744987407
+            },
+            "candidate": {
+              "medianMs": 0.41656,
+              "p95Ms": 0.44300599999999996,
+              "p99Ms": 0.4872624,
+              "minMs": 0.40843999999999997,
+              "maxMs": 0.5039199999999999,
+              "meanMs": 0.4205880000000001,
+              "stddevMs": 0.01741981446514284,
+              "variationCvPercent": 4.141776385713058
+            },
+            "medianRegressionPercent": 19.303471187994028
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.34565999999999997,
+              "p95Ms": 0.353904,
+              "p99Ms": 0.41140280000000007,
+              "minMs": 0.29656,
+              "maxMs": 0.43479999999999996,
+              "meanMs": 0.3315493333333333,
+              "stddevMs": 0.03005835379539087,
+              "variationCvPercent": 9.066027517893026
+            },
+            "candidate": {
+              "medianMs": 0.40923999999999994,
+              "p95Ms": 0.42575399999999997,
+              "p99Ms": 0.4568076,
+              "minMs": 0.35444,
+              "maxMs": 0.46943999999999997,
+              "meanMs": 0.3938626666666666,
+              "stddevMs": 0.031161161610069814,
+              "variationCvPercent": 7.911681976307263
+            },
+            "medianRegressionPercent": 18.39379737314124
+          }
+        ]
+      },
+      {
+        "block": 3,
+        "baseline": {
+          "medianMs": 0.36602,
+          "p95Ms": 0.37579799999999997,
+          "p99Ms": 0.38781479999999996,
+          "minMs": 0.3594,
+          "maxMs": 0.45071999999999995,
+          "meanMs": 0.36778311111111106,
+          "stddevMs": 0.009759196647771603,
+          "variationCvPercent": 2.653519520863276
+        },
+        "candidate": {
+          "medianMs": 0.4402,
+          "p95Ms": 0.5124179999999999,
+          "p99Ms": 0.5658924,
+          "minMs": 0.43132,
+          "maxMs": 0.5701999999999999,
+          "meanMs": 0.44692311111111105,
+          "stddevMs": 0.02693558421470851,
+          "variationCvPercent": 6.026894457917609
+        },
+        "medianRegressionPercent": 20.266652095513905,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.36672,
+              "p95Ms": 0.37183,
+              "p99Ms": 0.427868,
+              "minMs": 0.3594,
+              "maxMs": 0.45071999999999995,
+              "meanMs": 0.36894,
+              "stddevMs": 0.015500285588766847,
+              "variationCvPercent": 4.201302539374112
+            },
+            "candidate": {
+              "medianMs": 0.44038,
+              "p95Ms": 0.48010399999999975,
+              "p99Ms": 0.5440228,
+              "minMs": 0.43132,
+              "maxMs": 0.55872,
+              "meanMs": 0.44540133333333337,
+              "stddevMs": 0.024611352357984898,
+              "variationCvPercent": 5.525657539863276
+            },
+            "medianRegressionPercent": 20.086169284467715
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.36592,
+              "p95Ms": 0.37663399999999997,
+              "p99Ms": 0.379924,
+              "minMs": 0.36116,
+              "maxMs": 0.38004,
+              "meanMs": 0.36657999999999996,
+              "stddevMs": 0.004563668115306663,
+              "variationCvPercent": 1.24493101514176
+            },
+            "candidate": {
+              "medianMs": 0.43954,
+              "p95Ms": 0.5382519999999998,
+              "p99Ms": 0.5687964,
+              "minMs": 0.43328,
+              "maxMs": 0.5701999999999999,
+              "meanMs": 0.44986533333333334,
+              "stddevMs": 0.03386814981004359,
+              "variationCvPercent": 7.528508489216829
+            },
+            "medianRegressionPercent": 20.11915172715346
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.36714,
+              "p95Ms": 0.37579799999999997,
+              "p99Ms": 0.3791132,
+              "minMs": 0.36052,
+              "maxMs": 0.37995999999999996,
+              "meanMs": 0.3678293333333334,
+              "stddevMs": 0.004674594409025116,
+              "variationCvPercent": 1.2708596040079587
+            },
+            "candidate": {
+              "medianMs": 0.4405,
+              "p95Ms": 0.4851659999999998,
+              "p99Ms": 0.5208848,
+              "minMs": 0.43223999999999996,
+              "maxMs": 0.52288,
+              "meanMs": 0.44550266666666666,
+              "stddevMs": 0.020268613985393508,
+              "variationCvPercent": 4.549605535932484
+            },
+            "medianRegressionPercent": 19.981478455085245
+          }
+        ]
+      },
+      {
+        "block": 4,
+        "baseline": {
+          "medianMs": 0.36144,
+          "p95Ms": 0.373538,
+          "p99Ms": 0.4409436,
+          "minMs": 0.3554,
+          "maxMs": 0.44695999999999997,
+          "meanMs": 0.3651511111111111,
+          "stddevMs": 0.01599437765413865,
+          "variationCvPercent": 4.380207855720245
+        },
+        "candidate": {
+          "medianMs": 0.43276,
+          "p95Ms": 0.44872599999999996,
+          "p99Ms": 0.5176443999999999,
+          "minMs": 0.42344,
+          "maxMs": 0.5604,
+          "meanMs": 0.4370751111111111,
+          "stddevMs": 0.018562298543280585,
+          "variationCvPercent": 4.246935611614309
+        },
+        "medianRegressionPercent": 19.732182381584764,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.36118,
+              "p95Ms": 0.36938,
+              "p99Ms": 0.4125768,
+              "minMs": 0.35596,
+              "maxMs": 0.43,
+              "meanMs": 0.3638453333333333,
+              "stddevMs": 0.012853130288852682,
+              "variationCvPercent": 3.5325807730169276
+            },
+            "candidate": {
+              "medianMs": 0.43401999999999996,
+              "p95Ms": 0.443876,
+              "p99Ms": 0.47928400000000004,
+              "minMs": 0.4256,
+              "maxMs": 0.49332,
+              "meanMs": 0.43561199999999994,
+              "stddevMs": 0.011874288862917222,
+              "variationCvPercent": 2.7258865373123844
+            },
+            "medianRegressionPercent": 20.167229636192463
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.36112,
+              "p95Ms": 0.40961799999999976,
+              "p99Ms": 0.4449996,
+              "minMs": 0.3554,
+              "maxMs": 0.44695999999999997,
+              "meanMs": 0.3667253333333333,
+              "stddevMs": 0.02089467104843295,
+              "variationCvPercent": 5.697635027968148
+            },
+            "candidate": {
+              "medianMs": 0.43223999999999996,
+              "p95Ms": 0.47575399999999984,
+              "p99Ms": 0.5415268000000001,
+              "minMs": 0.42344,
+              "maxMs": 0.5604,
+              "meanMs": 0.4395,
+              "stddevMs": 0.025751971316127758,
+              "variationCvPercent": 5.859379139050684
+            },
+            "medianRegressionPercent": 19.694284448382792
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.36229999999999996,
+              "p95Ms": 0.37351999999999996,
+              "p99Ms": 0.4134796,
+              "minMs": 0.35544,
+              "maxMs": 0.42935999999999996,
+              "meanMs": 0.3648826666666666,
+              "stddevMs": 0.012704913205353096,
+              "variationCvPercent": 3.4819174397668746
+            },
+            "candidate": {
+              "medianMs": 0.43285999999999997,
+              "p95Ms": 0.44293,
+              "p99Ms": 0.4925124,
+              "minMs": 0.42452,
+              "maxMs": 0.5123599999999999,
+              "meanMs": 0.4361133333333332,
+              "stddevMs": 0.014851539388973184,
+              "variationCvPercent": 3.405431169796809
+            },
+            "medianRegressionPercent": 19.475572729781952
+          }
+        ]
+      },
+      {
+        "block": 67,
+        "baseline": {
+          "medianMs": 0.33758,
+          "p95Ms": 0.38127999999999995,
+          "p99Ms": 0.46581239999999996,
+          "minMs": 0.3156,
+          "maxMs": 0.5342,
+          "meanMs": 0.3495222222222222,
+          "stddevMs": 0.03560190824404338,
+          "variationCvPercent": 10.185878316317208
+        },
+        "candidate": {
+          "medianMs": 0.41823999999999995,
+          "p95Ms": 0.447336,
+          "p99Ms": 0.46549479999999993,
+          "minMs": 0.37179999999999996,
+          "maxMs": 0.52484,
+          "meanMs": 0.41005911111111104,
+          "stddevMs": 0.032941070739004506,
+          "variationCvPercent": 8.03324931611596
+        },
+        "medianRegressionPercent": 23.893595592155915,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.37151999999999996,
+              "p95Ms": 0.4140639999999998,
+              "p99Ms": 0.4521748,
+              "minMs": 0.36607999999999996,
+              "maxMs": 0.45736,
+              "meanMs": 0.3777066666666666,
+              "stddevMs": 0.019550125205623506,
+              "variationCvPercent": 5.1760074499497435
+            },
+            "candidate": {
+              "medianMs": 0.43818,
+              "p95Ms": 0.449144,
+              "p99Ms": 0.503264,
+              "minMs": 0.43112,
+              "maxMs": 0.52484,
+              "meanMs": 0.44215066666666664,
+              "stddevMs": 0.016248715833019612,
+              "variationCvPercent": 3.6749273625475207
+            },
+            "medianRegressionPercent": 17.942506459948326
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.32816,
+              "p95Ms": 0.37451599999999996,
+              "p99Ms": 0.48809000000000013,
+              "minMs": 0.3156,
+              "maxMs": 0.5342,
+              "meanMs": 0.34818533333333335,
+              "stddevMs": 0.04221158069640237,
+              "variationCvPercent": 12.12330809350644
+            },
+            "candidate": {
+              "medianMs": 0.40776,
+              "p95Ms": 0.4427,
+              "p99Ms": 0.45404199999999995,
+              "minMs": 0.37179999999999996,
+              "maxMs": 0.45815999999999996,
+              "meanMs": 0.4082373333333333,
+              "stddevMs": 0.030158252705059386,
+              "variationCvPercent": 7.387431340199015
+            },
+            "medianRegressionPercent": 24.256460263286208
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.3205,
+              "p95Ms": 0.32339399999999996,
+              "p99Ms": 0.36478520000000003,
+              "minMs": 0.31828,
+              "maxMs": 0.38164,
+              "meanMs": 0.3226746666666667,
+              "stddevMs": 0.011023667790511267,
+              "variationCvPercent": 3.4163412654576533
+            },
+            "candidate": {
+              "medianMs": 0.37714,
+              "p95Ms": 0.384082,
+              "p99Ms": 0.4248368,
+              "minMs": 0.37476,
+              "maxMs": 0.44051999999999997,
+              "meanMs": 0.3797893333333333,
+              "stddevMs": 0.011504572694754415,
+              "variationCvPercent": 3.029198475318181
+            },
+            "medianRegressionPercent": 17.67238689547581
+          }
+        ]
+      },
+      {
+        "block": 68,
+        "baseline": {
+          "medianMs": 0.37016,
+          "p95Ms": 0.38667799999999997,
+          "p99Ms": 0.45997879999999997,
+          "minMs": 0.3176,
+          "maxMs": 0.46984,
+          "meanMs": 0.3556733333333333,
+          "stddevMs": 0.03273823574965517,
+          "variationCvPercent": 9.204579787535897
+        },
+        "candidate": {
+          "medianMs": 0.43657999999999997,
+          "p95Ms": 0.45443,
+          "p99Ms": 0.49973639999999997,
+          "minMs": 0.37507999999999997,
+          "maxMs": 0.51508,
+          "meanMs": 0.41807422222222224,
+          "stddevMs": 0.03391315526385914,
+          "variationCvPercent": 8.11175467446855
+        },
+        "medianRegressionPercent": 17.943591960233405,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.37764,
+              "p95Ms": 0.4242739999999998,
+              "p99Ms": 0.465432,
+              "minMs": 0.3692,
+              "maxMs": 0.46984,
+              "meanMs": 0.3834106666666666,
+              "stddevMs": 0.021714407956213978,
+              "variationCvPercent": 5.663485615827237
+            },
+            "candidate": {
+              "medianMs": 0.4436,
+              "p95Ms": 0.45532,
+              "p99Ms": 0.48561360000000003,
+              "minMs": 0.43388,
+              "maxMs": 0.49784,
+              "meanMs": 0.4462853333333333,
+              "stddevMs": 0.011068893269980621,
+              "variationCvPercent": 2.4802278818589802
+            },
+            "medianRegressionPercent": 17.466370087914427
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.37056,
+              "p95Ms": 0.37803,
+              "p99Ms": 0.4358964000000001,
+              "minMs": 0.32016,
+              "maxMs": 0.45876,
+              "meanMs": 0.36040533333333336,
+              "stddevMs": 0.02831974149285657,
+              "variationCvPercent": 7.8577476173650505
+            },
+            "candidate": {
+              "medianMs": 0.43682,
+              "p95Ms": 0.447464,
+              "p99Ms": 0.49553400000000003,
+              "minMs": 0.37664,
+              "maxMs": 0.51508,
+              "meanMs": 0.42545066666666664,
+              "stddevMs": 0.030467713942612905,
+              "variationCvPercent": 7.161280103595146
+            },
+            "medianRegressionPercent": 17.881044905008636
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.32114,
+              "p95Ms": 0.330792,
+              "p99Ms": 0.362086,
+              "minMs": 0.3176,
+              "maxMs": 0.37328,
+              "meanMs": 0.32320399999999994,
+              "stddevMs": 0.009789988627844946,
+              "variationCvPercent": 3.0290431516456935
+            },
+            "candidate": {
+              "medianMs": 0.37783999999999995,
+              "p95Ms": 0.4107299999999998,
+              "p99Ms": 0.448844,
+              "minMs": 0.37507999999999997,
+              "maxMs": 0.45592,
+              "meanMs": 0.3824866666666667,
+              "stddevMs": 0.016815215596463685,
+              "variationCvPercent": 4.39628804397461
+            },
+            "medianRegressionPercent": 17.655851030703108
+          }
+        ]
+      },
+      {
+        "block": 69,
+        "baseline": {
+          "medianMs": 0.37761999999999996,
+          "p95Ms": 0.39300399999999996,
+          "p99Ms": 0.47288119999999995,
+          "minMs": 0.37112,
+          "maxMs": 0.52176,
+          "meanMs": 0.3826964444444444,
+          "stddevMs": 0.021584857156560843,
+          "variationCvPercent": 5.640203213253081
+        },
+        "candidate": {
+          "medianMs": 0.44504,
+          "p95Ms": 0.50613,
+          "p99Ms": 0.5735743999999999,
+          "minMs": 0.43535999999999997,
+          "maxMs": 0.57984,
+          "meanMs": 0.4516311111111111,
+          "stddevMs": 0.02461907609262218,
+          "variationCvPercent": 5.451147072674839
+        },
+        "medianRegressionPercent": 17.85392722843071,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.37754,
+              "p95Ms": 0.385858,
+              "p99Ms": 0.4424136000000001,
+              "minMs": 0.37216,
+              "maxMs": 0.46508,
+              "meanMs": 0.3807466666666667,
+              "stddevMs": 0.0160990114258264,
+              "variationCvPercent": 4.22827376711367
+            },
+            "candidate": {
+              "medianMs": 0.44411999999999996,
+              "p95Ms": 0.49347799999999975,
+              "p99Ms": 0.5643424,
+              "minMs": 0.43904,
+              "maxMs": 0.57984,
+              "meanMs": 0.45198933333333335,
+              "stddevMs": 0.028121556966537654,
+              "variationCvPercent": 6.221730225168511
+            },
+            "medianRegressionPercent": 17.63521746040153
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.37807999999999997,
+              "p95Ms": 0.46152999999999994,
+              "p99Ms": 0.5058332000000001,
+              "minMs": 0.37112,
+              "maxMs": 0.52176,
+              "meanMs": 0.38913200000000003,
+              "stddevMs": 0.03249149903179805,
+              "variationCvPercent": 8.34973711537423
+            },
+            "candidate": {
+              "medianMs": 0.44489999999999996,
+              "p95Ms": 0.465678,
+              "p99Ms": 0.54293,
+              "minMs": 0.43535999999999997,
+              "maxMs": 0.5728,
+              "meanMs": 0.4505426666666666,
+              "stddevMs": 0.023771258125915188,
+              "variationCvPercent": 5.276139172741729
+            },
+            "medianRegressionPercent": 17.673508252221758
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.3781,
+              "p95Ms": 0.384692,
+              "p99Ms": 0.39001719999999995,
+              "minMs": 0.37128,
+              "maxMs": 0.39155999999999996,
+              "meanMs": 0.37821066666666675,
+              "stddevMs": 0.004183573379567065,
+              "variationCvPercent": 1.1061489662464299
+            },
+            "candidate": {
+              "medianMs": 0.44551999999999997,
+              "p95Ms": 0.50613,
+              "p99Ms": 0.5246244,
+              "minMs": 0.43576,
+              "maxMs": 0.53148,
+              "meanMs": 0.4523613333333332,
+              "stddevMs": 0.02146056348022783,
+              "variationCvPercent": 4.74411977745545
+            },
+            "medianRegressionPercent": 17.83126157101296
+          }
+        ]
+      }
+    ],
+    "pooledRegressionRangePercent": [
+      17.85392722843071,
+      23.893595592155915
+    ],
+    "pairedRegressionRangePercent": [
+      17.466370087914427,
+      24.256460263286208
+    ],
+    "sumBaselineIsolatedMediansMs": 2.4683399999999995,
+    "sumCandidateIsolatedMediansMs": 2.9615000000000005,
+    "operatorMedianGateMinimumImprovementPercent": 5,
+    "operatorsPassingGate": 0,
+    "allTwentyOnePairsRejected": true,
+    "allPairStatisticsRetained": true,
+    "networkLatencyMeasurement": false,
+    "fullInferenceReductionProven": false,
+    "rawTimingReport": {
+      "path": "build/release/c32-strided-expansion-v11-terminal-hardware-actual-timing-20261003-a2/gpu-timing-tile/interleaved.json",
+      "bytes": 48614,
+      "sha256": "77cfafe905f70208228a224a02920346f0ef27130cce5094e92fb7222071db8d",
+      "distributed": false
+    },
+    "rootCompletionLog": {
+      "path": "build/release/c32-strided-expansion-v11-terminal-hardware-actual-timing-20261003-a2/root-timing-tile.log",
+      "bytes": 1173,
+      "sha256": "c2fa7e3f0a1fb5149ff2d89c77db75c0a7cad177dd0cb44552f22c92c783644e",
+      "distributed": false
+    },
+    "publicTimingReport": {
+      "path": "docs/performance/c32-strided-expansion-v11-measurements/tile-ordinary-target-interleaved.json",
+      "bytes": 48614,
+      "sha256": "77cfafe905f70208228a224a02920346f0ef27130cce5094e92fb7222071db8d",
+      "distributed": true
+    },
+    "sampleScalars": 1260,
+    "independentlyRecomputedStatisticFields": 448,
+    "canonicalPrePostChecks": 14,
+    "validationLayersEnabled": false,
+    "measuredReadback": false
+  },
+  "independentAudits": {
+    "sourceAndBoundedHost": {
+      "path": "build/release/c32-strided-expansion-v11-source-host-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 3717,
+      "sha256": "18811e25416286b88138db2fb82f30024a798a6eeaa629d0b0489e938b385cd7",
+      "distributed": false
+    },
+    "boundedSavedInstalledDriver": {
+      "path": "build/release/c32-strided-expansion-v11-saved-driver-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 6975,
+      "sha256": "9d63fc25ef3356ab975e336169db2260984fc310e0dcc717f2b4102571992acb",
+      "distributed": false
+    },
+    "actualTimingHost": {
+      "path": "build/release/c32-strided-expansion-v11-actual-host-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 2543,
+      "sha256": "8450a74184f21c809729716638634abb21faeaa69bf8abb4e9713c09c076def9",
+      "distributed": false
+    },
+    "actualSavedRepack": {
+      "path": "build/release/c32-strided-expansion-v11-actual-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 82382,
+      "sha256": "debf385569b8a23e474274f477f1443c67ed20bd6bbccd365b05903028a4daca",
+      "distributed": false
+    },
+    "timingCanonical": {
+      "path": "build/release/c32-strided-expansion-v11-timing-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 27689,
+      "sha256": "bfeb68e7c1bccef22b4eda391c390e0f6e2969fed346d4f4867ca1cda6c513ce",
+      "distributed": false
+    }
+  },
+  "qualifications": {
+    "boundedByteAgreementOnRecordedDriver": true,
+    "arbitraryInputEquivalence": false,
+    "portableNumericsParity": false,
+    "originalNvidiaParity": false,
+    "completeModelQualification": false,
+    "broadTemporalQuality": false,
+    "operatorPerformanceAccepted": false,
+    "completeInferencePerformanceAccepted": false,
+    "eightMsNrPlusBridge": false,
+    "sixtyRealFps": false,
+    "promotion": false
+  },
+  "limitations": [
+    "Known recorded device/driver, inherited bounded edge corpus and fixed generated-model inputs only. The hardware E4/MODE ordering is compiler/driver-dependent and differs between recorded offline and installed code.",
+    "F40 activated-half trace does not reveal original F24 pre-E4 halves; passing bounded fixtures does not establish arbitrary-input equivalence.",
+    "No complete candidate graph, evolved histories, game sequence, HDR game validation or game FPS measurement.",
+    "B/C,C/B,B/C ordering is unbalanced; all samples and all21 pairs retained. No variation cause assigned.",
+    "Per-route GPU spans include compute barriers and exclude uploads, readback, CPU submission/wait and bridge. Isolated median sums are estimates, not network latency.",
+    "Timing reports layers disabled; bounded/actual manifests omit enabled-layer status.",
+    "Installed instrumented pipelines and offline RGA resources are separate observations. Static instructions do not establish dynamic delivery, occupancy or performance cause."
+  ],
+  "privacy": {
+    "nvidiaDllDistributed": false,
+    "weightsDistributed": false,
+    "rawTensorsDistributed": false,
+    "imagesDistributed": false,
+    "gameCapturesDistributed": false,
+    "isaTextDistributed": false,
+    "moduleAddressesDistributed": false
+  },
+  "review": {
+    "firstIndependentSourceSavedModelRepackTimingAuditComplete": true,
+    "secondIndependentPublicReviewPending": false,
+    "secondIndependentPublicReviewComplete": true,
+    "secondIndependentPublicReview": {
+      "path": "build/release/c32-strided-expansion-v11-public-second-cpu-audit-e44e947e4f60481f834e516c73ca5479/audit.json",
+      "bytes": 7672,
+      "sha256": "4f26b486c2131db9b122b58eff7be45f98770283112ddecd313775c1a001cc23",
+      "distributed": false
+    },
+    "approvedDraftSha256": "4107c270a4ff33f817209ddae215d370323eaff092d9897fd3a15d4124dfdbdb",
+    "scope": "Metadata-only finalization after independent public source/provenance/resources/scalar timing/privacy review. Metrics, timing copy and documentation unchanged."
+  },
+  "publicFirstCpuAudit": {
+    "path": "build/release/c32-strided-expansion-v11-public-first-cpu-audit-20261003-a1/audit.json",
+    "bytes": 2016,
+    "sha256": "992bf8f162692d0eb355e11ed62281ec3a3a897d1f9904cd60b8220e1f08aa71",
+    "distributed": false
+  }
+}
