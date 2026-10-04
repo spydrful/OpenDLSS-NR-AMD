@@ -21,6 +21,18 @@ measured rejections, including v12's 0.41–1.21% operator gains, below the requ
 5%. The [expert input-sharing screen](amd-expert-a-reuse-screen.md) passes its
 recorded byte checks but regresses every timing pair; its eight pooled operator
 medians are 16.87–17.43% slower. These screens do not qualify a production graph.
+The [cooperative publication screen](amd-cooperative-publication-screen.md)
+also passes its recorded byte comparisons but regresses all seven pooled
+operator medians by 3.26–3.98%. Its static-scope follow-up only restores baseline
+operand-load overlap, retains the conversion work and increases offline VGPR
+use; it stops at CPU review without a new host or GPU run.
+
+The separate [alpha 6 candidate profile](performance/qkv-normalize-measurements/profile-target-candidate.json)
+records 503 dispatches. Median per-frame family totals are **30.09466 ms for FP8
+GEMM**, **6.59034 ms for window attention**, **3.33166 ms for F16 GEMM** and
+**3.12548 ms for QKV normalization**. These instrumented spans guide the next
+experiment; they are not ordinary inference or game timings, and adding family
+medians does not reconstruct a measured frame.
 
 Separately, [end-of-K32 arithmetic](amd-c32-expansion-arithmetic-screen.md)
 failed four of six matched SDR/HDR composed frames. The
