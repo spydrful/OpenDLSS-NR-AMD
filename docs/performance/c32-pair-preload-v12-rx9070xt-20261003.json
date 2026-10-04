@@ -1,0 +1,1374 @@
+{
+  "format": "OpenNR-AMD-private-Pair-preload-v12-negative-scalar-evidence-v1",
+  "date": "2026-10-03",
+  "status": "CPU_AUDITED_REJECTED_BELOW_OPERATOR_IMPROVEMENT_GATE",
+  "disposition": "All seven pooled operators and all21 measured pairs remain below the required5% improvement. No complete-graph qualification or integration follows this screen.",
+  "scalarOnly": true,
+  "privatePrototype": true,
+  "prototypeInReleasePackage": false,
+  "releaseDefaultsChanged": false,
+  "device": {
+    "vendorId": "1002",
+    "deviceId": "7550",
+    "name": "AMD Radeon RX 9070 XT",
+    "driverId": "AMD proprietary driver|26.9.1 (LLPC)|8389003"
+  },
+  "scope": {
+    "operation": "C32 expansion only, FLAGS24 K32 N128 Nmatrix128 P0 B1 E4 input/output, corrected mixed3 SiLU",
+    "blocks": [
+      1,
+      2,
+      3,
+      4,
+      67,
+      68,
+      69
+    ],
+    "rowsForActualTiming": 414720,
+    "graphSourceGeometry": [
+      1707,
+      960
+    ],
+    "graphSourcePaddedGeometry": [
+      1728,
+      960
+    ],
+    "graphInternalTensorGeometry": [
+      864,
+      480,
+      32
+    ],
+    "workgroupThreads": 128,
+    "requiredSubgroupSize": 32,
+    "tileM": 64,
+    "tileN": 16,
+    "stageK": 16,
+    "qkvNormalize": "off",
+    "contractionFused": false,
+    "completeCandidateGraphExecuted": false,
+    "gameCapturedInputs": false,
+    "baselineIsAutomaticDefault": false
+  },
+  "baseline": {
+    "kernels": "optimized",
+    "gemm": "direct-rte-pair",
+    "attention": "arena-rte",
+    "arithmetic": "k16",
+    "tileN": 16,
+    "stageK": 16,
+    "windowQueries": 32,
+    "qkvNormalize": "off",
+    "fusions": false,
+    "aggregateSha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+    "pairSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e"
+  },
+  "source": {
+    "preparation": {
+      "path": "build/release/c32-pair-preload-v12-20261003-a1/cpu-preparation.json",
+      "bytes": 41517,
+      "sha256": "7fc3e88cbec30f7595da5c80bd61c173dc8e1e67651e6242499e81f40eab58e0",
+      "distributed": false
+    },
+    "boundedHostPreparation": {
+      "path": "build/release/c32-pair-preload-v12-host-20261003-a1/cpu-preparation.json",
+      "bytes": 86847,
+      "sha256": "e858f9a18684143e0a247ff23b79ff9c699b19b9a777201e38c5e85ac64e7287",
+      "distributed": false
+    },
+    "actualTimingPreparation": {
+      "path": "build/release/c32-pair-preload-v12-actual-timing-20261003-a2/cpu-preparation.json",
+      "bytes": 72802,
+      "sha256": "a141f933acc5db141b1875b51aada9fed3d5090cde7edff2058aa9bd149333fc",
+      "distributed": false
+    },
+    "boundedExecutableSha256": "2f91c252f970bb2cc336e236c63050034264f785788e97051020f0a992ab2aa9",
+    "actualTimingExecutableSha256": "482592ceeb415623fa66e4ea8b2bd0f0e424cc5f8d2aac3c3c6aefe034c4ad8c",
+    "candidatePairSha256": "f4648ce989d60428c88e1df141d88112016d6967ea4ca96a97a47d1bef092604",
+    "candidateAggregateSha256": "b23e41ce60f449fdf273acd7ef3e714008fbe96bcefffb0affae11ccc69d8676",
+    "onlyOneOf32OverlayNativeModulesChanged": true,
+    "original31NativeModuleBytesUnchanged": true,
+    "privateOriginalModuleNameAlias": true,
+    "exactReferenceUnchanged": true,
+    "arithmetic": "Two ordered original K16 FP8/F32 matrix operations with the original native RTE half publication after each update; corrected mixed3 SiLU and scalar hardware E4 publication source unchanged.",
+    "design": "Scope-guarded K32/F24/P0/B1/N128/Nmatrix128/N16/stage16 branch preloads both A and B K16 fragments before the first matrix operation. Original128-thread ownership/shared arena/opaque raw+0 seed and all fallback source bytes retained.",
+    "guard": "Explicit K16 publication, N16/stage16, hardware packed publication false, batch0 and exact fixed shape; host validates native48-byte push, raw+0, exactX8, padded input/output/allocation bounds and safe extraY/Z only.",
+    "declaredLdsBytes": 4096,
+    "arbitraryInputPreservingClaim": false
+  },
+  "cpu": {
+    "sourceAddressPredicateWitnesses": 959,
+    "boundedHostChecks": 202863,
+    "actualTimingHostReportedChecksWithCatalog": 202888,
+    "additionalExecutedGateChecksOverwrittenOnlyInPrintedCatalogCount": 16,
+    "negativeCliChecksPerHost": 9,
+    "hostGateBeforeVulkan": true
+  },
+  "boundedValidation": {
+    "runs": [
+      {
+        "label": "gpu-small",
+        "manifest": {
+          "path": "build/release/c32-pair-preload-v12-host-20261003-a1/gpu-small/manifest.json",
+          "bytes": 89320,
+          "sha256": "f865b242753dd00ccc2d43493d0e2fab343f9dd32e24a6951dedcc88ae08ec7f",
+          "distributed": false
+        },
+        "rootCompletionLog": {
+          "path": "build/release/c32-pair-preload-v12-host-20261003-a1/root-gpu-small.log",
+          "bytes": 2835,
+          "sha256": "f95d8882041baba8f5144106f7d62474ab3541afd94a109e39453cbda90938c8",
+          "distributed": false
+        },
+        "fixtures": 45,
+        "comparisons": 180,
+        "comparedBytes": 2969600,
+        "rawBuffersReopened": 360,
+        "fullAllocationCanaryBytesChecked": 3258880,
+        "zeroDifferentBytes": true,
+        "fixtureIdentityMatchesFrozenV7": true,
+        "importedWeightsUseSyntheticInputs": true,
+        "actualGraphInputs": false,
+        "validationLayerEnablementRecorded": true,
+        "validationLayerEnabled": false,
+        "validationErrors": 0
+      },
+      {
+        "label": "gpu-target",
+        "manifest": {
+          "path": "build/release/c32-pair-preload-v12-host-20261003-a1/gpu-target/manifest.json",
+          "bytes": 93336,
+          "sha256": "072f35bd7e72f6c8c477edae45f7dc25d164e44197ec54ec9cae986c5e6f85f6",
+          "distributed": false
+        },
+        "rootCompletionLog": {
+          "path": "build/release/c32-pair-preload-v12-host-20261003-a1/root-gpu-target.log",
+          "bytes": 2941,
+          "sha256": "05aae6d67a02c678e9c235accd30559cb9a223c67dc3b7a59af7df89627bcdf2",
+          "distributed": false
+        },
+        "fixtures": 47,
+        "comparisons": 188,
+        "comparedBytes": 566988800,
+        "rawBuffersReopened": 376,
+        "fullAllocationCanaryBytesChecked": 69614080,
+        "zeroDifferentBytes": true,
+        "fixtureIdentityMatchesFrozenV7": true,
+        "importedWeightsUseSyntheticInputs": true,
+        "actualGraphInputs": false,
+        "validationLayerEnablementRecorded": true,
+        "validationLayerEnabled": false,
+        "validationErrors": 0
+      }
+    ],
+    "edgeScope": "All inherited early/delayed NaN/Inf/464/SiLU/signedzero/tails retained with four strict role comparisons; model-weight fixtures still synthetic inputs. Safe extra y/z overdispatch only; x exact8 column groups.",
+    "fallbackScope": "F40 diagnostic fallback checked; other generic K/N/partition/residual families not qualified by this bounded suite.",
+    "rootDriverCompletionLog": {
+      "path": "build/release/c32-pair-preload-v12-host-20261003-a1/root-driver-info.log",
+      "bytes": 507,
+      "sha256": "15f630973201c26aaf0c63c05b59f4d0ffa18a048795bc27fb9d938b25e97f68",
+      "distributed": false
+    }
+  },
+  "actualValidation": {
+    "fixtures": 7,
+    "comparisons": 28,
+    "comparedBytes": 1990656000,
+    "rawBuffersReopened": 56,
+    "fullAllocationCanaryBytesChecked": 265420800,
+    "zeroDifferentBytes": true,
+    "independentlyRepackedMatrices": 14,
+    "independentlyRepackedScales": 7,
+    "expansionConsumesW1Only": true,
+    "inheritedFixtureIdentityIncludesW2ScalesAndResidual": true,
+    "graphModulesRehashed": 32,
+    "graphSourceSnapshotFilesRehashed": 32,
+    "fourHistoricalAnchorsExact": true,
+    "manifest": {
+      "path": "build/release/c32-pair-preload-v12-actual-timing-20261003-a2/gpu-actual7-target/manifest.json",
+      "bytes": 16938,
+      "sha256": "3e7d1bcd5a1434235b978913f9586c9cac2a62543b62a9d5e2b7c01256817d34",
+      "distributed": false
+    },
+    "strictActualProof": {
+      "path": "build/release/c32-pair-preload-v12-actual-timing-20261003-a2/gpu-actual7-target/actual-proof.json",
+      "bytes": 1463,
+      "sha256": "831f188cd205981d1f32de878d77857403160e5a8605901c38023af31241a1f6",
+      "distributed": false
+    },
+    "rootCompletionLog": {
+      "path": "build/release/c32-pair-preload-v12-actual-timing-20261003-a2/root-actual7-target.log",
+      "bytes": 1194,
+      "sha256": "a694929e12d2e7c12886fa465a5790c9abc02d726e1a2cc5faa9449d9675857e",
+      "distributed": false
+    },
+    "captureCatalog": {
+      "path": "build/release/c32-register-v5-actual-input-check-20261003-a1/capture-target/catalog.json",
+      "bytes": 2503,
+      "sha256": "81b2654ca5f013270d480c71cda042b549d567c7e6bfd90fd2cb12c2f219421c",
+      "distributed": false
+    },
+    "captureRecord": {
+      "path": "build/release/c32-register-v5-actual-input-check-20261003-a1/capture-target/capture-record.json",
+      "bytes": 15302,
+      "sha256": "313e4c0578c843d5a8e61a74a5fc41f13a302eeda2efac46c97afb09cd803537",
+      "distributed": false
+    },
+    "captureManifest": {
+      "path": "build/release/c32-register-v5-actual-input-check-20261003-a1/capture-target/boundaries/manifest.json",
+      "bytes": 6895,
+      "sha256": "07778dc62cb7c34d65deec5285d2e7d8dfebaff06a13a7adca45de996db332c3",
+      "distributed": false
+    },
+    "fixturesBoundToCurrentModel": [
+      {
+        "block": 1,
+        "rows": 414720,
+        "outputStride": 144,
+        "inputSha256": "2e6cd1cb885efcad98e93a81801b3e7a4f1d9141d9e7ba51bd3040c19a00a9d2",
+        "rawExpandSha256": "95760be853b14b7239c9a448311cbf9163bc60516efb4fd75889f510b8e142a3",
+        "rawContractAncestrySha256": "85844c8fe694efe34a09397fea740b95c8daad7c5c9e31002c551092524d1457",
+        "scalesAncestrySha256": "007ccbc8f20aaa23d414448425683a34fe5ad55423d29c85c36d18872665f650",
+        "inheritedFixtureIdentitySha256": "d956396ec319a0789d1d01d6b93146b6b180762246408a71581572b7c607110d",
+        "canonicalE4Sha256": "d45ccdac416398d45916c005ff1048d049d6f22dd4cd548616553f056345e3eb"
+      },
+      {
+        "block": 2,
+        "rows": 414720,
+        "outputStride": 128,
+        "inputSha256": "b5291ead897fce6ffd167868af1cafbe39be33f5bbb22b6a4039681381901246",
+        "rawExpandSha256": "aed4a0d79509a3d734a1b7fd78d8e69f23c17d874f42217b966a2a5446db0e85",
+        "rawContractAncestrySha256": "9a1e2754aabdd8b3338bb56ab5a418fc3bce05724ff3b5630096e9516f164d6b",
+        "scalesAncestrySha256": "e9f8c68f4aaf41f3366d4eaa6d8b741a968526b92faf274d16c2b007d5c68e37",
+        "inheritedFixtureIdentitySha256": "ec700988fba3b58dc18f44b18d2e404f91ca5cc0d5551f84b3a631a531744a73",
+        "canonicalE4Sha256": "7fd16a1db7155504525f3c89cf082d3fa2ae1272261493971a4c9ec62c9b27bf"
+      },
+      {
+        "block": 3,
+        "rows": 414720,
+        "outputStride": 144,
+        "inputSha256": "41069080bde8bf358ffcef33f8e51b777ceee9f035b669ff4cf397c50d690a3f",
+        "rawExpandSha256": "9bf9c9d71a9a4f6da6dcf06279ffd2f5844ccdbce00a830f6cfc6dea4f1f8244",
+        "rawContractAncestrySha256": "112b19fbd7f1fc6d1b46ef5886868b5640e3737453da16bcb55e8b28b6a54300",
+        "scalesAncestrySha256": "7c85f9b77de08b16133b43ef3260247dbd72f03ad7d4eb23a63e615583373bc9",
+        "inheritedFixtureIdentitySha256": "9077d2b5f2da8659a1c9bf94c31eebf0053dd0bf255575e96fa358bfa31681ba",
+        "canonicalE4Sha256": "6ff9e479b2837348262e4bf651731d1470d0d97b90ff3bcf0a92fa8dd6b9db96"
+      },
+      {
+        "block": 4,
+        "rows": 414720,
+        "outputStride": 128,
+        "inputSha256": "70201726935d452e5c5695e741b53d887263095b01704d07f637d56d8ce6ff7c",
+        "rawExpandSha256": "2e3b228af94526b2cc1636e98fbde280f6a921af0024b671bbcb1591a0b0276c",
+        "rawContractAncestrySha256": "f91022eeb15ceb20f63f3e46e97c8651f74414585dc5d2e69d2b30a6bfbddaba",
+        "scalesAncestrySha256": "5b8c3ca99ca1ba804e8411e2d82f8999454311d3f3f12e0e50e1b024243004c0",
+        "inheritedFixtureIdentitySha256": "b50b5c1ab2b9951e1fccec50affc9f30c6948891b4a31cf3d7ebf9b0f95cb0ad",
+        "canonicalE4Sha256": "17a74a31cec97d33022a84a766ef31c933ff6ab897d63828a03185ff1be8fb5b"
+      },
+      {
+        "block": 67,
+        "rows": 414720,
+        "outputStride": 144,
+        "inputSha256": "f108ae37424ab9671154ad646f9f072c8857d0fcb4fc36b502528b54c89232a8",
+        "rawExpandSha256": "c2f7e09ed445d0b3212fcd830de798391a310e957a9752dfd08a010c4560e4ee",
+        "rawContractAncestrySha256": "944baba5267a19b15f003994f5306c444431b03413feafa2eeb22a9662f70d81",
+        "scalesAncestrySha256": "b31f7bb4f6ebb9349fe5aed67993c247c0659cfe4eb0b2d38c1bd14218245219",
+        "inheritedFixtureIdentitySha256": "cc0be6def2c71fc17d402960e0c5707758257a043fba41116706acd1f5596da8",
+        "canonicalE4Sha256": "742fe240b344eae37d813d86218505791061b4a47769c1aa7fc9c2f5b0bbe18e"
+      },
+      {
+        "block": 68,
+        "rows": 414720,
+        "outputStride": 128,
+        "inputSha256": "be12e288affb9d10cb336d6d9f80ca6c50ba4c959947fb2334730633e2105d95",
+        "rawExpandSha256": "cac9f9ca360abac6889d3bebb3f5f4672da0d3cc1f459b536f835c65ec6cd50d",
+        "rawContractAncestrySha256": "0bebe86f87b246caa1408101c072335875063e2dfe558edf6242fd75c5a0f7a7",
+        "scalesAncestrySha256": "d6f9a11a049c09ed19c977464b7365f9765e96bc7a89cfa66f95a3ac0eab6e6d",
+        "inheritedFixtureIdentitySha256": "bce8b7951118bb6c9b3fea3abf0f6e8d7bfd9c6bb19ee540e58e090e3dfe745f",
+        "canonicalE4Sha256": "a210697f44ffc07d277ece896d51028d5f72189c6e5bc370c289e114735d66e2"
+      },
+      {
+        "block": 69,
+        "rows": 414720,
+        "outputStride": 144,
+        "inputSha256": "e1bfb7007541e775faf4ab69348cc986a28f67752f4b31b7f7b5539fb1bd691b",
+        "rawExpandSha256": "286c318e2c0bc755235eee487908d65d8fc6f185b32263d4541d9ef8090624f7",
+        "rawContractAncestrySha256": "a4818d2c4f5a35a6a5f89735f1554607b628c9ecaaa33ead68efd00948dc18f0",
+        "scalesAncestrySha256": "99bbcab901337cbcbeb3a83f1d032f4fa1c127ed87eb2757fdfacbf3cf43b6fb",
+        "inheritedFixtureIdentitySha256": "3c4bd5d2e305497334e935b5bedff7cbb03460486ef646ba4d3a304354f620d1",
+        "canonicalE4Sha256": "8dc6a8b18a3d07c7d0bf598f68dc852939698e4ef9a3401171ead2b70bf0d153"
+      }
+    ],
+    "activatedF16Trace": "Separate F40 fallback diagnostic; does not observe original F24 pre-E4 half bits.",
+    "validationLayerEnabled": false,
+    "validationErrors": 0
+  },
+  "installedDriver": [
+    {
+      "name": "original-F24",
+      "moduleSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+      "report": {
+        "path": "build/release/c32-pair-preload-v12-host-20261003-a1/driver-info/original-F24.txt",
+        "bytes": 23749,
+        "sha256": "5feb12e495d04062a4c464ceedb9d0d0eea1eaf9077deed957f0629521f529f7",
+        "distributed": false
+      },
+      "resources": {
+        "numUsedVgprs": 33,
+        "numUsedSgprs": 29,
+        "ldsSizePerLocalWorkGroup": 4096,
+        "ldsUsageSizeInBytes": 4096,
+        "scratchMemUsageInBytes": 0
+      },
+      "reportedExecutableSubgroupProperties": [
+        128
+      ],
+      "requiredSubgroupSize": 32,
+      "workgroupThreads": 128,
+      "rawExecutablePropertyDoesNotOverrideRequiredSubgroupSize": true,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "halfDowncasts": 19,
+        "halfUpcasts": 20,
+        "fp8Downconversion": 1,
+        "mode23SetOne": 1,
+        "halfConversionInstructionsTotal": 39
+      },
+      "converterBeforeCorrespondingMode23SetOne": true,
+      "instrumentedPipeline": true,
+      "ordinaryTiming": false,
+      "staticMatrixScope": "Four static WMMA in candidateF24 cover two mutually exclusive two-op paths; fixed selected source route executes two operations. This is not a dynamic instruction measurement."
+    },
+    {
+      "name": "original-F40",
+      "moduleSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+      "report": {
+        "path": "build/release/c32-pair-preload-v12-host-20261003-a1/driver-info/original-F40.txt",
+        "bytes": 23956,
+        "sha256": "60edfcf540121e4b2b1266f4a65f9ed66ddaabf5a80e7efc88f36ab2abd85dad",
+        "distributed": false
+      },
+      "resources": {
+        "numUsedVgprs": 33,
+        "numUsedSgprs": 29,
+        "ldsSizePerLocalWorkGroup": 4096,
+        "ldsUsageSizeInBytes": 4096,
+        "scratchMemUsageInBytes": 0
+      },
+      "reportedExecutableSubgroupProperties": [
+        128
+      ],
+      "requiredSubgroupSize": 32,
+      "workgroupThreads": 128,
+      "rawExecutablePropertyDoesNotOverrideRequiredSubgroupSize": true,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "halfDowncasts": 19,
+        "halfUpcasts": 20,
+        "fp8Downconversion": 1,
+        "mode23SetOne": 1,
+        "halfConversionInstructionsTotal": 39
+      },
+      "converterBeforeCorrespondingMode23SetOne": true,
+      "instrumentedPipeline": true,
+      "ordinaryTiming": false,
+      "staticMatrixScope": "Four static WMMA in candidateF24 cover two mutually exclusive two-op paths; fixed selected source route executes two operations. This is not a dynamic instruction measurement."
+    },
+    {
+      "name": "preload-F24",
+      "moduleSha256": "f4648ce989d60428c88e1df141d88112016d6967ea4ca96a97a47d1bef092604",
+      "report": {
+        "path": "build/release/c32-pair-preload-v12-host-20261003-a1/driver-info/preload-F24.txt",
+        "bytes": 30901,
+        "sha256": "e04398621f0dc83c655a507e7ac3ea44c76a8ad138ed9e5b68d23c48078f2ff4",
+        "distributed": false
+      },
+      "resources": {
+        "numUsedVgprs": 30,
+        "numUsedSgprs": 38,
+        "ldsSizePerLocalWorkGroup": 4096,
+        "ldsUsageSizeInBytes": 4096,
+        "scratchMemUsageInBytes": 0
+      },
+      "reportedExecutableSubgroupProperties": [
+        128
+      ],
+      "requiredSubgroupSize": 32,
+      "workgroupThreads": 128,
+      "rawExecutablePropertyDoesNotOverrideRequiredSubgroupSize": true,
+      "staticInstructionCounts": {
+        "fp8Wmma": 4,
+        "halfDowncasts": 27,
+        "halfUpcasts": 28,
+        "fp8Downconversion": 1,
+        "mode23SetOne": 1,
+        "halfConversionInstructionsTotal": 55
+      },
+      "converterBeforeCorrespondingMode23SetOne": true,
+      "instrumentedPipeline": true,
+      "ordinaryTiming": false,
+      "staticMatrixScope": "Four static WMMA in candidateF24 cover two mutually exclusive two-op paths; fixed selected source route executes two operations. This is not a dynamic instruction measurement."
+    },
+    {
+      "name": "preload-F40",
+      "moduleSha256": "f4648ce989d60428c88e1df141d88112016d6967ea4ca96a97a47d1bef092604",
+      "report": {
+        "path": "build/release/c32-pair-preload-v12-host-20261003-a1/driver-info/preload-F40.txt",
+        "bytes": 23886,
+        "sha256": "6643fcb2506e3fde54a2dbd2d69eae966e5ed034930d5855558395ef6b17745e",
+        "distributed": false
+      },
+      "resources": {
+        "numUsedVgprs": 33,
+        "numUsedSgprs": 29,
+        "ldsSizePerLocalWorkGroup": 4096,
+        "ldsUsageSizeInBytes": 4096,
+        "scratchMemUsageInBytes": 0
+      },
+      "reportedExecutableSubgroupProperties": [
+        128
+      ],
+      "requiredSubgroupSize": 32,
+      "workgroupThreads": 128,
+      "rawExecutablePropertyDoesNotOverrideRequiredSubgroupSize": true,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "halfDowncasts": 19,
+        "halfUpcasts": 20,
+        "fp8Downconversion": 1,
+        "mode23SetOne": 1,
+        "halfConversionInstructionsTotal": 39
+      },
+      "converterBeforeCorrespondingMode23SetOne": true,
+      "instrumentedPipeline": true,
+      "ordinaryTiming": false,
+      "staticMatrixScope": "Four static WMMA in candidateF24 cover two mutually exclusive two-op paths; fixed selected source route executes two operations. This is not a dynamic instruction measurement."
+    }
+  ],
+  "offlineCompiler": [
+    {
+      "label": "baseline",
+      "analysis": {
+        "path": "build/release/c32-pair-preload-v12-20261003-a1/offline-baseline-F24K32/analysis.json",
+        "bytes": 6689,
+        "sha256": "9c42e1e46da6bd3b18532050f7404dbb49dc4789ea50ba43395ad078e7aa73f6",
+        "distributed": false
+      },
+      "resources": {
+        "ldsBytes": 4096,
+        "vgprs": 35,
+        "threadgroupDimensions": [
+          128,
+          1,
+          1
+        ],
+        "sgprs": 29,
+        "wavefrontSize": 32,
+        "staticScratchInstructionCount": 0,
+        "scratchBytes": 0,
+        "sgprSpills": 0,
+        "vgprSpills": 0
+      },
+      "staticWmmaCount": 2,
+      "selectedSourcePathOrderedMatrixOperations": 2,
+      "runtimeInstructionCounterMeasured": false,
+      "offlineSetterBeforeTerminalConverter": true,
+      "installedDriverEquivalent": false
+    },
+    {
+      "label": "candidate",
+      "analysis": {
+        "path": "build/release/c32-pair-preload-v12-20261003-a1/offline-candidate-F24K32/analysis.json",
+        "bytes": 6745,
+        "sha256": "d2443ed59ebf7e9bc1ea2f2685cf2eca9c2788bbbe37d6febaf7e2e34d6f1939",
+        "distributed": false
+      },
+      "resources": {
+        "vgprs": 30,
+        "scratchBytes": 0,
+        "sgprs": 39,
+        "sgprSpills": 0,
+        "vgprSpills": 0,
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          128,
+          1,
+          1
+        ],
+        "staticScratchInstructionCount": 0,
+        "ldsBytes": 4096
+      },
+      "staticWmmaCount": 4,
+      "selectedSourcePathOrderedMatrixOperations": 2,
+      "runtimeInstructionCounterMeasured": false,
+      "offlineSetterBeforeTerminalConverter": true,
+      "installedDriverEquivalent": false
+    }
+  ],
+  "timing": {
+    "variant": "preload",
+    "protocol": {
+      "warmupsPerRoute": 5,
+      "interleavedPairs": 3,
+      "measuredFramesPerRoutePerPair": 30,
+      "routeOrder": [
+        "baseline-candidate",
+        "candidate-baseline",
+        "baseline-candidate"
+      ],
+      "frameInputsFixed": true,
+      "inputsWeightsSharedAcrossRoutes": true,
+      "preallocatedBuffers": true,
+      "persistentCommandBuffers": true,
+      "persistentDescriptorPools": true,
+      "reusableVkFence": true,
+      "queueWaitIdleDuringTiming": false,
+      "pipelineCaptureStatistics": false,
+      "imageReadbackDuringTiming": false,
+      "imageUploadsDuringTiming": false,
+      "timestampStage": "ALL_COMMANDS",
+      "baselineDispatchCount": 1,
+      "candidateDispatchCount": 1,
+      "timestampsPerRoute": 2,
+      "spanIncludesComputeBarriers": true,
+      "timingDomain": "GPU operator spans; excludes upload, CPU submission/wait, readback and bridge",
+      "percentileMethod": "linear interpolation on n-1 index",
+      "variation": "population stddev/mean*100"
+    },
+    "operators": [
+      {
+        "block": 1,
+        "baseline": {
+          "medianMs": 0.34563999999999995,
+          "p95Ms": 0.358492,
+          "p99Ms": 0.386378,
+          "minMs": 0.29556,
+          "maxMs": 0.4218,
+          "meanMs": 0.32909377777777776,
+          "stddevMs": 0.02779584247799891,
+          "variationCvPercent": 8.446176851380093
+        },
+        "candidate": {
+          "medianMs": 0.34146,
+          "p95Ms": 0.35926199999999997,
+          "p99Ms": 0.43308079999999993,
+          "minMs": 0.29431999999999997,
+          "maxMs": 0.48228,
+          "meanMs": 0.32954755555555554,
+          "stddevMs": 0.032676054511968484,
+          "variationCvPercent": 9.915429188021974
+        },
+        "medianImprovementPercent": 1.2093507695868477,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.35153999999999996,
+              "p95Ms": 0.358492,
+              "p99Ms": 0.40347200000000005,
+              "minMs": 0.34512,
+              "maxMs": 0.4218,
+              "meanMs": 0.3544919999999999,
+              "stddevMs": 0.012962872726881701,
+              "variationCvPercent": 3.656746196495747
+            },
+            "candidate": {
+              "medianMs": 0.34975999999999996,
+              "p95Ms": 0.35926199999999997,
+              "p99Ms": 0.3993532,
+              "minMs": 0.34228,
+              "maxMs": 0.41528,
+              "meanMs": 0.3524346666666666,
+              "stddevMs": 0.012393614413165442,
+              "variationCvPercent": 3.516570753491553
+            },
+            "medianImprovementPercent": 0.5063435170962083
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.33668,
+              "p95Ms": 0.35391,
+              "p99Ms": 0.36057120000000004,
+              "minMs": 0.29556,
+              "maxMs": 0.36252,
+              "meanMs": 0.32770533333333335,
+              "stddevMs": 0.023327894566138815,
+              "variationCvPercent": 7.118558104884514
+            },
+            "candidate": {
+              "medianMs": 0.34048,
+              "p95Ms": 0.35978399999999994,
+              "p99Ms": 0.4474452000000001,
+              "minMs": 0.29431999999999997,
+              "maxMs": 0.48228,
+              "meanMs": 0.332884,
+              "stddevMs": 0.03590609285344202,
+              "variationCvPercent": 10.786367879934756
+            },
+            "medianImprovementPercent": -1.1286681715575675
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.29989999999999994,
+              "p95Ms": 0.3423199999999998,
+              "p99Ms": 0.37968,
+              "minMs": 0.29644,
+              "maxMs": 0.382,
+              "meanMs": 0.30508399999999997,
+              "stddevMs": 0.01954822099322596,
+              "variationCvPercent": 6.407488099417198
+            },
+            "candidate": {
+              "medianMs": 0.29835999999999996,
+              "p95Ms": 0.30921799999999994,
+              "p99Ms": 0.3946128000000001,
+              "minMs": 0.2964,
+              "maxMs": 0.427,
+              "meanMs": 0.30332400000000004,
+              "stddevMs": 0.023188312803364256,
+              "variationCvPercent": 7.644733948966865
+            },
+            "medianImprovementPercent": 0.5135045015004946
+          }
+        ]
+      },
+      {
+        "block": 2,
+        "baseline": {
+          "medianMs": 0.35058,
+          "p95Ms": 0.36373399999999995,
+          "p99Ms": 0.42480039999999997,
+          "minMs": 0.29808,
+          "maxMs": 0.43872,
+          "meanMs": 0.35027688888888886,
+          "stddevMs": 0.0193125352294217,
+          "variationCvPercent": 5.513505413012795
+        },
+        "candidate": {
+          "medianMs": 0.34875999999999996,
+          "p95Ms": 0.3934939999999998,
+          "p99Ms": 0.48955599999999994,
+          "minMs": 0.29691999999999996,
+          "maxMs": 0.53548,
+          "meanMs": 0.3511626666666667,
+          "stddevMs": 0.03166301665981938,
+          "variationCvPercent": 9.016623822906206
+        },
+        "medianImprovementPercent": 0.5191397113355145,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.35326,
+              "p95Ms": 0.36373399999999995,
+              "p99Ms": 0.41748040000000003,
+              "minMs": 0.34392,
+              "maxMs": 0.43872,
+              "meanMs": 0.35651333333333324,
+              "stddevMs": 0.015973638561357553,
+              "variationCvPercent": 4.480516454183356
+            },
+            "candidate": {
+              "medianMs": 0.35216000000000003,
+              "p95Ms": 0.42810999999999994,
+              "p99Ms": 0.46961200000000003,
+              "minMs": 0.34252,
+              "maxMs": 0.48388,
+              "meanMs": 0.3608173333333334,
+              "stddevMs": 0.030009505486687967,
+              "variationCvPercent": 8.317090869624138
+            },
+            "medianImprovementPercent": 0.3113853818717094
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.34997999999999996,
+              "p95Ms": 0.360358,
+              "p99Ms": 0.365074,
+              "minMs": 0.34104,
+              "maxMs": 0.36663999999999997,
+              "meanMs": 0.35099600000000003,
+              "stddevMs": 0.006056721665499688,
+              "variationCvPercent": 1.7255813928078063
+            },
+            "candidate": {
+              "medianMs": 0.34850000000000003,
+              "p95Ms": 0.4018039999999998,
+              "p99Ms": 0.5064336,
+              "minMs": 0.33948,
+              "maxMs": 0.53548,
+              "meanMs": 0.35711733333333334,
+              "stddevMs": 0.03699857861534082,
+              "variationCvPercent": 10.360342431434528
+            },
+            "medianImprovementPercent": 0.42288130750326447
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.34616,
+              "p95Ms": 0.39133199999999985,
+              "p99Ms": 0.42152559999999994,
+              "minMs": 0.29808,
+              "maxMs": 0.42307999999999996,
+              "meanMs": 0.3433213333333334,
+              "stddevMs": 0.027189904956721626,
+              "variationCvPercent": 7.919666597100953
+            },
+            "candidate": {
+              "medianMs": 0.3454,
+              "p95Ms": 0.35422,
+              "p99Ms": 0.3563696,
+              "minMs": 0.29691999999999996,
+              "maxMs": 0.35688,
+              "meanMs": 0.33555333333333337,
+              "stddevMs": 0.019127276393209314,
+              "variationCvPercent": 5.700219456383281
+            },
+            "medianImprovementPercent": 0.21955165241508423
+          }
+        ]
+      },
+      {
+        "block": 3,
+        "baseline": {
+          "medianMs": 0.36147999999999997,
+          "p95Ms": 0.37116399999999994,
+          "p99Ms": 0.43596879999999993,
+          "minMs": 0.30872,
+          "maxMs": 0.493,
+          "meanMs": 0.35096133333333335,
+          "stddevMs": 0.02866798040400552,
+          "variationCvPercent": 8.16841562907372
+        },
+        "candidate": {
+          "medianMs": 0.35975999999999997,
+          "p95Ms": 0.368082,
+          "p99Ms": 0.4265088,
+          "minMs": 0.30696,
+          "maxMs": 0.4426,
+          "meanMs": 0.34893244444444443,
+          "stddevMs": 0.025887649664189338,
+          "variationCvPercent": 7.419100767601754
+        },
+        "medianImprovementPercent": 0.4758216222197631,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.3646,
+              "p95Ms": 0.37528399999999995,
+              "p99Ms": 0.4593948000000001,
+              "minMs": 0.35891999999999996,
+              "maxMs": 0.493,
+              "meanMs": 0.3691653333333333,
+              "stddevMs": 0.023374775540217614,
+              "variationCvPercent": 6.331790509460337
+            },
+            "candidate": {
+              "medianMs": 0.36135999999999996,
+              "p95Ms": 0.368962,
+              "p99Ms": 0.42151120000000003,
+              "minMs": 0.3568,
+              "maxMs": 0.4426,
+              "meanMs": 0.36460933333333334,
+              "stddevMs": 0.01483354642543568,
+              "variationCvPercent": 4.068339745947904
+            },
+            "medianImprovementPercent": 0.888645090510154
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.36334,
+              "p95Ms": 0.36988,
+              "p99Ms": 0.4119028,
+              "minMs": 0.35875999999999997,
+              "maxMs": 0.42891999999999997,
+              "meanMs": 0.36563600000000007,
+              "stddevMs": 0.012126103413710438,
+              "variationCvPercent": 3.3164413279082026
+            },
+            "candidate": {
+              "medianMs": 0.36114,
+              "p95Ms": 0.367884,
+              "p99Ms": 0.40821040000000003,
+              "minMs": 0.35719999999999996,
+              "maxMs": 0.42452,
+              "meanMs": 0.3638573333333332,
+              "stddevMs": 0.01164800038156288,
+              "variationCvPercent": 3.2012548090908024
+            },
+            "medianImprovementPercent": 0.6054934771838938
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.31311999999999995,
+              "p95Ms": 0.34680999999999995,
+              "p99Ms": 0.35365199999999997,
+              "minMs": 0.30872,
+              "maxMs": 0.35516,
+              "meanMs": 0.31808266666666657,
+              "stddevMs": 0.012016597114916611,
+              "variationCvPercent": 3.7778220488541603
+            },
+            "candidate": {
+              "medianMs": 0.31186,
+              "p95Ms": 0.351278,
+              "p99Ms": 0.369732,
+              "minMs": 0.30696,
+              "maxMs": 0.37588,
+              "meanMs": 0.3183306666666666,
+              "stddevMs": 0.015805544793591336,
+              "variationCvPercent": 4.9651341980638595
+            },
+            "medianImprovementPercent": 0.4024016351558246
+          }
+        ]
+      },
+      {
+        "block": 4,
+        "baseline": {
+          "medianMs": 0.35924,
+          "p95Ms": 0.37400599999999995,
+          "p99Ms": 0.448188,
+          "minMs": 0.30644,
+          "maxMs": 0.45067999999999997,
+          "meanMs": 0.3576755555555555,
+          "stddevMs": 0.023608861194762874,
+          "variationCvPercent": 6.600635919357887
+        },
+        "candidate": {
+          "medianMs": 0.35692,
+          "p95Ms": 0.367258,
+          "p99Ms": 0.43553679999999995,
+          "minMs": 0.30288,
+          "maxMs": 0.48616,
+          "meanMs": 0.3539955555555555,
+          "stddevMs": 0.023456495859882638,
+          "variationCvPercent": 6.626211965591024
+        },
+        "medianImprovementPercent": 0.645807816501498,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.36266,
+              "p95Ms": 0.37018799999999996,
+              "p99Ms": 0.42573560000000005,
+              "minMs": 0.35663999999999996,
+              "maxMs": 0.44788,
+              "meanMs": 0.3655906666666667,
+              "stddevMs": 0.015660050858438773,
+              "variationCvPercent": 4.283493066500268
+            },
+            "candidate": {
+              "medianMs": 0.36112,
+              "p95Ms": 0.37406999999999996,
+              "p99Ms": 0.41465240000000003,
+              "minMs": 0.356,
+              "maxMs": 0.42928,
+              "meanMs": 0.36358933333333326,
+              "stddevMs": 0.01298351337487491,
+              "variationCvPercent": 3.5709280181142766
+            },
+            "medianImprovementPercent": 0.42464015882645034
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.35924,
+              "p95Ms": 0.37177399999999994,
+              "p99Ms": 0.41670880000000005,
+              "minMs": 0.35356,
+              "maxMs": 0.43332,
+              "meanMs": 0.3617293333333333,
+              "stddevMs": 0.014068160489401432,
+              "variationCvPercent": 3.8891400815530854
+            },
+            "candidate": {
+              "medianMs": 0.35674,
+              "p95Ms": 0.365598,
+              "p99Ms": 0.4515572000000001,
+              "minMs": 0.3524,
+              "maxMs": 0.48616,
+              "meanMs": 0.36151999999999984,
+              "stddevMs": 0.023397871128231586,
+              "variationCvPercent": 6.472082077957401
+            },
+            "medianImprovementPercent": 0.6959135953680029
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.35447999999999996,
+              "p95Ms": 0.39314799999999983,
+              "p99Ms": 0.4414812,
+              "minMs": 0.30644,
+              "maxMs": 0.45067999999999997,
+              "meanMs": 0.3457066666666666,
+              "stddevMs": 0.03172772051202054,
+              "variationCvPercent": 9.177642079611003
+            },
+            "candidate": {
+              "medianMs": 0.35237999999999997,
+              "p95Ms": 0.35834,
+              "p99Ms": 0.3588608,
+              "minMs": 0.30288,
+              "maxMs": 0.359,
+              "meanMs": 0.33687733333333336,
+              "stddevMs": 0.022201311512811336,
+              "variationCvPercent": 6.5903251171973585
+            },
+            "medianImprovementPercent": 0.5924170616113722
+          }
+        ]
+      },
+      {
+        "block": 67,
+        "baseline": {
+          "medianMs": 0.379,
+          "p95Ms": 0.390582,
+          "p99Ms": 0.43524159999999995,
+          "minMs": 0.37112,
+          "maxMs": 0.46599999999999997,
+          "meanMs": 0.381528,
+          "stddevMs": 0.012213752831223586,
+          "variationCvPercent": 3.2012729947011977
+        },
+        "candidate": {
+          "medianMs": 0.3771,
+          "p95Ms": 0.390132,
+          "p99Ms": 0.45550519999999994,
+          "minMs": 0.36995999999999996,
+          "maxMs": 0.49939999999999996,
+          "meanMs": 0.38111022222222224,
+          "stddevMs": 0.017535209340560607,
+          "variationCvPercent": 4.6010860685694155
+        },
+        "medianImprovementPercent": 0.5013192612137285,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.3796,
+              "p95Ms": 0.41477199999999986,
+              "p99Ms": 0.4559776,
+              "minMs": 0.37179999999999996,
+              "maxMs": 0.46599999999999997,
+              "meanMs": 0.3847066666666666,
+              "stddevMs": 0.018374685001079305,
+              "variationCvPercent": 4.776284528752463
+            },
+            "candidate": {
+              "medianMs": 0.37761999999999996,
+              "p95Ms": 0.390132,
+              "p99Ms": 0.46784800000000004,
+              "minMs": 0.37,
+              "maxMs": 0.49939999999999996,
+              "meanMs": 0.38256266666666666,
+              "stddevMs": 0.022271758938669884,
+              "variationCvPercent": 5.821728275978284
+            },
+            "medianImprovementPercent": 0.5216016859852624
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.37964,
+              "p95Ms": 0.388592,
+              "p99Ms": 0.410682,
+              "minMs": 0.37392,
+              "maxMs": 0.41944,
+              "meanMs": 0.38149866666666665,
+              "stddevMs": 0.008109962487925303,
+              "variationCvPercent": 2.125816731886866
+            },
+            "candidate": {
+              "medianMs": 0.37778,
+              "p95Ms": 0.4191559999999998,
+              "p99Ms": 0.4488272,
+              "minMs": 0.37384,
+              "maxMs": 0.45008,
+              "meanMs": 0.38264800000000004,
+              "stddevMs": 0.017749066905051656,
+              "variationCvPercent": 4.638484169537448
+            },
+            "medianImprovementPercent": 0.48993783584447836
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.37732,
+              "p95Ms": 0.387044,
+              "p99Ms": 0.390868,
+              "minMs": 0.37112,
+              "maxMs": 0.39168,
+              "meanMs": 0.3783786666666666,
+              "stddevMs": 0.004909546980685236,
+              "variationCvPercent": 1.2975221420213712
+            },
+            "candidate": {
+              "medianMs": 0.37585999999999997,
+              "p95Ms": 0.38839399999999996,
+              "p99Ms": 0.41439240000000005,
+              "minMs": 0.36995999999999996,
+              "maxMs": 0.42496,
+              "meanMs": 0.37811999999999996,
+              "stddevMs": 0.009898196468717592,
+              "variationCvPercent": 2.6177394659678392
+            },
+            "medianImprovementPercent": 0.38693946782571986
+          }
+        ]
+      },
+      {
+        "block": 68,
+        "baseline": {
+          "medianMs": 0.37749999999999995,
+          "p95Ms": 0.388928,
+          "p99Ms": 0.505394,
+          "minMs": 0.36935999999999997,
+          "maxMs": 0.50664,
+          "meanMs": 0.3821435555555555,
+          "stddevMs": 0.022217272875505928,
+          "variationCvPercent": 5.8138551736681086
+        },
+        "candidate": {
+          "medianMs": 0.37595999999999996,
+          "p95Ms": 0.392156,
+          "p99Ms": 0.47274639999999996,
+          "minMs": 0.36763999999999997,
+          "maxMs": 0.49432,
+          "meanMs": 0.38055155555555553,
+          "stddevMs": 0.019928748185646623,
+          "variationCvPercent": 5.236806391857538
+        },
+        "medianImprovementPercent": 0.40794701986754944,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.38067999999999996,
+              "p95Ms": 0.388928,
+              "p99Ms": 0.4728376000000001,
+              "minMs": 0.37428,
+              "maxMs": 0.50664,
+              "meanMs": 0.38519066666666657,
+              "stddevMs": 0.02282150257006658,
+              "variationCvPercent": 5.924728853779753
+            },
+            "candidate": {
+              "medianMs": 0.37916,
+              "p95Ms": 0.390428,
+              "p99Ms": 0.4475760000000001,
+              "minMs": 0.37332,
+              "maxMs": 0.47008,
+              "meanMs": 0.3827053333333334,
+              "stddevMs": 0.016759972898413522,
+              "variationCvPercent": 4.3793413466270446
+            },
+            "medianImprovementPercent": 0.3992854891247122
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.37671999999999994,
+              "p95Ms": 0.4327759999999997,
+              "p99Ms": 0.4950204,
+              "minMs": 0.3712,
+              "maxMs": 0.50524,
+              "meanMs": 0.3845653333333335,
+              "stddevMs": 0.02812039399123388,
+              "variationCvPercent": 7.312254005708749
+            },
+            "candidate": {
+              "medianMs": 0.37561999999999995,
+              "p95Ms": 0.38720599999999994,
+              "p99Ms": 0.4645776000000001,
+              "minMs": 0.36956,
+              "maxMs": 0.49432,
+              "meanMs": 0.37999066666666675,
+              "stddevMs": 0.0215788975519037,
+              "variationCvPercent": 5.678796729718894
+            },
+            "medianImprovementPercent": 0.2919940539392596
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.3749,
+              "p95Ms": 0.379522,
+              "p99Ms": 0.4189404,
+              "minMs": 0.36935999999999997,
+              "maxMs": 0.43495999999999996,
+              "meanMs": 0.37667466666666677,
+              "stddevMs": 0.011143853233459636,
+              "variationCvPercent": 2.9584822712065315
+            },
+            "candidate": {
+              "medianMs": 0.3731,
+              "p95Ms": 0.4189639999999998,
+              "p99Ms": 0.45840559999999997,
+              "minMs": 0.36763999999999997,
+              "maxMs": 0.46112,
+              "meanMs": 0.3789586666666666,
+              "stddevMs": 0.02091479982107301,
+              "variationCvPercent": 5.519018737594869
+            },
+            "medianImprovementPercent": 0.4801280341424463
+          }
+        ]
+      },
+      {
+        "block": 69,
+        "baseline": {
+          "medianMs": 0.37802,
+          "p95Ms": 0.38804599999999995,
+          "p99Ms": 0.47507199999999994,
+          "minMs": 0.36563999999999997,
+          "maxMs": 0.50996,
+          "meanMs": 0.381784,
+          "stddevMs": 0.01985041733678273,
+          "variationCvPercent": 5.199384294989504
+        },
+        "candidate": {
+          "medianMs": 0.3762,
+          "p95Ms": 0.386414,
+          "p99Ms": 0.43943399999999994,
+          "minMs": 0.36835999999999997,
+          "maxMs": 0.49763999999999997,
+          "meanMs": 0.37861066666666665,
+          "stddevMs": 0.015109016351540263,
+          "variationCvPercent": 3.990647301240042
+        },
+        "medianImprovementPercent": 0.4814560076186525,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.37922,
+              "p95Ms": 0.42455799999999977,
+              "p99Ms": 0.4659692,
+              "minMs": 0.37207999999999997,
+              "maxMs": 0.47075999999999996,
+              "meanMs": 0.3851840000000001,
+              "stddevMs": 0.021117748869927712,
+              "variationCvPercent": 5.482509364336968
+            },
+            "candidate": {
+              "medianMs": 0.37749999999999995,
+              "p95Ms": 0.384648,
+              "p99Ms": 0.46489320000000006,
+              "minMs": 0.37123999999999996,
+              "maxMs": 0.49763999999999997,
+              "meanMs": 0.38155600000000006,
+              "stddevMs": 0.02187376230403296,
+              "variationCvPercent": 5.732779016457075
+            },
+            "medianImprovementPercent": 0.45356257581352644
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.37836,
+              "p95Ms": 0.41216399999999986,
+              "p99Ms": 0.4877692,
+              "minMs": 0.36928,
+              "maxMs": 0.50996,
+              "meanMs": 0.3839213333333333,
+              "stddevMs": 0.02582829143056548,
+              "variationCvPercent": 6.727495762299954
+            },
+            "candidate": {
+              "medianMs": 0.37612,
+              "p95Ms": 0.38626999999999995,
+              "p99Ms": 0.3880556,
+              "minMs": 0.36851999999999996,
+              "maxMs": 0.38816,
+              "meanMs": 0.37711599999999995,
+              "stddevMs": 0.004800659399152027,
+              "variationCvPercent": 1.2729927659266718
+            },
+            "medianImprovementPercent": 0.5920287556824055
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.37598,
+              "p95Ms": 0.38478999999999997,
+              "p99Ms": 0.38723799999999997,
+              "minMs": 0.36563999999999997,
+              "maxMs": 0.38776,
+              "meanMs": 0.3762466666666666,
+              "stddevMs": 0.004718791747423862,
+              "variationCvPercent": 1.2541750307663049
+            },
+            "candidate": {
+              "medianMs": 0.37373999999999996,
+              "p95Ms": 0.3998299999999999,
+              "p99Ms": 0.42735639999999997,
+              "minMs": 0.36835999999999997,
+              "maxMs": 0.43223999999999996,
+              "meanMs": 0.37716000000000005,
+              "stddevMs": 0.013050895243877586,
+              "variationCvPercent": 3.460307361299604
+            },
+            "medianImprovementPercent": 0.5957763710835784
+          }
+        ]
+      }
+    ],
+    "pooledImprovementRangePercent": [
+      0.40794701986754944,
+      1.2093507695868477
+    ],
+    "pairedImprovementRangePercent": [
+      -1.1286681715575675,
+      0.888645090510154
+    ],
+    "sumBaselineIsolatedMediansMs": 2.5514599999999996,
+    "sumCandidateIsolatedMediansMs": 2.5361599999999997,
+    "sumIsolatedMedianImprovementPercent": 0.5996566671631095,
+    "operatorMedianGateMinimumImprovementPercent": 5,
+    "operatorsPassingGate": 0,
+    "pairsPassingFivePercentGate": 0,
+    "allPairStatisticsRetained": true,
+    "sampleScalars": 1260,
+    "independentlyRecomputedStatisticFields": 448,
+    "canonicalPrePostChecks": 14,
+    "rawTimingReport": {
+      "path": "build/release/c32-pair-preload-v12-actual-timing-20261003-a2/gpu-timing-preload/interleaved.json",
+      "bytes": 48673,
+      "sha256": "c53145887b8d12c9cfa8b211112f28a075dac7b2293e6245dd8a00daf44fead5",
+      "distributed": false
+    },
+    "publicTimingReport": {
+      "path": "docs/performance/c32-pair-preload-v12-measurements/preload-ordinary-target-interleaved.json",
+      "bytes": 48673,
+      "sha256": "c53145887b8d12c9cfa8b211112f28a075dac7b2293e6245dd8a00daf44fead5",
+      "distributed": true
+    },
+    "rootCompletionLog": {
+      "path": "build/release/c32-pair-preload-v12-actual-timing-20261003-a2/root-timing-preload.log",
+      "bytes": 1468,
+      "sha256": "c4c02fb468f52a85a59af3fa63401b4edc5b6e5f71415a74404257abcf33b753",
+      "distributed": false
+    },
+    "networkLatencyMeasurement": false,
+    "fullInferenceReductionProven": false,
+    "validationLayerEnabled": false
+  },
+  "independentAudits": {
+    "source": {
+      "path": "build/release/c32-pair-preload-v12-source-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 3085,
+      "sha256": "fdbadb7263dc79a2bd89d57d70a9d3134052afb0b916f4b502b13b388a267f19",
+      "distributed": false
+    },
+    "boundedHost": {
+      "path": "build/release/c32-pair-preload-v12-host-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 2259,
+      "sha256": "9e0dea4a8f21524f21adaf96a02c049f4cb84a543542c4468041f45c8dc3d798",
+      "distributed": false
+    },
+    "boundedSavedInstalledDriver": {
+      "path": "build/release/c32-pair-preload-v12-saved-driver-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 9679,
+      "sha256": "3ca92ba82d27eea47c2f495af93a8ce9b381ccc0505d7bd34cf8884e63469132",
+      "distributed": false
+    },
+    "actualTimingHost": {
+      "path": "build/release/c32-pair-preload-v12-actual-host-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 2731,
+      "sha256": "ba9807ad2cf293c5c3f8db786029aeccc266f05fd72b97568abe0089b0e7445a",
+      "distributed": false
+    },
+    "actualSavedRepack": {
+      "path": "build/release/c32-pair-preload-v12-actual-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 88997,
+      "sha256": "a9c0465901e0f1ce764cd80d60fb79553a936164c204bd076917a759a485cda3",
+      "distributed": false
+    },
+    "timingCanonical": {
+      "path": "build/release/c32-pair-preload-v12-timing-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 28322,
+      "sha256": "db5042d07947465f53934227e32697fedede71c2488a6f9d3b92511fa1a723b7",
+      "distributed": false
+    }
+  },
+  "qualifications": {
+    "boundedByteAgreementOnRecordedDriver": true,
+    "arbitraryInputEquivalence": false,
+    "portableNumericsParity": false,
+    "originalNvidiaParity": false,
+    "completeModelQualification": false,
+    "broadTemporalQuality": false,
+    "operatorPerformanceAccepted": false,
+    "completeInferencePerformanceAccepted": false,
+    "eightMsNrPlusBridge": false,
+    "sixtyRealFps": false,
+    "promotion": false
+  },
+  "limitations": [
+    "Known recorded device/driver and fixed bounded/current generated-model inputs only. Candidate publication source unchanged does not qualify arbitrary inputs or generic compiler fallback behavior.",
+    "F40 activated-half output is an extra fallback trace, not original F24 pre-E4 bits. Other K/N/partition/residual families remain unqualified.",
+    "No complete candidate graph, evolved histories, game sequence or complete inference timing.",
+    "B/C,C/B,B/C order is unbalanced. All samples/pairs are retained; no variation cause assigned.",
+    "Per-route GPU spans include compute barriers and exclude uploads/readback/CPU submission/wait/bridge. Isolated sums are estimates and do not establish network latency or game FPS.",
+    "Raw executable subgroup property128 is retained separately from required full subgroup32/local128. Static WMMA counts include mutually exclusive branches and are not dynamic counters.",
+    "Recorded installed converters precede MODE23 setters; fresh offline compiler schedules setters first. Separate instrumentation does not explain measured timing."
+  ],
+  "privacy": {
+    "nvidiaDllDistributed": false,
+    "weightsDistributed": false,
+    "rawTensorsDistributed": false,
+    "imagesDistributed": false,
+    "gameCapturesDistributed": false,
+    "isaTextDistributed": false,
+    "moduleAddressesDistributed": false
+  },
+  "review": {
+    "firstIndependentSourceSavedModelRepackTimingAuditComplete": true,
+    "secondIndependentPublicReviewPending": false,
+    "secondIndependentPublicReviewComplete": true,
+    "secondIndependentPublicReview": {
+      "path": "build/release/c32-pair-preload-v12-public-second-cpu-audit-450a385ded4d4aa2ae26274df7b985b7/audit.json",
+      "bytes": 8314,
+      "sha256": "a8d0994df183a05a669e99bd957e4254cde96de4fe2e69ff8664b0d0dcfaae5b",
+      "distributed": false
+    },
+    "approvedDraftSha256": "a36d1c92ad2fe3793c89ff55709351e080c8ab2b799dac29abdfdf069ac07799",
+    "scope": "Metadata-only finalization after independent public source/provenance/resources/scalar timing/privacy review. Metrics, timing copy and documentation unchanged."
+  },
+  "publicFirstCpuAudit": {
+    "path": "build/release/c32-pair-preload-v12-public-first-cpu-audit-20261003-a1/audit.json",
+    "bytes": 2224,
+    "sha256": "f7b361a7a09a431a3b87b27a79055eab67b7750808466710d9d7475ad083a8ee",
+    "distributed": false
+  }
+}
