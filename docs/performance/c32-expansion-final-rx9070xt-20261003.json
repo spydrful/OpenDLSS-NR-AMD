@@ -1,0 +1,428 @@
+{
+  "format": "OpenNR-private-c32-expansion-final-negative-arithmetic-screen-scalar-v1",
+  "date": "2026-10-03",
+  "status": "CPU_AUDITED_REJECTED_SYNTHETIC_QUALITY",
+  "disposition": "REJECTED_INITIAL_SYNTHETIC_QUALITY",
+  "arithmeticExperiment": "c32-expansion-final",
+  "scalarOnly": true,
+  "releaseDefaultsChanged": false,
+  "prototypeInReleasePackage": false,
+  "device": {
+    "name": "AMD Radeon RX 9070 XT",
+    "id": "1002:7550",
+    "driver": "AMD proprietary driver|26.9.1 (LLPC)|8389003"
+  },
+  "sourceScope": {
+    "frozenAlpha6SourcePublicationCommit": "8da4db5d24a904d0a5216a7c4a71ed18e61d2da6",
+    "frozenPrecommitBuildScopeRetained": true,
+    "frozenOriginalSourceInputs": 106,
+    "sourceAndArtifactsRehashed": 282,
+    "modifiedSourceSha256": "de7426f3d51d749949a21fe0757b458556e9833bc30fcc6d2e377c3187c9fdbc",
+    "baselineSourceSha256": "1a802384502a44d329224c27a237bf980c8846f06ea6acf23e82d6acb086c35f",
+    "exactDelta": "One guarded publicationBoundary helper; only K32/F24/P0/N128/Nmatrix128/B1 skips intermediate FP16 publication. Three original guards call the helper; all other shapes use K16."
+  },
+  "baseline": {
+    "route": "explicit diagnostic Pair/Arena/K16/N16/stage16/Q32/fusions-off/hardware-publication-off/QKV-normalize-off",
+    "automaticDefault": false,
+    "selectedAggregateSha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+    "pairSpirvSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+    "freshUnmodifiedRecompileByteExact": true,
+    "fresh18HeadOutputHistoryFilesByteExactToHistoricalBaseline": true
+  },
+  "candidate": {
+    "effectivePolicy": {
+      "selectedShape": "K32 FLAGS24 PARTITION0 N128 Nmatrix128 batches1",
+      "selectedPublication": "final after two ordered K16 matrix operations",
+      "allOtherShapePublication": "K16",
+      "otherFamilies": "unchanged K16 modules",
+      "residualSiluAndTerminalE4": "unchanged",
+      "qkvNormalize": "off",
+      "fusions": "off"
+    },
+    "executableSha256": "65f6440fb6a48c4e8acf90c7be75cd042bf7903d7a3c464abe7c1d51bcfb54da",
+    "pairSpirvSha256": "fdf1cf6de4300af970f9beefda478abfc085f849b1fc3079e0406f2d65b8588b",
+    "selectedAggregateSha256": "55cbdba42d2f183608705f507bb9ad7df82bbca59316824f74dc938f78a99958",
+    "unchangedNativeModules": 31,
+    "unchangedGameModules": 2,
+    "qualifiedCacheBytesUnchanged": true,
+    "tuningDisabled": true,
+    "preservingClaim": false,
+    "unchanged": [
+      "order of two K16 matrix operations",
+      "residual publication",
+      "corrected SiLU",
+      "terminal E4 publication",
+      "window/global attention",
+      "other module bytes",
+      "exact reference"
+    ],
+    "inheritedCliArithmeticLabel": "k16",
+    "policyAuthority": "hash-bound private wrapper and changed module/source; generic CLI/quality-tool policy fields do not describe guarded expansion-final arithmetic"
+  },
+  "cpuPreparation": {
+    "publicationBoundaryGuardChecks": 122850,
+    "floatCapabilitiesAndExecutionModesEqualFrozenPair": true,
+    "fp16SignedZeroInfNanDenormRteAndFp32SignedZeroInfNanModesClosed": true,
+    "localSize": [
+      128,
+      1,
+      1
+    ],
+    "completeSpirvSemanticValidationClaim": false,
+    "offline": [
+      {
+        "label": "candidate-expansion",
+        "resources": {
+          "ldsBytes": 4096,
+          "sgprs": 31,
+          "vgprSpills": 0,
+          "sgprSpills": 0,
+          "staticScratchInstructionCount": 0,
+          "scratchBytes": 0,
+          "wavefrontSize": 32,
+          "threadgroupDimensions": [
+            128,
+            1,
+            1
+          ],
+          "vgprs": 30
+        },
+        "matrixInstructions": [
+          {
+            "instruction": "v_wmma_f32_16x16x16_fp8_fp8",
+            "staticCount": 2
+          }
+        ],
+        "installedDriverEquivalent": false,
+        "reportSha256": "5840293eeb6d1fc9f52ddc3d494827c15a241ab33b371e8226601de45b24f963"
+      },
+      {
+        "label": "candidate-contract",
+        "resources": {
+          "vgprs": 38,
+          "wavefrontSize": 32,
+          "ldsBytes": 4096,
+          "sgprs": 43,
+          "vgprSpills": 0,
+          "threadgroupDimensions": [
+            128,
+            1,
+            1
+          ],
+          "staticScratchInstructionCount": 0,
+          "scratchBytes": 0,
+          "sgprSpills": 0
+        },
+        "matrixInstructions": [
+          {
+            "instruction": "v_wmma_f32_16x16x16_fp8_fp8",
+            "staticCount": 8
+          }
+        ],
+        "installedDriverEquivalent": false,
+        "reportSha256": "408834c43ea051e23ded05a216b5cb376e228e54b45045eeb4de69a86e329444"
+      },
+      {
+        "label": "candidate-partition",
+        "resources": {
+          "ldsBytes": 4096,
+          "staticScratchInstructionCount": 0,
+          "sgprs": 31,
+          "scratchBytes": 0,
+          "threadgroupDimensions": [
+            128,
+            1,
+            1
+          ],
+          "vgprs": 33,
+          "vgprSpills": 0,
+          "wavefrontSize": 32,
+          "sgprSpills": 0
+        },
+        "matrixInstructions": [
+          {
+            "instruction": "v_wmma_f32_16x16x16_fp8_fp8",
+            "staticCount": 2
+          }
+        ],
+        "installedDriverEquivalent": false,
+        "reportSha256": "b714b54553a67af9fadb472dc5635dcbd56d5796c1702eae999bf7b705dcd39a"
+      },
+      {
+        "label": "baseline-expansion",
+        "resources": {
+          "threadgroupDimensions": [
+            128,
+            1,
+            1
+          ],
+          "wavefrontSize": 32,
+          "staticScratchInstructionCount": 0,
+          "sgprSpills": 0,
+          "ldsBytes": 4096,
+          "sgprs": 29,
+          "vgprSpills": 0,
+          "scratchBytes": 0,
+          "vgprs": 35
+        },
+        "matrixInstructions": [
+          {
+            "instruction": "v_wmma_f32_16x16x16_fp8_fp8",
+            "staticCount": 2
+          }
+        ],
+        "installedDriverEquivalent": false,
+        "reportSha256": "077bb3229c9fbea50967562e00bee07f4e4f1e3c2be83fcb5b66bb15703c0e42"
+      }
+    ]
+  },
+  "validation": {
+    "kind": "six matched fixed synthetic scene regressions at320x320",
+    "validGeometry": [
+      320,
+      320
+    ],
+    "paddedGeometry": [
+      320,
+      320
+    ],
+    "completeGraphExecutedForScenes": true,
+    "all75CheckpointCaptureExecuted": false,
+    "productionCaptureHeadGateExecuted": false,
+    "rawFilesReopened": 96,
+    "baselineHistoricalOutputByteChecks": 18,
+    "modelStagesPrivatelyRehashed": 11,
+    "matchedSourceMotionControlsFeaturesAndPreviousHistory": true,
+    "unclampedRgbPfmBitsEqualRawRgba": true,
+    "alphaPreserved": true,
+    "cameraResetReproducesResetOutput": true,
+    "cameraResetCasesRepeatResetComparisons": true,
+    "evolvedOwnHistorySequenceTested": false,
+    "naturalSdrTested": false,
+    "targetResolutionQualityTested": false,
+    "comparisonReference": "frozen AMD Pair/Arena outputs; not original NVIDIA or portable reference"
+  },
+  "quality": {
+    "dataRange": 1.0,
+    "minPsnrDb": 40,
+    "minSsim": 0.99,
+    "ssimMethod": "11x11 Gaussian sigma1.5; K1=.01 K2=.03; population moments; channel mean; valid windows with5pixel border excluded; covariance bounded for roundoff",
+    "unclampedSceneLinearRgb": true,
+    "passedCases": 2,
+    "rejectedCases": 4,
+    "everyFrameGatePassed": false,
+    "minimumMeasuredPsnrDb": 33.603770576429895,
+    "minimumMeasuredSsim": 0.9861344691607128,
+    "cases": [
+      {
+        "name": "sdr-reset",
+        "metrics": {
+          "mae": 0.002476628592910654,
+          "rmse": 0.0032983232885040307,
+          "max_absolute_error": 0.02083444595336914,
+          "different_samples": 305963,
+          "psnr_db": 49.6341355758173,
+          "exact": false,
+          "ssim": 0.9980912822157672
+        },
+        "thresholdsPassed": true,
+        "matchedInputsHistoryFeaturesControlsByteExact": true,
+        "referenceOutputSha256": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+        "candidateOutputSha256": "f8214af0b0256a6ac5f1aa054fa1adaf2584f0800a093494aec7305652c0a709",
+        "referenceHdrSamplesAboveOne": 0,
+        "candidateHdrSamplesAboveOne": 0,
+        "referenceMinimumRgb": -5.355104235604813e-07,
+        "referenceMaximumRgb": 0.8283277153968811,
+        "candidateMinimumRgb": -9.757155794432038e-07,
+        "candidateMaximumRgb": 0.8245909810066223
+      },
+      {
+        "name": "sdr-temporal",
+        "metrics": {
+          "mae": 0.008276485202989837,
+          "rmse": 0.010861584161169545,
+          "max_absolute_error": 0.05818295478820801,
+          "different_samples": 306973,
+          "psnr_db": 39.28213656625077,
+          "exact": false,
+          "ssim": 0.9925387408056557
+        },
+        "thresholdsPassed": false,
+        "matchedInputsHistoryFeaturesControlsByteExact": true,
+        "referenceOutputSha256": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+        "candidateOutputSha256": "fd05c4527a0bba7fc8f51af733b873c57216edf06300dca655c3f077f02d2912",
+        "referenceHdrSamplesAboveOne": 0,
+        "candidateHdrSamplesAboveOne": 0,
+        "referenceMinimumRgb": 0.0021164356730878353,
+        "referenceMaximumRgb": 0.8545121550559998,
+        "candidateMinimumRgb": 0.0013194859493523836,
+        "candidateMaximumRgb": 0.8315762877464294
+      },
+      {
+        "name": "sdr-camera-reset",
+        "metrics": {
+          "mae": 0.002476628592910654,
+          "rmse": 0.0032983232885040307,
+          "max_absolute_error": 0.02083444595336914,
+          "different_samples": 305963,
+          "psnr_db": 49.6341355758173,
+          "exact": false,
+          "ssim": 0.9980912822157672
+        },
+        "thresholdsPassed": true,
+        "matchedInputsHistoryFeaturesControlsByteExact": true,
+        "referenceOutputSha256": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+        "candidateOutputSha256": "f8214af0b0256a6ac5f1aa054fa1adaf2584f0800a093494aec7305652c0a709",
+        "referenceHdrSamplesAboveOne": 0,
+        "candidateHdrSamplesAboveOne": 0,
+        "referenceMinimumRgb": -5.355104235604813e-07,
+        "referenceMaximumRgb": 0.8283277153968811,
+        "candidateMinimumRgb": -9.757155794432038e-07,
+        "candidateMaximumRgb": 0.8245909810066223
+      },
+      {
+        "name": "hdr-reset",
+        "metrics": {
+          "mae": 0.011862593292025091,
+          "rmse": 0.019638043086335835,
+          "max_absolute_error": 0.2659931182861328,
+          "different_samples": 307086,
+          "psnr_db": 34.138035829096694,
+          "exact": false,
+          "ssim": 0.992538069665641
+        },
+        "thresholdsPassed": false,
+        "matchedInputsHistoryFeaturesControlsByteExact": true,
+        "referenceOutputSha256": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+        "candidateOutputSha256": "094a3fa4bf02eb2bbc2a90e042b977f56b81c28b716811bb0b8d6986b3e184fa",
+        "referenceHdrSamplesAboveOne": 161205,
+        "candidateHdrSamplesAboveOne": 161257,
+        "referenceMinimumRgb": 0.0008596715051680803,
+        "referenceMaximumRgb": 17.36393165588379,
+        "candidateMinimumRgb": 0.0028431792743504047,
+        "candidateMaximumRgb": 17.374149322509766
+      },
+      {
+        "name": "hdr-temporal",
+        "metrics": {
+          "mae": 0.013317186839844907,
+          "rmse": 0.02088389356600652,
+          "max_absolute_error": 0.3721485137939453,
+          "different_samples": 306854,
+          "psnr_db": 33.603770576429895,
+          "exact": false,
+          "ssim": 0.9861344691607128
+        },
+        "thresholdsPassed": false,
+        "matchedInputsHistoryFeaturesControlsByteExact": true,
+        "referenceOutputSha256": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+        "candidateOutputSha256": "745c27657426d08179f7a32d65307cf77e8d415d826d7977dd9f067f0003bb00",
+        "referenceHdrSamplesAboveOne": 158287,
+        "candidateHdrSamplesAboveOne": 158417,
+        "referenceMinimumRgb": 0.004615298006683588,
+        "referenceMaximumRgb": 17.782495498657227,
+        "candidateMinimumRgb": 0.006056719925254583,
+        "candidateMaximumRgb": 17.653108596801758
+      },
+      {
+        "name": "hdr-camera-reset",
+        "metrics": {
+          "mae": 0.011862593292025091,
+          "rmse": 0.019638043086335835,
+          "max_absolute_error": 0.2659931182861328,
+          "different_samples": 307086,
+          "psnr_db": 34.138035829096694,
+          "exact": false,
+          "ssim": 0.992538069665641
+        },
+        "thresholdsPassed": false,
+        "matchedInputsHistoryFeaturesControlsByteExact": true,
+        "referenceOutputSha256": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+        "candidateOutputSha256": "094a3fa4bf02eb2bbc2a90e042b977f56b81c28b716811bb0b8d6986b3e184fa",
+        "referenceHdrSamplesAboveOne": 161205,
+        "candidateHdrSamplesAboveOne": 161257,
+        "referenceMinimumRgb": 0.0008596715051680803,
+        "referenceMaximumRgb": 17.36393165588379,
+        "candidateMinimumRgb": 0.0028431792743504047,
+        "candidateMaximumRgb": 17.374149322509766
+      }
+    ]
+  },
+  "evidence": {
+    "preparation": {
+      "path": "build/release/c32-expansion-final-20261003-a1/cpu-preparation.json",
+      "bytes": 78798,
+      "sha256": "ab5b72a5da75b79f5787fd15f3c762febb472b867e3d4412e7bc84dca0499407",
+      "distributed": false
+    },
+    "rootDiagnosticRecord": {
+      "path": "build/release/c32-expansion-final-20261003-a1/gpu-scenes-v1/record.json",
+      "bytes": 12961,
+      "sha256": "49f20dcc70bc91f0b7015c3431d6cbe571bdf978bb05e552caef986929993009",
+      "distributed": false
+    },
+    "privateQualityReport": {
+      "path": "build/release/c32-expansion-final-20261003-a1/gpu-scenes-v1/quality.json",
+      "bytes": 19930,
+      "sha256": "40a53a5e787bdd7efc657a4aae5a28ced3e1bedd8805588a3917322524f4f6cc",
+      "distributed": false
+    },
+    "independentRawMetricAudit": {
+      "path": "build/release/c32-expansion-final-scenes-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 45857,
+      "sha256": "7fa832433d491f7e9e86b139af43ef7e8023f146e5145e35d9eaba1624798dc0",
+      "distributed": false
+    },
+    "independentSourceAudit": {
+      "path": "build/release/c32-expansion-final-independent-source-cpu-audit-384a11d1ac734745a0053455e67589b3/audit.json",
+      "bytes": 8875,
+      "sha256": "b61cc1bacbc2c739d1922dea5cfa9328c0b26fec4d3638dd028e48abfd5602b7",
+      "distributed": false
+    },
+    "secondIndependentPublicMetricAudit": {
+      "path": "build/release/c32-expansion-final-public-second-cpu-audit-9083b0a3323349ec97fdfad5caf22194/audit.json",
+      "bytes": 45695,
+      "sha256": "a19d1c10723b18b9b94dbf35fe19076fb5f134af0a5a8d67b5de96ec50faf3b5",
+      "distributed": false
+    }
+  },
+  "privacy": {
+    "weightsOrModelStagesPublished": false,
+    "nvidiaDllPublished": false,
+    "rawTensorsOrImagesPublished": false,
+    "gameCaptureBytesPublished": false,
+    "shaderOrIsaBinaryPayloadPublished": false,
+    "scalarHashesAndStatisticsOnly": true
+  },
+  "claims": {
+    "arbitraryInputEquivalence": false,
+    "portableReferenceParity": false,
+    "nvidiaParity": false,
+    "fullModelCheckpointQualified": false,
+    "performanceMeasured": false,
+    "bridgeLifecycleQualified": false,
+    "naturalOrCapturedGameQualityQualified": false,
+    "visualMotionReviewCompleted": false,
+    "promotionQualified": false
+  },
+  "decision": "Reject after initial quality screen. Do not integrate, tune, benchmark or promote this candidate; existing alpha6 package/cache/defaults remain unchanged.",
+  "limitations": [
+    "SDR reset and camera-reset pass, but SDR temporal and all three HDR rows fail PSNR; HDR temporal also fails SSIM.",
+    "Camera-reset repeats reset outputs; six rows are not six independent inputs.",
+    "Identical fixed synthetic histories do not establish independently evolved histories or natural SDR/game motion quality.",
+    "Offline compiler/resource reports are separate from installed-driver statistics and do not prove throughput.",
+    "No75-checkpoint capture, target-resolution quality/history, timing, bridge/lifecycle or game followup was run after rejection.",
+    "The8ms NR-plus-bridge and16.67ms complete-frame/60realFPS budgets remain unmet."
+  ],
+  "secondReview": {
+    "status": "PASS",
+    "reviewedDraftSha256": "db833e2121ca47e69500b9956c53ad4ceb5f6785935f1b3f9a50e083fb0505e8",
+    "reviewedDocumentSha256": "397e660cc346411e2a5b8aab75ea6a39e45e56375d4993f1735f6c8716451262",
+    "rawFilesReopened": 96,
+    "independentMetricMethod": "PSNR and Gaussian SSIM recomputed with reverse-axis native convolution",
+    "passedCases": 2,
+    "rejectedCases": 4,
+    "historicalTrackedJsonFilesUnchanged": 197,
+    "licenseNoticeFilesUnchanged": 10
+  }
+}

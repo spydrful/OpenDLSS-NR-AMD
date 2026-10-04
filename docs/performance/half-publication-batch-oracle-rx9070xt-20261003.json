@@ -1,0 +1,592 @@
+{
+  "format": "OpenNR-half-publication-batch-oracle-scalar-v1",
+  "date": "2026-10-03",
+  "status": "CPU_INDEPENDENTLY_AUDITED_FIXED_CORPUS_ORACLE_PASS",
+  "scalarOnly": true,
+  "experiment": "private half-publication conversion diagnostic; no production kernel selection",
+  "device": {
+    "name": "AMD Radeon RX 9070 XT",
+    "id": "1002:7550",
+    "driver": "AMD proprietary driver|26.9.1 (LLPC)|8389003"
+  },
+  "sourceScope": {
+    "shippingSourceChanged": false,
+    "defaultsChanged": false,
+    "qualifiedCacheChanged": false,
+    "prototypeInReleasePackage": false,
+    "fixedHostSha256": "3445d80d9ab5bb00e0cda228ac9cca5bd0698336cbc2df89014befa3ab40d049",
+    "helperSha256": "513c9adb6f01d03ccf8fab45d7b883406a96a24da2333642fad7bc19e2655371",
+    "vectorProbeSourceSha256": "8b2e77fbdcca4ae552c6de3729c02fbdd0178684030fa9c3776db842e3972762",
+    "matrixProbeSourceSha256": "655cba8c4a43e87769f3f6e54a92ec3b014e42d9ee07a8c542ed617f70c00722",
+    "frozenExecutableSha256": "b2e6a0978566f612e2ed65d3c307b7d671061e777987deb16b37c56cc86a98a6",
+    "existingHalfHelperSha256": "5eff0205c9ca593639db0b12e828c2d1bd85c6e7d66897c624be9584c8fdd211",
+    "privateSourcesDistributed": false,
+    "shaderSourcesAndModulesUnchangedFromA1": true,
+    "exactA1ToA2HostDelta": "Remove redundant explicit vkDestroyShaderModule after Context::loadShaderModule; Context owns and destroys each loaded module once."
+  },
+  "conversionContract": {
+    "finiteInput": "IEEE binary16 round to nearest ties to even, widen back to F32",
+    "nonfiniteInput": "Publish original F32 Inf/NaN bits, including sign and payload, using integer restoration after native conversion.",
+    "signedZeroPreserved": true,
+    "matrixConstructor": "matching subgroup scope,16x16 geometry and accumulator use; no raw fragment-layout equivalence assumption",
+    "noPackHalfIntrinsic": true,
+    "requiredFloatControls": [
+      "RTE16",
+      "DenormPreserve16",
+      "SignedZeroInfNanPreserve16",
+      "SignedZeroInfNanPreserve32"
+    ],
+    "requiredMatrixType": "16x16 FP16 accumulator supported",
+    "requiredSubgroupSize": 32,
+    "localSize": [
+      32,
+      1,
+      1
+    ],
+    "declaredSharedMemoryBytes": 0,
+    "modeClosureStructurallyChecked": true,
+    "completeSpirvSemanticValidatorRun": false
+  },
+  "corpus": {
+    "uniqueOriginalF32Witnesses": 1861036,
+    "paddedF32Witnesses": 1861120,
+    "paddingZeroWords": 84,
+    "cpuChecks": 1926589,
+    "preContextNegativeCliCases": 7,
+    "allBinary16Patterns": 65536,
+    "finiteHalfMidpointsAndAdjacentF32BothSigns": true,
+    "discarded13BitClassesByRetainedParityAndExponent": true,
+    "signedOverflowUnderflowAndNonfiniteEdges": true,
+    "seededAdditionalF32Codes": 262144,
+    "deterministicShuffleSeed": "0x9070b842",
+    "inputSha256": "0181673043192b27bf9eac7c20b116b3669df1db17da4c6eaf2e4a13ee7a57d9",
+    "independentOracleSha256": "9b42966b7eafc39446c1f2e7afcc9bf89b427ba67215e3d8adaab53ce893fd44",
+    "independentCorpusReconstruction": true,
+    "independentIntegerRneOracle": true,
+    "exhaustiveAllF32Patterns": false
+  },
+  "results": {
+    "variants": [
+      {
+        "id": 0,
+        "implementation": "software roundF16 oracle",
+        "comparedF32Words": 1861120,
+        "comparedBytes": 7444480,
+        "differentF32Words": 0,
+        "matchesIndependentCPUOracle": true
+      },
+      {
+        "id": 1,
+        "implementation": "existing guarded scalar RTE",
+        "comparedF32Words": 1861120,
+        "comparedBytes": 7444480,
+        "differentF32Words": 0,
+        "matchesIndependentCPUOracle": true
+      },
+      {
+        "id": 2,
+        "implementation": "branchless scalar RTE plus original nonfinite bit restoration",
+        "comparedF32Words": 1861120,
+        "comparedBytes": 7444480,
+        "differentF32Words": 0,
+        "matchesIndependentCPUOracle": true
+      },
+      {
+        "id": 3,
+        "implementation": "typed f16vec2/F32 roundtrip plus original nonfinite bit restoration",
+        "comparedF32Words": 1861120,
+        "comparedBytes": 7444480,
+        "differentF32Words": 0,
+        "matchesIndependentCPUOracle": true
+      },
+      {
+        "id": 4,
+        "implementation": "typed f16vec4/F32 roundtrip plus original nonfinite bit restoration",
+        "comparedF32Words": 1861120,
+        "comparedBytes": 7444480,
+        "differentF32Words": 0,
+        "matchesIndependentCPUOracle": true
+      },
+      {
+        "id": 5,
+        "implementation": "same-scope16x16 accumulator F32/F16/F32 constructor plus original nonfinite bit restoration",
+        "comparedF32Words": 1861120,
+        "comparedBytes": 7444480,
+        "differentF32Words": 0,
+        "matchesIndependentCPUOracle": true
+      }
+    ],
+    "totalComparedF32Words": 11166720,
+    "totalComparedBytes": 44666880,
+    "differentF32Words": 0,
+    "correctedNativeProcessReturncode": 0,
+    "finalPassStdoutCaptured": true,
+    "uniqueFrozenReferencesIndependentlyRehashed": 147,
+    "explicitTransferToComputeAndComputeTransferToTransferHostVisibility": true,
+    "hostCoherentReadbackAndQueueCompletion": true,
+    "rawBuffersDistributed": false
+  },
+  "modules": [
+    {
+      "name": "half_batch_delivery_0.spv",
+      "bytes": 3628,
+      "sha256": "e1fb1eac4bcdb50e6c88bf01abb80a526945f14037c112e23256dd100f2df0bb",
+      "executionModes": [
+        [
+          17,
+          32,
+          1,
+          1
+        ],
+        [
+          4459,
+          16
+        ],
+        [
+          4461,
+          32
+        ],
+        [
+          4462,
+          16
+        ],
+        [
+          4461,
+          16
+        ]
+      ],
+      "staticOpFConvertResultShapes": {
+        "scalar-f16": 1,
+        "scalar-f32": 1
+      }
+    },
+    {
+      "name": "half_batch_delivery_1.spv",
+      "bytes": 3928,
+      "sha256": "b61322e2448cfc90deea549c38149c86c74d7c85f8e3a7d3584e00f8f34aabc2",
+      "executionModes": [
+        [
+          17,
+          32,
+          1,
+          1
+        ],
+        [
+          4459,
+          16
+        ],
+        [
+          4461,
+          32
+        ],
+        [
+          4462,
+          16
+        ],
+        [
+          4461,
+          16
+        ]
+      ],
+      "staticOpFConvertResultShapes": {
+        "scalar-f16": 1,
+        "scalar-f32": 1
+      }
+    },
+    {
+      "name": "half_batch_delivery_2.spv",
+      "bytes": 3908,
+      "sha256": "4b19f042950581534719b07eb6f13aeae9e173b7f0a978189f29f97a3dad3f64",
+      "executionModes": [
+        [
+          17,
+          32,
+          1,
+          1
+        ],
+        [
+          4459,
+          16
+        ],
+        [
+          4461,
+          32
+        ],
+        [
+          4462,
+          16
+        ],
+        [
+          4461,
+          16
+        ]
+      ],
+      "staticOpFConvertResultShapes": {
+        "vector2-f16": 1,
+        "vector2-f32": 1
+      }
+    },
+    {
+      "name": "half_batch_delivery_3.spv",
+      "bytes": 3632,
+      "sha256": "b1e6462e300b474b943d8577804bf3df7b07d6e633e07aed44b92cea330cafd3",
+      "executionModes": [
+        [
+          17,
+          32,
+          1,
+          1
+        ],
+        [
+          4459,
+          16
+        ],
+        [
+          4461,
+          32
+        ],
+        [
+          4462,
+          16
+        ],
+        [
+          4461,
+          16
+        ]
+      ],
+      "staticOpFConvertResultShapes": {
+        "vector4-f16": 1,
+        "vector4-f32": 1
+      }
+    },
+    {
+      "name": "half_batch_matrix_probe.spv",
+      "bytes": 3096,
+      "sha256": "38920c73e216c9ff32ea249de7b6963f63b1e6e39c1435bd9078671ec26cdaca",
+      "executionModes": [
+        [
+          17,
+          32,
+          1,
+          1
+        ],
+        [
+          4459,
+          16
+        ],
+        [
+          4461,
+          32
+        ],
+        [
+          4462,
+          16
+        ],
+        [
+          4461,
+          16
+        ]
+      ],
+      "staticOpFConvertResultShapes": {
+        "cooperativeMatrix-f16": 1,
+        "cooperativeMatrix-f32": 1
+      }
+    },
+    {
+      "name": "half_batch_probe.spv",
+      "bytes": 8488,
+      "sha256": "a31c83971c2ce45e571d5238bf296a95628f1260b9665c1dd8658cb38dff5bfe",
+      "executionModes": [
+        [
+          17,
+          32,
+          1,
+          1
+        ],
+        [
+          4459,
+          16
+        ],
+        [
+          4461,
+          32
+        ],
+        [
+          4462,
+          16
+        ],
+        [
+          4461,
+          16
+        ]
+      ],
+      "staticOpFConvertResultShapes": {
+        "scalar-f16": 1,
+        "scalar-f32": 2,
+        "vector2-f16": 1,
+        "vector2-f32": 1,
+        "vector4-f16": 1,
+        "vector4-f32": 1
+      }
+    }
+  ],
+  "offlineWave32": [
+    {
+      "label": "rga-half_batch_delivery_0",
+      "reportSha256": "d1099bebff190739fd741d579f659b0a30d1143920adebcb90b205ce85e590d4",
+      "resources": {
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "staticScratchInstructionCount": 0,
+        "sgprs": 10,
+        "ldsBytes": 0,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 13,
+        "sgprSpills": 0,
+        "wavefrontSize": 32
+      },
+      "staticIsaInstructionCounts": {
+        "halfDownconverts": 4,
+        "halfUpconverts": 4,
+        "packedHalfDownconverts": 0,
+        "conditionalBranches": 1,
+        "modeSetters": 0
+      },
+      "installedDriverEquivalent": false,
+      "dynamicInstructionDeliveryMeasured": false
+    },
+    {
+      "label": "rga-half_batch_delivery_1",
+      "reportSha256": "0b7fed8cd2caa8a025b230f1e72ec36739888d1adefc5edbe1ef6d0289148b25",
+      "resources": {
+        "sgprs": 10,
+        "staticScratchInstructionCount": 0,
+        "vgprSpills": 0,
+        "sgprSpills": 0,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "vgprs": 13,
+        "wavefrontSize": 32,
+        "ldsBytes": 0,
+        "scratchBytes": 0
+      },
+      "staticIsaInstructionCounts": {
+        "halfDownconverts": 4,
+        "halfUpconverts": 4,
+        "packedHalfDownconverts": 0,
+        "conditionalBranches": 1,
+        "modeSetters": 0
+      },
+      "installedDriverEquivalent": false,
+      "dynamicInstructionDeliveryMeasured": false
+    },
+    {
+      "label": "rga-half_batch_delivery_2",
+      "reportSha256": "98275aacf4f82b4d84dd58e06ac6f48ce6edecfddc421b5e3ee8c9a746aaf423",
+      "resources": {
+        "ldsBytes": 0,
+        "scratchBytes": 0,
+        "vgprs": 13,
+        "staticScratchInstructionCount": 0,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "wavefrontSize": 32,
+        "vgprSpills": 0,
+        "sgprSpills": 0,
+        "sgprs": 10
+      },
+      "staticIsaInstructionCounts": {
+        "halfDownconverts": 4,
+        "halfUpconverts": 4,
+        "packedHalfDownconverts": 0,
+        "conditionalBranches": 1,
+        "modeSetters": 0
+      },
+      "installedDriverEquivalent": false,
+      "dynamicInstructionDeliveryMeasured": false
+    },
+    {
+      "label": "rga-half_batch_delivery_3",
+      "reportSha256": "c67eb378a776ff9b0457061ceccd21b47783a7944c5aed49ed41bb9269ebb93f",
+      "resources": {
+        "ldsBytes": 0,
+        "vgprs": 13,
+        "sgprs": 10,
+        "sgprSpills": 0,
+        "wavefrontSize": 32,
+        "scratchBytes": 0,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "vgprSpills": 0,
+        "staticScratchInstructionCount": 0
+      },
+      "staticIsaInstructionCounts": {
+        "halfDownconverts": 4,
+        "halfUpconverts": 4,
+        "packedHalfDownconverts": 0,
+        "conditionalBranches": 1,
+        "modeSetters": 0
+      },
+      "installedDriverEquivalent": false,
+      "dynamicInstructionDeliveryMeasured": false
+    },
+    {
+      "label": "rga-half_batch_matrix_probe",
+      "reportSha256": "feaf987902621117f7e0494f525084472865524d8e61cc35f131291a3ca1ae2b",
+      "resources": {
+        "ldsBytes": 0,
+        "staticScratchInstructionCount": 0,
+        "sgprs": 10,
+        "vgprSpills": 0,
+        "sgprSpills": 0,
+        "wavefrontSize": 32,
+        "vgprs": 25,
+        "scratchBytes": 0,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ]
+      },
+      "staticIsaInstructionCounts": {
+        "halfDownconverts": 8,
+        "halfUpconverts": 8,
+        "packedHalfDownconverts": 0,
+        "conditionalBranches": 1,
+        "modeSetters": 0
+      },
+      "installedDriverEquivalent": false,
+      "dynamicInstructionDeliveryMeasured": false
+    }
+  ],
+  "offlineConclusion": "The four scalar/vector microvariants each use13VGPR/10SGPR,0LDS/scratch and4scalar half down/up conversions; matrix uses25/10 and8down/up conversions. All have one dispatch-boundary branch, no packed half conversion and no MODE setter. This simple-context evidence establishes no packed delivery or speed gain.",
+  "initialRun": {
+    "a1NativeProcessExitReportedByRoot": 1,
+    "rawOracleComparisonsPassed": true,
+    "processQualified": false,
+    "privateHostModuleOwnershipDefectFound": true,
+    "failedProcessArtifactsPreserved": true,
+    "a2OnlyHostOwnershipChanged": true,
+    "correctedProcessExit": 0,
+    "allFourSavedRawBuffers": [
+      {
+        "role": "input-f32-bits.bin",
+        "a1Sha256": "0181673043192b27bf9eac7c20b116b3669df1db17da4c6eaf2e4a13ee7a57d9",
+        "a2Sha256": "0181673043192b27bf9eac7c20b116b3669df1db17da4c6eaf2e4a13ee7a57d9",
+        "bytes": 7444480,
+        "byteIdentical": true,
+        "distributed": false
+      },
+      {
+        "role": "oracle-f32-bits.bin",
+        "a1Sha256": "9b42966b7eafc39446c1f2e7afcc9bf89b427ba67215e3d8adaab53ce893fd44",
+        "a2Sha256": "9b42966b7eafc39446c1f2e7afcc9bf89b427ba67215e3d8adaab53ce893fd44",
+        "bytes": 7444480,
+        "byteIdentical": true,
+        "distributed": false
+      },
+      {
+        "role": "vector-output.bin",
+        "a1Sha256": "1c1c1c5465c024239fb158e3ff5ef56d77e9bf5cc154819fd3806bcda3fcd51c",
+        "a2Sha256": "1c1c1c5465c024239fb158e3ff5ef56d77e9bf5cc154819fd3806bcda3fcd51c",
+        "bytes": 37222400,
+        "byteIdentical": true,
+        "distributed": false
+      },
+      {
+        "role": "matrix-output.bin",
+        "a1Sha256": "9b42966b7eafc39446c1f2e7afcc9bf89b427ba67215e3d8adaab53ce893fd44",
+        "a2Sha256": "9b42966b7eafc39446c1f2e7afcc9bf89b427ba67215e3d8adaab53ce893fd44",
+        "bytes": 7444480,
+        "byteIdentical": true,
+        "distributed": false
+      }
+    ],
+    "exactAbnormalExitCausalityInstrumented": false
+  },
+  "evidence": {
+    "a1Preparation": {
+      "path": "build/release/half-publication-batch-20261003-a1/cpu-preparation.json",
+      "bytes": 46832,
+      "sha256": "4f9c077fe87a547875956ec05049abcea547c10ea02a8846b008eb4793624033",
+      "distributed": false
+    },
+    "a2Preparation": {
+      "path": "build/release/half-publication-batch-20261003-a2-owned-modules/cpu-preparation.json",
+      "bytes": 46614,
+      "sha256": "7de2a44d9f78397354911d85f2212fe13cbd78e95a266b62cf19af04d98e793d",
+      "distributed": false
+    },
+    "a1RawIndependentAudit": {
+      "path": "build/release/half-batch-saved-oracle-independent-cpu-audit-bb9b4d444b4e48b79b9b8e4e0d4923b6/audit.json",
+      "bytes": 3095,
+      "sha256": "c8d808f513ef820272eb4b4c7e691d86aa895fe43199dbbd8314b13661b3c17a",
+      "distributed": false
+    },
+    "a2RawAndProcessIndependentAudit": {
+      "path": "build/release/half-batch-a2-saved-oracle-independent-cpu-audit-267143c230c34e95aa8ec9e352c7f620/audit.json",
+      "bytes": 6183,
+      "sha256": "5c0b8d16e63f693b5c6620910325ccff2cf620656d44da3641a0b1bfbdfa986a",
+      "distributed": false
+    },
+    "a2RootProcessReceipt": {
+      "path": "build/release/half-publication-batch-20261003-a2-owned-modules/root-gpu-run-v1.json",
+      "bytes": 889,
+      "sha256": "1a0a7d7763e037ed9e31f0d5f873eac2dc70018c3116ac8c729c02fac452747c",
+      "distributed": false
+    },
+    "a2GPUReport": {
+      "path": "build/release/half-publication-batch-20261003-a2-owned-modules/gpu-oracle-v1/report.json",
+      "bytes": 1164,
+      "sha256": "25100fbe2fad779d2c1ddd48242cd5a531906e1c1610a5757d7b0f98b775495c",
+      "distributed": false
+    },
+    "rootLauncher": {
+      "path": "build/release/root-half-batch-a2-run.py",
+      "bytes": 1854,
+      "sha256": "24b48b56a65a28a5fdff73a61b4d02f6922237848dc4e994c2a6f777af1e33e3",
+      "distributed": false
+    }
+  },
+  "claims": {
+    "fixedCorpusInstalledDriverConversionOraclePassed": true,
+    "allF32EquivalenceEstablished": false,
+    "actualMatrixAccumulationArithmeticQualified": false,
+    "siluOrE4PublicationQualified": false,
+    "operatorGraphOrTemporalQualified": false,
+    "installedDriverIsaOrResourceCollectionRun": false,
+    "performanceMeasured": false,
+    "gameFpsEstablished": false,
+    "productionPromotionQualified": false,
+    "portableWholeNetworkOrNvidiaParityEstablished": false
+  },
+  "privacy": {
+    "nvidiaDllPublished": false,
+    "weightsOrModelStagesPublished": false,
+    "rawTensorsOrImagesPublished": false,
+    "gameCaptureBytesPublished": false,
+    "shaderOrIsaBinaryPayloadPublished": false,
+    "scalarHashesStatisticsAndScopeOnly": true
+  },
+  "limitations": [
+    "Fixed converter corpus and installed RX9070XT/26.9.1 only; not exhaustive over all F32 codes.",
+    "Matching-use matrix constructor roundtrip tests conversion rather than accumulation from FP8 GEMM or a register epilogue.",
+    "Original Inf/NaN publication is restored explicitly; subsequent SiLU/E4 mode ancestry and full operator contexts remain untested.",
+    "Offline resource/instruction statistics are separate from installed-driver ISA and dynamic timing.",
+    "No operator, network, temporal, bridge or game measurement; no8ms or60FPS claim.",
+    "A1 raw PASS preceded an unsuccessful process; only the separate ownership-corrected a2 completed with native exit0."
+  ]
+}

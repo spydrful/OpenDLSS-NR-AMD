@@ -54,6 +54,14 @@ the [buffer synchronization validation](docs/amd-context-visibility.md).
 The [subsequent fusion and normalization screens](docs/amd-fusion-screen.md)
 record rejected or ineffective candidates. Existing release downloads and
 default kernel selections remain unchanged.
+The later [C32 expansion arithmetic screen](docs/amd-c32-expansion-arithmetic-screen.md)
+rejects final-only accumulation after four of six generated SDR/HDR cases fail
+the per-frame quality gate. The
+[strided expansion screen](docs/amd-strided-expansion-screen.md) records operator
+experiments that pass the evaluated byte checks but run slower.
+The [batch FP16 conversion oracle](docs/performance/half-publication-batch-oracle-rx9070xt-20261003.json)
+passes six conversion variants over 1.86 million fixed inputs on the tested
+driver; it establishes no packed-conversion or performance improvement.
 
 **NVIDIA model DLLs and extracted weights are not distributed.** Supply a
 supported DLL locally; the importer reads it without executing it.
