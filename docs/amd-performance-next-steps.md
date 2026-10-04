@@ -16,27 +16,40 @@ default and the existing automatic tuning cache remains unchanged; an explicit
 qualified route is not the automatic default. The alpha 3 game numbers retained
 below apply to its older runtime and do not measure alpha 6.
 
-The [later expansion screens](amd-strided-expansion-screen.md) retain measured
-rejections, including v12's 0.41–1.21% operator gains, below the required 5%.
-They did not qualify a new production graph. Separately,
-[end-of-K32 arithmetic](amd-c32-expansion-arithmetic-screen.md) failed four of
-six matched SDR/HDR composed frames, so it remains excluded from promotion.
+The [later expansion screens](amd-strided-expansion-screen.md) retain
+measured rejections, including v12's 0.41–1.21% operator gains, below the required
+5%. The [expert input-sharing screen](amd-expert-a-reuse-screen.md) passes its
+recorded byte checks but regresses every timing pair; its eight pooled operator
+medians are 16.87–17.43% slower. These screens do not qualify a production graph.
+
+Separately, [end-of-K32 arithmetic](amd-c32-expansion-arithmetic-screen.md)
+failed four of six matched SDR/HDR composed frames. The
+[native-half operator screen](amd-native-half-arithmetic-screen.md) documents
+changed arithmetic; its subsequent
+[ordinary7 composed-frame screen](amd-native-half-graph-quality-screen.md)
+passes the three generated SDR cases but fails all three HDR-highlight cases.
+Both arithmetic routes remain excluded from promotion. Their references are
+frozen AMD outputs, not independent original NVIDIA captures.
 
 Next work keeps full internal resolution and the native Vulkan graph:
 
-1. Test raw input sharing between independent expert branches against original
-   K16 outputs, then measure installed resource costs and operator speed.
-2. Evaluate native F16 matrix accumulation as a separately labeled arithmetic
-   experiment. Its predecoded operands must preserve raw E4 NaNs and signed
-   zeros. Per-frame input conversion must run on the GPU and count toward
-   inference timing; weight preparation may occur once at initialization.
-3. Require all applicable checkpoints, target output, composed-frame quality,
-   identical and evolved histories, lifecycle and complete-inference timing
-   gates before integration. Follow with warmed game benchmarks and active
-   gameplay; network-only time does not establish game FPS.
+1. Capture instruction traces of the qualified Pair/Arena/K16 path on the
+   current driver. Keep profiler runs separate from ordinary timing, record
+   automatic profiler clock changes and restoration, and verify event geometry
+   and trace completeness before interpreting instruction stalls or utilization.
+2. Use the observed bottleneck to choose the next preserving fusion, scheduling
+   or memory-reuse candidate. Smaller LDS/register counts and fewer logical
+   memory loads alone have not established a speed improvement.
+3. Keep further arithmetic changes opt-in and require every matched unclamped
+   scene-linear RGB frame to pass 40 dB PSNR and 0.99 SSIM, including highlights
+   and temporal cases. Preserve GPU input conversion in any later timing span.
+4. Require applicable checkpoints, target output, identical and evolved histories,
+   lifecycle and complete-inference timing gates before integration. Follow with
+   warmed game benchmarks and active gameplay; network-only time does not
+   establish game FPS.
 
-These new private probes have no production, quality or performance
-qualification yet. NVIDIA DLLs, extracted weights and captures remain excluded
+The rejected candidates do not change shipping kernels, the qualified cache or
+alpha releases. NVIDIA DLLs, extracted weights and captures remain excluded
 from commits and release packages.
 
 ## Historical alpha 3 backlog and measurements

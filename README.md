@@ -58,7 +58,14 @@ The later [C32 expansion arithmetic screen](docs/amd-c32-expansion-arithmetic-sc
 rejects final-only accumulation after four of six generated SDR/HDR cases fail
 the per-frame quality gate. The
 [strided expansion screen](docs/amd-strided-expansion-screen.md) records operator
-experiments that pass the evaluated byte checks but run slower.
+experiments that pass the evaluated byte checks but fail the improvement gate.
+The [expert input-sharing screen](docs/amd-expert-a-reuse-screen.md) passes its
+recorded byte checks but measures 16.87–17.43% slower on eight model-weight
+operators. The [native-half composed-frame screen](docs/amd-native-half-graph-quality-screen.md)
+passes its three generated SDR cases but fails all three HDR-highlight cases.
+These candidates remain excluded from shipping kernels and releases.
+See the [remaining performance work](docs/amd-performance-next-steps.md) for the
+next profiling and validation steps.
 The [batch FP16 conversion oracle](docs/performance/half-publication-batch-oracle-rx9070xt-20261003.json)
 passes six conversion variants over 1.86 million fixed inputs on the tested
 driver; it establishes no packed-conversion or performance improvement.

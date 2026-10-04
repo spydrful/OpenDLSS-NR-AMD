@@ -1,0 +1,1469 @@
+{
+  "format": "OpenNR-AMD-private-expert64-two-cohort-A-reuse-negative-scalar-evidence-v1",
+  "measurementSession": "expert64-model8-20261004",
+  "status": "CPU_AUDITED_OPERATOR_PERFORMANCE_REJECTION",
+  "disposition": "The two-expert shared-A candidate passes all recorded bounded and model-W1/synthetic-input byte comparisons, but all eight full-shape operators and all24 interleaved pairs are slower. It misses the5% operator improvement gate and has no graph followup or promotion.",
+  "scalarOnly": true,
+  "privatePrototype": true,
+  "prototypeInReleasePackage": false,
+  "shippingDefaultChanged": false,
+  "automaticCacheChanged": false,
+  "device": {
+    "vendorId": 4098,
+    "deviceId": 30032,
+    "name": "AMD Radeon RX 9070 XT",
+    "driver": "AMD proprietary driver|26.9.1 (LLPC)|8389003",
+    "requiredWave": 32,
+    "requiredFullSubgroups": true,
+    "candidateSubgroups": 8,
+    "candidateThreads": 256,
+    "candidateLdsBytes": 12288
+  },
+  "scope": {
+    "blocks": [
+      5,
+      6,
+      7,
+      8,
+      62,
+      63,
+      64,
+      65
+    ],
+    "rows": 103680,
+    "K": 64,
+    "N": 128,
+    "Nmatrix": 128,
+    "batches": 2,
+    "flags": 152,
+    "partition": 0,
+    "publicationInterval": 16,
+    "tileN": 16,
+    "stageK": 16,
+    "strictInputStride": 64,
+    "strictOutputStride": 304,
+    "strictOutputColumnOffset": 16,
+    "timingOutputStride": 256,
+    "timingOutputColumnOffset": 0,
+    "rawPositiveZeroSeedBits": 0,
+    "broadcastInput": true,
+    "syntheticActivations": true,
+    "actualImportedW1Weights": true,
+    "actualCapturedGraphActivations": false,
+    "fixturePolicy": "expert64-model8-r103680-finiteE4-seed-9070e900-plus-block-v1",
+    "fullGraphExecuted": false,
+    "actualCapturedGraphActivationsQualified": false,
+    "preservingHypothesis": "Two independent original four-wave32 expert cohorts retain ordered K16 native half publication and original eight per-thread terminal scalar visits. Raw typed E4 input is shared between cohorts; weight layout and operator output arithmetic are retained within the tested fixed-driver scope."
+  },
+  "baseline": {
+    "moduleSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+    "gemm": "direct-rte-pair",
+    "tileN": 16,
+    "stageK": 16,
+    "arithmetic": "k16",
+    "localThreads": 128,
+    "requiredFullWave32Subgroups": 4,
+    "declaredSharedBytes": 4096,
+    "frozenProductionCliAnchor": {
+      "path": "build/release/qkv-normalize-production-cpu-20261003-9a07d2b4/compiled-v3/dlss5vk.exe",
+      "bytes": 1159168,
+      "sha256": "65f6440fb6a48c4e8acf90c7be75cd042bf7903d7a3c464abe7c1d51bcfb54da",
+      "distributed": false
+    },
+    "cliAnchorIsOperatorHarnessProducer": false
+  },
+  "candidate": {
+    "moduleSha256": "b518beb59fd59a912f3827050987273e9cb65296dbf358a9553a668b5cb54b25",
+    "module": {
+      "path": "build/release/expert64-pair-a-reuse-20261003-a1/candidate/amd_expert64_pair_a_reuse.spv",
+      "bytes": 20096,
+      "sha256": "b518beb59fd59a912f3827050987273e9cb65296dbf358a9553a668b5cb54b25",
+      "distributed": false
+    },
+    "localThreads": 256,
+    "requiredFullWave32Subgroups": 8,
+    "declaredRawSharedABytes": 4096,
+    "declaredTwoIndependentF32ScratchBytes": 8192,
+    "declaredSharedBytes": 12288,
+    "fixedGuard": "FLAGS152/K64/N128/Nmatrix128/P0/B2, publication16/N16/stage16, rawpositivezero seed; original broadcast input/weight and offset bounds, safeY/Z grid, no cache or wider-shape fallback."
+  },
+  "source": {
+    "shaderPreparation": {
+      "path": "build/release/expert64-pair-a-reuse-20261003-a1/cpu-preparation.json",
+      "bytes": 33479,
+      "sha256": "fcfffcb8de302af5cb98497767e602e61e9fc8905089ccceaf299c092f08bd25",
+      "distributed": false
+    },
+    "successfulBoundedHostPreparation": {
+      "path": "build/release/expert64-pair-a-reuse-host-20261003-a5/cpu-preparation.json",
+      "bytes": 69753,
+      "sha256": "40b89dc33b6e198d6cf0c93b8e7ed33e6826106dd1f6c9eb810d7650cc5a7db1",
+      "distributed": false
+    },
+    "model8TimingPreparation": {
+      "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/cpu-preparation.json",
+      "bytes": 140929,
+      "sha256": "776d41addfd7cf3e5d64044cba44079a2974d6df4ede41a0d1d6981d0b9f4b87",
+      "distributed": false
+    },
+    "model8ExecutableSha256": "6f89047bf0443ee83dcc32ed2dc0eca33adac560fb6c83c0a453f5572ba5be63",
+    "modelManifestSha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+    "sameA5HelperPrefixBytes": true,
+    "samePersistentFenceQueryExecuteBytesAsV12": true,
+    "model8SourceFiles": [
+      {
+        "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/expert_model_timing.cpp",
+        "bytes": 30646,
+        "sha256": "61eda0109388a67b2fad23ab941966421fa77955ef8f92c3a902197f9b41ee35",
+        "distributed": false
+      },
+      {
+        "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/expert_bounded_helpers.h",
+        "bytes": 32872,
+        "sha256": "9a0ad71764388890d621d55e5eda36e976be4a3686702c2e19d3927ce03f129d",
+        "distributed": false
+      },
+      {
+        "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/expert_gate_pins.h",
+        "bytes": 96648,
+        "sha256": "11f9e28f8601c66b41b0ee959bc6e9169689a0c092959490fdd3e2aa899b6eac",
+        "distributed": false
+      },
+      {
+        "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/build.ps1",
+        "bytes": 1377,
+        "sha256": "44dfe0e5b497b7e5798350a5016d33f9eadc6b31862d625fa2c7b3c541f0d74c",
+        "distributed": false
+      },
+      {
+        "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/freeze.py",
+        "bytes": 13482,
+        "sha256": "19b1520ea46bd2da07b4d97c8ab78dc649c835f187b03fecdc072f1a54896ba9",
+        "distributed": false
+      },
+      {
+        "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/README.md",
+        "bytes": 4623,
+        "sha256": "49300dc89f2edf608b899200acb453345d37abfb2302d23321552fcd538971d3",
+        "distributed": false
+      },
+      {
+        "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/LICENSE",
+        "bytes": 1061,
+        "sha256": "09303fc170f47fa787b91a622d155577b0b85ebca7bc25fcc66e12d8542ca10c",
+        "distributed": false
+      },
+      {
+        "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/reviewed-bounded-refs.json",
+        "bytes": 121134,
+        "sha256": "f189cdf02afcb23658b902c7ad2991df299cd0670fcfb7716fe9108eb6aa4075",
+        "distributed": false
+      },
+      {
+        "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/compiler-info.cmd",
+        "bytes": 137,
+        "sha256": "577b6aa76ef90080d0230df967ffed9531da1c415310851c41332f034076f38f",
+        "distributed": false
+      }
+    ],
+    "compiler": {
+      "glslang": {
+        "path": "tools/glslang/bin/glslang.exe",
+        "bytes": 5119488,
+        "sha256": "9643709c02c83e26773f96b6a87f197ab2e84f78be0879ad8fb3619418b5d9ad",
+        "distributed": false
+      },
+      "glslangVersion": "Glslang Version: 11:16.6.0\nESSL Version: OpenGL ES GLSL 3.20 glslang Khronos. 16.6.0\nGLSL Version: 4.60 glslang Khronos. 16.6.0\nSPIR-V Version 0x00010600, Revision 1\nGLSL.std.450 Version 100, Revision 1\nKhronos Tool ID 8\nSPIR-V Generator Version 11\nGL_KHR_vulkan_glsl version 100\nARB_GL_gl_spirv version 100",
+      "msvcPath": "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe",
+      "msvcSha256": "88c8344236a27a6e727e0a8edc49aaa2690bdc7a9464b9d18cc7abe70a9f1c0d",
+      "msvcVersionLog": {
+        "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/compiler-info.log",
+        "bytes": 1473,
+        "sha256": "f219a61a18cd11f9ac2167163f5d4b01e9b5e881e733720d04d85ea92c9a9144",
+        "distributed": false
+      },
+      "msvcOptimization": "/O2",
+      "windowsSdkSeparatelyFrozen": false
+    },
+    "helpers": "Original corrected mixed3 SiLU (three native half publications/two software stages), native K16 half publisher and original terminal E4 scalar publisher remain unchanged. Model loader W1 repacks retain NaN cleanup."
+  },
+  "profilePrioritization": {
+    "rawProfile": {
+      "path": "docs/performance/qkv-normalize-measurements/profile-target-candidate.json",
+      "bytes": 764904,
+      "sha256": "ba545c295b6d2db62e335481e7bd3f012a85bc59792854ce7df42dd93e900f4f",
+      "distributed": false
+    },
+    "eligibleK64B2Dispatches": 8,
+    "withinFrameSumMedianMs": 1.7061999589204788,
+    "instrumentedNotOrdinaryTiming": true,
+    "actualGraphInputValuesReusedForModel8Timing": false,
+    "broaderK128K256ExpertFamiliesTested": false
+  },
+  "boundedRecordedComparisons": {
+    "runs": [
+      {
+        "run": "gpu-small",
+        "fixtureCount": 59,
+        "comparisons": 59,
+        "failures": 0,
+        "comparedBytes": 1638400,
+        "rawFilesIndependentlyReopened": 118,
+        "canaryBytesIndependentlyChecked": 1633792,
+        "modelWeightFixtureIdentities": 16,
+        "manifest": {
+          "path": "build/release/expert64-pair-a-reuse-host-20261003-a5/gpu-small/manifest.json",
+          "bytes": 60601,
+          "sha256": "1dfb25e09c355da7d7f4a939e41410e61625257c39ace51d54b84dcfd09c5d14",
+          "distributed": false
+        },
+        "contemporaryRootLog": {
+          "path": "build/release/expert64-pair-a-reuse-host-20261003-a5/root-gpu-small.log",
+          "bytes": 2643,
+          "sha256": "5771f2e2af734e256b3e958ebd2e95311f86cff8cff6d5b118a8e36a66a7f775",
+          "distributed": false
+        },
+        "nativeExitCodeReportedByRoot": 0,
+        "validationLayerEnabled": false,
+        "validationErrors": 0
+      },
+      {
+        "run": "gpu-target",
+        "fixtureCount": 61,
+        "comparisons": 61,
+        "failures": 0,
+        "comparedBytes": 54722560,
+        "rawFilesIndependentlyReopened": 122,
+        "canaryBytesIndependentlyChecked": 1633792,
+        "modelWeightFixtureIdentities": 17,
+        "manifest": {
+          "path": "build/release/expert64-pair-a-reuse-host-20261003-a5/gpu-target/manifest.json",
+          "bytes": 62602,
+          "sha256": "810da69c449cac9a8685388845178fc6cd76504978499dc72d6caff8267cc639",
+          "distributed": false
+        },
+        "contemporaryRootLog": {
+          "path": "build/release/expert64-pair-a-reuse-host-20261003-a5/root-gpu-target.log",
+          "bytes": 2737,
+          "sha256": "e90bdc286140f8c13734bf0bffe3c69bd667b7c3f0a16ff06c0517cc92b2f900",
+          "distributed": false
+        },
+        "nativeExitCodeReportedByRoot": 0,
+        "validationLayerEnabled": false,
+        "validationErrors": 0
+      }
+    ],
+    "uniqueModelW1Repacks": 8,
+    "totalComparisons": 120,
+    "totalComparedBytes": 56360960,
+    "totalCanaryBytesIndependentlyChecked": 3267584,
+    "scope": "Synthetic activations and model-W1 cases, tails/offsets/broadcasts/overdispatch, all raw E4 codes, signedzero/overflow/NaN ancestry and canaries. No edge exemptions.",
+    "ancestryLimit": "Intended SiLU(-Inf) pre-E4 NaN is established by CPU/source coefficients; observed terminal cleaned+0 E4 bytes cannot identify prior NaN class. Separate raw operand NaN and overflow cases remain included."
+  },
+  "model8StrictReplay": {
+    "fixtures": 8,
+    "comparisons": 8,
+    "failures": 0,
+    "rawFilesIndependentlyReopened": 16,
+    "comparedFullAllocationBytes": 252149760,
+    "canonicalComparedBytes": 212336640,
+    "comparablePaddingCanaryBytes": 39813120,
+    "actualRawCanaryBytesCheckedBothRoles": 79626240,
+    "outputStride": 304,
+    "outputColumnOffset": 16,
+    "syntheticActivations": true,
+    "actualImportedW1Weights": true,
+    "actualCapturedGraphActivations": false,
+    "independentModelW1SyntheticInputFixtureIdentities": [
+      {
+        "block": 5,
+        "inputSha256": "7768e8b3d72104a89830bfecc0502d598020747d1290d86de7d4d8742812dc86",
+        "weightsSha256": "3cce9d69f1302cdb13c810a1a569bb408c9c91217cc753c22ec3e89be37a6aba",
+        "fixtureIdentitySha256": "35399e0eb2ffc5a188abffb531d388f53b2a8de10c781bf8e3a98cbc8ff2e1cc",
+        "loaderNaNCodesCleanedToZero": 0
+      },
+      {
+        "block": 6,
+        "inputSha256": "fc1a744128b1f18e678527134e44ab5badd5d21ecff296c64fdeec667b651d81",
+        "weightsSha256": "44cce72e1f47122e7273dec608bf78bb088f069cd995c997d7965509cb49c031",
+        "fixtureIdentitySha256": "677e942ff080f6ddb1c274bf22f701fc6e27e037e84cb7d14c7d04552fc67603",
+        "loaderNaNCodesCleanedToZero": 0
+      },
+      {
+        "block": 7,
+        "inputSha256": "aa91a57cce04f7e85444ebabe7588cf3361de221cf637717b0dbc49ea23661bc",
+        "weightsSha256": "58a9ca6d3ec76be5dd81bec3c5ad8b751c11af199a58a6955170e7aeae05b6f8",
+        "fixtureIdentitySha256": "550b9cd4b87ab5995637b34792b7f3ae0f215482cb9c683d2d617adcd6b9e9f7",
+        "loaderNaNCodesCleanedToZero": 0
+      },
+      {
+        "block": 8,
+        "inputSha256": "9092529a86a14700de4dc4ed654ed2de942e8e55878dba35e8b7bdb1ad5dbb06",
+        "weightsSha256": "472b6a4eb2c77e7ebe7b189443fbbaf107832a504e42ae2843376d6a5fa78642",
+        "fixtureIdentitySha256": "0574adfe1652e642743c629cbaf8baa3c47985ad2f1e6c39ba2db4b9affe7b5e",
+        "loaderNaNCodesCleanedToZero": 0
+      },
+      {
+        "block": 62,
+        "inputSha256": "3f655c190df7b583242cfbe4d8f52976537c35ca16062d6e1ad8d1961baa70e6",
+        "weightsSha256": "37c33e14910df18cedaba6d375a042fbd815f13e016432098dc91d7e47cb0045",
+        "fixtureIdentitySha256": "4b1df6f153aa7c76b6af2a4c65bebbaefd4106d4f05ab534e39c549548d44a3d",
+        "loaderNaNCodesCleanedToZero": 0
+      },
+      {
+        "block": 63,
+        "inputSha256": "af7112fa64e646c13b356df163504edc1e6ff94308e1614cf6a619554ac4293d",
+        "weightsSha256": "6cc3c61f9dda586863a8c64d377c07641034af19b5893b8dce1f2d7f3a879c7f",
+        "fixtureIdentitySha256": "ee0a57516005228d885f02bbcde825a5caf0e97bf70618c3cf8e5d9acb45250d",
+        "loaderNaNCodesCleanedToZero": 0
+      },
+      {
+        "block": 64,
+        "inputSha256": "d275832976d62c86cd2fa4094bbd674ce05c4277132f947fc6f337bf78653076",
+        "weightsSha256": "234ab5fa5a7219ed9d6a946b89d719c03acb06abff2a0d28e7d3e3e11f98e669",
+        "fixtureIdentitySha256": "771ac714218c70fa4e63b392ed48456a9dee19bba3177195042aa42ca19fe4dc",
+        "loaderNaNCodesCleanedToZero": 0
+      },
+      {
+        "block": 65,
+        "inputSha256": "e93f5258e8ac62272e6d208f5d82ff7c8407358c1d7caa6669be368f391ecd54",
+        "weightsSha256": "d9c4b216abeff22637382ed9392f29ad97a9f465298bc2e18db6e79bf47ef3fe",
+        "fixtureIdentitySha256": "399183c4e01001291d9d85b9ee41ca56cad1ebca6c2e386fd9035f2c809bf3a4",
+        "loaderNaNCodesCleanedToZero": 0
+      }
+    ],
+    "manifest": {
+      "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/gpu-model8-strict/manifest.json",
+      "bytes": 9729,
+      "sha256": "3ab3daba50a67a752411443f32317852c1af785b886f6e1f5014d5ada2805835",
+      "distributed": false
+    },
+    "strictProof": {
+      "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/gpu-model8-strict/strict-proof.json",
+      "bytes": 1219,
+      "sha256": "653bc9828aa785135d92b8d45afad46af946bce15c1443f77cc1e28c6dd9605a",
+      "distributed": false
+    },
+    "contemporaryRootLog": {
+      "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/root-gpu-model8-strict.log",
+      "bytes": 741,
+      "sha256": "2474ffe1fd6837b8c26f9f1991751a824dd57fe74b2f842453944865571107ae",
+      "distributed": false
+    },
+    "nativeExitCodeReportedByRoot": 0,
+    "validationLayerEnabled": false,
+    "validationErrors": 0
+  },
+  "operatorTiming": {
+    "report": {
+      "path": "docs/performance/expert64-a-reuse-measurements/model8-synthetic-interleaved.json",
+      "bytes": 52590,
+      "sha256": "18cb00414bdc318987a0a9e690f6b66dc36f079e4fdd46c9ad3abecdc3d762a8",
+      "distributed": true
+    },
+    "contemporaryRootLog": {
+      "path": "build/release/expert64-pair-a-reuse-model-timing-20261004-a2/root-gpu-model8-timing.log",
+      "bytes": 1109,
+      "sha256": "2a13181d0723506ed52af310117883dd4494ccf132c57e5b17946f99d235fc87",
+      "distributed": false
+    },
+    "nativeExitCodeReportedByRoot": 0,
+    "protocol": {
+      "warmupsPerRoute": 5,
+      "interleavedPairs": 3,
+      "measuredFramesPerRoutePerPair": 30,
+      "routeOrder": [
+        "baseline-candidate",
+        "candidate-baseline",
+        "baseline-candidate"
+      ],
+      "frameInputsFixed": true,
+      "inputsWeightsSharedAcrossRoutes": true,
+      "preallocatedBuffers": true,
+      "persistentCommandBuffers": true,
+      "persistentDescriptorPools": true,
+      "reusableVkFence": true,
+      "queueWaitIdleDuringTiming": false,
+      "pipelineCaptureStatistics": false,
+      "imageReadbackDuringTiming": false,
+      "imageUploadsDuringTiming": false,
+      "timestampStage": "ALL_COMMANDS",
+      "baselineDispatchCount": 1,
+      "candidateDispatchCount": 1,
+      "timestampsPerRoute": 2,
+      "spanIncludesComputeBarriers": true,
+      "timingDomain": "GPU operator spans; excludes upload, CPU submission/wait, readback and bridge",
+      "percentileMethod": "linear interpolation on n-1 index",
+      "variation": "population stddev/mean*100"
+    },
+    "operatorCount": 8,
+    "samplesPerRoutePerOperator": 90,
+    "allSampleScalarsRetained": 1440,
+    "statisticFieldsIndependentlyRecomputed": 512,
+    "canonicalPrePostChecks": 16,
+    "outputStride": 256,
+    "outputColumnOffset": 0,
+    "outputsMatchStrictCanonical": true,
+    "validationLayerEnabled": false,
+    "validationErrors": 0,
+    "operators": [
+      {
+        "block": 5,
+        "baseline": {
+          "medianMs": 0.20666,
+          "p95Ms": 0.21628999999999998,
+          "p99Ms": 0.23176719999999998,
+          "minMs": 0.18044,
+          "maxMs": 0.23668,
+          "meanMs": 0.20092177777777778,
+          "stddevMs": 0.012769211458972345,
+          "variationCvPercent": 6.355314789766228
+        },
+        "candidate": {
+          "medianMs": 0.24186,
+          "p95Ms": 0.25190999999999997,
+          "p99Ms": 0.30067159999999993,
+          "minMs": 0.21108,
+          "maxMs": 0.33943999999999996,
+          "meanMs": 0.23633288888888887,
+          "stddevMs": 0.019626471763323713,
+          "variationCvPercent": 8.304587590663708
+        },
+        "medianRegressionPercent": 17.032807509919667,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20939999999999998,
+              "p95Ms": 0.217338,
+              "p99Ms": 0.2272508,
+              "minMs": 0.20515999999999998,
+              "maxMs": 0.23115999999999998,
+              "meanMs": 0.2107386666666666,
+              "stddevMs": 0.004940874236632845,
+              "variationCvPercent": 2.3445503925712954
+            },
+            "candidate": {
+              "medianMs": 0.24444,
+              "p95Ms": 0.27632199999999985,
+              "p99Ms": 0.32672640000000003,
+              "minMs": 0.2408,
+              "maxMs": 0.33943999999999996,
+              "meanMs": 0.2501146666666667,
+              "stddevMs": 0.019140646407289613,
+              "variationCvPercent": 7.6527485022694695
+            },
+            "medianRegressionPercent": 16.733524355300865
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.20728,
+              "p95Ms": 0.212972,
+              "p99Ms": 0.2187316,
+              "minMs": 0.188,
+              "maxMs": 0.22104,
+              "meanMs": 0.2053426666666667,
+              "stddevMs": 0.007321578579028493,
+              "variationCvPercent": 3.5655417833419056
+            },
+            "candidate": {
+              "medianMs": 0.24272,
+              "p95Ms": 0.25052399999999997,
+              "p99Ms": 0.28315480000000004,
+              "minMs": 0.22008,
+              "maxMs": 0.29588,
+              "meanMs": 0.24237733333333328,
+              "stddevMs": 0.012247190407962507,
+              "variationCvPercent": 5.052943787907496
+            },
+            "medianRegressionPercent": 17.09764569664223
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.18545999999999999,
+              "p95Ms": 0.188636,
+              "p99Ms": 0.22284120000000004,
+              "minMs": 0.18044,
+              "maxMs": 0.23668,
+              "meanMs": 0.18668400000000002,
+              "stddevMs": 0.00961824571669214,
+              "variationCvPercent": 5.152153219714673
+            },
+            "candidate": {
+              "medianMs": 0.21681999999999998,
+              "p95Ms": 0.21991,
+              "p99Ms": 0.2304228,
+              "minMs": 0.21108,
+              "maxMs": 0.23468,
+              "meanMs": 0.21650666666666665,
+              "stddevMs": 0.004436819681809134,
+              "variationCvPercent": 2.049276241751971
+            },
+            "medianRegressionPercent": 16.9093065890219
+          }
+        ],
+        "strictCanonicalE4Sha256": "1882e0bd4a1b4b757ef390d44db2f4b068d798c006c9453fe23bb480539bcf30"
+      },
+      {
+        "block": 6,
+        "baseline": {
+          "medianMs": 0.20826,
+          "p95Ms": 0.213372,
+          "p99Ms": 0.27336799999999994,
+          "minMs": 0.19619999999999999,
+          "maxMs": 0.34528,
+          "meanMs": 0.2103742222222222,
+          "stddevMs": 0.015760818152605726,
+          "variationCvPercent": 7.491801032522549
+        },
+        "candidate": {
+          "medianMs": 0.24369999999999997,
+          "p95Ms": 0.25044,
+          "p99Ms": 0.2775256,
+          "minMs": 0.23063999999999998,
+          "maxMs": 0.32999999999999996,
+          "meanMs": 0.24507599999999996,
+          "stddevMs": 0.010084706220587466,
+          "variationCvPercent": 4.114930152519001
+        },
+        "medianRegressionPercent": 17.017190050897902,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20748,
+              "p95Ms": 0.214236,
+              "p99Ms": 0.2149576,
+              "minMs": 0.20532,
+              "maxMs": 0.21511999999999998,
+              "meanMs": 0.20897333333333326,
+              "stddevMs": 0.0029566166850341336,
+              "variationCvPercent": 1.4148296521250565
+            },
+            "candidate": {
+              "medianMs": 0.24353999999999998,
+              "p95Ms": 0.250932,
+              "p99Ms": 0.30710160000000003,
+              "minMs": 0.24092,
+              "maxMs": 0.32999999999999996,
+              "meanMs": 0.24757599999999994,
+              "stddevMs": 0.015627888234392595,
+              "variationCvPercent": 6.312359935693524
+            },
+            "medianRegressionPercent": 17.37998843262001
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.20884,
+              "p95Ms": 0.21262199999999998,
+              "p99Ms": 0.24944640000000004,
+              "minMs": 0.20512,
+              "maxMs": 0.26448,
+              "meanMs": 0.21023200000000003,
+              "stddevMs": 0.010332542249288573,
+              "variationCvPercent": 4.914828498653188
+            },
+            "candidate": {
+              "medianMs": 0.24431999999999998,
+              "p95Ms": 0.24814599999999998,
+              "p99Ms": 0.2644164,
+              "minMs": 0.24051999999999998,
+              "maxMs": 0.27104,
+              "meanMs": 0.24478266666666668,
+              "stddevMs": 0.005401172053874565,
+              "variationCvPercent": 2.206517368008586
+            },
+            "medianRegressionPercent": 16.98908255123539
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20804,
+              "p95Ms": 0.21261999999999998,
+              "p99Ms": 0.3068608000000001,
+              "minMs": 0.19619999999999999,
+              "maxMs": 0.34528,
+              "meanMs": 0.21191733333333326,
+              "stddevMs": 0.02500686398215942,
+              "variationCvPercent": 11.80029192931808
+            },
+            "candidate": {
+              "medianMs": 0.24322,
+              "p95Ms": 0.24927999999999997,
+              "p99Ms": 0.2514484,
+              "minMs": 0.23063999999999998,
+              "maxMs": 0.25204,
+              "meanMs": 0.24286933333333333,
+              "stddevMs": 0.00452713222937239,
+              "variationCvPercent": 1.8640197044387612
+            },
+            "medianRegressionPercent": 16.910209575081716
+          }
+        ],
+        "strictCanonicalE4Sha256": "7be8650a107a4ff4aa14c872f2e850adc6ff8d559a4d717d96257690da31a2b4"
+      },
+      {
+        "block": 7,
+        "baseline": {
+          "medianMs": 0.20876,
+          "p95Ms": 0.21663999999999997,
+          "p99Ms": 0.26154879999999997,
+          "minMs": 0.1986,
+          "maxMs": 0.26339999999999997,
+          "meanMs": 0.2100871111111111,
+          "stddevMs": 0.008498224813904037,
+          "variationCvPercent": 4.045095755260058
+        },
+        "candidate": {
+          "medianMs": 0.24397999999999997,
+          "p95Ms": 0.253602,
+          "p99Ms": 0.3534592,
+          "minMs": 0.22904,
+          "maxMs": 0.38079999999999997,
+          "meanMs": 0.2479031111111111,
+          "stddevMs": 0.020048093267299037,
+          "variationCvPercent": 8.087068039381485
+        },
+        "medianRegressionPercent": 16.87104809350448,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.2115,
+              "p95Ms": 0.21906199999999998,
+              "p99Ms": 0.2505472,
+              "minMs": 0.20496,
+              "maxMs": 0.26339999999999997,
+              "meanMs": 0.21280400000000005,
+              "stddevMs": 0.01011500983687114,
+              "variationCvPercent": 4.753204750320077
+            },
+            "candidate": {
+              "medianMs": 0.24667999999999998,
+              "p95Ms": 0.29034199999999977,
+              "p99Ms": 0.3414264,
+              "minMs": 0.24028,
+              "maxMs": 0.35008,
+              "meanMs": 0.25223733333333326,
+              "stddevMs": 0.022780431212385384,
+              "variationCvPercent": 9.031347941773909
+            },
+            "medianRegressionPercent": 16.633569739952712
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.20827999999999997,
+              "p95Ms": 0.212066,
+              "p99Ms": 0.24726080000000003,
+              "minMs": 0.20515999999999998,
+              "maxMs": 0.26132,
+              "meanMs": 0.21010799999999996,
+              "stddevMs": 0.00967292385992984,
+              "variationCvPercent": 4.603786557356142
+            },
+            "candidate": {
+              "medianMs": 0.24337999999999999,
+              "p95Ms": 0.250438,
+              "p99Ms": 0.262888,
+              "minMs": 0.24076,
+              "maxMs": 0.26776,
+              "meanMs": 0.24462,
+              "stddevMs": 0.004902883505312633,
+              "variationCvPercent": 2.004285628858079
+            },
+            "medianRegressionPercent": 16.85231419243327
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20801999999999998,
+              "p95Ms": 0.209706,
+              "p99Ms": 0.20984519999999998,
+              "minMs": 0.1986,
+              "maxMs": 0.20987999999999998,
+              "meanMs": 0.20734933333333333,
+              "stddevMs": 0.002429659692677601,
+              "variationCvPercent": 1.1717711620377853
+            },
+            "candidate": {
+              "medianMs": 0.24347999999999997,
+              "p95Ms": 0.24750999999999995,
+              "p99Ms": 0.34279840000000006,
+              "minMs": 0.22904,
+              "maxMs": 0.38079999999999997,
+              "meanMs": 0.246852,
+              "stddevMs": 0.02514205008877889,
+              "variationCvPercent": 10.185070442523816
+            },
+            "medianRegressionPercent": 17.04643784251514
+          }
+        ],
+        "strictCanonicalE4Sha256": "9ca0e871f44b3cac96a315ab27ee6d90088e992b3400cfaf61650a172ea59337"
+      },
+      {
+        "block": 8,
+        "baseline": {
+          "medianMs": 0.20798,
+          "p95Ms": 0.214578,
+          "p99Ms": 0.29339279999999995,
+          "minMs": 0.20504,
+          "maxMs": 0.35256,
+          "meanMs": 0.21108844444444444,
+          "stddevMs": 0.017272648121692356,
+          "variationCvPercent": 8.18265924842621
+        },
+        "candidate": {
+          "medianMs": 0.24375999999999998,
+          "p95Ms": 0.250816,
+          "p99Ms": 0.31438239999999995,
+          "minMs": 0.23976,
+          "maxMs": 0.32492,
+          "meanMs": 0.24591333333333332,
+          "stddevMs": 0.01144556391504295,
+          "variationCvPercent": 4.65430798724874
+        },
+        "medianRegressionPercent": 17.20357726704489,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20773999999999998,
+              "p95Ms": 0.216248,
+              "p99Ms": 0.31325920000000007,
+              "minMs": 0.20504,
+              "maxMs": 0.35256,
+              "meanMs": 0.21354933333333329,
+              "stddevMs": 0.025980398628367672,
+              "variationCvPercent": 12.165993788336658
+            },
+            "candidate": {
+              "medianMs": 0.24325999999999998,
+              "p95Ms": 0.250816,
+              "p99Ms": 0.25146199999999996,
+              "minMs": 0.24056,
+              "maxMs": 0.25151999999999997,
+              "meanMs": 0.24467866666666666,
+              "stddevMs": 0.0031925326762444993,
+              "variationCvPercent": 1.3047858727274273
+            },
+            "medianRegressionPercent": 17.098295946856656
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.20872,
+              "p95Ms": 0.211504,
+              "p99Ms": 0.2645156000000001,
+              "minMs": 0.20551999999999998,
+              "maxMs": 0.28608,
+              "meanMs": 0.2110546666666667,
+              "stddevMs": 0.014050007765913237,
+              "variationCvPercent": 6.6570467205557655
+            },
+            "candidate": {
+              "medianMs": 0.24434,
+              "p95Ms": 0.246826,
+              "p99Ms": 0.2567348,
+              "minMs": 0.24048,
+              "maxMs": 0.26076,
+              "meanMs": 0.244532,
+              "stddevMs": 0.0035567048420319237,
+              "variationCvPercent": 1.4544946436588764
+            },
+            "medianRegressionPercent": 17.065925642008438
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20773999999999998,
+              "p95Ms": 0.210802,
+              "p99Ms": 0.2204856,
+              "minMs": 0.20559999999999998,
+              "maxMs": 0.22435999999999998,
+              "meanMs": 0.20866133333333334,
+              "stddevMs": 0.0032712848987651436,
+              "variationCvPercent": 1.5677484881874666
+            },
+            "candidate": {
+              "medianMs": 0.24328,
+              "p95Ms": 0.2833619999999998,
+              "p99Ms": 0.3214864,
+              "minMs": 0.23976,
+              "maxMs": 0.32492,
+              "meanMs": 0.24852933333333338,
+              "stddevMs": 0.018970620607197387,
+              "variationCvPercent": 7.633151528939863
+            },
+            "medianRegressionPercent": 17.10792336574565
+          }
+        ],
+        "strictCanonicalE4Sha256": "24de31ef0cf89f5704254b79316d38457f1a3db0d4e905111e06188b630870a2"
+      },
+      {
+        "block": 62,
+        "baseline": {
+          "medianMs": 0.20636,
+          "p95Ms": 0.21284,
+          "p99Ms": 0.23037239999999992,
+          "minMs": 0.18472,
+          "maxMs": 0.34503999999999996,
+          "meanMs": 0.20763377777777778,
+          "stddevMs": 0.015467311378644658,
+          "variationCvPercent": 7.449323296134751
+        },
+        "candidate": {
+          "medianMs": 0.24218,
+          "p95Ms": 0.250972,
+          "p99Ms": 0.32594039999999996,
+          "minMs": 0.21567999999999998,
+          "maxMs": 0.37012,
+          "meanMs": 0.24395555555555554,
+          "stddevMs": 0.017029915058906792,
+          "variationCvPercent": 6.980744923035213
+        },
+        "medianRegressionPercent": 17.358015119209156,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20772000000000002,
+              "p95Ms": 0.215054,
+              "p99Ms": 0.2161652,
+              "minMs": 0.2044,
+              "maxMs": 0.2162,
+              "meanMs": 0.20890266666666663,
+              "stddevMs": 0.003255332992013091,
+              "variationCvPercent": 1.5583013103453722
+            },
+            "candidate": {
+              "medianMs": 0.24422,
+              "p95Ms": 0.25301999999999997,
+              "p99Ms": 0.3365264000000001,
+              "minMs": 0.24015999999999998,
+              "maxMs": 0.37012,
+              "meanMs": 0.2490546666666667,
+              "stddevMs": 0.022778737415015397,
+              "variationCvPercent": 9.146079340686407
+            },
+            "medianRegressionPercent": 17.57173117658386
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.20614,
+              "p95Ms": 0.208848,
+              "p99Ms": 0.2102832,
+              "minMs": 0.20471999999999999,
+              "maxMs": 0.21084,
+              "meanMs": 0.20663066666666668,
+              "stddevMs": 0.001425096332026563,
+              "variationCvPercent": 0.689682879611237
+            },
+            "candidate": {
+              "medianMs": 0.24194,
+              "p95Ms": 0.24801399999999998,
+              "p99Ms": 0.30028440000000006,
+              "minMs": 0.24031999999999998,
+              "maxMs": 0.32048,
+              "meanMs": 0.24502133333333334,
+              "stddevMs": 0.01415164248025256,
+              "variationCvPercent": 5.775677688032291
+            },
+            "medianRegressionPercent": 17.36683807121373
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20551999999999998,
+              "p95Ms": 0.20831399999999997,
+              "p99Ms": 0.3055304000000001,
+              "minMs": 0.18472,
+              "maxMs": 0.34503999999999996,
+              "meanMs": 0.20736799999999997,
+              "stddevMs": 0.026502794619938975,
+              "variationCvPercent": 12.780561426998853
+            },
+            "candidate": {
+              "medianMs": 0.24164,
+              "p95Ms": 0.24617999999999998,
+              "p99Ms": 0.24922919999999998,
+              "minMs": 0.21567999999999998,
+              "maxMs": 0.24996,
+              "meanMs": 0.2377906666666667,
+              "stddevMs": 0.009261289663012503,
+              "variationCvPercent": 3.894723789136314
+            },
+            "medianRegressionPercent": 17.57493188010899
+          }
+        ],
+        "strictCanonicalE4Sha256": "a71ef144ad37ef35f277fd4d004e0c3de68ab663ce492bf7255ab9053036a4ca"
+      },
+      {
+        "block": 63,
+        "baseline": {
+          "medianMs": 0.20722,
+          "p95Ms": 0.213582,
+          "p99Ms": 0.21756279999999997,
+          "minMs": 0.18492,
+          "maxMs": 0.21888,
+          "meanMs": 0.20663244444444445,
+          "stddevMs": 0.006043866001733789,
+          "variationCvPercent": 2.924935635341986
+        },
+        "candidate": {
+          "medianMs": 0.24268,
+          "p95Ms": 0.252292,
+          "p99Ms": 0.32439679999999993,
+          "minMs": 0.21528,
+          "maxMs": 0.40884,
+          "meanMs": 0.24498977777777778,
+          "stddevMs": 0.021598378178710947,
+          "variationCvPercent": 8.816032397197459
+        },
+        "medianRegressionPercent": 17.1122478525239,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20955999999999997,
+              "p95Ms": 0.21709399999999998,
+              "p99Ms": 0.2184508,
+              "minMs": 0.20612,
+              "maxMs": 0.21888,
+              "meanMs": 0.2101066666666666,
+              "stddevMs": 0.003297729858891146,
+              "variationCvPercent": 1.5695503199443839
+            },
+            "candidate": {
+              "medianMs": 0.24469999999999997,
+              "p95Ms": 0.252906,
+              "p99Ms": 0.3637392000000001,
+              "minMs": 0.24144,
+              "maxMs": 0.40884,
+              "meanMs": 0.25078266666666665,
+              "stddevMs": 0.029534344632798082,
+              "variationCvPercent": 11.77686840376983
+            },
+            "medianRegressionPercent": 16.76846726474519
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.20695999999999998,
+              "p95Ms": 0.212706,
+              "p99Ms": 0.21312,
+              "minMs": 0.2052,
+              "maxMs": 0.21312,
+              "meanMs": 0.20777066666666663,
+              "stddevMs": 0.0023224569365700265,
+              "variationCvPercent": 1.1177982791459302
+            },
+            "candidate": {
+              "medianMs": 0.24219999999999997,
+              "p95Ms": 0.250024,
+              "p99Ms": 0.29569,
+              "minMs": 0.24036,
+              "maxMs": 0.31395999999999996,
+              "meanMs": 0.24571066666666663,
+              "stddevMs": 0.012943041098941498,
+              "variationCvPercent": 5.267594311035812
+            },
+            "medianRegressionPercent": 17.027444916892144
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20526,
+              "p95Ms": 0.20906999999999998,
+              "p99Ms": 0.209444,
+              "minMs": 0.18492,
+              "maxMs": 0.20956,
+              "meanMs": 0.20201999999999998,
+              "stddevMs": 0.007660006962572986,
+              "variationCvPercent": 3.7917072381808667
+            },
+            "candidate": {
+              "medianMs": 0.24069999999999997,
+              "p95Ms": 0.24444399999999997,
+              "p99Ms": 0.29270320000000005,
+              "minMs": 0.21528,
+              "maxMs": 0.3124,
+              "meanMs": 0.23847599999999997,
+              "stddevMs": 0.016827461206809148,
+              "variationCvPercent": 7.056249352894694
+            },
+            "medianRegressionPercent": 17.26590665497416
+          }
+        ],
+        "strictCanonicalE4Sha256": "36a19d63f81f0a126ce0f352f317925a63e6d26aa64348423cf42a4813fc97d5"
+      },
+      {
+        "block": 64,
+        "baseline": {
+          "medianMs": 0.2067,
+          "p95Ms": 0.21292,
+          "p99Ms": 0.22389919999999996,
+          "minMs": 0.18252,
+          "maxMs": 0.2726,
+          "meanMs": 0.20593555555555554,
+          "stddevMs": 0.010100664346809748,
+          "variationCvPercent": 4.9047695137253156
+        },
+        "candidate": {
+          "medianMs": 0.24206,
+          "p95Ms": 0.250146,
+          "p99Ms": 0.3196444,
+          "minMs": 0.21312,
+          "maxMs": 0.31967999999999996,
+          "meanMs": 0.24254177777777777,
+          "stddevMs": 0.016377765047484873,
+          "variationCvPercent": 6.752554218717136
+        },
+        "medianRegressionPercent": 17.106918238993707,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20858,
+              "p95Ms": 0.214028,
+              "p99Ms": 0.2156056,
+              "minMs": 0.20468,
+              "maxMs": 0.216,
+              "meanMs": 0.209172,
+              "stddevMs": 0.002930122181752836,
+              "variationCvPercent": 1.4008195082290344
+            },
+            "candidate": {
+              "medianMs": 0.24428,
+              "p95Ms": 0.251036,
+              "p99Ms": 0.29593880000000006,
+              "minMs": 0.24044,
+              "maxMs": 0.314,
+              "meanMs": 0.24692133333333327,
+              "stddevMs": 0.012786311361069785,
+              "variationCvPercent": 5.178293502817276
+            },
+            "medianRegressionPercent": 17.11573496979577
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.207,
+              "p95Ms": 0.210118,
+              "p99Ms": 0.21578039999999998,
+              "minMs": 0.20471999999999999,
+              "maxMs": 0.21788,
+              "meanMs": 0.20736400000000002,
+              "stddevMs": 0.0024189992421109474,
+              "variationCvPercent": 1.1665473477126922
+            },
+            "candidate": {
+              "medianMs": 0.24234,
+              "p95Ms": 0.28833799999999976,
+              "p99Ms": 0.31966839999999996,
+              "minMs": 0.24008,
+              "maxMs": 0.31967999999999996,
+              "meanMs": 0.24777733333333332,
+              "stddevMs": 0.019326363847230948,
+              "variationCvPercent": 7.799891776715229
+            },
+            "medianRegressionPercent": 17.072463768115952
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20479999999999998,
+              "p95Ms": 0.207968,
+              "p99Ms": 0.25408640000000005,
+              "minMs": 0.18252,
+              "maxMs": 0.2726,
+              "meanMs": 0.20127066666666665,
+              "stddevMs": 0.016042346240151065,
+              "variationCvPercent": 7.970533662870761
+            },
+            "candidate": {
+              "medianMs": 0.24015999999999998,
+              "p95Ms": 0.24218599999999998,
+              "p99Ms": 0.2470112,
+              "minMs": 0.21312,
+              "maxMs": 0.24896,
+              "meanMs": 0.23292666666666667,
+              "stddevMs": 0.011342555071744443,
+              "variationCvPercent": 4.869582016547887
+            },
+            "medianRegressionPercent": 17.265624999999996
+          }
+        ],
+        "strictCanonicalE4Sha256": "7eb7af58ff887e541a4ff9f8ad9aaf1efeb6e2179165089fd66484f616764472"
+      },
+      {
+        "block": 65,
+        "baseline": {
+          "medianMs": 0.2072,
+          "p95Ms": 0.21572,
+          "p99Ms": 0.35047239999999996,
+          "minMs": 0.18631999999999999,
+          "maxMs": 0.36012,
+          "meanMs": 0.21061333333333332,
+          "stddevMs": 0.0242774789099326,
+          "variationCvPercent": 11.527037973189067
+        },
+        "candidate": {
+          "medianMs": 0.24331999999999998,
+          "p95Ms": 0.25106,
+          "p99Ms": 0.2650608,
+          "minMs": 0.21692,
+          "maxMs": 0.33383999999999997,
+          "meanMs": 0.24253511111111112,
+          "stddevMs": 0.01248990857047262,
+          "variationCvPercent": 5.149732141154067
+        },
+        "medianRegressionPercent": 17.43243243243242,
+        "pairs": [
+          {
+            "pair": 1,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20951999999999998,
+              "p95Ms": 0.22447599999999995,
+              "p99Ms": 0.2711728,
+              "minMs": 0.20496,
+              "maxMs": 0.28731999999999996,
+              "meanMs": 0.21288533333333334,
+              "stddevMs": 0.014660090889516638,
+              "variationCvPercent": 6.886379000361683
+            },
+            "candidate": {
+              "medianMs": 0.24461999999999998,
+              "p95Ms": 0.255804,
+              "p99Ms": 0.31142880000000006,
+              "minMs": 0.24031999999999998,
+              "maxMs": 0.33383999999999997,
+              "meanMs": 0.24825466666666668,
+              "stddevMs": 0.016357243397209554,
+              "variationCvPercent": 6.588896642645007
+            },
+            "medianRegressionPercent": 16.752577319587637
+          },
+          {
+            "pair": 2,
+            "order": "candidate-baseline",
+            "baseline": {
+              "medianMs": 0.20728,
+              "p95Ms": 0.213092,
+              "p99Ms": 0.3098168000000001,
+              "minMs": 0.20435999999999999,
+              "maxMs": 0.34928,
+              "meanMs": 0.21261733333333332,
+              "stddevMs": 0.025484467809933867,
+              "variationCvPercent": 11.986072541875169
+            },
+            "candidate": {
+              "medianMs": 0.24344,
+              "p95Ms": 0.24842799999999998,
+              "p99Ms": 0.2502136,
+              "minMs": 0.23992,
+              "maxMs": 0.25084,
+              "meanMs": 0.24379199999999998,
+              "stddevMs": 0.002809325423181396,
+              "variationCvPercent": 1.1523452054133836
+            },
+            "medianRegressionPercent": 17.44500192975684
+          },
+          {
+            "pair": 3,
+            "order": "baseline-candidate",
+            "baseline": {
+              "medianMs": 0.20578,
+              "p95Ms": 0.20918199999999998,
+              "p99Ms": 0.3163532000000001,
+              "minMs": 0.18631999999999999,
+              "maxMs": 0.36012,
+              "meanMs": 0.20633733333333332,
+              "stddevMs": 0.029603199256536823,
+              "variationCvPercent": 14.346991297359418
+            },
+            "candidate": {
+              "medianMs": 0.24056,
+              "p95Ms": 0.24765399999999999,
+              "p99Ms": 0.2509152,
+              "minMs": 0.21692,
+              "maxMs": 0.25123999999999996,
+              "meanMs": 0.23555866666666667,
+              "stddevMs": 0.010467944635356496,
+              "variationCvPercent": 4.443880067537243
+            },
+            "medianRegressionPercent": 16.901545339683153
+          }
+        ],
+        "strictCanonicalE4Sha256": "ff182da0e35381d00fc1094d31e83c2ddcb7394f037d9e07967ade81c1f3bd90"
+      }
+    ],
+    "pooledMedianRegressionRangePercent": [
+      16.87104809350448,
+      17.43243243243242
+    ],
+    "pairedMedianRegressionRangePercent": [
+      16.633569739952712,
+      17.57493188010899
+    ],
+    "allEightPooledOperatorsSlower": true,
+    "allTwentyFourPairsSlower": true,
+    "passesFivePercentOperatorImprovementGate": false,
+    "sumBaselineIsolatedMediansMs": 1.65914,
+    "sumCandidateIsolatedMediansMs": 1.9435399999999998,
+    "sumIsolatedMedianRegressionPercent": 17.14141061031618,
+    "completeInferenceReductionProven": false
+  },
+  "installedDriver": {
+    "manifest": {
+      "path": "build/release/expert64-pair-a-reuse-host-20261003-a5/driver-info/driver-info.json",
+      "bytes": 817,
+      "sha256": "d060a24d1fcc303596d46e58dcd3b25d29e13b9cbc1d1d5f642b742178fd4d0a",
+      "distributed": false
+    },
+    "contemporaryRootLog": {
+      "path": "build/release/expert64-pair-a-reuse-host-20261003-a5/root-driver-info.log",
+      "bytes": 203,
+      "sha256": "1e8e83d730b44cbf56c0180494f3750d9377c7dfb8850f30f0c7bd181a055bc8",
+      "distributed": false
+    },
+    "inferenceExecutedByQuery": false,
+    "ordinaryTimingRun": false,
+    "reports": [
+      {
+        "pipeline": "original-Pair-K64-F152-B2.txt",
+        "moduleSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+        "resources": {
+          "numUsedVgprs": 36,
+          "numUsedSgprs": 32,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "staticInstructionCounts": {
+          "fp8F32Wmma": 4,
+          "vectorHalfDown": 35,
+          "scalarHalfDown": 0,
+          "vectorHalfUp": 36,
+          "scalarHalfUp": 0,
+          "fp8Down": 1,
+          "modeSetters": 1,
+          "totalHalfConversionInstructions": 71
+        },
+        "rawExecutableSubgroupProperty": 128,
+        "requiredMatrixSubgroupSize": 32,
+        "localThreads": 128,
+        "converterBeforeModeSetter": true,
+        "modeField": 23,
+        "modeValue": 1,
+        "scope": "installed pipeline static report; raw executable property retained separately from required wave32; no runtime counts/performance claim",
+        "report": {
+          "path": "build/release/expert64-pair-a-reuse-host-20261003-a5/driver-info/original-Pair-K64-F152-B2.txt",
+          "bytes": 31487,
+          "sha256": "e7c1568220e9270aad76c911d041db0f5e1009c19f7d58ec62aa8ae26296274f",
+          "distributed": false
+        }
+      },
+      {
+        "pipeline": "two-cohort-A-reuse-K64-F152-B2.txt",
+        "moduleSha256": "b518beb59fd59a912f3827050987273e9cb65296dbf358a9553a668b5cb54b25",
+        "resources": {
+          "numUsedVgprs": 26,
+          "numUsedSgprs": 30,
+          "ldsUsageSizeInBytes": 12288,
+          "scratchMemUsageInBytes": 0
+        },
+        "staticInstructionCounts": {
+          "fp8F32Wmma": 4,
+          "vectorHalfDown": 35,
+          "scalarHalfDown": 0,
+          "vectorHalfUp": 36,
+          "scalarHalfUp": 0,
+          "fp8Down": 1,
+          "modeSetters": 1,
+          "totalHalfConversionInstructions": 71
+        },
+        "rawExecutableSubgroupProperty": 256,
+        "requiredMatrixSubgroupSize": 32,
+        "localThreads": 256,
+        "converterBeforeModeSetter": true,
+        "modeField": 23,
+        "modeValue": 1,
+        "scope": "installed pipeline static report; raw executable property retained separately from required wave32; no runtime counts/performance claim",
+        "report": {
+          "path": "build/release/expert64-pair-a-reuse-host-20261003-a5/driver-info/two-cohort-A-reuse-K64-F152-B2.txt",
+          "bytes": 34941,
+          "sha256": "6796b05ce846733637edf4e68fe8db9f87ae0e2a5650f614f59be11e4473d2c3",
+          "distributed": false
+        }
+      }
+    ],
+    "conversionCountScope": "35staticF32toF16 narrowing+36staticF16toF32 widening=71 per module; all scalar/vector direction fields explicit. No dynamic or throughput claim.",
+    "modeScope": "Installed converter precedes MODE setter in both modules. Offline ordering is opposite. Preserving results bind this installed driver, not a portable scheduling claim.",
+    "subgroupPropertyScope": "Raw executable properties128/256 retained separately from required matrix wave32.",
+    "occupancyClaim": false
+  },
+  "offlineDelivery": [
+    {
+      "label": "baseline",
+      "analysis": {
+        "path": "build/release/expert64-pair-a-reuse-20261003-a1/offline-baseline-K64-F152/analysis.json",
+        "bytes": 6711,
+        "sha256": "92c04cd132db537549e469e0c4740e725d678a47ce699a871556d1069e2dbfa4",
+        "distributed": false
+      },
+      "resources": {
+        "sgprs": 32,
+        "wavefrontSize": 32,
+        "sgprSpills": 0,
+        "ldsBytes": 4096,
+        "threadgroupDimensions": [
+          128,
+          1,
+          1
+        ],
+        "vgprs": 36,
+        "vgprSpills": 0,
+        "staticScratchInstructionCount": 0,
+        "scratchBytes": 0
+      },
+      "staticInstructionCounts": {
+        "wmma": 4,
+        "halfNarrowing": 36,
+        "halfWidening": 36,
+        "hardwareFp8": 1,
+        "modeSet": 1
+      },
+      "converterBeforeModeSetter": false,
+      "scope": "Offline LLPC forced-wave32 source lowering, separate from installed driver. Static instructions are not executed counts, occupancy or performance."
+    },
+    {
+      "label": "candidate",
+      "analysis": {
+        "path": "build/release/expert64-pair-a-reuse-20261003-a1/offline-candidate-K64-F152/analysis.json",
+        "bytes": 6771,
+        "sha256": "9fb468bdf1594241df33e99c60e1614a5cd991c7fcae351b0b2ddc632a55d5f8",
+        "distributed": false
+      },
+      "resources": {
+        "sgprs": 26,
+        "wavefrontSize": 32,
+        "sgprSpills": 0,
+        "ldsBytes": 12288,
+        "threadgroupDimensions": [
+          256,
+          1,
+          1
+        ],
+        "vgprs": 26,
+        "vgprSpills": 0,
+        "staticScratchInstructionCount": 0,
+        "scratchBytes": 0
+      },
+      "staticInstructionCounts": {
+        "wmma": 4,
+        "halfNarrowing": 36,
+        "halfWidening": 36,
+        "hardwareFp8": 1,
+        "modeSet": 1
+      },
+      "converterBeforeModeSetter": false,
+      "scope": "Offline LLPC forced-wave32 source lowering, separate from installed driver. Static instructions are not executed counts, occupancy or performance."
+    }
+  ],
+  "independentReviews": {
+    "shaderSource": {
+      "path": "build/release/expert64-pair-a-reuse-source-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 22796,
+      "sha256": "5b5cbf65fe6247b15708316550524439db7c41588051bb08b2fa6e4d29faf33d",
+      "distributed": false
+    },
+    "boundedHostSource": {
+      "path": "build/release/expert64-pair-a-reuse-host-a5-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 64510,
+      "sha256": "ece5f12ae739c2fede44baadc2fc18502201d11109f5f290e3d54b8b934d24d9",
+      "distributed": false
+    },
+    "boundedSavedDriver": {
+      "path": "build/release/expert64-pair-a-reuse-a5-saved-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 140016,
+      "sha256": "4684d336ef20f802eea52bd961d0e74d38e7074d67061eed66e654dba9917ea9",
+      "distributed": false
+    },
+    "model8HostSource": {
+      "path": "build/release/expert64-model8-timing-host-source-independent-cpu-audit-20261004-a1/audit.json",
+      "bytes": 135613,
+      "sha256": "82caac3f4a957a769a4fb40b10fea14867a28198428aefdf44fe5b2e61f5c431",
+      "distributed": false
+    },
+    "model8SavedTiming": {
+      "path": "build/release/expert64-model8-saved-timing-independent-cpu-audit-d02e889555ef479ab79f2d4a5fc6c439/audit.json",
+      "bytes": 40182,
+      "sha256": "f4e70ea3aadd85a785cc0bdeaad0d1855e4bfe524d07f2c9be4aa2c7e42d1b80",
+      "distributed": false
+    },
+    "secondPublicReview": {
+      "status": "PASS",
+      "audit": {
+        "path": "build/release/expert64-a-reuse-public-second-independent-cpu-audit-20261004-a1/audit.json",
+        "bytes": 72685,
+        "sha256": "4e1f3e2c39d20b56a2650ae6a03531d95f50bcf912ac85c80aaa765c4ebcc839",
+        "distributed": false
+      },
+      "scope": "Independent CPU public scalar/provenance/privacy review; no new GPU, performance promotion, quality acceptance or shipping change."
+    }
+  },
+  "claims": {
+    "recordedOperatorOutputsByteEqual": true,
+    "arbitraryPortableParity": false,
+    "originalNvidiaParity": false,
+    "actualGraphInputsQualified": false,
+    "fullModelQualified": false,
+    "composedRgbQualityMeasured": false,
+    "temporalQualityMeasured": false,
+    "operatorPerformanceAccepted": false,
+    "completeInferenceMeasured": false,
+    "bridgeMeasured": false,
+    "gameFpsMeasured": false,
+    "defaultChanged": false,
+    "releaseChanged": false,
+    "promoted": false
+  },
+  "limitations": [
+    "All eight model8 inputs are deterministic synthetic finiteE4 activations with actual imported W1s. They are not captured graph activations or game images.",
+    "Original K128/K256 or other flags/partitions are outside this candidate scope.",
+    "Strict replay checks each complete304-byte row; timing uses256-byte active rows only and pre/post matches canonical strict results. Comparable padding counts distinguish one-pair padding from actual byte checks on both raw roles.",
+    "All1440 samples and all24 pair summaries remain. Route order B/C,C/B,B/C is unbalanced; no variation cause or occupancy measured.",
+    "Lower installed VGPR use does not establish faster execution;12KiB is per-workgroup LDS usage, not a resident-workgroup count or CU memory budget.",
+    "Static installed counts are distinct from offline source lowering. Neither is a dynamic instruction count or performance explanation.",
+    "Validation layers recorded disabled with zero errors; this does not establish layer coverage.",
+    "GPU timing spans exclude upload, CPUwait/submission, readback and bridge. Sum of isolated medians is not network latency or gameFPS.",
+    "The operator gate fails, so no fullgraph integration, tuning/cache export, default or release change follows.",
+    "Only scalar/protocol evidence is distributed. NVIDIA DLLs, extracted weights, raw tensors/captures, ISA and candidate binaries are excluded. MIT/core and existing GPLadapter notices remain unchanged."
+  ]
+}

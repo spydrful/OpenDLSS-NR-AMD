@@ -1,0 +1,708 @@
+{
+  "format": "OpenNR-AMD-private-native-half-ordinary7-graph-quality-negative-scalar-evidence-v1",
+  "artifactDate": "2026-10-04",
+  "status": "CPU_AUDITED_REJECT_SYNTHETIC_GRAPH_QUALITY",
+  "disposition": "Three generated SDR cases pass; all three generated HDR-highlight cases fail the per-frame PSNR40dB/SSIM0.99 gate. The native-half graph experiment remains unqualified and is not integrated. No timing or later graph qualification followed rejection.",
+  "scalarOnly": true,
+  "privatePrototype": true,
+  "prototypeInReleasePackage": false,
+  "releaseDefaultsChanged": false,
+  "arithmeticExperiment": "predecoded-f16-wmma-k16-return",
+  "device": {
+    "vendorId": "1002",
+    "deviceId": "7550",
+    "name": "AMD Radeon RX 9070 XT",
+    "driverId": "AMD proprietary driver|26.9.1 (LLPC)|8389003"
+  },
+  "scope": {
+    "validOutputGeometry": [
+      320,
+      320
+    ],
+    "paddedFullModelGeometry": [
+      320,
+      320
+    ],
+    "selectedExpansionFeatureGeometry": [
+      160,
+      160,
+      32
+    ],
+    "selectedExpansionRows": 25600,
+    "blocks": [
+      1,
+      2,
+      3,
+      4,
+      67,
+      68,
+      69
+    ],
+    "operation": "Ordinary C32 expansion K32/F24/P0/N128/B1/N16/stage16 only; all other graph operations unchanged",
+    "candidateOperands": "GPU-decoded F16 A and once-initialized W1; two ordered K16 nonsaturating F16-input/F16-accumulator/F16-result matrix operations",
+    "terminalOperators": "Unchanged corrected mixed3 SiLU and original E4 publisher",
+    "onceInitDecodedWeightBytes": 57344,
+    "candidateFullNetworkExecuted": true,
+    "all75CheckpointCaptureRun": false,
+    "productionIntermediateCaptureGpuCorrespondenceRun": false,
+    "nativeTargetResolutionGraphRun": false,
+    "modelcheckClampedProxyNotUsedForQuality": true,
+    "generatedScenes": true,
+    "gameCapturedFrames": false,
+    "historyComparison": "Identical prescribed previous-history inputs, not independently evolved output histories"
+  },
+  "baseline": {
+    "kernels": "optimized",
+    "gemm": "direct-rte-pair",
+    "windowLayout": "arena-rte",
+    "arithmetic": "k16",
+    "tileN": 16,
+    "stageK": 16,
+    "windowQueries": 32,
+    "qkvNormalize": "off",
+    "allFusions": false,
+    "hardwarePublication": false,
+    "tuningEnabled": false,
+    "privateNativeHalf": "off",
+    "selectedAggregateSha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436"
+  },
+  "candidate": {
+    "inheritsBaselinePolicy": true,
+    "privateNativeHalf": "ordinary7",
+    "effectiveArithmeticExperiment": "predecoded-f16-wmma-k16-return",
+    "decoderPolicy": "ieee-raw-e4m3fn-to-f16-canonical-qnan-v1",
+    "selectedAggregateSha256": "5d074245a498e5ea878f3655f90f48a85dd1f07a20dedc179097f0cf71caa20c",
+    "productionModuleSha256": "9fad4fd41367eebf10ae4fcf0221852b4bb0c5780180c2081bec7f7a0361ac08",
+    "decoderModuleSha256": "1bef1ef95c6cf8dbdf5b858bc0d7de9a0c28ccc31b1ca159fbfb19a869861426",
+    "matrixSpecialization": {
+      "K": 32,
+      "FLAGS": 24,
+      "PARTITION": 0,
+      "publication": 16,
+      "tileN": 16,
+      "stageK": 16,
+      "hardwarePublication": 0
+    },
+    "matrixPushBytes": 48,
+    "decoderPushBytes": 12,
+    "rawPositiveZeroSeed": 0,
+    "requiredMatrixSubgroupSize": 32,
+    "matrixLocalThreads": 128,
+    "declaredMatrixLdsBytes": 4096,
+    "sourceCapturePathUsesSameProductionModule": true,
+    "traceModuleLoaded": false,
+    "sourceCachedPipelinesAndGraphOwnedDecodedBuffers": true
+  },
+  "identityScope": {
+    "executedCli": {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/private_dlss5vk.exe",
+      "bytes": 1236992,
+      "sha256": "1ffcf688398386139af1d25b56004ca4e6d28f04867bd74f1f3201cc39ab897d"
+    },
+    "cpuPreparation": {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/cpu-preparation.json",
+      "bytes": 75072,
+      "sha256": "e4ce954e2c547ae4fd3badde330626573f733f978fdf3438b798bd9c7827c837"
+    },
+    "sourcePreparation": {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/source-preparation.json",
+      "bytes": 58731,
+      "sha256": "d2dfec9043703c8cde51990fbc815c7dbe05763723308b23da01dc6e075832a2"
+    },
+    "modelManifestSha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e",
+    "unchangedOriginalNativeSpvs": 32,
+    "unchangedGameSpvs": 2,
+    "byteIdenticalFreshCompiledNativeSpvs": 34,
+    "preVulkanSourceHeaderPinCount": 209,
+    "independentSourceReferenceCount": 258,
+    "independentW1Repacks": 7,
+    "genericCliK16LabelDoesNotDescribeNativeHalfExpansion": true,
+    "effectivePolicyAuthority": "Hash-bound private selector metadata, loaded module aggregate and source specialization; generic arithmetic k16 describes unchanged Pair operations."
+  },
+  "thresholds": {
+    "minPsnrDb": 40,
+    "minSsim": 0.99,
+    "dataRange": 1.0,
+    "unclampedSceneLinearRgb": true
+  },
+  "cases": [
+    {
+      "name": "sdr-reset",
+      "metrics": {
+        "mae": 0.0031169087908932617,
+        "rmse": 0.004425925306283316,
+        "max_absolute_error": 0.025959908962249756,
+        "different_samples": 306296,
+        "psnr_db": 47.07991839354673,
+        "exact": false,
+        "ssim": 0.9981128534535186
+      },
+      "thresholdsPassed": true,
+      "controls": {
+        "geometry": [
+          320,
+          320,
+          320,
+          320
+        ],
+        "seed": 0,
+        "historyValid": false,
+        "autoMask": 1,
+        "style": 0,
+        "tone": 1.0,
+        "structure": 1.0,
+        "skin": -1.0,
+        "paperWhite": 1.0,
+        "intensity": 1.0,
+        "blendScale": 0.73974609375,
+        "historyStrength": 1.0,
+        "enabled": 1.0,
+        "colorStrength": 1.0,
+        "maxRatio": 4.0
+      },
+      "provenance": {
+        "reference": {
+          "sha256": {
+            "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+            "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+            "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+            "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60",
+            "published-history.f32": "e5e1111ffe9ca8c72a9d28168df94d9a543340a8bede9984710d27af3513fef5",
+            "scene-linear-rgb.pfm": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f"
+          },
+          "minimumRgb": -5.355104235604813e-07,
+          "maximumRgb": 0.8283277153968811,
+          "hdrSamplesAboveOne": 0
+        },
+        "candidate": {
+          "sha256": {
+            "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+            "head.f32": "34d5ad9fceec8f82895488de8c106a49c6ad0a409957a9a156fd18f450d8e3e7",
+            "scene-linear-rgba.f32": "edb19c9edd05c882c854fda8fafb736fe9b198a4337984bf774aa1db70ec5eba",
+            "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60",
+            "published-history.f32": "769693124606e4d5b9c00937103395c92aa5503137ef67dbe878dc0a9fe81b1f",
+            "scene-linear-rgb.pfm": "04662d8312920555d459162a1e6e4c2c2b189ea76c099c8e9744d5dc22c5e86f"
+          },
+          "minimumRgb": -1.0998918469340424e-06,
+          "maximumRgb": 0.8243750333786011,
+          "hdrSamplesAboveOne": 0
+        }
+      }
+    },
+    {
+      "name": "sdr-temporal",
+      "metrics": {
+        "mae": 0.004827564608452424,
+        "rmse": 0.0066992371268391054,
+        "max_absolute_error": 0.04704663157463074,
+        "different_samples": 306642,
+        "psnr_db": 43.479492992154945,
+        "exact": false,
+        "ssim": 0.9940699189886848
+      },
+      "thresholdsPassed": true,
+      "controls": {
+        "geometry": [
+          320,
+          320,
+          320,
+          320
+        ],
+        "seed": 1,
+        "historyValid": true,
+        "autoMask": 1,
+        "style": 0,
+        "tone": 1.0,
+        "structure": 1.0,
+        "skin": -1.0,
+        "paperWhite": 1.0,
+        "intensity": 1.0,
+        "blendScale": 0.73974609375,
+        "historyStrength": 1.0,
+        "enabled": 1.0,
+        "colorStrength": 1.0,
+        "maxRatio": 4.0
+      },
+      "provenance": {
+        "reference": {
+          "sha256": {
+            "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+            "head.f32": "ca536f44c88ab811f85e75ff441c212f24f2b02975f74aa6dcb414474319b361",
+            "scene-linear-rgba.f32": "745e0761d63467e3e3db0796385a053d7f981e86a1f02bfe11a8ec92439dd63f",
+            "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de",
+            "published-history.f32": "bd0050e3c70d7dbd0309e8e5a3c03e0267c373d50881b7b04384c334d1d5c4ec",
+            "scene-linear-rgb.pfm": "b0a78fe51fba21da87a6c76564c6763d202b20ee89dd78aaddee4e33aebb23a1"
+          },
+          "minimumRgb": 0.0021164356730878353,
+          "maximumRgb": 0.8545121550559998,
+          "hdrSamplesAboveOne": 0
+        },
+        "candidate": {
+          "sha256": {
+            "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "219b2a1194dae816df1be7ddc4d2cc16d0b3ea1e496c0f2c34e9ebab54db682d",
+            "head.f32": "d954728a221e1a3fcdae4322fc7b802711a00434f2bcc581fcdc3c1aa0c67c48",
+            "scene-linear-rgba.f32": "3cbdb39169a7bfa81feb6ad7c475109936f93007a39fd4bcae65536257115e15",
+            "controls.bin": "1c7589cef30a75793efd99bb3e3768c92f53737ecd394289bc25b305de89b7de",
+            "published-history.f32": "43ebe148d9120b6bf2e7e3dbd33090bdbdffc42991ad982122ca2fb281e4f4a9",
+            "scene-linear-rgb.pfm": "9eefe670f5d1f37a60e640da87bd43e60e35bebc4be9df778a7827f8ac2f7406"
+          },
+          "minimumRgb": 0.0019653511699289083,
+          "maximumRgb": 0.8854060173034668,
+          "hdrSamplesAboveOne": 0
+        }
+      }
+    },
+    {
+      "name": "sdr-camera-reset",
+      "metrics": {
+        "mae": 0.0031169087908932617,
+        "rmse": 0.004425925306283316,
+        "max_absolute_error": 0.025959908962249756,
+        "different_samples": 306296,
+        "psnr_db": 47.07991839354673,
+        "exact": false,
+        "ssim": 0.9981128534535186
+      },
+      "thresholdsPassed": true,
+      "controls": {
+        "geometry": [
+          320,
+          320,
+          320,
+          320
+        ],
+        "seed": 0,
+        "historyValid": false,
+        "autoMask": 1,
+        "style": 0,
+        "tone": 1.0,
+        "structure": 1.0,
+        "skin": -1.0,
+        "paperWhite": 1.0,
+        "intensity": 1.0,
+        "blendScale": 0.73974609375,
+        "historyStrength": 1.0,
+        "enabled": 1.0,
+        "colorStrength": 1.0,
+        "maxRatio": 4.0
+      },
+      "provenance": {
+        "reference": {
+          "sha256": {
+            "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+            "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+            "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+            "head.f32": "d813fac301598cc45536b13b2aeb7f9785e69c8f89dd9191e05b0579ddf1a67d",
+            "scene-linear-rgba.f32": "b80b73fab26a4cf22db42854e9809037c67dab1071a9826dd8bbdb17560f8485",
+            "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60",
+            "published-history.f32": "e5e1111ffe9ca8c72a9d28168df94d9a543340a8bede9984710d27af3513fef5",
+            "scene-linear-rgb.pfm": "c4ec7a1aad993909339063b96b1e7609921431a25ceec295a54810f7e8ffa03f"
+          },
+          "minimumRgb": -5.355104235604813e-07,
+          "maximumRgb": 0.8283277153968811,
+          "hdrSamplesAboveOne": 0
+        },
+        "candidate": {
+          "sha256": {
+            "source.f32": "70edb4cfdf17c3e6d8152a2fe558f8d86f6ad99249e58c657c1adb551f39c367",
+            "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+            "features.f32": "b9847f7943cc75f884708287f7a42a90368f4f1ecc7f946266b4f22aa1f124ed",
+            "head.f32": "34d5ad9fceec8f82895488de8c106a49c6ad0a409957a9a156fd18f450d8e3e7",
+            "scene-linear-rgba.f32": "edb19c9edd05c882c854fda8fafb736fe9b198a4337984bf774aa1db70ec5eba",
+            "controls.bin": "a086446c61a87cc7fec00c6570edf1d64e07a72d911968212ab318347a507b60",
+            "published-history.f32": "769693124606e4d5b9c00937103395c92aa5503137ef67dbe878dc0a9fe81b1f",
+            "scene-linear-rgb.pfm": "04662d8312920555d459162a1e6e4c2c2b189ea76c099c8e9744d5dc22c5e86f"
+          },
+          "minimumRgb": -1.0998918469340424e-06,
+          "maximumRgb": 0.8243750333786011,
+          "hdrSamplesAboveOne": 0
+        }
+      }
+    },
+    {
+      "name": "hdr-reset",
+      "metrics": {
+        "mae": 0.020119788650908958,
+        "rmse": 0.028551051842774428,
+        "max_absolute_error": 0.2978343963623047,
+        "different_samples": 307162,
+        "psnr_db": 30.88755774759345,
+        "exact": false,
+        "ssim": 0.9882693211721119
+      },
+      "thresholdsPassed": false,
+      "controls": {
+        "geometry": [
+          320,
+          320,
+          320,
+          320
+        ],
+        "seed": 0,
+        "historyValid": false,
+        "autoMask": 1,
+        "style": 0,
+        "tone": 1.0,
+        "structure": 1.0,
+        "skin": -1.0,
+        "paperWhite": 2.0,
+        "intensity": 1.0,
+        "blendScale": 0.73974609375,
+        "historyStrength": 1.0,
+        "enabled": 1.0,
+        "colorStrength": 1.0,
+        "maxRatio": 4.0
+      },
+      "provenance": {
+        "reference": {
+          "sha256": {
+            "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+            "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+            "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+            "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440",
+            "published-history.f32": "4265299daa3282b16a40a91c4b4727f291007bc68f4687f21dfb5bcd171ec401",
+            "scene-linear-rgb.pfm": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609"
+          },
+          "minimumRgb": 0.0008596715051680803,
+          "maximumRgb": 17.36393165588379,
+          "hdrSamplesAboveOne": 161205
+        },
+        "candidate": {
+          "sha256": {
+            "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+            "head.f32": "421182ef19f22d7085a0018a14c90e2595c7149ab9436f7e90d2120387950f0c",
+            "scene-linear-rgba.f32": "082ed2db99f0826c544b1da50f3ed4da647db2df86182fdf1dad02857807f0fb",
+            "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440",
+            "published-history.f32": "f5657ffca442073883b312951494fc48d9a1bab01258d8c21ac557fe13c6184c",
+            "scene-linear-rgb.pfm": "3293cffe2e3478acef08e09815bba95194bec42fd05470e0379aaee8af5400a7"
+          },
+          "minimumRgb": 0.003770694835111499,
+          "maximumRgb": 17.324459075927734,
+          "hdrSamplesAboveOne": 160730
+        }
+      }
+    },
+    {
+      "name": "hdr-temporal",
+      "metrics": {
+        "mae": 0.012806152336796307,
+        "rmse": 0.01782004325615111,
+        "max_absolute_error": 0.37143611907958984,
+        "different_samples": 307020,
+        "psnr_db": 34.98182492193693,
+        "exact": false,
+        "ssim": 0.9864949479123198
+      },
+      "thresholdsPassed": false,
+      "controls": {
+        "geometry": [
+          320,
+          320,
+          320,
+          320
+        ],
+        "seed": 1,
+        "historyValid": true,
+        "autoMask": 1,
+        "style": 0,
+        "tone": 1.0,
+        "structure": 1.0,
+        "skin": -1.0,
+        "paperWhite": 2.0,
+        "intensity": 1.0,
+        "blendScale": 0.73974609375,
+        "historyStrength": 1.0,
+        "enabled": 1.0,
+        "colorStrength": 1.0,
+        "maxRatio": 4.0
+      },
+      "provenance": {
+        "reference": {
+          "sha256": {
+            "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+            "head.f32": "d14f6508dce3f44119d851caa12f688518bbd241909b7de3437074dc31155ca2",
+            "scene-linear-rgba.f32": "8c48f40e2773ea088f8cea88fc59f69640597495cf87ba51b64d3629d1ffd2d7",
+            "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a",
+            "published-history.f32": "d073dfccb08cc46732f73897f6b114db8dc423502a756e0281cfa130241b71de",
+            "scene-linear-rgb.pfm": "b05c8fc96152e5127e3c3a8dfbe31f4b2be6a4a5bc1b5d814e67b6af2dc739d3"
+          },
+          "minimumRgb": 0.004615298006683588,
+          "maximumRgb": 17.782495498657227,
+          "hdrSamplesAboveOne": 158287
+        },
+        "candidate": {
+          "sha256": {
+            "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+            "previous-history.f32": "2284a6fa375e3d897d94e6dfc4552dc0b6075773afb1a2157d88dff0611d36ce",
+            "features.f32": "017bd7a3afd8394609710307aed1fa6663d33074be872d8b233193fa2fc3bd0f",
+            "head.f32": "dcf9f61a753521870663b2f33b04250210b73f955170f6438ba9fe9df32c2c37",
+            "scene-linear-rgba.f32": "c5d5d49ca380dcbebb23796c32d223eeaa6aa70100552c1f2210b7e2c54f3482",
+            "controls.bin": "700a89036853fe0fbf6c35d2f9655db3d6e2637e4ac5fc3b9362f8b344db209a",
+            "published-history.f32": "8e2e0d0e7b70999e083fcbffc6909868bf966d0f74130d0b6fcc8190ed510706",
+            "scene-linear-rgb.pfm": "9ef5d613f7e46445181674331f9dfcea04ccbbf07c505b44b08537e896b74863"
+          },
+          "minimumRgb": 0.005008500535041094,
+          "maximumRgb": 17.66420555114746,
+          "hdrSamplesAboveOne": 157991
+        }
+      }
+    },
+    {
+      "name": "hdr-camera-reset",
+      "metrics": {
+        "mae": 0.020119788650908958,
+        "rmse": 0.028551051842774428,
+        "max_absolute_error": 0.2978343963623047,
+        "different_samples": 307162,
+        "psnr_db": 30.88755774759345,
+        "exact": false,
+        "ssim": 0.9882693211721119
+      },
+      "thresholdsPassed": false,
+      "controls": {
+        "geometry": [
+          320,
+          320,
+          320,
+          320
+        ],
+        "seed": 0,
+        "historyValid": false,
+        "autoMask": 1,
+        "style": 0,
+        "tone": 1.0,
+        "structure": 1.0,
+        "skin": -1.0,
+        "paperWhite": 2.0,
+        "intensity": 1.0,
+        "blendScale": 0.73974609375,
+        "historyStrength": 1.0,
+        "enabled": 1.0,
+        "colorStrength": 1.0,
+        "maxRatio": 4.0
+      },
+      "provenance": {
+        "reference": {
+          "sha256": {
+            "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+            "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+            "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+            "head.f32": "bab575b4ee6e768de8b14f296721c39711ed8da08306f135128905533524fda7",
+            "scene-linear-rgba.f32": "07321445259292a10bf13cfc4ab353092b41ee791ea4679bf31552c238b96858",
+            "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440",
+            "published-history.f32": "4265299daa3282b16a40a91c4b4727f291007bc68f4687f21dfb5bcd171ec401",
+            "scene-linear-rgb.pfm": "5aefb182cbe1caa035075db590e66ebe96b892f55f1db22049acb51ce2e27609"
+          },
+          "minimumRgb": 0.0008596715051680803,
+          "maximumRgb": 17.36393165588379,
+          "hdrSamplesAboveOne": 161205
+        },
+        "candidate": {
+          "sha256": {
+            "source.f32": "c6245ae7fbb5f29fc420da3070ba6299dd7e2920eed2e8d275cbf6f5cb016519",
+            "previous-history.f32": "67aeae75c2519eb223e19b3105550f382fb16128ec88155b0e57ba0c52f93cac",
+            "features.f32": "e3af2d478c4b633b53736d2fa76c9c88062b1ff79581d27f6a1a71534661ef3e",
+            "head.f32": "421182ef19f22d7085a0018a14c90e2595c7149ab9436f7e90d2120387950f0c",
+            "scene-linear-rgba.f32": "082ed2db99f0826c544b1da50f3ed4da647db2df86182fdf1dad02857807f0fb",
+            "controls.bin": "7ad9388bd69eff4da49b6bed61254676f7d9a467f98727c06bb5388209c04440",
+            "published-history.f32": "f5657ffca442073883b312951494fc48d9a1bab01258d8c21ac557fe13c6184c",
+            "scene-linear-rgb.pfm": "3293cffe2e3478acef08e09815bba95194bec42fd05470e0379aaee8af5400a7"
+          },
+          "minimumRgb": 0.003770694835111499,
+          "maximumRgb": 17.324459075927734,
+          "hdrSamplesAboveOne": 160730
+        }
+      }
+    }
+  ],
+  "summary": {
+    "passedCases": 3,
+    "rejectedCases": 3,
+    "minimumPsnrDb": 30.88755774759345,
+    "minimumSsim": 0.9864949479123198,
+    "fullRawPfmControlHistoryFilesReopened": 96,
+    "fullRawPfmControlHistoryBytesReopened": 211354848,
+    "historicalPreservingBaselineOutputByteChecks": 18,
+    "cameraResetFeatureHeadOutputHistoryByteChecks": 16,
+    "matchedInputsControlsHistoryFeatures": true,
+    "finiteRgbaAndExactAlpha": true,
+    "pfmRgbEqualsUnclampedRgbaBits": true,
+    "cameraResetRepeatsResetOutputs": true,
+    "baselineInferenceExitCode": 0,
+    "candidateInferenceExitCode": 0,
+    "qualityComparatorRejected": true,
+    "validationLayerEnabledStatusRecorded": false,
+    "validationLayerCoverageClaim": false
+  },
+  "metrics": {
+    "domain": "Unclamped scene-linear composed RGB in original exposure domain",
+    "dataRange": 1.0,
+    "psnr": "10*log10(1/MSE), over all composed RGB samples",
+    "ssim": "11x11 Gaussian sigma1.5, population moments, K1.01/K2.03, nonnegative variances, bounded covariance, mean over channels and valid windows excluding5pixel border",
+    "independentAuditImplementation": "Float64 vertical-then-horizontal separable valid-window Gaussian, opposite pass order to primary comparator"
+  },
+  "historicalBaseline": {
+    "scope": "All six fresh off head/RGBA/published-history outputs match immutable named2 preserving outputs byte for byte;18 checks.",
+    "originalNvidiaParityEstablished": false,
+    "portableReferenceParityEstablished": false
+  },
+  "evidence": [
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/cpu-preparation.json",
+      "bytes": 75072,
+      "sha256": "e4ce954e2c547ae4fd3badde330626573f733f978fdf3438b798bd9c7827c837"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/source-preparation.json",
+      "bytes": 58731,
+      "sha256": "d2dfec9043703c8cde51990fbc815c7dbe05763723308b23da01dc6e075832a2"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/private_dlss5vk.exe",
+      "bytes": 1236992,
+      "sha256": "1ffcf688398386139af1d25b56004ca4e6d28f04867bd74f1f3201cc39ab897d"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/quality-scenes.json",
+      "bytes": 21304,
+      "sha256": "a32eb03ab6d0d954818950292a399ea5199b406f3b2749f6109d8a4923f67cd0"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/gpu-scenes-baseline/manifest.json",
+      "bytes": 4437,
+      "sha256": "ace613954bd149b1c7b0003ed0e4f690cbb0456e8a242ebb1e3e34b881bd37d0"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/gpu-scenes-baseline/launch-record.json",
+      "bytes": 894,
+      "sha256": "2ec79d7012687905363cced87dffeb171b7dc93d94edf00041da992160c12d3c"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/gpu-scenes-baseline/root-command.log",
+      "bytes": 1781,
+      "sha256": "834744027947ffcd4f57623c3bfd13795cd62e519f98724f713d0139ad2c5c77"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/root-gpu-scenes-baseline.log",
+      "bytes": 1783,
+      "sha256": "5b75c100680ba1f5f22ab10cab792f3c4a8612c4e230caf7463c4399d10dd37b"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/gpu-scenes-native/manifest.json",
+      "bytes": 4651,
+      "sha256": "6dcbd56c1968587b6dff2ed1392a45103554dc02fd0931771c4af7fdc8c1717b"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/gpu-scenes-native/launch-record.json",
+      "bytes": 930,
+      "sha256": "d7fe2c3cf9d028183bcc8d9ddab1381524c6433091c7c8c2f4a5c7e86b1500ee"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/gpu-scenes-native/root-command.log",
+      "bytes": 2074,
+      "sha256": "360950cc2a10e07da73f0f72bf828f315fb7886528ef8a11e193b5e5ae31b136"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/root-gpu-scenes-native.log",
+      "bytes": 2076,
+      "sha256": "ffc79b1834860e24004e16b55ac109a6466401ef828ccf5a6f21d24ead30b20a"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-source-independent-cpu-audit-20261004-a2/audit.json",
+      "bytes": 64430,
+      "sha256": "5e3afa94ae2b1c8356e75caa26af1ce0b16d584dcc3d86ee2158399f931f5378"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-scenes-independent-cpu-audit-20261004-a1/audit.json",
+      "bytes": 83183,
+      "sha256": "e145b2dadc9629c0ec03e81f6717d1535ddf7a862aa44b9c8569ad162740fb1a"
+    },
+    {
+      "file": "tools/compare_amd_scenes.py",
+      "bytes": 9948,
+      "sha256": "f9f4cc8ef309d910e6b49949ac1b86914c8324678a600ec1c88f263f4492baf7"
+    },
+    {
+      "file": "tools/compare_images.py",
+      "bytes": 15458,
+      "sha256": "68e0131895e9c5cb529a82f4add6ca5977569ed5145e39d740991638a5c3ceda"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/launch.py",
+      "bytes": 3443,
+      "sha256": "b3a28dbbc8514ec66272ab432863adcbc203816737b921c60144b1973c0b5afc"
+    },
+    {
+      "file": "build/release/native-half-ordinary7-graph-20261004-a1/source/src/private_graph_closure.h",
+      "bytes": 35016,
+      "sha256": "710e8ebda6b291a19c9ead523478005a0e2d7501abe8a4fa68d58205e6cbd4b4"
+    }
+  ],
+  "independentReviews": {
+    "source": {
+      "file": "build/release/native-half-ordinary7-graph-source-independent-cpu-audit-20261004-a2/audit.json",
+      "bytes": 64430,
+      "sha256": "5e3afa94ae2b1c8356e75caa26af1ce0b16d584dcc3d86ee2158399f931f5378"
+    },
+    "rawAndQuality": {
+      "file": "build/release/native-half-ordinary7-graph-scenes-independent-cpu-audit-20261004-a1/audit.json",
+      "bytes": 83183,
+      "sha256": "e145b2dadc9629c0ec03e81f6717d1535ddf7a862aa44b9c8569ad162740fb1a"
+    },
+    "secondPublicReview": {
+      "status": "PASS",
+      "audit": {
+        "file": "build/release/native-half-ordinary7-graph-quality-public-second-cpu-audit-e4a971652b9b4b9a88c6e28edf227ef8/audit.json",
+        "bytes": 34529,
+        "sha256": "95170bc69b944f365db71f55386f7a33dc3edb498d55b71c581fd9e3833192a6",
+        "distributed": false
+      },
+      "scope": "Independent CPU public scalar/provenance/privacy review; no new GPU, performance promotion, quality acceptance or shipping change."
+    }
+  },
+  "priorOperatorEvidence": {
+    "file": "docs/performance/native-half-arithmetic-rx9070xt-20261003.json",
+    "bytes": 30535,
+    "sha256": "05e6da64ec3e815f319c7ae7581c430c87a7761828c72d33a9dd6c4cc2afdf5a"
+  },
+  "limitations": [
+    "Only six generated320x320 scene rows from two sources and prescribed shared histories. Camera-reset repeats reset outputs, so not six independent inputs.",
+    "Temporal cases consume identical supplied history, not independently evolved histories or a recorded motion sequence.",
+    "Generic CLI arithmetic label k16 applies to unchanged Pair families; native_half_* metadata plus aggregate/module hashes describe selected F16 expansion arithmetic.",
+    "No 75-checkpoint, modelcheck production/intermediate head, target-resolution native graph, lifecycle, timing, bridge, gameplay, display-HDR or visual-motion review followed quality rejection.",
+    "Manifest/logs do not explicitly record validation-layer enabled status; no layer coverage claim.",
+    "Fresh off baseline matches historical named2 preserving head/RGBA/published-history bytes for all18 comparisons. Baseline is AMD Pair/Arena, not original NVIDIA or portable-reference parity."
+  ],
+  "claims": {
+    "preserving": false,
+    "composedFrameQualityQualified": false,
+    "fullGraphQualified": false,
+    "arbitraryInputEquivalent": false,
+    "performanceMeasured": false,
+    "bridgeTimingMeasured": false,
+    "gameFpsMeasured": false,
+    "hdrDisplayValidated": false,
+    "nvidiaParity": false,
+    "promotion": false
+  },
+  "publication": {
+    "sourceReviewRepositoryHead": "ec088920194cd6a35a08da0a6df59d06e9fd48a8",
+    "all214EarlierTrackedMeasurementJsonBytesPreserved": true,
+    "onlyNewScalarAndSeparateDocCreated": true,
+    "noProprietaryBuffersModelsImagesIsaOrBinariesPublished": true
+  }
+}
