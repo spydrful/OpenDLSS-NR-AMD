@@ -1,0 +1,709 @@
+{
+  "format": "OpenNR-AMD-private-native-half-arithmetic-negative-scalar-evidence-v1",
+  "date": "2026-10-03",
+  "status": "CPU_AUDITED_ARITHMETIC_COUNTEREXAMPLES",
+  "disposition": "The native F16-return matrix experiment differs from the frozen raw-FP8 Pair baseline on bounded fixtures and all seven model-generated target inputs. It remains unqualified and is not integrated. No composed-frame quality or performance result follows from these operator byte differences.",
+  "scalarOnly": true,
+  "privatePrototype": true,
+  "prototypeInReleasePackage": false,
+  "releaseDefaultsChanged": false,
+  "device": {
+    "vendorId": "1002",
+    "deviceId": "7550",
+    "name": "AMD Radeon RX 9070 XT",
+    "driverId": "AMD proprietary driver|26.9.1 (LLPC)|8389003"
+  },
+  "scope": {
+    "operation": "Ordinary C32 expansion only, K32/F24/P0/N128/Nmatrix128/B1/N16/stage16; corrected mixed3 SiLU and original terminal E4 publisher",
+    "blocksForModelGeneratedReplay": [
+      1,
+      2,
+      3,
+      4,
+      67,
+      68,
+      69
+    ],
+    "rowsForModelGeneratedReplay": 414720,
+    "inputChannels": 32,
+    "sourceGraphGeometry": [
+      1707,
+      960
+    ],
+    "sourceGraphPaddedGeometry": [
+      1728,
+      960
+    ],
+    "internalFeatureGeometry": [
+      864,
+      480,
+      32
+    ],
+    "workgroupThreads": 128,
+    "requiredMatrixSubgroupSize": 32,
+    "declaredMatrixLdsBytes": 4096,
+    "candidateInputAndWeights": "GPU-decoded F16 buffers; not a drop-in raw FP8 module",
+    "qkvNormalize": "off",
+    "contractionFused": false,
+    "completeNativeHalfGraphExecuted": false,
+    "gameCapturedInputs": false
+  },
+  "baseline": {
+    "kernels": "optimized",
+    "gemm": "direct-rte-pair",
+    "attention": "arena-rte",
+    "arithmetic": "k16",
+    "tileN": 16,
+    "stageK": 16,
+    "windowQueries": 32,
+    "qkvNormalize": "off",
+    "fusions": false,
+    "automaticDefault": false,
+    "aggregateSha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+    "pairSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+    "matrixPolicy": "Ordered K16 FP8-input/F32-result cooperative matrices with native RTE FP16 publication after each operation."
+  },
+  "experiment": {
+    "policy": "predecoded-f16-wmma-k16-return",
+    "matrixPolicy": "Two ordered K16 nonsaturating cooperative matrices with F16 A/B/C/result, bridged to F32 for unchanged corrected mixed3 SiLU and terminal publisher.",
+    "decoderPolicy": "ieee-raw-e4m3fn-to-f16-canonical-qnan-v1",
+    "finiteE4ValuesExactlyRepresentableInF16": true,
+    "rawPositiveZero": "0000",
+    "rawNegativeZero": "8000",
+    "rawPositiveNaN": "7e00",
+    "rawNegativeNaN": "fe00",
+    "modelWeightNaNCleanup": "Original Model loader cleans raw NaN weight codes to positive zero before GPU decoding; raw activation NaNs retain the chosen signed canonical NaN decoder policy.",
+    "matrixArithmeticChanged": true,
+    "referenceChanged": false,
+    "arbitraryPortableExactClaim": false,
+    "preservingClaim": false,
+    "productionModuleSha256": "9fad4fd41367eebf10ae4fcf0221852b4bb0c5780180c2081bec7f7a0361ac08",
+    "captureModuleSha256": "0e4b461db3568a0807b5f6f5564271823a04ad1ea9c1be2bb3382a9a7e96c81d",
+    "integerDecoderModuleSha256": "1bef1ef95c6cf8dbdf5b858bc0d7de9a0c28ccc31b1ca159fbfb19a869861426"
+  },
+  "source": {
+    "feasibility": {
+      "path": "build/release/native-half-accumulator-feasibility-20261003-a2-predecoded/cpu-feasibility.json",
+      "bytes": 7707,
+      "sha256": "98f78dd45387e6ad43246cf2a8db99857a30386ca11515bef44ebed35ceee8f3",
+      "distributed": false
+    },
+    "boundedHostPreparation": {
+      "path": "build/release/native-half-predecoded-bounded-host-20261003-a2/cpu-preparation.json",
+      "bytes": 69994,
+      "sha256": "ccebaa58e56cbeb7fc0bd161155a27d62e3da1d46363aa826c154169f0d19fe2",
+      "distributed": false
+    },
+    "actualReplayHostPreparation": {
+      "path": "build/release/native-half-predecoded-actual-replay-20261003-a1/cpu-preparation.json",
+      "bytes": 119918,
+      "sha256": "14ea24427adb12316865abb7669e43941b72718226faf85b0ef91cfb5c558e6d",
+      "distributed": false
+    },
+    "boundedExecutableSha256": "9c93cb685f3935712271f458bc669d6b2341cb5e50632ae45430a469cff452b8",
+    "actualReplayExecutableSha256": "32bae07ea9c36325bc384b77dec6bf7982d451af655382322f1a651149188d8f",
+    "runtimeCore": "Frozen private v7 source snapshot with explicit private upload/compute/readback dependencies; public production source is unchanged by this experiment.",
+    "modelManifestSha256": "163f7fdeaa5b0c2ba39103cf5c46853b18d163847cea67f8c9d85e77f78c655e"
+  },
+  "decoderValidation": {
+    "cpuContract": {
+      "path": "build/release/native-half-predecoded-decoder-address-contract-20261003-a1/cpu-contract.json",
+      "bytes": 10494,
+      "sha256": "0732e6b80663b65ac3d12ebe4f7be57253e496b5b9ee143a917a35c6bfb35f87",
+      "distributed": false
+    },
+    "independentCpuContractAudit": {
+      "path": "build/release/native-half-decoder-address-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 4055,
+      "sha256": "e13c02f1aa73d63eb9749aecb0c7eaf5dbbfff87b2c8573ad13900e1ccd906c5",
+      "distributed": false
+    },
+    "gpuDecoderPreparation": {
+      "path": "build/release/native-half-gpu-decoder-20261004-a1/cpu-preparation.json",
+      "bytes": 4055,
+      "sha256": "62b9dda942efa225afe3e691e70825f0676e87d0e4f1542d63a11cacafbcf8d1",
+      "distributed": false
+    },
+    "independentSourceRecompileAudit": {
+      "path": "build/release/native-half-gpu-decoder-source-independent-cpu-audit-20261004-a1/audit.json",
+      "bytes": 6916,
+      "sha256": "107e9590d98d9c8f82f60939cb8039b6f9927678dbdcd447b780da9f59917ca2",
+      "distributed": false
+    },
+    "gpuDecoderOnlyCasesPerRun": 20,
+    "gpuCoverage": "All256 raw codes, offsets, count tails including zero, extraXYZ and output canaries. Every complete candidate padded A/W1 decode plane matches the independent IEEE byte oracle before arithmetic.",
+    "boundedAndActualDecoderDifferences": 0
+  },
+  "boundedRuns": [
+    {
+      "run": "gpu-small",
+      "fixtureCount": 52,
+      "comparisons": 332,
+      "differences": 67,
+      "comparedBytes": 4195488,
+      "rawFilesIndependentlyReopened": 664,
+      "canaryBytesIndependentlyChecked": 3724480,
+      "modelWeightFixtureIdentitiesReconstructed": 14,
+      "modelMatrixRepacksChecked": 28,
+      "comparisonRoles": {
+        "decoder-only": {
+          "checks": 20,
+          "failures": 0,
+          "differentBytes": 0,
+          "comparedBytes": 14496
+        },
+        "GPU-decoded-A": {
+          "checks": 52,
+          "failures": 0,
+          "differentBytes": 0,
+          "comparedBytes": 442368
+        },
+        "GPU-decoded-B": {
+          "checks": 52,
+          "failures": 0,
+          "differentBytes": 0,
+          "comparedBytes": 425984
+        },
+        "Pair-vs-native-half-F24-E4": {
+          "checks": 52,
+          "failures": 27,
+          "differentBytes": 3999,
+          "comparedBytes": 662528
+        },
+        "production-vs-capture-E4": {
+          "checks": 52,
+          "failures": 0,
+          "differentBytes": 0,
+          "comparedBytes": 662528
+        },
+        "F40-vs-capture-activated-half-diagnostic": {
+          "checks": 52,
+          "failures": 40,
+          "differentBytes": 114496,
+          "comparedBytes": 1325056
+        },
+        "original-F24-vs-F40-E4": {
+          "checks": 52,
+          "failures": 0,
+          "differentBytes": 0,
+          "comparedBytes": 662528
+        }
+      },
+      "manifest": {
+        "path": "build/release/native-half-predecoded-bounded-host-20261003-a2/gpu-small/manifest.json",
+        "bytes": 185865,
+        "sha256": "04783eda004b5265adb2b5366bb60083486e33b8e5f0561011cd88a8dbebe772",
+        "distributed": false
+      },
+      "contemporaryRootLog": {
+        "path": "build/release/native-half-predecoded-bounded-host-20261003-a2/root-gpu-small.log",
+        "bytes": 10012,
+        "sha256": "23c5237dcc13bc0e677e0bb8f3f85a47bb150760e54e70a633a6d322dd4d3321",
+        "distributed": false
+      },
+      "nativeExitCodeReportedByRoot": 1,
+      "validationLayerEnabled": false,
+      "validationErrors": 0
+    },
+    {
+      "run": "gpu-target",
+      "fixtureCount": 54,
+      "comparisons": 344,
+      "differences": 71,
+      "comparedBytes": 621315232,
+      "rawFilesIndependentlyReopened": 688,
+      "canaryBytesIndependentlyChecked": 70079680,
+      "modelWeightFixtureIdentitiesReconstructed": 15,
+      "modelMatrixRepacksChecked": 30,
+      "comparisonRoles": {
+        "decoder-only": {
+          "checks": 20,
+          "failures": 0,
+          "differentBytes": 0,
+          "comparedBytes": 14496
+        },
+        "GPU-decoded-A": {
+          "checks": 54,
+          "failures": 0,
+          "differentBytes": 0,
+          "comparedBytes": 53526528
+        },
+        "GPU-decoded-B": {
+          "checks": 54,
+          "failures": 0,
+          "differentBytes": 0,
+          "comparedBytes": 442368
+        },
+        "Pair-vs-native-half-F24-E4": {
+          "checks": 54,
+          "failures": 29,
+          "differentBytes": 987731,
+          "comparedBytes": 113466368
+        },
+        "production-vs-capture-E4": {
+          "checks": 54,
+          "failures": 0,
+          "differentBytes": 0,
+          "comparedBytes": 113466368
+        },
+        "F40-vs-capture-activated-half-diagnostic": {
+          "checks": 54,
+          "failures": 42,
+          "differentBytes": 45997389,
+          "comparedBytes": 226932736
+        },
+        "original-F24-vs-F40-E4": {
+          "checks": 54,
+          "failures": 0,
+          "differentBytes": 0,
+          "comparedBytes": 113466368
+        }
+      },
+      "manifest": {
+        "path": "build/release/native-half-predecoded-bounded-host-20261003-a2/gpu-target/manifest.json",
+        "bytes": 192691,
+        "sha256": "c13d0f49b2339f89ee6ff0d05d78bae28bd2514ed43dd0a8828f656f9ae54b47",
+        "distributed": false
+      },
+      "contemporaryRootLog": {
+        "path": "build/release/native-half-predecoded-bounded-host-20261003-a2/root-gpu-target.log",
+        "bytes": 10546,
+        "sha256": "b8c50b0cac283df36812b8ace1c5c1f28ba19ce5d5f283b286666568b073a2e5",
+        "distributed": false
+      },
+      "nativeExitCodeReportedByRoot": 1,
+      "validationLayerEnabled": false,
+      "validationErrors": 0
+    }
+  ],
+  "modelGeneratedTargetReplay": {
+    "fixtureCount": 7,
+    "comparisons": 62,
+    "differences": 14,
+    "decoderOnlyComparisons": 20,
+    "operandAndArithmeticComparisons": 42,
+    "comparedBytes": 2176522400,
+    "rawFilesIndependentlyReopened": 124,
+    "canaryBytesIndependentlyChecked": 265423040,
+    "modelMatrixRepacksChecked": 14,
+    "modelScaleArraysReconstructed": 7,
+    "fixtureIdentitiesReconstructed": 7,
+    "comparisonRoles": {
+      "decoder-only": {
+        "checks": 20,
+        "failures": 0,
+        "differentBytes": 0,
+        "comparedBytes": 14496
+      },
+      "GPU-decoded-A": {
+        "checks": 7,
+        "failures": 0,
+        "differentBytes": 0,
+        "comparedBytes": 185794560
+      },
+      "GPU-decoded-B": {
+        "checks": 7,
+        "failures": 0,
+        "differentBytes": 0,
+        "comparedBytes": 57344
+      },
+      "Pair-vs-native-half-F24-E4": {
+        "checks": 7,
+        "failures": 7,
+        "differentBytes": 5497455,
+        "comparedBytes": 398131200
+      },
+      "production-vs-capture-E4": {
+        "checks": 7,
+        "failures": 0,
+        "differentBytes": 0,
+        "comparedBytes": 398131200
+      },
+      "F40-vs-capture-activated-half-diagnostic": {
+        "checks": 7,
+        "failures": 7,
+        "differentBytes": 149238066,
+        "comparedBytes": 796262400
+      },
+      "original-F24-vs-F40-E4": {
+        "checks": 7,
+        "failures": 0,
+        "differentBytes": 0,
+        "comparedBytes": 398131200
+      }
+    },
+    "manifest": {
+      "path": "build/release/native-half-predecoded-actual-replay-20261003-a1/gpu-actual7-target/manifest.json",
+      "bytes": 37527,
+      "sha256": "3791d97f9a9a9a35e9727297d1e768869ab99edcf12cd73bd53ef6bb5cd064f3",
+      "distributed": false
+    },
+    "actualProof": {
+      "path": "build/release/native-half-predecoded-actual-replay-20261003-a1/gpu-actual7-target/actual-proof.json",
+      "bytes": 3952,
+      "sha256": "7e34f0bd9b5c350e1dc66330c2fc6c4d8fa3a610c7ba6f9f4ab2079f6ef825ad",
+      "distributed": false
+    },
+    "contemporaryRootLog": {
+      "path": "build/release/native-half-predecoded-actual-replay-20261003-a1/root-gpu-actual7-target.log",
+      "bytes": 3075,
+      "sha256": "6fac246d7353f7743617d7650820effac621ce1aa1ff67777d7c373efd7dbdb1",
+      "distributed": false
+    },
+    "nativeExitCodeReportedByRoot": 1,
+    "validationLayerEnabled": false,
+    "validationErrors": 0,
+    "cases": [
+      {
+        "block": 1,
+        "rows": 414720,
+        "fixtureIdentitySha256": "d956396ec319a0789d1d01d6b93146b6b180762246408a71581572b7c607110d",
+        "inputSha256": "2e6cd1cb885efcad98e93a81801b3e7a4f1d9141d9e7ba51bd3040c19a00a9d2",
+        "canonicalOriginalPackedE4Sha256": "d45ccdac416398d45916c005ff1048d049d6f22dd4cd548616553f056345e3eb",
+        "baselineE4PackedBytes": 53084160,
+        "e4DifferentBytes": 401708,
+        "activatedHalfDiagnosticDifferentBytes": 24594759,
+        "e4ComparisonBaselineSha256": "8954302371a596c2ae927a49282d75fe21042c2ec412cc3603124848c2f0b738",
+        "e4ComparisonCandidateSha256": "c10305c01c7104b0b2dae442fa274adfbb73ab680049475b669de88e75a85ebf",
+        "halfDiagnosticBaselineSha256": "2e8c167472fe0c4336ece7a14736e485c37a09cbac63efe37d5e09cf5956cb88",
+        "halfDiagnosticCandidateSha256": "26e4bc968a960b7bede6aa030278ec1f877f24ac76adbd7add8735025ac3a404",
+        "originalCanonicalMatchesPriorV12": true
+      },
+      {
+        "block": 2,
+        "rows": 414720,
+        "fixtureIdentitySha256": "ec700988fba3b58dc18f44b18d2e404f91ca5cc0d5551f84b3a631a531744a73",
+        "inputSha256": "b5291ead897fce6ffd167868af1cafbe39be33f5bbb22b6a4039681381901246",
+        "canonicalOriginalPackedE4Sha256": "7fd16a1db7155504525f3c89cf082d3fa2ae1272261493971a4c9ec62c9b27bf",
+        "baselineE4PackedBytes": 53084160,
+        "e4DifferentBytes": 450072,
+        "activatedHalfDiagnosticDifferentBytes": 22677675,
+        "e4ComparisonBaselineSha256": "7fd16a1db7155504525f3c89cf082d3fa2ae1272261493971a4c9ec62c9b27bf",
+        "e4ComparisonCandidateSha256": "d55a2151721fa6d09f171785b5c20beef2413e190587a75a3624e424cce4e837",
+        "halfDiagnosticBaselineSha256": "baf6e1c85d1ebb6347fc797c3fe30329e58265c7dd8993e794452a70ed48e902",
+        "halfDiagnosticCandidateSha256": "785a7d8089eaaeceb81417a11c588e520a59496151a4a2500ab44b0795ce4cd0",
+        "originalCanonicalMatchesPriorV12": true
+      },
+      {
+        "block": 3,
+        "rows": 414720,
+        "fixtureIdentitySha256": "9077d2b5f2da8659a1c9bf94c31eebf0053dd0bf255575e96fa358bfa31681ba",
+        "inputSha256": "41069080bde8bf358ffcef33f8e51b777ceee9f035b669ff4cf397c50d690a3f",
+        "canonicalOriginalPackedE4Sha256": "6ff9e479b2837348262e4bf651731d1470d0d97b90ff3bcf0a92fa8dd6b9db96",
+        "baselineE4PackedBytes": 53084160,
+        "e4DifferentBytes": 848541,
+        "activatedHalfDiagnosticDifferentBytes": 23916863,
+        "e4ComparisonBaselineSha256": "69e5f483992f35b1a7807daf9de6f97a470c99bf810073e444dbaa76d9a23fa1",
+        "e4ComparisonCandidateSha256": "98cf633ab1f40a1ce80852425bf9299da07446445100f9bc87e91a22fc758c19",
+        "halfDiagnosticBaselineSha256": "37b428f310175628da333a1b8259223c7dd51b26655890fff271bd8b18ed6240",
+        "halfDiagnosticCandidateSha256": "c5188701a8caaaf3acb528e4d58fb5721a09cc767bf1944c86368109bdc22b4c",
+        "originalCanonicalMatchesPriorV12": true
+      },
+      {
+        "block": 4,
+        "rows": 414720,
+        "fixtureIdentitySha256": "b50b5c1ab2b9951e1fccec50affc9f30c6948891b4a31cf3d7ebf9b0f95cb0ad",
+        "inputSha256": "70201726935d452e5c5695e741b53d887263095b01704d07f637d56d8ce6ff7c",
+        "canonicalOriginalPackedE4Sha256": "17a74a31cec97d33022a84a766ef31c933ff6ab897d63828a03185ff1be8fb5b",
+        "baselineE4PackedBytes": 53084160,
+        "e4DifferentBytes": 846827,
+        "activatedHalfDiagnosticDifferentBytes": 25719627,
+        "e4ComparisonBaselineSha256": "17a74a31cec97d33022a84a766ef31c933ff6ab897d63828a03185ff1be8fb5b",
+        "e4ComparisonCandidateSha256": "69bbfbb1bb506dfddaaa46f5831dd38dd509eaae3124475cd70b883bd3cfc9d9",
+        "halfDiagnosticBaselineSha256": "01130c4560c393dec08be368918a44da67d27b01ed65644754417e483a884ec3",
+        "halfDiagnosticCandidateSha256": "ea1d9fbb9c2183219ae4f6443f28cbbe8bc88623e2fb40ca7aae58acd1503e60",
+        "originalCanonicalMatchesPriorV12": true
+      },
+      {
+        "block": 67,
+        "rows": 414720,
+        "fixtureIdentitySha256": "cc0be6def2c71fc17d402960e0c5707758257a043fba41116706acd1f5596da8",
+        "inputSha256": "f108ae37424ab9671154ad646f9f072c8857d0fcb4fc36b502528b54c89232a8",
+        "canonicalOriginalPackedE4Sha256": "742fe240b344eae37d813d86218505791061b4a47769c1aa7fc9c2f5b0bbe18e",
+        "baselineE4PackedBytes": 53084160,
+        "e4DifferentBytes": 911550,
+        "activatedHalfDiagnosticDifferentBytes": 15637452,
+        "e4ComparisonBaselineSha256": "6f185b354057c954eb2c497960b37eef2482e831a29a9ef303d4770564a09400",
+        "e4ComparisonCandidateSha256": "b7135297b6f457b0a7cdd5ccf76997bba7824fab925925f7b5a122d0e87ee599",
+        "halfDiagnosticBaselineSha256": "8bc93b46c0c213a81ca09dd3923bfc73be003415438040a1fe31baaba086dd37",
+        "halfDiagnosticCandidateSha256": "8d7cbe1c871e2552b6788d90035a320aba3468300b21c36d5e11b00e112e9b42",
+        "originalCanonicalMatchesPriorV12": true
+      },
+      {
+        "block": 68,
+        "rows": 414720,
+        "fixtureIdentitySha256": "bce8b7951118bb6c9b3fea3abf0f6e8d7bfd9c6bb19ee540e58e090e3dfe745f",
+        "inputSha256": "be12e288affb9d10cb336d6d9f80ca6c50ba4c959947fb2334730633e2105d95",
+        "canonicalOriginalPackedE4Sha256": "a210697f44ffc07d277ece896d51028d5f72189c6e5bc370c289e114735d66e2",
+        "baselineE4PackedBytes": 53084160,
+        "e4DifferentBytes": 953428,
+        "activatedHalfDiagnosticDifferentBytes": 17926217,
+        "e4ComparisonBaselineSha256": "a210697f44ffc07d277ece896d51028d5f72189c6e5bc370c289e114735d66e2",
+        "e4ComparisonCandidateSha256": "fa05209abd6eb1e5b2792542297e262893aa4228f9a7865005049ac1166a533f",
+        "halfDiagnosticBaselineSha256": "075b25db23e35a617bd2b468e075fde3df73c90619b614bb9406f182cc1827b6",
+        "halfDiagnosticCandidateSha256": "fe8d7df94fddbdc260ab59cd4012436e48d10c02c7e4ad3e3850f7eec5a1efcd",
+        "originalCanonicalMatchesPriorV12": true
+      },
+      {
+        "block": 69,
+        "rows": 414720,
+        "fixtureIdentitySha256": "3c4bd5d2e305497334e935b5bedff7cbb03460486ef646ba4d3a304354f620d1",
+        "inputSha256": "e1bfb7007541e775faf4ab69348cc986a28f67752f4b31b7f7b5539fb1bd691b",
+        "canonicalOriginalPackedE4Sha256": "8dc6a8b18a3d07c7d0bf598f68dc852939698e4ef9a3401171ead2b70bf0d153",
+        "baselineE4PackedBytes": 53084160,
+        "e4DifferentBytes": 1085329,
+        "activatedHalfDiagnosticDifferentBytes": 18765473,
+        "e4ComparisonBaselineSha256": "ac43ccfdbeb4455eb1c7ffbfe265c531eb3727bddc9bf0324518f834e407c1c8",
+        "e4ComparisonCandidateSha256": "79c5357cc535a0a2205c4e2112494e45d3ef7a50fdafec58089426c22741c641",
+        "halfDiagnosticBaselineSha256": "6aeffe84d22057c6b6208b7bf9bbf90dda3825429114177ae294089131c7f1e9",
+        "halfDiagnosticCandidateSha256": "c7fd17648057b0da825289c36f184a742adba31de92238156d3675fa76c6e7b1",
+        "originalCanonicalMatchesPriorV12": true
+      }
+    ],
+    "canonicalOriginalE4MatchesPriorV12": true,
+    "capturedInputPolicy": "Seven model-generated inputs from the frozen selected Pair/Arena/K16/Q32 graph; no game-captured input.",
+    "catalogSha256": "81b2654ca5f013270d480c71cda042b549d567c7e6bfd90fd2cb12c2f219421c",
+    "captureManifestSha256": "07778dc62cb7c34d65deec5285d2e7d8dfebaff06a13a7adca45de996db332c3",
+    "captureRecordSha256": "313e4c0578c843d5a8e61a74a5fc41f13a302eeda2efac46c97afb09cd803537"
+  },
+  "installedDriver": {
+    "manifest": {
+      "path": "build/release/native-half-predecoded-bounded-host-20261003-a2/driver-info/driver-info.json",
+      "bytes": 1445,
+      "sha256": "aa4ec20897b69f8c26df109c7edce20bd6b6afeaaf33572024e6efa478d52a77",
+      "distributed": false
+    },
+    "contemporaryRootLog": {
+      "path": "build/release/native-half-predecoded-bounded-host-20261003-a2/root-driver-info.log",
+      "bytes": 355,
+      "sha256": "8ed926f21ff7e9c66fd0af2625c2d0d078e0a93acc2daff33d45af012e44c941",
+      "distributed": false
+    },
+    "inferenceExecutedByDriverQuery": false,
+    "ordinaryTimingRun": false,
+    "reports": [
+      {
+        "pipeline": "original-F24.txt",
+        "moduleSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+        "report": {
+          "path": "build/release/native-half-predecoded-bounded-host-20261003-a2/driver-info/original-F24.txt",
+          "bytes": 23749,
+          "sha256": "5feb12e495d04062a4c464ceedb9d0d0eea1eaf9077deed957f0629521f529f7",
+          "distributed": false
+        },
+        "resources": {
+          "numUsedVgprs": 33,
+          "numUsedSgprs": 29,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "staticInstructionCounts": {
+          "fp8F32Wmma": 2,
+          "f16Wmma": 0,
+          "vectorHalfDown": 19,
+          "scalarHalfDown": 0,
+          "vectorHalfUp": 20,
+          "scalarHalfUp": 0,
+          "fp8Down": 1,
+          "modeSetters": 1
+        },
+        "rawExecutableSubgroupProperty": 128,
+        "requiredMatrixSubgroupSize": 32,
+        "localThreads": 128,
+        "converterBeforeModeSetter": true,
+        "scope": "Installed pipeline static statistics; no runtime instruction counts or performance claim."
+      },
+      {
+        "pipeline": "original-F40.txt",
+        "moduleSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+        "report": {
+          "path": "build/release/native-half-predecoded-bounded-host-20261003-a2/driver-info/original-F40.txt",
+          "bytes": 23956,
+          "sha256": "60edfcf540121e4b2b1266f4a65f9ed66ddaabf5a80e7efc88f36ab2abd85dad",
+          "distributed": false
+        },
+        "resources": {
+          "numUsedVgprs": 33,
+          "numUsedSgprs": 29,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "staticInstructionCounts": {
+          "fp8F32Wmma": 2,
+          "f16Wmma": 0,
+          "vectorHalfDown": 19,
+          "scalarHalfDown": 0,
+          "vectorHalfUp": 20,
+          "scalarHalfUp": 0,
+          "fp8Down": 1,
+          "modeSetters": 1
+        },
+        "rawExecutableSubgroupProperty": 128,
+        "requiredMatrixSubgroupSize": 32,
+        "localThreads": 128,
+        "converterBeforeModeSetter": true,
+        "scope": "Installed pipeline static statistics; no runtime instruction counts or performance claim."
+      },
+      {
+        "pipeline": "native-half-F24.txt",
+        "moduleSha256": "9fad4fd41367eebf10ae4fcf0221852b4bb0c5780180c2081bec7f7a0361ac08",
+        "report": {
+          "path": "build/release/native-half-predecoded-bounded-host-20261003-a2/driver-info/native-half-F24.txt",
+          "bytes": 18110,
+          "sha256": "e96bed3b393e0a7a62f38ed409cdc87f955d597e89d9fc336d499ed37c99dd42",
+          "distributed": false
+        },
+        "resources": {
+          "numUsedVgprs": 24,
+          "numUsedSgprs": 26,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "staticInstructionCounts": {
+          "fp8F32Wmma": 0,
+          "f16Wmma": 2,
+          "vectorHalfDown": 3,
+          "scalarHalfDown": 1,
+          "vectorHalfUp": 12,
+          "scalarHalfUp": 0,
+          "fp8Down": 1,
+          "modeSetters": 1
+        },
+        "rawExecutableSubgroupProperty": 128,
+        "requiredMatrixSubgroupSize": 32,
+        "localThreads": 128,
+        "converterBeforeModeSetter": true,
+        "scope": "Installed pipeline static statistics; no runtime instruction counts or performance claim."
+      },
+      {
+        "pipeline": "native-half-capture.txt",
+        "moduleSha256": "0e4b461db3568a0807b5f6f5564271823a04ad1ea9c1be2bb3382a9a7e96c81d",
+        "report": {
+          "path": "build/release/native-half-predecoded-bounded-host-20261003-a2/driver-info/native-half-capture.txt",
+          "bytes": 18144,
+          "sha256": "41db2c2b85d2da2a4343ff8b225b1a55e7de946d364f5a6a414c66b80511e29d",
+          "distributed": false
+        },
+        "resources": {
+          "numUsedVgprs": 24,
+          "numUsedSgprs": 30,
+          "ldsUsageSizeInBytes": 4096,
+          "scratchMemUsageInBytes": 0
+        },
+        "staticInstructionCounts": {
+          "fp8F32Wmma": 0,
+          "f16Wmma": 2,
+          "vectorHalfDown": 3,
+          "scalarHalfDown": 1,
+          "vectorHalfUp": 12,
+          "scalarHalfUp": 0,
+          "fp8Down": 1,
+          "modeSetters": 1
+        },
+        "rawExecutableSubgroupProperty": 128,
+        "requiredMatrixSubgroupSize": 32,
+        "localThreads": 128,
+        "converterBeforeModeSetter": true,
+        "scope": "Installed pipeline static statistics; no runtime instruction counts or performance claim."
+      },
+      {
+        "pipeline": "integer-decoder.txt",
+        "moduleSha256": "1bef1ef95c6cf8dbdf5b858bc0d7de9a0c28ccc31b1ca159fbfb19a869861426",
+        "report": {
+          "path": "build/release/native-half-predecoded-bounded-host-20261003-a2/driver-info/integer-decoder.txt",
+          "bytes": 13251,
+          "sha256": "56618c1d0068325d4b1e70b85222e1d61b734a247b379fa4de1134fd6db81c08",
+          "distributed": false
+        },
+        "resources": {
+          "numUsedVgprs": 9,
+          "numUsedSgprs": 14,
+          "ldsUsageSizeInBytes": 0,
+          "scratchMemUsageInBytes": 0
+        },
+        "staticInstructionCounts": {
+          "fp8F32Wmma": 0,
+          "f16Wmma": 0,
+          "vectorHalfDown": 0,
+          "scalarHalfDown": 0,
+          "vectorHalfUp": 0,
+          "scalarHalfUp": 0,
+          "fp8Down": 0,
+          "modeSetters": 0
+        },
+        "rawExecutableSubgroupProperty": 128,
+        "requiredMatrixSubgroupSize": null,
+        "localThreads": 128,
+        "converterBeforeModeSetter": null,
+        "scope": "Installed pipeline static statistics; no runtime instruction counts or performance claim."
+      }
+    ],
+    "conversionCountScope": "Counts separate vector/scalar and down/up directions. Installed native modules have three vector plus one scalar F32-to-F16 casts and twelve F16-to-F32 vector casts. This differs from offline A2 static downcast counts.",
+    "rawSubgroupPropertyCaveat": "Raw executable subgroup128 is retained separately from required matrix wave32; it does not override the host-required subgroup."
+  },
+  "independentReviews": {
+    "boundedHostSource": {
+      "path": "build/release/native-half-predecoded-bounded-host-source-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 55414,
+      "sha256": "ba644c5ccf1f178aff3f06b6804cb091e9ce2497e00880c96cfd85b020df097f",
+      "distributed": false
+    },
+    "actualHostSource": {
+      "path": "build/release/native-half-predecoded-actual-host-source-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 115039,
+      "sha256": "7bf5b81d9542556005e9e4d7bd241a8d802ee4a9035d592eb2a3478c72e1e9c5",
+      "distributed": false
+    },
+    "boundedSavedEvidence": {
+      "path": "build/release/native-half-predecoded-bounded-saved-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 504807,
+      "sha256": "f9268e785b4eed8e1505d50792ee5c1205741b89581368266de0739742fa1d2a",
+      "distributed": false
+    },
+    "actualSavedEvidence": {
+      "path": "build/release/native-half-predecoded-actual-saved-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 158984,
+      "sha256": "2d7ec6902c645d545d83c2d2e41878f0e79a604e7888afb104c25b25393e85c5",
+      "distributed": false
+    },
+    "sourceModelReferenceCountBounded": 230,
+    "sourceModelReferenceCountActual": 491,
+    "secondPublicReview": {
+      "status": "PASS",
+      "audit": {
+        "path": "build/release/native-half-arithmetic-public-second-cpu-audit-cb979e7f437942948cb4d3188b6548ad/audit.json",
+        "bytes": 8501,
+        "sha256": "b661262332a8f4a69045cef354ac1b14bc5b58fd322a26237a0eb5cca49d3ce7",
+        "distributed": false
+      },
+      "scope": "CPU scalar/provenance/privacy second review; no GPU, quality, performance or arithmetic qualification."
+    }
+  },
+  "claims": {
+    "allRecordedGpuDecodedOperandsExact": true,
+    "allRecordedCandidateProductionCaptureE4TwinsExact": true,
+    "allRecordedOriginalF24F40E4AnchorsExact": true,
+    "bytePreserving": false,
+    "preE4OriginalF24HalfObserved": false,
+    "featureTensorPsnrUsed": false,
+    "composedRgbQualityMeasured": false,
+    "fullModelQualified": false,
+    "performanceMeasured": false,
+    "completeInferenceMeasured": false,
+    "bridgeMeasured": false,
+    "gameFpsMeasured": false,
+    "defaultChanged": false,
+    "releaseChanged": false,
+    "promoted": false
+  },
+  "limitations": [
+    "All differences remain visible; all three inference runs return exit1. Decoder and twin matches do not establish arithmetic equivalence.",
+    "Bounded model-weight fixtures use synthetic activations; the separate seven-input replay uses captured model-generated graph activations. Neither is a game capture.",
+    "F40 activated-half diagnostics cannot establish uninstrumented original F24 pre-E4 halves.",
+    "No feature tensor PSNR/SSIM substitutes for composed scene-linear RGB quality; no image quality gates were measured.",
+    "No timing or whole native-half graph was run. Any future performance evaluation must include per-frame GPU input decoding/barriers and one-time weight preparation.",
+    "All manifests record validation layers disabled and zero errors; no validation-layer coverage is claimed.",
+    "Counts/resources are fixed-driver static delivery observations, separate from offline analysis, not occupancy or speed measurements.",
+    "No proprietary DLL, extracted weights, raw captures, images or ISA text is included; previous evidence, production modules, defaults and releases remain unchanged."
+  ]
+}
