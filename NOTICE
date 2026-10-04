@@ -21,6 +21,10 @@ Third-party components used by this repository and its build (distribution scope
 - The local PE/resource importer is adapted from mochizuki0323/DLSSNR-AMD commit
   82560c4fbfaac347fc5e22c22025191402ae916b (MIT); see tools/MODEL_IMPORTER_NOTICE.txt.
 
+- AMD RDF and PAL public container schemas (MIT), used by the independently written
+  tools/validate_rgp_container.py metadata reader. Pinned source provenance is recorded
+  by the tool; see tools/RGP_CONTAINER_NOTICE.txt for attribution and permission notices.
+
 - Filament by Google (Apache-2.0), downloaded by the build scripts, including the third-party libraries its build brings in (SDL2 (zlib),
   Dear ImGui (MIT), stb (MIT / public domain), Draco, meshoptimizer, Basis Universal, zstd, Abseil and others,
   see its third_party/ directory): the demo renderer. third_party/filament.patch is a modification of Filament's

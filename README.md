@@ -386,6 +386,10 @@ measure instrumentation overhead; their timings are not ordinary network or
 game performance. `tools/qualify_amd_model.py` checks actual model artifacts,
 and `tools/tune_amd.py` validates evidence, replays bounded sequences with
 identical and independently evolved histories, and exports qualified tuning.
+`tools/validate_rgp_container.py` checks container metadata in frozen local RGP
+captures; see the [CPU validation guide](docs/amd-rgp-container-validation.md)
+for supported schemas, tests and exit codes. A structural pass does not qualify
+trace completeness, dynamic instruction timing or performance.
 For RTE preservation comparisons, pass `--comparison-anchor direct32` to
 amdcheck and the collection, analysis, qualification and tuning tools. This
 selects Direct/K16/N16/stage16/Q32/staged with all experiments off as the baseline;

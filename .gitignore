@@ -11,6 +11,8 @@
 !/tools/tune_amd.py
 !/tools/qualify_amd_model.py
 !/tools/compare_amd_scenes.py
+!/tools/validate_rgp_container.py
+!/tools/RGP_CONTAINER_NOTICE.txt
 /build/
 /fixtures/
 /models/
@@ -24,6 +26,7 @@ WEIGHTS_HT
 stage[0-9]*.bin
 *.f32
 *.pfm
+*.rgp
 **/captures/
 /tmp/
 __pycache__/
