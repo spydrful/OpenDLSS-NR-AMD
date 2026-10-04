@@ -1,5 +1,49 @@
 # RX 9070 XT remaining performance work
 
+## Current continuation status
+
+Alpha 6 is the latest alpha package. Its explicit Pair/Arena/K16 route with
+C32 QKV normalization on measures **47.74616 ms median network inference** at
+1707×960, padded to 1728×960, versus **50.41260 ms** with that normalization off.
+This is a 5.28923% same-build improvement. See the
+[QKV normalization delivery](amd-qkv-normalize-delivery.md) and
+[alpha 6 release notes](releases/v0.1.0-alpha.6.md) for identities, timing,
+checkpoint, history and lifecycle qualification.
+
+The 8 ms NR-plus-bridge and 16.67 ms complete-frame targets remain unmet.
+Alpha 6 has no new complete-game FPS measurement. NR remains disabled by
+default and the existing automatic tuning cache remains unchanged; an explicit
+qualified route is not the automatic default. The alpha 3 game numbers retained
+below apply to its older runtime and do not measure alpha 6.
+
+The [later expansion screens](amd-strided-expansion-screen.md) retain measured
+rejections, including v12's 0.41–1.21% operator gains, below the required 5%.
+They did not qualify a new production graph. Separately,
+[end-of-K32 arithmetic](amd-c32-expansion-arithmetic-screen.md) failed four of
+six matched SDR/HDR composed frames, so it remains excluded from promotion.
+
+Next work keeps full internal resolution and the native Vulkan graph:
+
+1. Test raw input sharing between independent expert branches against original
+   K16 outputs, then measure installed resource costs and operator speed.
+2. Evaluate native F16 matrix accumulation as a separately labeled arithmetic
+   experiment. Its predecoded operands must preserve raw E4 NaNs and signed
+   zeros. Per-frame input conversion must run on the GPU and count toward
+   inference timing; weight preparation may occur once at initialization.
+3. Require all applicable checkpoints, target output, composed-frame quality,
+   identical and evolved histories, lifecycle and complete-inference timing
+   gates before integration. Follow with warmed game benchmarks and active
+   gameplay; network-only time does not establish game FPS.
+
+These new private probes have no production, quality or performance
+qualification yet. NVIDIA DLLs, extracted weights and captures remain excluded
+from commits and release packages.
+
+## Historical alpha 3 backlog and measurements
+
+The following record preserves the measured state and pending work at alpha 3.
+Use the current continuation status above for the latest alpha release.
+
 The preserving direct-GEMM change lowers ordinary target inference from
 **119.143 to 81.049 ms**, a **31.97%** reduction against qualified Q32/shared GEMM.
 The 8 ms NR-plus-bridge and 16.67 ms complete-frame targets remain unmet.
