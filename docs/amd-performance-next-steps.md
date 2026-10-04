@@ -47,13 +47,14 @@ profile's **6.579260 ms** same-frame W1+W2 span is a separate instrumented cost
 bound. The candidate stops before actual graph-input replay, checkpoints,
 quality, history, bridge or game validation; the qualified runtime is unchanged.
 
-The next source-only hypothesis retains the logical 64-row tile but streams
-two 32-row W1→W2 subpasses, using one F32 accumulator per wave and planned
-8 KiB scratch/hidden storage. It must carry each original N16/logical-wave
-publication state across row 32 while preserving K16, original SiLU and software
-E4 publication. Duplicated A loads and extra staging barriers are tradeoffs.
-It has no compilation, GPU, preservation, occupancy or performance
-qualification and inherits none from the rejected prototype.
+The [M32 expert streaming screen](amd-expert-w1-w2-m32-screen.md) measures that
+follow-up with two 32-row W1→W2 subpasses and 8 KiB shared storage. It passes its
+fresh 903 synthetic, 105 row-boundary and 252 model-weight byte comparisons,
+but all 36 pooled medians are **42.44–68.01% slower**, and all 108 paired
+medians regress. Isolated median sums are **6.22150→9.66158 ms**, not complete
+inference timing. The screen stops before actual graph inputs, checkpoints,
+quality, history, lifecycle and game tests. Smaller LDS and fewer accumulators
+did not establish a speed improvement; the qualified alpha 6 route is unchanged.
 
 Separately, [end-of-K32 arithmetic](amd-c32-expansion-arithmetic-screen.md)
 failed four of six matched SDR/HDR composed frames. The

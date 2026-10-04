@@ -72,6 +72,8 @@ the required 5% gate.
 The [expert W1–W2 shared-memory fusion screen](docs/amd-expert-w1-w2-fusion-screen.md)
 passes its evaluated synthetic and model-weight byte checks, but all 36
 operator medians are 87.47–171.20% slower.
+The [M32 expert streaming screen](docs/amd-expert-w1-w2-m32-screen.md) also
+passes its fresh bytes, but all 36 operator medians are 42.44–68.01% slower.
 These candidates remain excluded from shipping kernels and releases.
 See the [remaining performance work](docs/amd-performance-next-steps.md) for the
 next profiling and validation steps.
