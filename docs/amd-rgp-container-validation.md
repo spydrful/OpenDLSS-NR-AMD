@@ -44,6 +44,15 @@ The v5 40-byte header has 36 named bytes and four native-ABI tail-padding bytes.
 
 The [historical Q32 capture record](performance/rgp-rx9070xt-20261002.json) already records a genuine RGP viewer warning, `TRUNCATED SQTT`. This validator's `UNKNOWN` status describes its narrower metadata scope and does not replace or invalidate that viewer evidence. It supplies no new performance or completeness claim for that capture. Raw captures remain private and excluded from release payloads.
 
+The [fresh expert metadata screen](performance/rgp-expert-metadata-rx9070xt-20261004.json)
+records a 3,700,896-byte capture requested for the isolated original Pair K64
+expert expansion. Its 19 container entries and four SQTT headers passed
+independent structural review; all recorded SQTT lengths are below capacity.
+The profiler logged restoration after its latest peak-clock change and cleanup
+left no owned processes. Actual event identity, trace completeness and dynamic
+instruction analysis remain unqualified. All 1,440 timing samples from that
+profiler run are excluded from performance evidence.
+
 ## Schema provenance and CPU tests
 
 The tool records immutable source links and source-file hashes in each report; it downloads or loads no schema files at runtime. It is an independently implemented reader, not AMD's `rdfi` executable or RGP's analysis backend. No AMD library source or profiler binaries are vendored.
