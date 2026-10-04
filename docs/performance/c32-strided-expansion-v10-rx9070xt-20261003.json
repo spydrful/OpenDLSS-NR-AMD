@@ -1,0 +1,3346 @@
+{
+  "format": "OpenNR-AMD-private-strided-expansion-v10-negative-scalar-evidence-v1",
+  "date": "2026-10-03",
+  "status": "CPU_AUDITED_REJECTED_OPERATOR_TIMING",
+  "disposition": "All three private dataflow variants rejected: every pooled operator and every measured pair regressed against frozen Pair.",
+  "scalarOnly": true,
+  "privatePrototype": true,
+  "prototypeInReleasePackage": false,
+  "releaseDefaultsChanged": false,
+  "device": {
+    "vendorId": "1002",
+    "deviceId": "7550",
+    "name": "AMD Radeon RX 9070 XT",
+    "driverId": "AMD proprietary driver|26.9.1 (LLPC)|8389003"
+  },
+  "scope": {
+    "operation": "C32 expansion only: FLAGS24 K32 N128 Nmatrix128 P0 B1 E4 inputs/output, corrected mixed3 SiLU",
+    "blocks": [
+      1,
+      2,
+      3,
+      4,
+      67,
+      68,
+      69
+    ],
+    "rowsForActualTiming": 414720,
+    "graphSourceGeometry": [
+      1707,
+      960
+    ],
+    "graphSourcePaddedGeometry": [
+      1728,
+      960
+    ],
+    "graphInternalTensorGeometry": [
+      864,
+      480,
+      32
+    ],
+    "allVariantsTileOnly": true,
+    "contractionFused": false,
+    "completeCandidateGraphExecuted": false,
+    "qkvNormalize": "off",
+    "capturesAreGameFrames": false,
+    "baselineIsAutomaticDefault": false
+  },
+  "baseline": {
+    "kernels": "optimized",
+    "gemm": "direct-rte-pair",
+    "attention": "arena-rte",
+    "arithmetic": "k16",
+    "tileN": 16,
+    "stageK": 16,
+    "qkvNormalize": "off",
+    "ffnFusion": false,
+    "aggregateSha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+    "pairSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e"
+  },
+  "source": {
+    "sourceFeasibility": {
+      "path": "build/release/c32-strided-expansion-v10-dataflow-20261003-a1/cpu-feasibility.json",
+      "bytes": 15657,
+      "sha256": "59c4f0f51ce7d731803fbf78eea6c121907b5eb607314deb4fada70c8d1e51b1",
+      "distributed": false
+    },
+    "boundedPreparation": {
+      "path": "build/release/c32-strided-expansion-v10-dataflow-host-20261003-a1/cpu-preparation.json",
+      "bytes": 97000,
+      "sha256": "5d8762bdf0bd60898cb69de8c4dc34b6611d75c77f2ef1d5c89de7a8a1e06250",
+      "distributed": false
+    },
+    "actualTimingPreparation": {
+      "path": "build/release/c32-strided-expansion-v10-dataflow-actual-timing-20261003-a1/cpu-preparation.json",
+      "bytes": 99190,
+      "sha256": "78260a404a55f79834c07197a0f832ebf37fd0fa54fee20f275f87efe02ff6e1",
+      "distributed": false
+    },
+    "boundedExecutableSha256": "23b67c3876636e7201acd9fbe83b923914e4e32e243953d90306a70c9d24a685",
+    "actualTimingExecutableSha256": "645f4f8ef427b4fd7fe09a29c13ba4e7123dac8e13a0d13316ac600f45926ebb",
+    "publication": "Two ordered K16 native RTE accumulator half publications; unchanged corrected mixed3 SiLU (three native half publications, two software stages), phase-mask prefix and frozen Pair software E4 compatibility publisher.",
+    "hardwareTerminalE4Conversion": false,
+    "exactReferenceUnchanged": true,
+    "arbitraryInputPreservingClaim": false,
+    "design": [
+      {
+        "variant": "seed",
+        "delta": "Opaque accumulator constructor from host-validated raw positive-zero push bits replaces shared seed load; operand load retained.",
+        "declaredLdsBytes": 512
+      },
+      {
+        "variant": "operand",
+        "delta": "Raw global uint8-to-E4 bitcast uses measured wave32 A-component map row=lane&15, column=(lane>>4)*8+i; shared zero seed retained.",
+        "declaredLdsBytes": 1024
+      },
+      {
+        "variant": "combined",
+        "delta": "Both independent seed and direct operand changes.",
+        "declaredLdsBytes": 0
+      }
+    ],
+    "guards": "Known device/driver, FP8 M16, full wave32, numeric float controls, VOTE/ARITH, component length8, stride/allocation bounds. Host checks reserved push bits exactly raw +0 before both diagnostic and persistent recording; no in-shader seed guard that could allow compiler zero folding.",
+    "compiledModules": [
+      {
+        "module": "amd_expand32_mask_seed_tile.spv",
+        "sha256": "2b89add72e0d9b2dabd8b29b330cac74450232a672f4628666fd8503e618add7",
+        "executionModes": [
+          [
+            17,
+            32,
+            1,
+            1
+          ],
+          [
+            4459,
+            16
+          ],
+          [
+            4461,
+            32
+          ],
+          [
+            4462,
+            16
+          ],
+          [
+            4461,
+            16
+          ]
+        ],
+        "controlBarriers": 1
+      },
+      {
+        "module": "amd_expand32_mask_seed_tile_capture.spv",
+        "sha256": "d361fd9bfd7a719c3c00d423909775d59a0d567668c57635614735eedbaddb9b",
+        "executionModes": [
+          [
+            17,
+            32,
+            1,
+            1
+          ],
+          [
+            4459,
+            16
+          ],
+          [
+            4461,
+            32
+          ],
+          [
+            4462,
+            16
+          ],
+          [
+            4461,
+            16
+          ]
+        ],
+        "controlBarriers": 1
+      },
+      {
+        "module": "amd_expand32_mask_operand_tile.spv",
+        "sha256": "f48b83dad3ff61964d15d3c51812962a358659fdcfdcc42b89f1ba87ef34f8bc",
+        "executionModes": [
+          [
+            17,
+            32,
+            1,
+            1
+          ],
+          [
+            4459,
+            16
+          ],
+          [
+            4461,
+            32
+          ],
+          [
+            4462,
+            16
+          ],
+          [
+            4461,
+            16
+          ]
+        ],
+        "controlBarriers": 2
+      },
+      {
+        "module": "amd_expand32_mask_operand_tile_capture.spv",
+        "sha256": "086871388a2511edee9e3fbf0020260a7ca7185046999df13474519cfd7cd91e",
+        "executionModes": [
+          [
+            17,
+            32,
+            1,
+            1
+          ],
+          [
+            4459,
+            16
+          ],
+          [
+            4461,
+            32
+          ],
+          [
+            4462,
+            16
+          ],
+          [
+            4461,
+            16
+          ]
+        ],
+        "controlBarriers": 2
+      },
+      {
+        "module": "amd_expand32_mask_combined_tile.spv",
+        "sha256": "e376b4709061ba368cb78c67d89a63e80f9ce9508ae533c6d1b6b00b5c180c8e",
+        "executionModes": [
+          [
+            17,
+            32,
+            1,
+            1
+          ],
+          [
+            4459,
+            16
+          ],
+          [
+            4461,
+            32
+          ],
+          [
+            4462,
+            16
+          ],
+          [
+            4461,
+            16
+          ]
+        ],
+        "controlBarriers": 0
+      },
+      {
+        "module": "amd_expand32_mask_combined_tile_capture.spv",
+        "sha256": "498a954a882d6180bdc587adebcb344043522787aaed2c086635e801c7f7f4f1",
+        "executionModes": [
+          [
+            17,
+            32,
+            1,
+            1
+          ],
+          [
+            4459,
+            16
+          ],
+          [
+            4461,
+            32
+          ],
+          [
+            4462,
+            16
+          ],
+          [
+            4461,
+            16
+          ]
+        ],
+        "controlBarriers": 0
+      }
+    ]
+  },
+  "cpu": {
+    "shaderFeasibilityChecks": 1083920,
+    "boundedHostChecks": 1105993,
+    "actualTimingHostChecks": 1106019,
+    "negativeCliChecksPerHost": 9,
+    "positiveZeroSeedChecks": 33,
+    "sourceOnlyAComponentCoordinates": 256,
+    "sourceOnlyByteExtractionChecks": 1024,
+    "sourceOnlyDirectOperandTailBytes": 536640,
+    "sourceProofScope": "CPU structure/addressing/Boolean/helper/float-control checks are separate from GPU arithmetic qualification."
+  },
+  "boundedValidation": {
+    "runs": [
+      {
+        "label": "gpu-small",
+        "manifest": {
+          "path": "build/release/c32-strided-expansion-v10-dataflow-host-20261003-a1/gpu-small/manifest.json",
+          "bytes": 200279,
+          "sha256": "e83b0ae9231b131492e374426d49635741ff01929d66148929842f4d0544d40e",
+          "distributed": false
+        },
+        "rootCompletionLog": null,
+        "fixtures": 45,
+        "comparisons": 450,
+        "comparedBytes": 7720960,
+        "rawBuffersReopened": 900,
+        "fullAllocationCanaryBytesChecked": 8473088,
+        "zeroDifferentBytes": true,
+        "inheritedFixturesBoundToV7": true,
+        "importedWeightsUseSyntheticInputs": true,
+        "actualGraphInputs": false,
+        "enabledValidationLayerClaim": false
+      },
+      {
+        "label": "gpu-target",
+        "manifest": {
+          "path": "build/release/c32-strided-expansion-v10-dataflow-host-20261003-a1/gpu-target/manifest.json",
+          "bytes": 209348,
+          "sha256": "e321ff7ecd40f0fb68fe52b132dffe5d59738fe6d8d64c48e489093ea021dbf6",
+          "distributed": false
+        },
+        "rootCompletionLog": null,
+        "fixtures": 47,
+        "comparisons": 470,
+        "comparedBytes": 1474170880,
+        "rawBuffersReopened": 940,
+        "fullAllocationCanaryBytesChecked": 180996608,
+        "zeroDifferentBytes": true,
+        "inheritedFixturesBoundToV7": true,
+        "importedWeightsUseSyntheticInputs": true,
+        "actualGraphInputs": false,
+        "enabledValidationLayerClaim": false
+      }
+    ],
+    "rootDriverCompletionLog": null,
+    "contemporaneousRootLogsAvailable": false,
+    "logCaveat": "No stored contemporaneous logs exist for the two earlier bounded commands or driver-info command. Hash-bound manifests/source/EXE/module pins and root-observed exit0 are the recorded evidence; no log is fabricated.",
+    "driverReportBinding": "Six report names/module pins follow frozen source/EXE branch and bounded report device/driver identities; no separate driver-info identity JSON was emitted. Root completion log is bound only if supplied."
+  },
+  "actualValidation": {
+    "fixtures": 7,
+    "comparisons": 70,
+    "comparedBytes": 5175705600,
+    "rawBuffersReopened": 140,
+    "fullAllocationCanaryBytesChecked": 690094080,
+    "zeroDifferentBytes": true,
+    "independentlyRepackedMatrices": 14,
+    "independentlyRepackedScales": 7,
+    "expansionConsumesW1Only": true,
+    "inheritedFixtureIdentityIncludesW2ScalesAndResidual": true,
+    "graphModulesRehashed": 32,
+    "graphSourceSnapshotFilesRehashed": 32,
+    "fourHistoricalAnchorsExact": true,
+    "rootCompletionLog": {
+      "path": "build/release/c32-strided-expansion-v10-dataflow-actual-timing-20261003-a1/root-actual7-target.log",
+      "bytes": 1137,
+      "sha256": "30ddb6d722cc0441d1a5055b6c40c74993c6365406b1d5a4733dcc81af0c3870",
+      "distributed": false
+    },
+    "manifest": {
+      "path": "build/release/c32-strided-expansion-v10-dataflow-actual-timing-20261003-a1/gpu-actual7-target/manifest.json",
+      "bytes": 37231,
+      "sha256": "418cc183d4760bba56fc7d12e70f5f9905d672f40fa887fee2ec1c9454bbe19d",
+      "distributed": false
+    },
+    "captureCatalog": {
+      "path": "build/release/c32-register-v5-actual-input-check-20261003-a1/capture-target/catalog.json",
+      "bytes": 2503,
+      "sha256": "81b2654ca5f013270d480c71cda042b549d567c7e6bfd90fd2cb12c2f219421c",
+      "distributed": false
+    },
+    "captureRecord": {
+      "path": "build/release/c32-register-v5-actual-input-check-20261003-a1/capture-target/capture-record.json",
+      "bytes": 15302,
+      "sha256": "313e4c0578c843d5a8e61a74a5fc41f13a302eeda2efac46c97afb09cd803537",
+      "distributed": false
+    },
+    "captureManifest": {
+      "path": "build/release/c32-register-v5-actual-input-check-20261003-a1/capture-target/boundaries/manifest.json",
+      "bytes": 6895,
+      "sha256": "07778dc62cb7c34d65deec5285d2e7d8dfebaff06a13a7adca45de996db332c3",
+      "distributed": false
+    },
+    "fixturesBoundToCurrentModel": [
+      {
+        "block": 1,
+        "rows": 414720,
+        "outputStride": 144,
+        "inputSha256": "2e6cd1cb885efcad98e93a81801b3e7a4f1d9141d9e7ba51bd3040c19a00a9d2",
+        "rawExpandSha256": "95760be853b14b7239c9a448311cbf9163bc60516efb4fd75889f510b8e142a3",
+        "rawContractAncestrySha256": "85844c8fe694efe34a09397fea740b95c8daad7c5c9e31002c551092524d1457",
+        "scalesAncestrySha256": "007ccbc8f20aaa23d414448425683a34fe5ad55423d29c85c36d18872665f650",
+        "inheritedFixtureIdentitySha256": "d956396ec319a0789d1d01d6b93146b6b180762246408a71581572b7c607110d",
+        "canonicalE4Sha256": "d45ccdac416398d45916c005ff1048d049d6f22dd4cd548616553f056345e3eb"
+      },
+      {
+        "block": 2,
+        "rows": 414720,
+        "outputStride": 128,
+        "inputSha256": "b5291ead897fce6ffd167868af1cafbe39be33f5bbb22b6a4039681381901246",
+        "rawExpandSha256": "aed4a0d79509a3d734a1b7fd78d8e69f23c17d874f42217b966a2a5446db0e85",
+        "rawContractAncestrySha256": "9a1e2754aabdd8b3338bb56ab5a418fc3bce05724ff3b5630096e9516f164d6b",
+        "scalesAncestrySha256": "e9f8c68f4aaf41f3366d4eaa6d8b741a968526b92faf274d16c2b007d5c68e37",
+        "inheritedFixtureIdentitySha256": "ec700988fba3b58dc18f44b18d2e404f91ca5cc0d5551f84b3a631a531744a73",
+        "canonicalE4Sha256": "7fd16a1db7155504525f3c89cf082d3fa2ae1272261493971a4c9ec62c9b27bf"
+      },
+      {
+        "block": 3,
+        "rows": 414720,
+        "outputStride": 144,
+        "inputSha256": "41069080bde8bf358ffcef33f8e51b777ceee9f035b669ff4cf397c50d690a3f",
+        "rawExpandSha256": "9bf9c9d71a9a4f6da6dcf06279ffd2f5844ccdbce00a830f6cfc6dea4f1f8244",
+        "rawContractAncestrySha256": "112b19fbd7f1fc6d1b46ef5886868b5640e3737453da16bcb55e8b28b6a54300",
+        "scalesAncestrySha256": "7c85f9b77de08b16133b43ef3260247dbd72f03ad7d4eb23a63e615583373bc9",
+        "inheritedFixtureIdentitySha256": "9077d2b5f2da8659a1c9bf94c31eebf0053dd0bf255575e96fa358bfa31681ba",
+        "canonicalE4Sha256": "6ff9e479b2837348262e4bf651731d1470d0d97b90ff3bcf0a92fa8dd6b9db96"
+      },
+      {
+        "block": 4,
+        "rows": 414720,
+        "outputStride": 128,
+        "inputSha256": "70201726935d452e5c5695e741b53d887263095b01704d07f637d56d8ce6ff7c",
+        "rawExpandSha256": "2e3b228af94526b2cc1636e98fbde280f6a921af0024b671bbcb1591a0b0276c",
+        "rawContractAncestrySha256": "f91022eeb15ceb20f63f3e46e97c8651f74414585dc5d2e69d2b30a6bfbddaba",
+        "scalesAncestrySha256": "5b8c3ca99ca1ba804e8411e2d82f8999454311d3f3f12e0e50e1b024243004c0",
+        "inheritedFixtureIdentitySha256": "b50b5c1ab2b9951e1fccec50affc9f30c6948891b4a31cf3d7ebf9b0f95cb0ad",
+        "canonicalE4Sha256": "17a74a31cec97d33022a84a766ef31c933ff6ab897d63828a03185ff1be8fb5b"
+      },
+      {
+        "block": 67,
+        "rows": 414720,
+        "outputStride": 144,
+        "inputSha256": "f108ae37424ab9671154ad646f9f072c8857d0fcb4fc36b502528b54c89232a8",
+        "rawExpandSha256": "c2f7e09ed445d0b3212fcd830de798391a310e957a9752dfd08a010c4560e4ee",
+        "rawContractAncestrySha256": "944baba5267a19b15f003994f5306c444431b03413feafa2eeb22a9662f70d81",
+        "scalesAncestrySha256": "b31f7bb4f6ebb9349fe5aed67993c247c0659cfe4eb0b2d38c1bd14218245219",
+        "inheritedFixtureIdentitySha256": "cc0be6def2c71fc17d402960e0c5707758257a043fba41116706acd1f5596da8",
+        "canonicalE4Sha256": "742fe240b344eae37d813d86218505791061b4a47769c1aa7fc9c2f5b0bbe18e"
+      },
+      {
+        "block": 68,
+        "rows": 414720,
+        "outputStride": 128,
+        "inputSha256": "be12e288affb9d10cb336d6d9f80ca6c50ba4c959947fb2334730633e2105d95",
+        "rawExpandSha256": "cac9f9ca360abac6889d3bebb3f5f4672da0d3cc1f459b536f835c65ec6cd50d",
+        "rawContractAncestrySha256": "0bebe86f87b246caa1408101c072335875063e2dfe558edf6242fd75c5a0f7a7",
+        "scalesAncestrySha256": "d6f9a11a049c09ed19c977464b7365f9765e96bc7a89cfa66f95a3ac0eab6e6d",
+        "inheritedFixtureIdentitySha256": "bce8b7951118bb6c9b3fea3abf0f6e8d7bfd9c6bb19ee540e58e090e3dfe745f",
+        "canonicalE4Sha256": "a210697f44ffc07d277ece896d51028d5f72189c6e5bc370c289e114735d66e2"
+      },
+      {
+        "block": 69,
+        "rows": 414720,
+        "outputStride": 144,
+        "inputSha256": "e1bfb7007541e775faf4ab69348cc986a28f67752f4b31b7f7b5539fb1bd691b",
+        "rawExpandSha256": "286c318e2c0bc755235eee487908d65d8fc6f185b32263d4541d9ef8090624f7",
+        "rawContractAncestrySha256": "a4818d2c4f5a35a6a5f89735f1554607b628c9ecaaa33ead68efd00948dc18f0",
+        "scalesAncestrySha256": "99bbcab901337cbcbeb3a83f1d032f4fa1c127ed87eb2757fdfacbf3cf43b6fb",
+        "inheritedFixtureIdentitySha256": "3c4bd5d2e305497334e935b5bedff7cbb03460486ef646ba4d3a304354f620d1",
+        "canonicalE4Sha256": "8dc6a8b18a3d07c7d0bf598f68dc852939698e4ef9a3401171ead2b70bf0d153"
+      }
+    ],
+    "activatedF16Trace": "Separate Pair F40 diagnostic; agreement does not expose original F24 pre-E4 half bits.",
+    "canonicalTimingOutput": "Timing pre/post packed E4 outputs must match hashes derived from full strict actual allocations.",
+    "enabledValidationLayerClaim": false
+  },
+  "timing": {
+    "variants": [
+      {
+        "variant": "seed",
+        "protocol": {
+          "warmupsPerRoute": 5,
+          "interleavedPairs": 3,
+          "measuredFramesPerRoutePerPair": 30,
+          "routeOrder": [
+            "baseline-candidate",
+            "candidate-baseline",
+            "baseline-candidate"
+          ],
+          "frameInputsFixed": true,
+          "inputsWeightsSharedAcrossRoutes": true,
+          "preallocatedBuffers": true,
+          "persistentCommandBuffers": true,
+          "persistentDescriptorPools": true,
+          "reusableVkFence": true,
+          "queueWaitIdleDuringTiming": false,
+          "pipelineCaptureStatistics": false,
+          "imageReadbackDuringTiming": false,
+          "imageUploadsDuringTiming": false,
+          "timestampStage": "ALL_COMMANDS",
+          "baselineDispatchCount": 1,
+          "candidateDispatchCount": 1,
+          "timestampsPerRoute": 2,
+          "spanIncludesComputeBarriers": true,
+          "timingDomain": "GPU operator spans; excludes uploads, CPU submission/wait, readback and bridge",
+          "percentileMethod": "linear interpolation on n-1 index",
+          "variation": "population stddev/mean*100"
+        },
+        "operators": [
+          {
+            "block": 1,
+            "baseline": {
+              "medianMs": 0.35202,
+              "p95Ms": 0.36695599999999995,
+              "p99Ms": 0.44089919999999994,
+              "minMs": 0.30907999999999997,
+              "maxMs": 0.47536,
+              "meanMs": 0.3526351111111111,
+              "stddevMs": 0.02320484610518743,
+              "variationCvPercent": 6.580412832990944
+            },
+            "candidate": {
+              "medianMs": 0.6573599999999999,
+              "p95Ms": 0.687004,
+              "p99Ms": 0.78081,
+              "minMs": 0.5704,
+              "maxMs": 0.78704,
+              "meanMs": 0.6566377777777778,
+              "stddevMs": 0.031136629296547452,
+              "variationCvPercent": 4.741827282907997
+            },
+            "medianRegressionPercent": 86.73938980739729,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.35051999999999994,
+                  "p95Ms": 0.35920599999999997,
+                  "p99Ms": 0.3675264,
+                  "minMs": 0.34587999999999997,
+                  "maxMs": 0.36979999999999996,
+                  "meanMs": 0.35163733333333336,
+                  "stddevMs": 0.004838048458716477,
+                  "variationCvPercent": 1.3758631408259108
+                },
+                "candidate": {
+                  "medianMs": 0.6567399999999999,
+                  "p95Ms": 0.7523379999999998,
+                  "p99Ms": 0.78501,
+                  "minMs": 0.64664,
+                  "maxMs": 0.78704,
+                  "meanMs": 0.6665586666666667,
+                  "stddevMs": 0.03354535315393508,
+                  "variationCvPercent": 5.032618257247935
+                },
+                "medianRegressionPercent": 87.36163414355813
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.3538,
+                  "p95Ms": 0.4028159999999998,
+                  "p99Ms": 0.4361644,
+                  "minMs": 0.34828,
+                  "maxMs": 0.43664,
+                  "meanMs": 0.3594346666666667,
+                  "stddevMs": 0.0207142198715976,
+                  "variationCvPercent": 5.763000008790915
+                },
+                "candidate": {
+                  "medianMs": 0.66314,
+                  "p95Ms": 0.685402,
+                  "p99Ms": 0.7118624,
+                  "minMs": 0.64688,
+                  "maxMs": 0.72156,
+                  "meanMs": 0.6657853333333333,
+                  "stddevMs": 0.014004732469974414,
+                  "variationCvPercent": 2.103490685181973
+                },
+                "medianRegressionPercent": 87.43357829282078
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.34592,
+                  "p95Ms": 0.3996959999999998,
+                  "p99Ms": 0.46337720000000004,
+                  "minMs": 0.30907999999999997,
+                  "maxMs": 0.47536,
+                  "meanMs": 0.3468333333333333,
+                  "stddevMs": 0.03289405552510801,
+                  "variationCvPercent": 9.484110194649114
+                },
+                "candidate": {
+                  "medianMs": 0.65154,
+                  "p95Ms": 0.6761099999999999,
+                  "p99Ms": 0.683842,
+                  "minMs": 0.5704,
+                  "maxMs": 0.6856399999999999,
+                  "meanMs": 0.6375693333333331,
+                  "stddevMs": 0.03226977563534576,
+                  "variationCvPercent": 5.061375123962326
+                },
+                "medianRegressionPercent": 88.34990749306198
+              }
+            ]
+          },
+          {
+            "block": 2,
+            "baseline": {
+              "medianMs": 0.3519,
+              "p95Ms": 0.35944,
+              "p99Ms": 0.43922479999999997,
+              "minMs": 0.34512,
+              "maxMs": 0.4692,
+              "meanMs": 0.35540133333333335,
+              "stddevMs": 0.016821030699032024,
+              "variationCvPercent": 4.732967808889862
+            },
+            "candidate": {
+              "medianMs": 0.63632,
+              "p95Ms": 0.6977,
+              "p99Ms": 0.7599812,
+              "minMs": 0.62412,
+              "maxMs": 0.7607999999999999,
+              "meanMs": 0.642568,
+              "stddevMs": 0.02370486022363815,
+              "variationCvPercent": 3.6890819685446754
+            },
+            "medianRegressionPercent": 80.82409775504405,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.35185999999999995,
+                  "p95Ms": 0.36183799999999994,
+                  "p99Ms": 0.4386340000000001,
+                  "minMs": 0.34512,
+                  "maxMs": 0.4692,
+                  "meanMs": 0.3557106666666667,
+                  "stddevMs": 0.021502517516689895,
+                  "variationCvPercent": 6.0449459439010065
+                },
+                "candidate": {
+                  "medianMs": 0.6352199999999999,
+                  "p95Ms": 0.6747139999999998,
+                  "p99Ms": 0.7425532,
+                  "minMs": 0.62412,
+                  "maxMs": 0.7607999999999999,
+                  "meanMs": 0.641,
+                  "stddevMs": 0.025648017467242955,
+                  "variationCvPercent": 4.001250774920898
+                },
+                "medianRegressionPercent": 80.53202978457341
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.35114,
+                  "p95Ms": 0.35857799999999995,
+                  "p99Ms": 0.40242880000000003,
+                  "minMs": 0.34787999999999997,
+                  "maxMs": 0.42019999999999996,
+                  "meanMs": 0.35419999999999996,
+                  "stddevMs": 0.012586032469898258,
+                  "variationCvPercent": 3.5533688509029533
+                },
+                "candidate": {
+                  "medianMs": 0.63584,
+                  "p95Ms": 0.6759879999999998,
+                  "p99Ms": 0.7003199999999999,
+                  "minMs": 0.62696,
+                  "maxMs": 0.70148,
+                  "meanMs": 0.6401853333333332,
+                  "stddevMs": 0.01695083237549774,
+                  "variationCvPercent": 2.6478007996899455
+                },
+                "medianRegressionPercent": 81.07877199977216
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.35388,
+                  "p95Ms": 0.358998,
+                  "p99Ms": 0.4133756,
+                  "minMs": 0.34736,
+                  "maxMs": 0.43551999999999996,
+                  "meanMs": 0.35629333333333335,
+                  "stddevMs": 0.015024652926292688,
+                  "variationCvPercent": 4.216933498510409
+                },
+                "candidate": {
+                  "medianMs": 0.6392199999999999,
+                  "p95Ms": 0.70209,
+                  "p99Ms": 0.7445564,
+                  "minMs": 0.62712,
+                  "maxMs": 0.75988,
+                  "meanMs": 0.6465186666666667,
+                  "stddevMs": 0.026774356852945866,
+                  "variationCvPercent": 4.141312267283729
+                },
+                "medianRegressionPercent": 80.63185260540295
+              }
+            ]
+          },
+          {
+            "block": 3,
+            "baseline": {
+              "medianMs": 0.366,
+              "p95Ms": 0.377384,
+              "p99Ms": 0.4523499999999999,
+              "minMs": 0.35916,
+              "maxMs": 0.5422399999999999,
+              "meanMs": 0.37031644444444445,
+              "stddevMs": 0.02138342506143542,
+              "variationCvPercent": 5.774365514206432
+            },
+            "candidate": {
+              "medianMs": 0.6607999999999999,
+              "p95Ms": 0.729884,
+              "p99Ms": 0.785786,
+              "minMs": 0.65084,
+              "maxMs": 0.7934399999999999,
+              "meanMs": 0.6681755555555555,
+              "stddevMs": 0.025003068038903238,
+              "variationCvPercent": 3.7419908332495644
+            },
+            "medianRegressionPercent": 80.54644808743167,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.36672,
+                  "p95Ms": 0.4088179999999998,
+                  "p99Ms": 0.4392448,
+                  "minMs": 0.36035999999999996,
+                  "maxMs": 0.44123999999999997,
+                  "meanMs": 0.37174666666666667,
+                  "stddevMs": 0.01818002811390076,
+                  "variationCvPercent": 4.890434735276917
+                },
+                "candidate": {
+                  "medianMs": 0.66022,
+                  "p95Ms": 0.67728,
+                  "p99Ms": 0.7232512000000001,
+                  "minMs": 0.65108,
+                  "maxMs": 0.74144,
+                  "meanMs": 0.6642906666666666,
+                  "stddevMs": 0.01573699482818185,
+                  "variationCvPercent": 2.3689923128302044
+                },
+                "medianRegressionPercent": 80.03381326352532
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.36539999999999995,
+                  "p95Ms": 0.37372599999999995,
+                  "p99Ms": 0.4938564000000001,
+                  "minMs": 0.36116,
+                  "maxMs": 0.5422399999999999,
+                  "meanMs": 0.37202933333333327,
+                  "stddevMs": 0.03176008720950802,
+                  "variationCvPercent": 8.536984684767159
+                },
+                "candidate": {
+                  "medianMs": 0.66016,
+                  "p95Ms": 0.7329859999999999,
+                  "p99Ms": 0.7713840000000001,
+                  "minMs": 0.652,
+                  "maxMs": 0.78484,
+                  "meanMs": 0.6694080000000001,
+                  "stddevMs": 0.028345492104859756,
+                  "variationCvPercent": 4.234411913938846
+                },
+                "medianRegressionPercent": 80.66776135741655
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.36622,
+                  "p95Ms": 0.37383399999999994,
+                  "p99Ms": 0.3784472,
+                  "minMs": 0.35916,
+                  "maxMs": 0.38028,
+                  "meanMs": 0.3671733333333334,
+                  "stddevMs": 0.004204446323701715,
+                  "variationCvPercent": 1.1450848800843512
+                },
+                "candidate": {
+                  "medianMs": 0.66274,
+                  "p95Ms": 0.72695,
+                  "p99Ms": 0.7758544,
+                  "minMs": 0.65084,
+                  "maxMs": 0.7934399999999999,
+                  "meanMs": 0.670828,
+                  "stddevMs": 0.028296529162896752,
+                  "variationCvPercent": 4.218149684106321
+                },
+                "medianRegressionPercent": 80.96772431871553
+              }
+            ]
+          },
+          {
+            "block": 4,
+            "baseline": {
+              "medianMs": 0.31126,
+              "p95Ms": 0.36446999999999996,
+              "p99Ms": 0.4268664,
+              "minMs": 0.30648,
+              "maxMs": 0.42707999999999996,
+              "meanMs": 0.3323417777777778,
+              "stddevMs": 0.027663354764733545,
+              "variationCvPercent": 8.323766861243307
+            },
+            "candidate": {
+              "medianMs": 0.55902,
+              "p95Ms": 0.6534479999999999,
+              "p99Ms": 0.7183995999999999,
+              "minMs": 0.55096,
+              "maxMs": 0.7756799999999999,
+              "meanMs": 0.598484,
+              "stddevMs": 0.05079084188665862,
+              "variationCvPercent": 8.486583081027833
+            },
+            "medianRegressionPercent": 79.5990490265373,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.359,
+                  "p95Ms": 0.37305199999999994,
+                  "p99Ms": 0.4129432,
+                  "minMs": 0.35368,
+                  "maxMs": 0.42684,
+                  "meanMs": 0.3614773333333334,
+                  "stddevMs": 0.013114856444336537,
+                  "variationCvPercent": 3.628126921098751
+                },
+                "candidate": {
+                  "medianMs": 0.6436,
+                  "p95Ms": 0.6534479999999999,
+                  "p99Ms": 0.7405668000000001,
+                  "minMs": 0.63708,
+                  "maxMs": 0.7756799999999999,
+                  "meanMs": 0.6483013333333335,
+                  "stddevMs": 0.024134434008049335,
+                  "variationCvPercent": 3.7227185518744363
+                },
+                "medianRegressionPercent": 79.27576601671309
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.30952,
+                  "p95Ms": 0.359512,
+                  "p99Ms": 0.407882,
+                  "minMs": 0.30784,
+                  "maxMs": 0.42707999999999996,
+                  "meanMs": 0.32514533333333334,
+                  "stddevMs": 0.02711000894298799,
+                  "variationCvPercent": 8.337812714413245
+                },
+                "candidate": {
+                  "medianMs": 0.5549999999999999,
+                  "p95Ms": 0.6797959999999998,
+                  "p99Ms": 0.710102,
+                  "minMs": 0.55096,
+                  "maxMs": 0.71132,
+                  "meanMs": 0.5845386666666668,
+                  "stddevMs": 0.04808713173211958,
+                  "variationCvPercent": 8.226509976891105
+                },
+                "medianRegressionPercent": 79.30989919875935
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.31013999999999997,
+                  "p95Ms": 0.3126,
+                  "p99Ms": 0.3200032,
+                  "minMs": 0.30648,
+                  "maxMs": 0.32288,
+                  "meanMs": 0.31040266666666666,
+                  "stddevMs": 0.002614868936592342,
+                  "variationCvPercent": 0.8424118789547584
+                },
+                "candidate": {
+                  "medianMs": 0.55498,
+                  "p95Ms": 0.6002639999999998,
+                  "p99Ms": 0.682798,
+                  "minMs": 0.55176,
+                  "maxMs": 0.70304,
+                  "meanMs": 0.562612,
+                  "stddevMs": 0.029685793055489247,
+                  "variationCvPercent": 5.276423726385013
+                },
+                "medianRegressionPercent": 78.94499258399435
+              }
+            ]
+          },
+          {
+            "block": 67,
+            "baseline": {
+              "medianMs": 0.37642,
+              "p95Ms": 0.391188,
+              "p99Ms": 0.4588208,
+              "minMs": 0.31895999999999997,
+              "maxMs": 0.47064,
+              "meanMs": 0.37108488888888885,
+              "stddevMs": 0.02449380571330204,
+              "variationCvPercent": 6.600593677269363
+            },
+            "candidate": {
+              "medianMs": 0.66094,
+              "p95Ms": 0.7562539999999999,
+              "p99Ms": 0.7885643999999999,
+              "minMs": 0.55896,
+              "maxMs": 0.79572,
+              "meanMs": 0.6558457777777777,
+              "stddevMs": 0.04799451137549834,
+              "variationCvPercent": 7.31795690415506
+            },
+            "medianRegressionPercent": 75.58578183943467,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.37656,
+                  "p95Ms": 0.38294799999999996,
+                  "p99Ms": 0.3845164,
+                  "minMs": 0.37172,
+                  "maxMs": 0.38476,
+                  "meanMs": 0.377096,
+                  "stddevMs": 0.0032086815568599736,
+                  "variationCvPercent": 0.8508924933862926
+                },
+                "candidate": {
+                  "medianMs": 0.66144,
+                  "p95Ms": 0.7266739999999999,
+                  "p99Ms": 0.7631468,
+                  "minMs": 0.65228,
+                  "maxMs": 0.77564,
+                  "meanMs": 0.6684453333333332,
+                  "stddevMs": 0.02612450340623191,
+                  "variationCvPercent": 3.9082483044584917
+                },
+                "medianRegressionPercent": 75.65328234544295
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.37934,
+                  "p95Ms": 0.397854,
+                  "p99Ms": 0.44029640000000003,
+                  "minMs": 0.37112,
+                  "maxMs": 0.45736,
+                  "meanMs": 0.38307466666666656,
+                  "stddevMs": 0.015298375454784591,
+                  "variationCvPercent": 3.993575348613829
+                },
+                "candidate": {
+                  "medianMs": 0.66402,
+                  "p95Ms": 0.7802899999999999,
+                  "p99Ms": 0.785824,
+                  "minMs": 0.65288,
+                  "maxMs": 0.7876799999999999,
+                  "meanMs": 0.6764639999999997,
+                  "stddevMs": 0.03651570124389416,
+                  "variationCvPercent": 5.39802579943562
+                },
+                "medianRegressionPercent": 75.04613275689356
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.34702,
+                  "p95Ms": 0.383982,
+                  "p99Ms": 0.44624520000000006,
+                  "minMs": 0.31895999999999997,
+                  "maxMs": 0.47064,
+                  "meanMs": 0.353084,
+                  "stddevMs": 0.03242812663928235,
+                  "variationCvPercent": 9.184252653556193
+                },
+                "candidate": {
+                  "medianMs": 0.6224,
+                  "p95Ms": 0.6999079999999999,
+                  "p99Ms": 0.7719748000000001,
+                  "minMs": 0.55896,
+                  "maxMs": 0.79572,
+                  "meanMs": 0.6226280000000001,
+                  "stddevMs": 0.05663261077035621,
+                  "variationCvPercent": 9.095737867612154
+                },
+                "medianRegressionPercent": 79.35565673448215
+              }
+            ]
+          },
+          {
+            "block": 68,
+            "baseline": {
+              "medianMs": 0.37876,
+              "p95Ms": 0.40229999999999994,
+              "p99Ms": 0.5536791999999999,
+              "minMs": 0.37184,
+              "maxMs": 0.565,
+              "meanMs": 0.3857786666666666,
+              "stddevMs": 0.029954744057587194,
+              "variationCvPercent": 7.7647487136632405
+            },
+            "candidate": {
+              "medianMs": 0.66178,
+              "p95Ms": 0.8095159999999999,
+              "p99Ms": 0.8165732,
+              "minMs": 0.65004,
+              "maxMs": 0.82024,
+              "meanMs": 0.6753671111111111,
+              "stddevMs": 0.04316227471207915,
+              "variationCvPercent": 6.39093524128955
+            },
+            "medianRegressionPercent": 74.72277959657832,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.3786,
+                  "p95Ms": 0.39174,
+                  "p99Ms": 0.404796,
+                  "minMs": 0.37184,
+                  "maxMs": 0.40931999999999996,
+                  "meanMs": 0.38050266666666666,
+                  "stddevMs": 0.007240071331754185,
+                  "variationCvPercent": 1.9027649385954855
+                },
+                "candidate": {
+                  "medianMs": 0.66214,
+                  "p95Ms": 0.8079959999999999,
+                  "p99Ms": 0.8097591999999999,
+                  "minMs": 0.65004,
+                  "maxMs": 0.8101999999999999,
+                  "meanMs": 0.676244,
+                  "stddevMs": 0.04454121369398608,
+                  "variationCvPercent": 6.586559539749866
+                },
+                "medianRegressionPercent": 74.891706286318
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.38078,
+                  "p95Ms": 0.4731259999999999,
+                  "p99Ms": 0.541452,
+                  "minMs": 0.37251999999999996,
+                  "maxMs": 0.565,
+                  "meanMs": 0.39226933333333325,
+                  "stddevMs": 0.03976153173888327,
+                  "variationCvPercent": 10.136283507305341
+                },
+                "candidate": {
+                  "medianMs": 0.66178,
+                  "p95Ms": 0.7642559999999996,
+                  "p99Ms": 0.8177228,
+                  "minMs": 0.65108,
+                  "maxMs": 0.82024,
+                  "meanMs": 0.6739693333333333,
+                  "stddevMs": 0.03944592204806755,
+                  "variationCvPercent": 5.852776988082676
+                },
+                "medianRegressionPercent": 73.79589264142025
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.37798,
+                  "p95Ms": 0.38860799999999995,
+                  "p99Ms": 0.5052536000000001,
+                  "minMs": 0.37184,
+                  "maxMs": 0.55228,
+                  "meanMs": 0.3845640000000001,
+                  "stddevMs": 0.03141690135367692,
+                  "variationCvPercent": 8.169485795258243
+                },
+                "candidate": {
+                  "medianMs": 0.6618999999999999,
+                  "p95Ms": 0.808306,
+                  "p99Ms": 0.8150179999999999,
+                  "minMs": 0.65108,
+                  "maxMs": 0.81612,
+                  "meanMs": 0.675888,
+                  "stddevMs": 0.04523329912059624,
+                  "variationCvPercent": 6.692425242140152
+                },
+                "medianRegressionPercent": 75.11508545425683
+              }
+            ]
+          },
+          {
+            "block": 69,
+            "baseline": {
+              "medianMs": 0.37388,
+              "p95Ms": 0.38367799999999996,
+              "p99Ms": 0.43421239999999994,
+              "minMs": 0.32076,
+              "maxMs": 0.48835999999999996,
+              "meanMs": 0.36611955555555553,
+              "stddevMs": 0.025136582986693187,
+              "variationCvPercent": 6.865676144654591
+            },
+            "candidate": {
+              "medianMs": 0.65038,
+              "p95Ms": 0.7216119999999999,
+              "p99Ms": 0.7546455999999999,
+              "minMs": 0.55752,
+              "maxMs": 0.81068,
+              "meanMs": 0.6388382222222222,
+              "stddevMs": 0.04483068509099984,
+              "variationCvPercent": 7.0175333177552615
+            },
+            "medianRegressionPercent": 73.954209906922,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.37616,
+                  "p95Ms": 0.38367799999999996,
+                  "p99Ms": 0.38989999999999997,
+                  "minMs": 0.36856,
+                  "maxMs": 0.39164,
+                  "meanMs": 0.3769600000000001,
+                  "stddevMs": 0.0044734833556562305,
+                  "variationCvPercent": 1.186726272192336
+                },
+                "candidate": {
+                  "medianMs": 0.6564,
+                  "p95Ms": 0.7262979999999999,
+                  "p99Ms": 0.7457828,
+                  "minMs": 0.648,
+                  "maxMs": 0.7477199999999999,
+                  "meanMs": 0.6632253333333333,
+                  "stddevMs": 0.02407908853941296,
+                  "variationCvPercent": 3.6306044611403507
+                },
+                "medianRegressionPercent": 74.50021267545725
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.37439999999999996,
+                  "p95Ms": 0.381096,
+                  "p99Ms": 0.4133888,
+                  "minMs": 0.35763999999999996,
+                  "maxMs": 0.42651999999999995,
+                  "meanMs": 0.37454266666666675,
+                  "stddevMs": 0.01132440283439067,
+                  "variationCvPercent": 3.0235281163491834
+                },
+                "candidate": {
+                  "medianMs": 0.65084,
+                  "p95Ms": 0.7013079999999998,
+                  "p99Ms": 0.7359564,
+                  "minMs": 0.62376,
+                  "maxMs": 0.73736,
+                  "meanMs": 0.6544093333333333,
+                  "stddevMs": 0.02362702561804079,
+                  "variationCvPercent": 3.6104353062467722
+                },
+                "medianRegressionPercent": 73.83547008547009
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.33909999999999996,
+                  "p95Ms": 0.40298599999999984,
+                  "p99Ms": 0.47071640000000003,
+                  "minMs": 0.32076,
+                  "maxMs": 0.48835999999999996,
+                  "meanMs": 0.34685599999999994,
+                  "stddevMs": 0.03446361343020587,
+                  "variationCvPercent": 9.936000366205535
+                },
+                "candidate": {
+                  "medianMs": 0.59226,
+                  "p95Ms": 0.652658,
+                  "p99Ms": 0.7656836000000001,
+                  "minMs": 0.55752,
+                  "maxMs": 0.81068,
+                  "meanMs": 0.5988799999999999,
+                  "stddevMs": 0.04957299587477036,
+                  "variationCvPercent": 8.277617531854524
+                },
+                "medianRegressionPercent": 74.65644352698322
+              }
+            ]
+          }
+        ],
+        "pooledRegressionRangePercent": [
+          73.954209906922,
+          86.73938980739729
+        ],
+        "pairedRegressionRangePercent": [
+          73.79589264142025,
+          88.34990749306198
+        ],
+        "sumBaselineIsolatedMediansMs": 2.5102399999999996,
+        "sumCandidateIsolatedMediansMs": 4.4866,
+        "operatorMedianGateMinimumImprovementPercent": 5,
+        "operatorsPassingGate": 0,
+        "allPairStatisticsRetained": true,
+        "networkLatencyMeasurement": false,
+        "fullInferenceReductionProven": false,
+        "privateTimingReport": {
+          "path": "build/release/c32-strided-expansion-v10-dataflow-actual-timing-20261003-a1/gpu-timing-seed/interleaved.json",
+          "bytes": 48867,
+          "sha256": "402af18112b3bade5092d24edd47342dfc75cdb1ba1660966138b3963a86fe40",
+          "distributed": false
+        },
+        "rootCompletionLog": {
+          "path": "build/release/c32-strided-expansion-v10-dataflow-actual-timing-20261003-a1/root-timing-seed.log",
+          "bytes": 1173,
+          "sha256": "7499c215f154d102d4ec61a63186cc0997be11a6759c03f3854558718b3dd691",
+          "distributed": false
+        },
+        "publicTimingReport": {
+          "path": "docs/performance/c32-strided-expansion-v10-measurements/seed-ordinary-target-interleaved.json",
+          "bytes": 48867,
+          "sha256": "402af18112b3bade5092d24edd47342dfc75cdb1ba1660966138b3963a86fe40",
+          "distributed": true
+        },
+        "selectedModuleSha256": "2b89add72e0d9b2dabd8b29b330cac74450232a672f4628666fd8503e618add7"
+      },
+      {
+        "variant": "operand",
+        "protocol": {
+          "warmupsPerRoute": 5,
+          "interleavedPairs": 3,
+          "measuredFramesPerRoutePerPair": 30,
+          "routeOrder": [
+            "baseline-candidate",
+            "candidate-baseline",
+            "baseline-candidate"
+          ],
+          "frameInputsFixed": true,
+          "inputsWeightsSharedAcrossRoutes": true,
+          "preallocatedBuffers": true,
+          "persistentCommandBuffers": true,
+          "persistentDescriptorPools": true,
+          "reusableVkFence": true,
+          "queueWaitIdleDuringTiming": false,
+          "pipelineCaptureStatistics": false,
+          "imageReadbackDuringTiming": false,
+          "imageUploadsDuringTiming": false,
+          "timestampStage": "ALL_COMMANDS",
+          "baselineDispatchCount": 1,
+          "candidateDispatchCount": 1,
+          "timestampsPerRoute": 2,
+          "spanIncludesComputeBarriers": true,
+          "timingDomain": "GPU operator spans; excludes uploads, CPU submission/wait, readback and bridge",
+          "percentileMethod": "linear interpolation on n-1 index",
+          "variation": "population stddev/mean*100"
+        },
+        "operators": [
+          {
+            "block": 1,
+            "baseline": {
+              "medianMs": 0.30638,
+              "p95Ms": 0.352622,
+              "p99Ms": 0.3751364,
+              "minMs": 0.2986,
+              "maxMs": 0.41896,
+              "meanMs": 0.31478177777777777,
+              "stddevMs": 0.01997945714854679,
+              "variationCvPercent": 6.347081870365258
+            },
+            "candidate": {
+              "medianMs": 0.58114,
+              "p95Ms": 0.6695439999999999,
+              "p99Ms": 0.6855771999999999,
+              "minMs": 0.57036,
+              "maxMs": 0.70384,
+              "meanMs": 0.5992328888888889,
+              "stddevMs": 0.03532045429569559,
+              "variationCvPercent": 5.894278326609804
+            },
+            "medianRegressionPercent": 89.67948299497357,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.33404,
+                  "p95Ms": 0.354736,
+                  "p99Ms": 0.40037680000000003,
+                  "minMs": 0.30044,
+                  "maxMs": 0.41896,
+                  "meanMs": 0.3304559999999999,
+                  "stddevMs": 0.025964189903275113,
+                  "variationCvPercent": 7.857079279321641
+                },
+                "candidate": {
+                  "medianMs": 0.64236,
+                  "p95Ms": 0.675352,
+                  "p99Ms": 0.681406,
+                  "minMs": 0.57036,
+                  "maxMs": 0.6833199999999999,
+                  "meanMs": 0.627164,
+                  "stddevMs": 0.04061306633748962,
+                  "variationCvPercent": 6.475669256763721
+                },
+                "medianRegressionPercent": 92.30032331457312
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.30528,
+                  "p95Ms": 0.307764,
+                  "p99Ms": 0.35176320000000005,
+                  "minMs": 0.30152,
+                  "maxMs": 0.36972,
+                  "meanMs": 0.307148,
+                  "stddevMs": 0.011749665073240743,
+                  "variationCvPercent": 3.8254082960790052
+                },
+                "candidate": {
+                  "medianMs": 0.57926,
+                  "p95Ms": 0.584096,
+                  "p99Ms": 0.6264424,
+                  "minMs": 0.5727599999999999,
+                  "maxMs": 0.6436799999999999,
+                  "meanMs": 0.581044,
+                  "stddevMs": 0.01194757593265958,
+                  "variationCvPercent": 2.0562256787196116
+                },
+                "medianRegressionPercent": 89.7471174004193
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.30668,
+                  "p95Ms": 0.314082,
+                  "p99Ms": 0.3191856,
+                  "minMs": 0.2986,
+                  "maxMs": 0.32016,
+                  "meanMs": 0.3067413333333333,
+                  "stddevMs": 0.0040911838004285385,
+                  "variationCvPercent": 1.3337569332342578
+                },
+                "candidate": {
+                  "medianMs": 0.58144,
+                  "p95Ms": 0.6488739999999998,
+                  "p99Ms": 0.6897112000000001,
+                  "minMs": 0.5741999999999999,
+                  "maxMs": 0.70384,
+                  "meanMs": 0.5894906666666666,
+                  "stddevMs": 0.027286337354475085,
+                  "variationCvPercent": 4.628798876285588
+                },
+                "medianRegressionPercent": 89.59175688013563
+              }
+            ]
+          },
+          {
+            "block": 2,
+            "baseline": {
+              "medianMs": 0.35137999999999997,
+              "p95Ms": 0.373716,
+              "p99Ms": 0.5296504,
+              "minMs": 0.34343999999999997,
+              "maxMs": 0.532,
+              "meanMs": 0.35857999999999995,
+              "stddevMs": 0.0317483876056022,
+              "variationCvPercent": 8.853920354063865
+            },
+            "candidate": {
+              "medianMs": 0.6495,
+              "p95Ms": 0.7507519999999999,
+              "p99Ms": 0.7970951999999999,
+              "minMs": 0.63744,
+              "maxMs": 0.8311999999999999,
+              "meanMs": 0.6595008888888888,
+              "stddevMs": 0.03545466926292233,
+              "variationCvPercent": 5.375985060862541
+            },
+            "medianRegressionPercent": 84.84262052478799,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.35212,
+                  "p95Ms": 0.36707999999999996,
+                  "p99Ms": 0.37459919999999997,
+                  "minMs": 0.34471999999999997,
+                  "maxMs": 0.3762,
+                  "meanMs": 0.3538866666666667,
+                  "stddevMs": 0.00665158093154469,
+                  "variationCvPercent": 1.8795794128660843
+                },
+                "candidate": {
+                  "medianMs": 0.65126,
+                  "p95Ms": 0.7529439999999997,
+                  "p99Ms": 0.7903395999999999,
+                  "minMs": 0.6384,
+                  "maxMs": 0.7928799999999999,
+                  "meanMs": 0.6615253333333333,
+                  "stddevMs": 0.03640531057719768,
+                  "variationCvPercent": 5.503237554600734
+                },
+                "medianRegressionPercent": 84.95399295694648
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.35117999999999994,
+                  "p95Ms": 0.42068599999999967,
+                  "p99Ms": 0.5117976,
+                  "minMs": 0.34543999999999997,
+                  "maxMs": 0.5293599999999999,
+                  "meanMs": 0.36099333333333333,
+                  "stddevMs": 0.037871672556440146,
+                  "variationCvPercent": 10.490961760080559
+                },
+                "candidate": {
+                  "medianMs": 0.6490199999999999,
+                  "p95Ms": 0.7507519999999999,
+                  "p99Ms": 0.8136956,
+                  "minMs": 0.63816,
+                  "maxMs": 0.8311999999999999,
+                  "meanMs": 0.6610013333333333,
+                  "stddevMs": 0.04121032295702403,
+                  "variationCvPercent": 6.23452947503243
+                },
+                "medianRegressionPercent": 84.81120792755854
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.35058,
+                  "p95Ms": 0.42301799999999967,
+                  "p99Ms": 0.5151104000000001,
+                  "minMs": 0.34343999999999997,
+                  "maxMs": 0.532,
+                  "meanMs": 0.36086,
+                  "stddevMs": 0.03888860090052097,
+                  "variationCvPercent": 10.776644931696772
+                },
+                "candidate": {
+                  "medianMs": 0.6478599999999999,
+                  "p95Ms": 0.6940339999999998,
+                  "p99Ms": 0.7600148,
+                  "minMs": 0.63744,
+                  "maxMs": 0.7791199999999999,
+                  "meanMs": 0.6559759999999998,
+                  "stddevMs": 0.026994236619446495,
+                  "variationCvPercent": 4.11512564780518
+                },
+                "medianRegressionPercent": 84.79662273946029
+              }
+            ]
+          },
+          {
+            "block": 3,
+            "baseline": {
+              "medianMs": 0.36676,
+              "p95Ms": 0.43590999999999996,
+              "p99Ms": 0.5013131999999999,
+              "minMs": 0.35872,
+              "maxMs": 0.54236,
+              "meanMs": 0.3732031111111111,
+              "stddevMs": 0.027323912020403764,
+              "variationCvPercent": 7.3214588000229215
+            },
+            "candidate": {
+              "medianMs": 0.6757599999999999,
+              "p95Ms": 0.7750879999999998,
+              "p99Ms": 0.8604571999999999,
+              "minMs": 0.66172,
+              "maxMs": 0.8644799999999999,
+              "meanMs": 0.6839364444444445,
+              "stddevMs": 0.036213447174315135,
+              "variationCvPercent": 5.294855606609909
+            },
+            "medianRegressionPercent": 84.25128149198385,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.36568,
+                  "p95Ms": 0.374862,
+                  "p99Ms": 0.37712439999999997,
+                  "minMs": 0.35872,
+                  "maxMs": 0.3776,
+                  "meanMs": 0.36646533333333325,
+                  "stddevMs": 0.00453779956464462,
+                  "variationCvPercent": 1.2382616176458585
+                },
+                "candidate": {
+                  "medianMs": 0.67256,
+                  "p95Ms": 0.7755499999999999,
+                  "p99Ms": 0.8010847999999999,
+                  "minMs": 0.6628,
+                  "maxMs": 0.80192,
+                  "meanMs": 0.6832959999999999,
+                  "stddevMs": 0.034625819422313554,
+                  "variationCvPercent": 5.06746994308668
+                },
+                "medianRegressionPercent": 83.92036753445637
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.36724,
+                  "p95Ms": 0.443328,
+                  "p99Ms": 0.4475004,
+                  "minMs": 0.36228,
+                  "maxMs": 0.44844,
+                  "meanMs": 0.37451066666666655,
+                  "stddevMs": 0.023581935873790254,
+                  "variationCvPercent": 6.296732769638139
+                },
+                "candidate": {
+                  "medianMs": 0.67604,
+                  "p95Ms": 0.688736,
+                  "p99Ms": 0.8142868000000001,
+                  "minMs": 0.66172,
+                  "maxMs": 0.8644799999999999,
+                  "meanMs": 0.6823653333333333,
+                  "stddevMs": 0.03428428403154359,
+                  "variationCvPercent": 5.024329689210021
+                },
+                "medianRegressionPercent": 84.08670079512035
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.3666,
+                  "p95Ms": 0.4662699999999998,
+                  "p99Ms": 0.5289852,
+                  "minMs": 0.362,
+                  "maxMs": 0.54236,
+                  "meanMs": 0.3786333333333333,
+                  "stddevMs": 0.03983082368663188,
+                  "variationCvPercent": 10.519629462091348
+                },
+                "candidate": {
+                  "medianMs": 0.67638,
+                  "p95Ms": 0.7477279999999996,
+                  "p99Ms": 0.8420496,
+                  "minMs": 0.66648,
+                  "maxMs": 0.85996,
+                  "meanMs": 0.6861479999999999,
+                  "stddevMs": 0.03939685557672506,
+                  "variationCvPercent": 5.741743119082919
+                },
+                "medianRegressionPercent": 84.50081833060557
+              }
+            ]
+          },
+          {
+            "block": 4,
+            "baseline": {
+              "medianMs": 0.36246,
+              "p95Ms": 0.370454,
+              "p99Ms": 0.45213719999999996,
+              "minMs": 0.35391999999999996,
+              "maxMs": 0.48819999999999997,
+              "meanMs": 0.3658057777777778,
+              "stddevMs": 0.018362544061078834,
+              "variationCvPercent": 5.0197523321334305
+            },
+            "candidate": {
+              "medianMs": 0.66442,
+              "p95Ms": 0.6997559999999998,
+              "p99Ms": 0.7928352,
+              "minMs": 0.6494,
+              "maxMs": 0.7931199999999999,
+              "meanMs": 0.6685742222222222,
+              "stddevMs": 0.02270332667634502,
+              "variationCvPercent": 3.3957825356896336
+            },
+            "medianRegressionPercent": 83.30850300722838,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.3618,
+                  "p95Ms": 0.369518,
+                  "p99Ms": 0.45424680000000006,
+                  "minMs": 0.35391999999999996,
+                  "maxMs": 0.48819999999999997,
+                  "meanMs": 0.36576533333333333,
+                  "stddevMs": 0.023113749404965772,
+                  "variationCvPercent": 6.319283786225168
+                },
+                "candidate": {
+                  "medianMs": 0.66408,
+                  "p95Ms": 0.6997559999999998,
+                  "p99Ms": 0.7703144000000001,
+                  "minMs": 0.6494,
+                  "maxMs": 0.7931199999999999,
+                  "meanMs": 0.669552,
+                  "stddevMs": 0.0259577470003337,
+                  "variationCvPercent": 3.8768829008551537
+                },
+                "medianRegressionPercent": 83.54892205638474
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.36258,
+                  "p95Ms": 0.366106,
+                  "p99Ms": 0.4029004,
+                  "minMs": 0.3544,
+                  "maxMs": 0.41775999999999996,
+                  "meanMs": 0.3633786666666667,
+                  "stddevMs": 0.010499222743718803,
+                  "variationCvPercent": 2.889333829096224
+                },
+                "candidate": {
+                  "medianMs": 0.66284,
+                  "p95Ms": 0.6751119999999999,
+                  "p99Ms": 0.708648,
+                  "minMs": 0.6507999999999999,
+                  "maxMs": 0.72164,
+                  "meanMs": 0.6641613333333332,
+                  "stddevMs": 0.011960947491268779,
+                  "variationCvPercent": 1.8009099432570774
+                },
+                "medianRegressionPercent": 82.81206906062108
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.36395999999999995,
+                  "p95Ms": 0.4006819999999998,
+                  "p99Ms": 0.441416,
+                  "minMs": 0.35575999999999997,
+                  "maxMs": 0.44767999999999997,
+                  "meanMs": 0.3682733333333334,
+                  "stddevMs": 0.01884379603182142,
+                  "variationCvPercent": 5.116796228839472
+                },
+                "candidate": {
+                  "medianMs": 0.66564,
+                  "p95Ms": 0.7101299999999998,
+                  "p99Ms": 0.7764208,
+                  "minMs": 0.6521199999999999,
+                  "maxMs": 0.7928,
+                  "meanMs": 0.6720093333333332,
+                  "stddevMs": 0.026405011005909883,
+                  "variationCvPercent": 3.92926254088384
+                },
+                "medianRegressionPercent": 82.8882294757666
+              }
+            ]
+          },
+          {
+            "block": 67,
+            "baseline": {
+              "medianMs": 0.37239999999999995,
+              "p95Ms": 0.388144,
+              "p99Ms": 0.4155923999999999,
+              "minMs": 0.32216,
+              "maxMs": 0.44304,
+              "meanMs": 0.3612724444444444,
+              "stddevMs": 0.024898842378762692,
+              "variationCvPercent": 6.8919849165500295
+            },
+            "candidate": {
+              "medianMs": 0.66828,
+              "p95Ms": 0.7134639999999999,
+              "p99Ms": 0.7981695999999999,
+              "minMs": 0.57284,
+              "maxMs": 0.80828,
+              "meanMs": 0.6497817777777778,
+              "stddevMs": 0.0508810259019952,
+              "variationCvPercent": 7.830479038055797
+            },
+            "medianRegressionPercent": 79.45220193340496,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.37564,
+                  "p95Ms": 0.385828,
+                  "p99Ms": 0.3882208,
+                  "minMs": 0.37095999999999996,
+                  "maxMs": 0.38836,
+                  "meanMs": 0.3769786666666667,
+                  "stddevMs": 0.004627243768042583,
+                  "variationCvPercent": 1.2274550729774054
+                },
+                "candidate": {
+                  "medianMs": 0.6735599999999999,
+                  "p95Ms": 0.7351019999999999,
+                  "p99Ms": 0.7810860000000001,
+                  "minMs": 0.66536,
+                  "maxMs": 0.79692,
+                  "meanMs": 0.681932,
+                  "stddevMs": 0.026898031947833405,
+                  "variationCvPercent": 3.94438623613988
+                },
+                "medianRegressionPercent": 79.30997763816418
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.37422,
+                  "p95Ms": 0.392478,
+                  "p99Ms": 0.42884160000000004,
+                  "minMs": 0.34431999999999996,
+                  "maxMs": 0.44304,
+                  "meanMs": 0.37495466666666677,
+                  "stddevMs": 0.016426764285424226,
+                  "variationCvPercent": 4.38100009034627
+                },
+                "candidate": {
+                  "medianMs": 0.67076,
+                  "p95Ms": 0.7462859999999997,
+                  "p99Ms": 0.804568,
+                  "minMs": 0.6224,
+                  "maxMs": 0.80828,
+                  "meanMs": 0.6753093333333334,
+                  "stddevMs": 0.037159127271177345,
+                  "variationCvPercent": 5.502534236830332
+                },
+                "medianRegressionPercent": 79.2421570199348
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.32818,
+                  "p95Ms": 0.34778799999999993,
+                  "p99Ms": 0.3954728,
+                  "minMs": 0.32216,
+                  "maxMs": 0.41219999999999996,
+                  "meanMs": 0.331884,
+                  "stddevMs": 0.016463225605370693,
+                  "variationCvPercent": 4.960536092541578
+                },
+                "candidate": {
+                  "medianMs": 0.58356,
+                  "p95Ms": 0.6337099999999999,
+                  "p99Ms": 0.682372,
+                  "minMs": 0.57284,
+                  "maxMs": 0.6978,
+                  "meanMs": 0.5921040000000001,
+                  "stddevMs": 0.025501227369154864,
+                  "variationCvPercent": 4.306883143696861
+                },
+                "medianRegressionPercent": 77.81705161801449
+              }
+            ]
+          },
+          {
+            "block": 68,
+            "baseline": {
+              "medianMs": 0.37949999999999995,
+              "p95Ms": 0.44957199999999997,
+              "p99Ms": 0.5111832,
+              "minMs": 0.373,
+              "maxMs": 0.58872,
+              "meanMs": 0.387684,
+              "stddevMs": 0.029807616655255526,
+              "variationCvPercent": 7.688637306480414
+            },
+            "candidate": {
+              "medianMs": 0.67504,
+              "p95Ms": 0.797214,
+              "p99Ms": 0.8881819999999999,
+              "minMs": 0.6641199999999999,
+              "maxMs": 0.8883599999999999,
+              "meanMs": 0.6880413333333333,
+              "stddevMs": 0.042366331055581276,
+              "variationCvPercent": 6.157527026803808
+            },
+            "medianRegressionPercent": 77.87615283267459,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.3777,
+                  "p95Ms": 0.41839199999999976,
+                  "p99Ms": 0.44986639999999994,
+                  "minMs": 0.373,
+                  "maxMs": 0.45039999999999997,
+                  "meanMs": 0.38208533333333333,
+                  "stddevMs": 0.018119660727753395,
+                  "variationCvPercent": 4.742307319068357
+                },
+                "candidate": {
+                  "medianMs": 0.6716599999999999,
+                  "p95Ms": 0.8394879999999996,
+                  "p99Ms": 0.8883019999999999,
+                  "minMs": 0.6641199999999999,
+                  "maxMs": 0.8883599999999999,
+                  "meanMs": 0.6896026666666665,
+                  "stddevMs": 0.056698609914372866,
+                  "variationCvPercent": 8.221924400095062
+                },
+                "medianRegressionPercent": 77.82896478686787
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.38204,
+                  "p95Ms": 0.48457199999999984,
+                  "p99Ms": 0.5634552,
+                  "minMs": 0.3756,
+                  "maxMs": 0.58872,
+                  "meanMs": 0.3983133333333334,
+                  "stddevMs": 0.045297224148456994,
+                  "variationCvPercent": 11.372259062829176
+                },
+                "candidate": {
+                  "medianMs": 0.67914,
+                  "p95Ms": 0.7376939999999998,
+                  "p99Ms": 0.7865236,
+                  "minMs": 0.6668799999999999,
+                  "maxMs": 0.80252,
+                  "meanMs": 0.6878653333333331,
+                  "stddevMs": 0.027148752670344833,
+                  "variationCvPercent": 3.9468121672572796
+                },
+                "medianRegressionPercent": 77.76672599727776
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.38002,
+                  "p95Ms": 0.41198799999999997,
+                  "p99Ms": 0.4155736,
+                  "minMs": 0.37428,
+                  "maxMs": 0.41619999999999996,
+                  "meanMs": 0.38265333333333335,
+                  "stddevMs": 0.010755743065399464,
+                  "variationCvPercent": 2.8108321889437256
+                },
+                "candidate": {
+                  "medianMs": 0.6743600000000001,
+                  "p95Ms": 0.797214,
+                  "p99Ms": 0.8017815999999999,
+                  "minMs": 0.66616,
+                  "maxMs": 0.8026399999999999,
+                  "meanMs": 0.6866559999999999,
+                  "stddevMs": 0.03779607118912404,
+                  "variationCvPercent": 5.504367716749587
+                },
+                "medianRegressionPercent": 77.4538182200937
+              }
+            ]
+          },
+          {
+            "block": 69,
+            "baseline": {
+              "medianMs": 0.37224,
+              "p95Ms": 0.380036,
+              "p99Ms": 0.5018263999999999,
+              "minMs": 0.3162,
+              "maxMs": 0.5412,
+              "meanMs": 0.3596391111111111,
+              "stddevMs": 0.03497797350220547,
+              "variationCvPercent": 9.725853618684695
+            },
+            "candidate": {
+              "medianMs": 0.6621999999999999,
+              "p95Ms": 0.681576,
+              "p99Ms": 0.7656736,
+              "minMs": 0.5661999999999999,
+              "maxMs": 0.79928,
+              "meanMs": 0.6378115555555556,
+              "stddevMs": 0.050261665973872535,
+              "variationCvPercent": 7.880331664748989
+            },
+            "medianRegressionPercent": 77.89598108747042,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.37627999999999995,
+                  "p95Ms": 0.4105339999999999,
+                  "p99Ms": 0.5076760000000001,
+                  "minMs": 0.37028,
+                  "maxMs": 0.5412,
+                  "meanMs": 0.38316133333333335,
+                  "stddevMs": 0.030930770842138564,
+                  "variationCvPercent": 8.072518845535535
+                },
+                "candidate": {
+                  "medianMs": 0.6675800000000001,
+                  "p95Ms": 0.6776279999999999,
+                  "p99Ms": 0.764074,
+                  "minMs": 0.65972,
+                  "maxMs": 0.79928,
+                  "meanMs": 0.6722093333333333,
+                  "stddevMs": 0.024046806986005902,
+                  "variationCvPercent": 3.5772795457574578
+                },
+                "medianRegressionPercent": 77.41575422557673
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.3736,
+                  "p95Ms": 0.37929799999999997,
+                  "p99Ms": 0.46293720000000005,
+                  "minMs": 0.32228,
+                  "maxMs": 0.49695999999999996,
+                  "meanMs": 0.3708186666666667,
+                  "stddevMs": 0.028559678305066546,
+                  "variationCvPercent": 7.70179089466906
+                },
+                "candidate": {
+                  "medianMs": 0.6644,
+                  "p95Ms": 0.7187879999999998,
+                  "p99Ms": 0.7572396,
+                  "minMs": 0.57444,
+                  "maxMs": 0.76152,
+                  "meanMs": 0.6599426666666666,
+                  "stddevMs": 0.037052157376085706,
+                  "variationCvPercent": 5.614450958783143
+                },
+                "medianRegressionPercent": 77.83725910064241
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.32454,
+                  "p95Ms": 0.32994599999999996,
+                  "p99Ms": 0.3359356,
+                  "minMs": 0.3162,
+                  "maxMs": 0.33836,
+                  "meanMs": 0.32493733333333324,
+                  "stddevMs": 0.0039392003700694875,
+                  "variationCvPercent": 1.212295407751286
+                },
+                "candidate": {
+                  "medianMs": 0.57382,
+                  "p95Ms": 0.6276859999999997,
+                  "p99Ms": 0.6894124,
+                  "minMs": 0.5661999999999999,
+                  "maxMs": 0.70056,
+                  "meanMs": 0.5812826666666667,
+                  "stddevMs": 0.027551505092987,
+                  "variationCvPercent": 4.739777508071861
+                },
+                "medianRegressionPercent": 76.81025451408148
+              }
+            ]
+          }
+        ],
+        "pooledRegressionRangePercent": [
+          77.87615283267459,
+          89.67948299497357
+        ],
+        "pairedRegressionRangePercent": [
+          76.81025451408148,
+          92.30032331457312
+        ],
+        "sumBaselineIsolatedMediansMs": 2.5111199999999996,
+        "sumCandidateIsolatedMediansMs": 4.57634,
+        "operatorMedianGateMinimumImprovementPercent": 5,
+        "operatorsPassingGate": 0,
+        "allPairStatisticsRetained": true,
+        "networkLatencyMeasurement": false,
+        "fullInferenceReductionProven": false,
+        "privateTimingReport": {
+          "path": "build/release/c32-strided-expansion-v10-dataflow-actual-timing-20261003-a1/gpu-timing-operand/interleaved.json",
+          "bytes": 48970,
+          "sha256": "aa8a38d679277c4c96667fac1f822083c6306623b722672f9d7b1bc8c4853368",
+          "distributed": false
+        },
+        "rootCompletionLog": {
+          "path": "build/release/c32-strided-expansion-v10-dataflow-actual-timing-20261003-a1/root-timing-operand.log",
+          "bytes": 1194,
+          "sha256": "5c1f8d759b370fafcb6716980ae264d86ce5ae5fc13e0a9b892690599be0a70f",
+          "distributed": false
+        },
+        "publicTimingReport": {
+          "path": "docs/performance/c32-strided-expansion-v10-measurements/operand-ordinary-target-interleaved.json",
+          "bytes": 48970,
+          "sha256": "aa8a38d679277c4c96667fac1f822083c6306623b722672f9d7b1bc8c4853368",
+          "distributed": true
+        },
+        "selectedModuleSha256": "f48b83dad3ff61964d15d3c51812962a358659fdcfdcc42b89f1ba87ef34f8bc"
+      },
+      {
+        "variant": "combined",
+        "protocol": {
+          "warmupsPerRoute": 5,
+          "interleavedPairs": 3,
+          "measuredFramesPerRoutePerPair": 30,
+          "routeOrder": [
+            "baseline-candidate",
+            "candidate-baseline",
+            "baseline-candidate"
+          ],
+          "frameInputsFixed": true,
+          "inputsWeightsSharedAcrossRoutes": true,
+          "preallocatedBuffers": true,
+          "persistentCommandBuffers": true,
+          "persistentDescriptorPools": true,
+          "reusableVkFence": true,
+          "queueWaitIdleDuringTiming": false,
+          "pipelineCaptureStatistics": false,
+          "imageReadbackDuringTiming": false,
+          "imageUploadsDuringTiming": false,
+          "timestampStage": "ALL_COMMANDS",
+          "baselineDispatchCount": 1,
+          "candidateDispatchCount": 1,
+          "timestampsPerRoute": 2,
+          "spanIncludesComputeBarriers": true,
+          "timingDomain": "GPU operator spans; excludes uploads, CPU submission/wait, readback and bridge",
+          "percentileMethod": "linear interpolation on n-1 index",
+          "variation": "population stddev/mean*100"
+        },
+        "operators": [
+          {
+            "block": 1,
+            "baseline": {
+              "medianMs": 0.30469999999999997,
+              "p95Ms": 0.35427,
+              "p99Ms": 0.3739884,
+              "minMs": 0.29675999999999997,
+              "maxMs": 0.37616,
+              "meanMs": 0.3158888888888889,
+              "stddevMs": 0.0216870269692605,
+              "variationCvPercent": 6.865397211514051
+            },
+            "candidate": {
+              "medianMs": 0.5708,
+              "p95Ms": 0.6795939999999999,
+              "p99Ms": 0.7385872,
+              "minMs": 0.56008,
+              "maxMs": 0.77376,
+              "meanMs": 0.5973817777777778,
+              "stddevMs": 0.04829038318289282,
+              "variationCvPercent": 8.083671946360663
+            },
+            "medianRegressionPercent": 87.33180177223498,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.3478,
+                  "p95Ms": 0.35531399999999996,
+                  "p99Ms": 0.3571064,
+                  "minMs": 0.29675999999999997,
+                  "maxMs": 0.35763999999999996,
+                  "meanMs": 0.33648266666666665,
+                  "stddevMs": 0.020758360714554402,
+                  "variationCvPercent": 6.169221410480104
+                },
+                "candidate": {
+                  "medianMs": 0.6577999999999999,
+                  "p95Ms": 0.7013959999999998,
+                  "p99Ms": 0.7319084,
+                  "minMs": 0.56008,
+                  "maxMs": 0.73424,
+                  "meanMs": 0.6366973333333333,
+                  "stddevMs": 0.04661180357901728,
+                  "variationCvPercent": 7.320873064598555
+                },
+                "medianRegressionPercent": 89.13168487636571
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.30241999999999997,
+                  "p95Ms": 0.3432819999999998,
+                  "p99Ms": 0.3754524,
+                  "minMs": 0.30004,
+                  "maxMs": 0.37616,
+                  "meanMs": 0.30730133333333337,
+                  "stddevMs": 0.01815076632603214,
+                  "variationCvPercent": 5.906504254032569
+                },
+                "candidate": {
+                  "medianMs": 0.56714,
+                  "p95Ms": 0.6650679999999998,
+                  "p99Ms": 0.748472,
+                  "minMs": 0.56356,
+                  "maxMs": 0.77376,
+                  "meanMs": 0.5805133333333333,
+                  "stddevMs": 0.04355700520263328,
+                  "variationCvPercent": 7.503187730853144
+                },
+                "medianRegressionPercent": 87.53389326102771
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.30435999999999996,
+                  "p95Ms": 0.308716,
+                  "p99Ms": 0.30997719999999995,
+                  "minMs": 0.29932,
+                  "maxMs": 0.31035999999999997,
+                  "meanMs": 0.30388266666666663,
+                  "stddevMs": 0.00293639113349855,
+                  "variationCvPercent": 0.9662910904752329
+                },
+                "candidate": {
+                  "medianMs": 0.56928,
+                  "p95Ms": 0.6044539999999998,
+                  "p99Ms": 0.6727956,
+                  "minMs": 0.56336,
+                  "maxMs": 0.6908799999999999,
+                  "meanMs": 0.5749346666666668,
+                  "stddevMs": 0.024328589455389488,
+                  "variationCvPercent": 4.23153983676803
+                },
+                "medianRegressionPercent": 87.04166119069525
+              }
+            ]
+          },
+          {
+            "block": 2,
+            "baseline": {
+              "medianMs": 0.3459,
+              "p95Ms": 0.359224,
+              "p99Ms": 0.364594,
+              "minMs": 0.29468,
+              "maxMs": 0.36584,
+              "meanMs": 0.3324755555555555,
+              "stddevMs": 0.023317913719861676,
+              "variationCvPercent": 7.013421988542352
+            },
+            "candidate": {
+              "medianMs": 0.63138,
+              "p95Ms": 0.6899179999999998,
+              "p99Ms": 0.7667908,
+              "minMs": 0.5392,
+              "maxMs": 0.77772,
+              "meanMs": 0.6124306666666666,
+              "stddevMs": 0.05258014227612719,
+              "variationCvPercent": 8.585484878200177
+            },
+            "medianRegressionPercent": 82.53252385082396,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.3498,
+                  "p95Ms": 0.36094,
+                  "p99Ms": 0.3650976,
+                  "minMs": 0.34408,
+                  "maxMs": 0.36584,
+                  "meanMs": 0.3507093333333332,
+                  "stddevMs": 0.0050190244293310884,
+                  "variationCvPercent": 1.4311066037585987
+                },
+                "candidate": {
+                  "medianMs": 0.6365999999999999,
+                  "p95Ms": 0.7121479999999999,
+                  "p99Ms": 0.7469444000000001,
+                  "minMs": 0.63008,
+                  "maxMs": 0.76076,
+                  "meanMs": 0.6459493333333335,
+                  "stddevMs": 0.028732710155655157,
+                  "variationCvPercent": 4.448136823268154
+                },
+                "medianRegressionPercent": 81.98970840480273
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.3477,
+                  "p95Ms": 0.36018199999999995,
+                  "p99Ms": 0.3632104,
+                  "minMs": 0.29775999999999997,
+                  "maxMs": 0.36444,
+                  "meanMs": 0.34387600000000007,
+                  "stddevMs": 0.01609582753386728,
+                  "variationCvPercent": 4.680706863481975
+                },
+                "candidate": {
+                  "medianMs": 0.63442,
+                  "p95Ms": 0.7158859999999997,
+                  "p99Ms": 0.7741588,
+                  "minMs": 0.5546,
+                  "maxMs": 0.77772,
+                  "meanMs": 0.6360306666666665,
+                  "stddevMs": 0.04454522158685735,
+                  "variationCvPercent": 7.003627957172509
+                },
+                "medianRegressionPercent": 82.46189243600803
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.303,
+                  "p95Ms": 0.30596999999999996,
+                  "p99Ms": 0.307802,
+                  "minMs": 0.29468,
+                  "maxMs": 0.30844,
+                  "meanMs": 0.3028413333333333,
+                  "stddevMs": 0.0025062159169198122,
+                  "variationCvPercent": 0.8275673235665142
+                },
+                "candidate": {
+                  "medianMs": 0.54994,
+                  "p95Ms": 0.5858279999999998,
+                  "p99Ms": 0.6487488,
+                  "minMs": 0.5392,
+                  "maxMs": 0.6642,
+                  "meanMs": 0.5553120000000001,
+                  "stddevMs": 0.02326296604763317,
+                  "variationCvPercent": 4.189170420886486
+                },
+                "medianRegressionPercent": 81.4983498349835
+              }
+            ]
+          },
+          {
+            "block": 3,
+            "baseline": {
+              "medianMs": 0.31518,
+              "p95Ms": 0.36330799999999996,
+              "p99Ms": 0.36729280000000003,
+              "minMs": 0.30732,
+              "maxMs": 0.36772,
+              "meanMs": 0.3286591111111111,
+              "stddevMs": 0.02129281587998087,
+              "variationCvPercent": 6.4786933208683575
+            },
+            "candidate": {
+              "medianMs": 0.57172,
+              "p95Ms": 0.667266,
+              "p99Ms": 0.7773412,
+              "minMs": 0.55884,
+              "maxMs": 0.7924,
+              "meanMs": 0.6025355555555556,
+              "stddevMs": 0.04951616524173609,
+              "variationCvPercent": 8.21796569267696
+            },
+            "medianRegressionPercent": 81.39475855066945,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.35907999999999995,
+                  "p95Ms": 0.367222,
+                  "p99Ms": 0.3675808,
+                  "minMs": 0.31116,
+                  "maxMs": 0.36772,
+                  "meanMs": 0.3566186666666667,
+                  "stddevMs": 0.01195598921972675,
+                  "variationCvPercent": 3.3525977009223897
+                },
+                "candidate": {
+                  "medianMs": 0.65388,
+                  "p95Ms": 0.7269699999999997,
+                  "p99Ms": 0.7874932,
+                  "minMs": 0.5638,
+                  "maxMs": 0.7924,
+                  "meanMs": 0.6551946666666668,
+                  "stddevMs": 0.042332777823126874,
+                  "variationCvPercent": 6.461099269702063
+                },
+                "medianRegressionPercent": 82.09869666926592
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.31289999999999996,
+                  "p95Ms": 0.32419,
+                  "p99Ms": 0.3258896,
+                  "minMs": 0.30732,
+                  "maxMs": 0.32639999999999997,
+                  "meanMs": 0.31366133333333324,
+                  "stddevMs": 0.004661681909163497,
+                  "variationCvPercent": 1.4862150395214473
+                },
+                "candidate": {
+                  "medianMs": 0.56746,
+                  "p95Ms": 0.6160199999999998,
+                  "p99Ms": 0.6388324,
+                  "minMs": 0.55884,
+                  "maxMs": 0.63896,
+                  "meanMs": 0.5720026666666667,
+                  "stddevMs": 0.018673623275149952,
+                  "variationCvPercent": 3.264604234097385
+                },
+                "medianRegressionPercent": 81.35506551613936
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.31433999999999995,
+                  "p95Ms": 0.32655399999999996,
+                  "p99Ms": 0.32912399999999997,
+                  "minMs": 0.31007999999999997,
+                  "maxMs": 0.32924,
+                  "meanMs": 0.3156973333333333,
+                  "stddevMs": 0.004560405634979801,
+                  "variationCvPercent": 1.4445499386479252
+                },
+                "candidate": {
+                  "medianMs": 0.5700000000000001,
+                  "p95Ms": 0.6464539999999998,
+                  "p99Ms": 0.6995176,
+                  "minMs": 0.56352,
+                  "maxMs": 0.70548,
+                  "meanMs": 0.5804093333333334,
+                  "stddevMs": 0.03193704087036799,
+                  "variationCvPercent": 5.502502981292741
+                },
+                "medianRegressionPercent": 81.33231532735259
+              }
+            ]
+          },
+          {
+            "block": 4,
+            "baseline": {
+              "medianMs": 0.3579,
+              "p95Ms": 0.371492,
+              "p99Ms": 0.47737399999999997,
+              "minMs": 0.3076,
+              "maxMs": 0.48751999999999995,
+              "meanMs": 0.34881155555555554,
+              "stddevMs": 0.031185283278107358,
+              "variationCvPercent": 8.940438692874796
+            },
+            "candidate": {
+              "medianMs": 0.6470199999999999,
+              "p95Ms": 0.713472,
+              "p99Ms": 0.8318399999999999,
+              "minMs": 0.55424,
+              "maxMs": 0.8353999999999999,
+              "meanMs": 0.6285226666666667,
+              "stddevMs": 0.05536056897588149,
+              "variationCvPercent": 8.808046537045838
+            },
+            "medianRegressionPercent": 80.78234143615532,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.36206,
+                  "p95Ms": 0.36757999999999996,
+                  "p99Ms": 0.4448000000000001,
+                  "minMs": 0.35516,
+                  "maxMs": 0.47612,
+                  "meanMs": 0.3654773333333334,
+                  "stddevMs": 0.020751882634809038,
+                  "variationCvPercent": 5.678021792908917
+                },
+                "candidate": {
+                  "medianMs": 0.65616,
+                  "p95Ms": 0.7242359999999999,
+                  "p99Ms": 0.8051356000000001,
+                  "minMs": 0.64256,
+                  "maxMs": 0.8353999999999999,
+                  "meanMs": 0.6645573333333333,
+                  "stddevMs": 0.036506056386425643,
+                  "variationCvPercent": 5.493289225071974
+                },
+                "medianRegressionPercent": 81.22963044799204
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.3579,
+                  "p95Ms": 0.367956,
+                  "p99Ms": 0.4529404000000001,
+                  "minMs": 0.32004,
+                  "maxMs": 0.48751999999999995,
+                  "meanMs": 0.3586973333333333,
+                  "stddevMs": 0.02724452568050241,
+                  "variationCvPercent": 7.595407924369592
+                },
+                "candidate": {
+                  "medianMs": 0.64976,
+                  "p95Ms": 0.6892039999999999,
+                  "p99Ms": 0.7963332000000001,
+                  "minMs": 0.5804,
+                  "maxMs": 0.8313999999999999,
+                  "meanMs": 0.6503733333333332,
+                  "stddevMs": 0.04208363904839451,
+                  "variationCvPercent": 6.4706895088556085
+                },
+                "medianRegressionPercent": 81.54791841296452
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.31482,
+                  "p95Ms": 0.37577,
+                  "p99Ms": 0.417022,
+                  "minMs": 0.3076,
+                  "maxMs": 0.43332,
+                  "meanMs": 0.32225999999999994,
+                  "stddevMs": 0.025772058771726666,
+                  "variationCvPercent": 7.9972875230331635
+                },
+                "candidate": {
+                  "medianMs": 0.56614,
+                  "p95Ms": 0.5703199999999999,
+                  "p99Ms": 0.6884832000000001,
+                  "minMs": 0.55424,
+                  "maxMs": 0.7365999999999999,
+                  "meanMs": 0.5706373333333332,
+                  "stddevMs": 0.03104822559968425,
+                  "variationCvPercent": 5.440973414465975
+                },
+                "medianRegressionPercent": 79.82974398068738
+              }
+            ]
+          },
+          {
+            "block": 67,
+            "baseline": {
+              "medianMs": 0.37461999999999995,
+              "p95Ms": 0.42289999999999983,
+              "p99Ms": 0.45562719999999995,
+              "minMs": 0.32072,
+              "maxMs": 0.45876,
+              "meanMs": 0.3727937777777778,
+              "stddevMs": 0.027183662355571746,
+              "variationCvPercent": 7.291876628846502
+            },
+            "candidate": {
+              "medianMs": 0.6617,
+              "p95Ms": 0.693284,
+              "p99Ms": 0.7922935999999999,
+              "minMs": 0.5646,
+              "maxMs": 0.79564,
+              "meanMs": 0.6543648888888889,
+              "stddevMs": 0.04306022235697464,
+              "variationCvPercent": 6.5804603957420245
+            },
+            "medianRegressionPercent": 76.63232075169506,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.37385999999999997,
+                  "p95Ms": 0.450578,
+                  "p99Ms": 0.4577392,
+                  "minMs": 0.36979999999999996,
+                  "maxMs": 0.45876,
+                  "meanMs": 0.38191600000000003,
+                  "stddevMs": 0.023970536025156666,
+                  "variationCvPercent": 6.276389579163131
+                },
+                "candidate": {
+                  "medianMs": 0.66128,
+                  "p95Ms": 0.7368899999999996,
+                  "p99Ms": 0.7945496,
+                  "minMs": 0.6521199999999999,
+                  "maxMs": 0.79564,
+                  "meanMs": 0.6689879999999998,
+                  "stddevMs": 0.03355844756043799,
+                  "variationCvPercent": 5.016300376155925
+                },
+                "medianRegressionPercent": 76.87904563205478
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.36146,
+                  "p95Ms": 0.394204,
+                  "p99Ms": 0.3961052,
+                  "minMs": 0.32072,
+                  "maxMs": 0.39671999999999996,
+                  "meanMs": 0.35435333333333335,
+                  "stddevMs": 0.028295285041072753,
+                  "variationCvPercent": 7.985048362577677
+                },
+                "candidate": {
+                  "medianMs": 0.62762,
+                  "p95Ms": 0.695788,
+                  "p99Ms": 0.7591164,
+                  "minMs": 0.5646,
+                  "maxMs": 0.7848799999999999,
+                  "meanMs": 0.6269906666666667,
+                  "stddevMs": 0.056914245371631006,
+                  "variationCvPercent": 9.077367239644875
+                },
+                "medianRegressionPercent": 73.63470370165439
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.37693999999999994,
+                  "p95Ms": 0.41908399999999985,
+                  "p99Ms": 0.4492048,
+                  "minMs": 0.36956,
+                  "maxMs": 0.4512,
+                  "meanMs": 0.382112,
+                  "stddevMs": 0.018208529576364298,
+                  "variationCvPercent": 4.765233642587591
+                },
+                "candidate": {
+                  "medianMs": 0.6651199999999999,
+                  "p95Ms": 0.682322,
+                  "p99Ms": 0.6849924,
+                  "minMs": 0.65448,
+                  "maxMs": 0.68512,
+                  "meanMs": 0.667116,
+                  "stddevMs": 0.008448269882052764,
+                  "variationCvPercent": 1.2663869375120314
+                },
+                "medianRegressionPercent": 76.4524858067597
+              }
+            ]
+          },
+          {
+            "block": 68,
+            "baseline": {
+              "medianMs": 0.37246,
+              "p95Ms": 0.39214999999999994,
+              "p99Ms": 0.455962,
+              "minMs": 0.31951999999999997,
+              "maxMs": 0.50064,
+              "meanMs": 0.3614551111111111,
+              "stddevMs": 0.030926605922353384,
+              "variationCvPercent": 8.556140160056156
+            },
+            "candidate": {
+              "medianMs": 0.6553,
+              "p95Ms": 0.7079319999999999,
+              "p99Ms": 0.8348192,
+              "minMs": 0.56196,
+              "maxMs": 0.8408,
+              "meanMs": 0.6365506666666666,
+              "stddevMs": 0.05706460963582322,
+              "variationCvPercent": 8.964661043345577
+            },
+            "medianRegressionPercent": 75.9383557965956,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.37526,
+                  "p95Ms": 0.4217839999999998,
+                  "p99Ms": 0.486082,
+                  "minMs": 0.36828,
+                  "maxMs": 0.50064,
+                  "meanMs": 0.3819946666666667,
+                  "stddevMs": 0.02610976774227522,
+                  "variationCvPercent": 6.835113162734005
+                },
+                "candidate": {
+                  "medianMs": 0.6616,
+                  "p95Ms": 0.7875499999999996,
+                  "p99Ms": 0.8388512,
+                  "minMs": 0.65188,
+                  "maxMs": 0.8408,
+                  "meanMs": 0.6749173333333333,
+                  "stddevMs": 0.045578955299811576,
+                  "variationCvPercent": 6.753264888709074
+                },
+                "medianRegressionPercent": 76.30442892927569
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.37007999999999996,
+                  "p95Ms": 0.38891,
+                  "p99Ms": 0.429418,
+                  "minMs": 0.3212,
+                  "maxMs": 0.44328,
+                  "meanMs": 0.3584946666666666,
+                  "stddevMs": 0.0281492166537938,
+                  "variationCvPercent": 7.852060092142833
+                },
+                "candidate": {
+                  "medianMs": 0.6481,
+                  "p95Ms": 0.66835,
+                  "p99Ms": 0.7856376000000002,
+                  "minMs": 0.56196,
+                  "maxMs": 0.83336,
+                  "meanMs": 0.6303439999999999,
+                  "stddevMs": 0.054834021166911814,
+                  "variationCvPercent": 8.699062919122229
+                },
+                "medianRegressionPercent": 75.1242974492002
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.32658,
+                  "p95Ms": 0.38678399999999996,
+                  "p99Ms": 0.39518,
+                  "minMs": 0.31951999999999997,
+                  "maxMs": 0.39808,
+                  "meanMs": 0.34387599999999996,
+                  "stddevMs": 0.02560476070317133,
+                  "variationCvPercent": 7.445928387898932
+                },
+                "candidate": {
+                  "medianMs": 0.57478,
+                  "p95Ms": 0.6801240000000001,
+                  "p99Ms": 0.7159064,
+                  "minMs": 0.5626,
+                  "maxMs": 0.73036,
+                  "meanMs": 0.6043906666666666,
+                  "stddevMs": 0.046261307297663874,
+                  "variationCvPercent": 7.654206103612434
+                },
+                "medianRegressionPercent": 75.99975503705065
+              }
+            ]
+          },
+          {
+            "block": 69,
+            "baseline": {
+              "medianMs": 0.37112,
+              "p95Ms": 0.38334199999999996,
+              "p99Ms": 0.3867016,
+              "minMs": 0.3196,
+              "maxMs": 0.3872,
+              "meanMs": 0.3540208888888889,
+              "stddevMs": 0.026153686786822422,
+              "variationCvPercent": 7.387611185573538
+            },
+            "candidate": {
+              "medianMs": 0.65118,
+              "p95Ms": 0.7070679999999999,
+              "p99Ms": 0.7781187999999999,
+              "minMs": 0.55628,
+              "maxMs": 0.78264,
+              "meanMs": 0.6281955555555555,
+              "stddevMs": 0.05555535647964331,
+              "variationCvPercent": 8.843640485566947
+            },
+            "medianRegressionPercent": 75.46346195300711,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.37857999999999997,
+                  "p95Ms": 0.38615399999999994,
+                  "p99Ms": 0.3870376,
+                  "minMs": 0.37172,
+                  "maxMs": 0.3872,
+                  "meanMs": 0.37830533333333327,
+                  "stddevMs": 0.004438780413081451,
+                  "variationCvPercent": 1.173332761124555
+                },
+                "candidate": {
+                  "medianMs": 0.6619999999999999,
+                  "p95Ms": 0.7606759999999998,
+                  "p99Ms": 0.7811667999999999,
+                  "minMs": 0.65044,
+                  "maxMs": 0.78264,
+                  "meanMs": 0.6722760000000001,
+                  "stddevMs": 0.032831871263555266,
+                  "variationCvPercent": 4.88368932753144
+                },
+                "medianRegressionPercent": 74.86396534418087
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.37112,
+                  "p95Ms": 0.378422,
+                  "p99Ms": 0.3789512,
+                  "minMs": 0.31995999999999997,
+                  "maxMs": 0.37916,
+                  "meanMs": 0.3605213333333333,
+                  "stddevMs": 0.021183932233862744,
+                  "variationCvPercent": 5.875916423030745
+                },
+                "candidate": {
+                  "medianMs": 0.6530199999999999,
+                  "p95Ms": 0.6935679999999999,
+                  "p99Ms": 0.755822,
+                  "minMs": 0.5594399999999999,
+                  "maxMs": 0.77328,
+                  "meanMs": 0.6413280000000001,
+                  "stddevMs": 0.04588166622955186,
+                  "variationCvPercent": 7.1541654550482505
+                },
+                "medianRegressionPercent": 75.95925846087516
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.32304,
+                  "p95Ms": 0.326418,
+                  "p99Ms": 0.32721439999999996,
+                  "minMs": 0.3196,
+                  "maxMs": 0.32739999999999997,
+                  "meanMs": 0.32323599999999997,
+                  "stddevMs": 0.0019709990698458853,
+                  "variationCvPercent": 0.609770901089571
+                },
+                "candidate": {
+                  "medianMs": 0.5643,
+                  "p95Ms": 0.5991399999999998,
+                  "p99Ms": 0.6771812,
+                  "minMs": 0.55628,
+                  "maxMs": 0.69972,
+                  "meanMs": 0.5709826666666667,
+                  "stddevMs": 0.026215882582044724,
+                  "variationCvPercent": 4.591362244862901
+                },
+                "medianRegressionPercent": 74.68424962852897
+              }
+            ]
+          }
+        ],
+        "pooledRegressionRangePercent": [
+          75.46346195300711,
+          87.33180177223498
+        ],
+        "pairedRegressionRangePercent": [
+          73.63470370165439,
+          89.13168487636571
+        ],
+        "sumBaselineIsolatedMediansMs": 2.44188,
+        "sumCandidateIsolatedMediansMs": 4.389099999999999,
+        "operatorMedianGateMinimumImprovementPercent": 5,
+        "operatorsPassingGate": 0,
+        "allPairStatisticsRetained": true,
+        "networkLatencyMeasurement": false,
+        "fullInferenceReductionProven": false,
+        "privateTimingReport": {
+          "path": "build/release/c32-strided-expansion-v10-dataflow-actual-timing-20261003-a1/gpu-timing-combined/interleaved.json",
+          "bytes": 48742,
+          "sha256": "4fbf0206c2724530ee0d5add383168d17302a2005a1b97ebb78d203841fca07d",
+          "distributed": false
+        },
+        "rootCompletionLog": {
+          "path": "build/release/c32-strided-expansion-v10-dataflow-actual-timing-20261003-a1/root-timing-combined.log",
+          "bytes": 1201,
+          "sha256": "604711246d646f7757f7b5fafd0a183f7033b9bc726daceb8e647ee44fec3941",
+          "distributed": false
+        },
+        "publicTimingReport": {
+          "path": "docs/performance/c32-strided-expansion-v10-measurements/combined-ordinary-target-interleaved.json",
+          "bytes": 48742,
+          "sha256": "4fbf0206c2724530ee0d5add383168d17302a2005a1b97ebb78d203841fca07d",
+          "distributed": true
+        },
+        "selectedModuleSha256": "e376b4709061ba368cb78c67d89a63e80f9ce9508ae533c6d1b6b00b5c180c8e"
+      }
+    ],
+    "totalSampleScalars": 3780,
+    "independentlyRecomputedStatisticFields": 1344,
+    "canonicalPrePostChecks": 42,
+    "allPooledOperatorsRejected": 21,
+    "allPairedOperatorsRejected": 63,
+    "validationLayersEnabled": false,
+    "measuredReadback": false,
+    "qualityMeasured": false
+  },
+  "installedDriver": [
+    {
+      "module": "amd_expand32_mask_seed_tile",
+      "moduleSha256": "2b89add72e0d9b2dabd8b29b330cac74450232a672f4628666fd8503e618add7",
+      "report": {
+        "path": "build/release/c32-strided-expansion-v10-dataflow-host-20261003-a1/driver-info/amd_expand32_mask_seed_tile.txt",
+        "bytes": 147056,
+        "sha256": "b1a4c9023d524816b0ada5ccab5dcb53156bc2f1055fea42be5c928f3ea2e9c3",
+        "distributed": false
+      },
+      "resources": {
+        "numUsedVgprs": 48,
+        "numUsedSgprs": 36,
+        "ldsSizePerLocalWorkGroup": 512,
+        "scratchMemUsageInBytes": 0
+      },
+      "subgroupSizeReported": 32,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "f32ToF16Narrowing": 40,
+        "f16ToF32Widening": 40,
+        "totalHalfConversions": 80,
+        "modeSetters": 0,
+        "fp8Downconversion": 0,
+        "bpermute": 0
+      },
+      "offlineResourcesSeparate": {
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprs": 36,
+        "sgprSpills": 0,
+        "ldsBytes": 512,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 46,
+        "staticScratchInstructionCount": 0
+      },
+      "installedDriverEquivalentToOffline": false,
+      "pipelineCaptureInstrumented": true,
+      "ordinaryTiming": false
+    },
+    {
+      "module": "amd_expand32_mask_seed_tile_capture",
+      "moduleSha256": "d361fd9bfd7a719c3c00d423909775d59a0d567668c57635614735eedbaddb9b",
+      "report": {
+        "path": "build/release/c32-strided-expansion-v10-dataflow-host-20261003-a1/driver-info/amd_expand32_mask_seed_tile_capture.txt",
+        "bytes": 148667,
+        "sha256": "c841b090d15fde31b00832ea523c8c3b435522689d43bb1e322df90b42eb1e51",
+        "distributed": false
+      },
+      "resources": {
+        "numUsedVgprs": 51,
+        "numUsedSgprs": 41,
+        "ldsSizePerLocalWorkGroup": 512,
+        "scratchMemUsageInBytes": 0
+      },
+      "subgroupSizeReported": 32,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "f32ToF16Narrowing": 40,
+        "f16ToF32Widening": 40,
+        "totalHalfConversions": 80,
+        "modeSetters": 0,
+        "fp8Downconversion": 0,
+        "bpermute": 0
+      },
+      "offlineResourcesSeparate": {
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprs": 41,
+        "sgprSpills": 0,
+        "ldsBytes": 512,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 49,
+        "staticScratchInstructionCount": 0
+      },
+      "installedDriverEquivalentToOffline": false,
+      "pipelineCaptureInstrumented": true,
+      "ordinaryTiming": false
+    },
+    {
+      "module": "amd_expand32_mask_operand_tile",
+      "moduleSha256": "f48b83dad3ff61964d15d3c51812962a358659fdcfdcc42b89f1ba87ef34f8bc",
+      "report": {
+        "path": "build/release/c32-strided-expansion-v10-dataflow-host-20261003-a1/driver-info/amd_expand32_mask_operand_tile.txt",
+        "bytes": 155157,
+        "sha256": "85636d0c4efcc7c271e41d8266aa8652d41fd3f8fec11b3f409afa38ff5a6729",
+        "distributed": false
+      },
+      "resources": {
+        "numUsedVgprs": 48,
+        "numUsedSgprs": 36,
+        "ldsSizePerLocalWorkGroup": 1024,
+        "scratchMemUsageInBytes": 0
+      },
+      "subgroupSizeReported": 32,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "f32ToF16Narrowing": 40,
+        "f16ToF32Widening": 40,
+        "totalHalfConversions": 80,
+        "modeSetters": 0,
+        "fp8Downconversion": 0,
+        "bpermute": 0
+      },
+      "offlineResourcesSeparate": {
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprs": 36,
+        "sgprSpills": 0,
+        "ldsBytes": 1024,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 48,
+        "staticScratchInstructionCount": 0
+      },
+      "installedDriverEquivalentToOffline": false,
+      "pipelineCaptureInstrumented": true,
+      "ordinaryTiming": false
+    },
+    {
+      "module": "amd_expand32_mask_operand_tile_capture",
+      "moduleSha256": "086871388a2511edee9e3fbf0020260a7ca7185046999df13474519cfd7cd91e",
+      "report": {
+        "path": "build/release/c32-strided-expansion-v10-dataflow-host-20261003-a1/driver-info/amd_expand32_mask_operand_tile_capture.txt",
+        "bytes": 156750,
+        "sha256": "b7fd6410f72c7a351e34a0464b695f97f0f6443583b3d4ba07947ab749c84c7f",
+        "distributed": false
+      },
+      "resources": {
+        "numUsedVgprs": 51,
+        "numUsedSgprs": 41,
+        "ldsSizePerLocalWorkGroup": 1024,
+        "scratchMemUsageInBytes": 0
+      },
+      "subgroupSizeReported": 32,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "f32ToF16Narrowing": 40,
+        "f16ToF32Widening": 40,
+        "totalHalfConversions": 80,
+        "modeSetters": 0,
+        "fp8Downconversion": 0,
+        "bpermute": 0
+      },
+      "offlineResourcesSeparate": {
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprs": 41,
+        "sgprSpills": 0,
+        "ldsBytes": 1024,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 51,
+        "staticScratchInstructionCount": 0
+      },
+      "installedDriverEquivalentToOffline": false,
+      "pipelineCaptureInstrumented": true,
+      "ordinaryTiming": false
+    },
+    {
+      "module": "amd_expand32_mask_combined_tile",
+      "moduleSha256": "e376b4709061ba368cb78c67d89a63e80f9ce9508ae533c6d1b6b00b5c180c8e",
+      "report": {
+        "path": "build/release/c32-strided-expansion-v10-dataflow-host-20261003-a1/driver-info/amd_expand32_mask_combined_tile.txt",
+        "bytes": 153945,
+        "sha256": "c461862a179020b96f324423cb371151084767b3d235bcff951a399036245315",
+        "distributed": false
+      },
+      "resources": {
+        "numUsedVgprs": 49,
+        "numUsedSgprs": 36,
+        "ldsSizePerLocalWorkGroup": 0,
+        "scratchMemUsageInBytes": 0
+      },
+      "subgroupSizeReported": 32,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "f32ToF16Narrowing": 40,
+        "f16ToF32Widening": 40,
+        "totalHalfConversions": 80,
+        "modeSetters": 0,
+        "fp8Downconversion": 0,
+        "bpermute": 0
+      },
+      "offlineResourcesSeparate": {
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprs": 36,
+        "sgprSpills": 0,
+        "ldsBytes": 0,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 46,
+        "staticScratchInstructionCount": 0
+      },
+      "installedDriverEquivalentToOffline": false,
+      "pipelineCaptureInstrumented": true,
+      "ordinaryTiming": false
+    },
+    {
+      "module": "amd_expand32_mask_combined_tile_capture",
+      "moduleSha256": "498a954a882d6180bdc587adebcb344043522787aaed2c086635e801c7f7f4f1",
+      "report": {
+        "path": "build/release/c32-strided-expansion-v10-dataflow-host-20261003-a1/driver-info/amd_expand32_mask_combined_tile_capture.txt",
+        "bytes": 155508,
+        "sha256": "241db1c1ba18755e3b974bb13809405a1c6dbbc35203c30f346463d0347e05cc",
+        "distributed": false
+      },
+      "resources": {
+        "numUsedVgprs": 52,
+        "numUsedSgprs": 41,
+        "ldsSizePerLocalWorkGroup": 0,
+        "scratchMemUsageInBytes": 0
+      },
+      "subgroupSizeReported": 32,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "f32ToF16Narrowing": 40,
+        "f16ToF32Widening": 40,
+        "totalHalfConversions": 80,
+        "modeSetters": 0,
+        "fp8Downconversion": 0,
+        "bpermute": 0
+      },
+      "offlineResourcesSeparate": {
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprs": 40,
+        "sgprSpills": 0,
+        "ldsBytes": 0,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 46,
+        "staticScratchInstructionCount": 0
+      },
+      "installedDriverEquivalentToOffline": false,
+      "pipelineCaptureInstrumented": true,
+      "ordinaryTiming": false
+    }
+  ],
+  "offlineWave32": [
+    {
+      "module": "amd_expand32_mask_seed_tile",
+      "resources": {
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprs": 36,
+        "sgprSpills": 0,
+        "ldsBytes": 512,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 46,
+        "staticScratchInstructionCount": 0
+      },
+      "analysis": {
+        "path": "build/release/c32-strided-expansion-v10-dataflow-20261003-a1/offline-amd_expand32_mask_seed_tile/analysis.json",
+        "bytes": 6483,
+        "sha256": "eb6f34be2fd223cf10694cc11c54c64767adbe6b96ded7ee8ea768ef17de46d6",
+        "distributed": false
+      },
+      "ordinaryTiming": false,
+      "installedDriverEquivalentClaim": false
+    },
+    {
+      "module": "amd_expand32_mask_seed_tile_capture",
+      "resources": {
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprs": 41,
+        "sgprSpills": 0,
+        "ldsBytes": 512,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 49,
+        "staticScratchInstructionCount": 0
+      },
+      "analysis": {
+        "path": "build/release/c32-strided-expansion-v10-dataflow-20261003-a1/offline-amd_expand32_mask_seed_tile_capture/analysis.json",
+        "bytes": 6539,
+        "sha256": "463a5c94d3957a644f6c4d70501e14c0176247404841c8987418366e14dc5d7e",
+        "distributed": false
+      },
+      "ordinaryTiming": false,
+      "installedDriverEquivalentClaim": false
+    },
+    {
+      "module": "amd_expand32_mask_operand_tile",
+      "resources": {
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprs": 36,
+        "sgprSpills": 0,
+        "ldsBytes": 1024,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 48,
+        "staticScratchInstructionCount": 0
+      },
+      "analysis": {
+        "path": "build/release/c32-strided-expansion-v10-dataflow-20261003-a1/offline-amd_expand32_mask_operand_tile/analysis.json",
+        "bytes": 6506,
+        "sha256": "2ab6350ad2efc8055c59cccf2af53af5ff5f0ad79b6c12c3f55992c526d32523",
+        "distributed": false
+      },
+      "ordinaryTiming": false,
+      "installedDriverEquivalentClaim": false
+    },
+    {
+      "module": "amd_expand32_mask_operand_tile_capture",
+      "resources": {
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprs": 41,
+        "sgprSpills": 0,
+        "ldsBytes": 1024,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 51,
+        "staticScratchInstructionCount": 0
+      },
+      "analysis": {
+        "path": "build/release/c32-strided-expansion-v10-dataflow-20261003-a1/offline-amd_expand32_mask_operand_tile_capture/analysis.json",
+        "bytes": 6562,
+        "sha256": "ef8ce3b7ab6c861c0dcdd7579e9c4825dfe89067ae432cd5889cf1a7c81776a7",
+        "distributed": false
+      },
+      "ordinaryTiming": false,
+      "installedDriverEquivalentClaim": false
+    },
+    {
+      "module": "amd_expand32_mask_combined_tile",
+      "resources": {
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprs": 36,
+        "sgprSpills": 0,
+        "ldsBytes": 0,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 46,
+        "staticScratchInstructionCount": 0
+      },
+      "analysis": {
+        "path": "build/release/c32-strided-expansion-v10-dataflow-20261003-a1/offline-amd_expand32_mask_combined_tile/analysis.json",
+        "bytes": 6513,
+        "sha256": "5f5c51e082e599947c71631efa7694fdad28398d84df16467b911b4e72717f61",
+        "distributed": false
+      },
+      "ordinaryTiming": false,
+      "installedDriverEquivalentClaim": false
+    },
+    {
+      "module": "amd_expand32_mask_combined_tile_capture",
+      "resources": {
+        "wavefrontSize": 32,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprs": 40,
+        "sgprSpills": 0,
+        "ldsBytes": 0,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "vgprs": 46,
+        "staticScratchInstructionCount": 0
+      },
+      "analysis": {
+        "path": "build/release/c32-strided-expansion-v10-dataflow-20261003-a1/offline-amd_expand32_mask_combined_tile_capture/analysis.json",
+        "bytes": 6569,
+        "sha256": "0c3992794d91f5c65845676a688984bb8fa132a1ca381edfc6ff2a2def354f28",
+        "distributed": false
+      },
+      "ordinaryTiming": false,
+      "installedDriverEquivalentClaim": false
+    }
+  ],
+  "independentAudits": {
+    "source": {
+      "path": "build/release/c32-strided-expansion-v10-source-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 8982,
+      "sha256": "f70e8b986676dce02295b7f98c5db905728bb0ab853956d4ed61a035d3f3d6fa",
+      "distributed": false
+    },
+    "offlineBinding": {
+      "path": "build/release/c32-strided-expansion-v10-source-independent-cpu-audit-20261003-a1/offline-binding-supplement.json",
+      "bytes": 13018,
+      "sha256": "d0ec7298b45ae220a346ac91c942a31388133b06e9d9c41fc624546545ba09ab",
+      "distributed": false
+    },
+    "boundedHost": {
+      "path": "build/release/c32-strided-expansion-v10-source-independent-cpu-audit-20261003-a1/host-binding-review.json",
+      "bytes": 1077,
+      "sha256": "d8cbe74bd6aa8dcb4498598354959bf324e59a005a5e616ec37b90e99ed17d9c",
+      "distributed": false
+    },
+    "actualTimingHost": {
+      "path": "build/release/c32-strided-expansion-v10-source-independent-cpu-audit-20261003-a1/actual-timing-host-source-review.json",
+      "bytes": 1041,
+      "sha256": "f0db4888fa17218bd93d477b73a0a5c9767dc28bbd32212714cb20536bc73d58",
+      "distributed": false
+    },
+    "boundedSavedDriver": {
+      "path": "build/release/c32-strided-expansion-v10-saved-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 11194,
+      "sha256": "7dc5b38d3679b7817ec7c0be415cbdc43d8b7b2b40bed386b1871ed41bdbc6db",
+      "distributed": false
+    },
+    "halfDirection": {
+      "path": "build/release/c32-strided-expansion-v10-saved-independent-cpu-audit-20261003-a1/half-conversion-direction-supplement.json",
+      "bytes": 2959,
+      "sha256": "7f65ede73b51c30d23c1628abac548f0a191b48b72ab63d71a0a078202985c63",
+      "distributed": false
+    },
+    "actual70SavedRepack": {
+      "path": "build/release/c32-strided-expansion-v10-actual-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 93475,
+      "sha256": "718e22a8d335ad678c7b682945d4fbac40ab3892a7680d4374058610f2204edc",
+      "distributed": false
+    },
+    "secondCanonicalSourceTiming": {
+      "path": "build/release/c32-strided-expansion-v10-timing-canonical-second-cpu-audit-c13c0d399c4241d0ba7170d587adf6df/audit.json",
+      "bytes": 169836,
+      "sha256": "efb57727d58627ea9cb56e0cde57de8ded2597bb55147cc12d34e9ea3b4c5ebe",
+      "distributed": false
+    }
+  },
+  "qualifications": {
+    "boundedByteAgreementOnRecordedDriver": true,
+    "arbitraryInputEquivalence": false,
+    "portableNumericsParity": false,
+    "originalNvidiaParity": false,
+    "completeModelQualification": false,
+    "broadTemporalQuality": false,
+    "operatorPerformanceAccepted": false,
+    "completeInferencePerformanceAccepted": false,
+    "eightMsNrPlusBridge": false,
+    "sixtyRealFps": false,
+    "promotion": false
+  },
+  "limitations": [
+    "Known device/driver, inherited fixture corpus and fixed generated-model inputs only; component map is observed-driver compatibility, not a portable fragment contract.",
+    "No complete candidate graph, evolved histories, game sequence, HDR game validation or game FPS measurement.",
+    "B/C,C/B,B/C ordering is unbalanced; all samples and all21 pairs per variant retained. No cause assigned to observed variation.",
+    "Per-route GPU spans include compute barriers and exclude uploads, readback, CPU submission/wait and bridge. Isolated sums are estimates, not network latency.",
+    "Timing reports record layers disabled; bounded/actual manifests omit enabled-layer status.",
+    "Installed instrumented pipelines and offline RGA resources are separate observations. Static instructions do not establish dynamic delivery, occupancy or regression cause.",
+    "Earlier bounded/driver runs have no stored contemporaneous root logs; later actual/timing logs are retained and hash-bound."
+  ],
+  "privacy": {
+    "nvidiaDllDistributed": false,
+    "weightsDistributed": false,
+    "rawTensorsDistributed": false,
+    "imagesDistributed": false,
+    "gameCapturesDistributed": false,
+    "isaTextDistributed": false,
+    "moduleAddressesDistributed": false
+  },
+  "review": {
+    "firstIndependentSourceSavedRepackAuditComplete": true,
+    "distinctSecondCanonicalTimingAuditComplete": true,
+    "secondIndependentPublicReviewPending": false,
+    "secondIndependentPublicReviewComplete": true,
+    "secondIndependentPublicReview": {
+      "path": "build/release/c32-strided-expansion-v10-public-second-cpu-audit-3848cb5ac49a4d6f938c15ef242c4cb5/audit.json",
+      "bytes": 6598,
+      "sha256": "4c8561c6c8ad5854107541824796fa98171f8d1dc1f5ff8b928365c0d3a5266f",
+      "distributed": false
+    },
+    "approvedDraftSha256": "783be91755b386fca41af05abb63d236339e7b752e816b3a3d833fdb2c1ac119",
+    "scope": "Metadata-only finalization after independent public source/provenance/resources/scalar timing/privacy review. Metrics, timing copies and documentation unchanged."
+  },
+  "publicFirstCpuAudit": {
+    "path": "build/release/c32-strided-expansion-v10-public-first-cpu-audit-20261003-a1/audit.json",
+    "bytes": 3985,
+    "sha256": "d1fa6fe63b6cc016a84a15fc8b78af2e18b533ef1b75bb44298c624afd1d3acb",
+    "distributed": false
+  }
+}
