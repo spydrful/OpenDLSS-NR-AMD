@@ -63,6 +63,9 @@ The [expert input-sharing screen](docs/amd-expert-a-reuse-screen.md) passes its
 recorded byte checks but measures 16.87–17.43% slower on eight model-weight
 operators. The [native-half composed-frame screen](docs/amd-native-half-graph-quality-screen.md)
 passes its three generated SDR cases but fails all three HDR-highlight cases.
+The [cooperative publication screen](docs/amd-cooperative-publication-screen.md)
+preserves its tested bytes but measures 3.26–3.98% slower on seven C32 expansion
+stages.
 These candidates remain excluded from shipping kernels and releases.
 See the [remaining performance work](docs/amd-performance-next-steps.md) for the
 next profiling and validation steps.
