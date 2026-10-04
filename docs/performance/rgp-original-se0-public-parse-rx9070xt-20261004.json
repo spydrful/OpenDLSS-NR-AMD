@@ -1,0 +1,188 @@
+{
+  "format": "OpenNR-original-SE0-public-handle-exploratory-scalar-v1",
+  "status": "EXPLORATORY_ORIGINAL_BUFFER_PARSE_LIMITATION_ALL_ANALYSIS_UNQUALIFIED",
+  "date": "2026-10-04",
+  "summary": "One original instruction-timed SE0 buffer returned public API SUCCESS while rejecting 783 ISA requests and reporting DATA_LOST and WAVE_INCOMPLETE. The consumer exited 1; the wrapper retained this diagnostic limitation.",
+  "executionKind": "CPU_DIAGNOSTIC_ONLY",
+  "decoder": {
+    "repository": "ROCm/rocm-systems",
+    "project": "projects/rocprof-trace-decoder",
+    "commit": "4bab22839f1badc03e1c254421665d4ae551c18b",
+    "version": "0.2.2",
+    "platform": "Windows x64",
+    "build": "Release static library",
+    "license": "MIT",
+    "disassemblyComgrAndArchitectureModelEnabled": false,
+    "explicitCppFlags": [
+      "/utf-8",
+      "/EHsc"
+    ],
+    "staticLibrary": {
+      "bytes": 6812024,
+      "sha256": "fa1051f4755394b5f95abd34a95599d4e46b09c1813eace7ce4f447aba31332c"
+    },
+    "consumerExecutable": {
+      "bytes": 207872,
+      "sha256": "8cc792479c0675735bc1f77bb6612aa3586338b09e5ae4463ad770c3351d9aae"
+    }
+  },
+  "inputScope": {
+    "origin": "Existing private C32 RGP capture",
+    "shaderEngine": 0,
+    "originalBufferBytes": 5284736,
+    "instructionTimingEnabled": true,
+    "wholeCaptureAndExactRdfSqttMetadataValidatedBeforeParse": true,
+    "originalBufferDigestIndependentlyRecheckedByConsumer": true,
+    "existingPrefixMatchedPriorPrivateReport": true,
+    "bytesPrependedOrRewritten": 0,
+    "rawBufferFileExported": false,
+    "rawCaptureAndBufferIdentitiesExcludedFromPublicRecord": true,
+    "frozenInputRequired": true,
+    "concurrentMutationCryptographicallyExcluded": false
+  },
+  "publicApiResults": {
+    "parseAttempts": 1,
+    "statusCodes": {
+      "create": 0,
+      "setIsaCallback": 0,
+      "parse": 0,
+      "destroy": 0
+    },
+    "allFourStatuses": "SUCCESS",
+    "isaRequestsRejected": 783,
+    "fakeIsaSupplied": false,
+    "partialParsePossible": true,
+    "errorsAndRejectedIsaRetained": true,
+    "exploratoryParseReturnedSuccessWithoutIsa": false,
+    "gfxip12CallbackCalls": 1,
+    "countSaturated": false,
+    "callbackContractInvalid": false,
+    "unknownRecordTypes": 0,
+    "unknownInfoEnums": 0,
+    "callbackReturnEnforcesStop": false,
+    "reportedRecordsAreUnqualifiedCounts": [
+      {
+        "reportedType": "GFXIP",
+        "callbackCalls": 1,
+        "reportedElements": 0
+      },
+      {
+        "reportedType": "OCCUPANCY",
+        "callbackCalls": 5,
+        "reportedElements": 320717
+      },
+      {
+        "reportedType": "PERFEVENT",
+        "callbackCalls": 0,
+        "reportedElements": 0
+      },
+      {
+        "reportedType": "WAVE",
+        "callbackCalls": 2225,
+        "reportedElements": 2225
+      },
+      {
+        "reportedType": "INFO",
+        "callbackCalls": 2,
+        "reportedElements": 2
+      },
+      {
+        "reportedType": "EVENT",
+        "callbackCalls": 15917,
+        "reportedElements": 15917
+      },
+      {
+        "reportedType": "SHADERDATA",
+        "callbackCalls": 1,
+        "reportedElements": 44571
+      },
+      {
+        "reportedType": "REALTIME",
+        "callbackCalls": 1,
+        "reportedElements": 208
+      },
+      {
+        "reportedType": "RT_FREQUENCY",
+        "callbackCalls": 0,
+        "reportedElements": 0
+      },
+      {
+        "reportedType": "INST_OTHER_SIMD",
+        "callbackCalls": 1,
+        "reportedElements": 3904
+      },
+      {
+        "reportedType": "DISPATCH",
+        "callbackCalls": 95,
+        "reportedElements": 95
+      }
+    ],
+    "reportedInfoEnumCounts": {
+      "NONE": 0,
+      "DATA_LOST": 1,
+      "STITCH_INCOMPLETE": 0,
+      "WAVE_INCOMPLETE": 1
+    },
+    "decoderWarningsIndependentlyEstablishPhysicalTruncationOrPalIncompatibility": false
+  },
+  "supervision": {
+    "deadlineSeconds": 5,
+    "outputLimitBytesPerStream": 8192,
+    "consumerReturncode": 1,
+    "wrapperCompletionReturncodeReportedByRoot": 0,
+    "wrapperClassification": "EXPLORATORY_PARSE_LIMITATION_RETAINED_UNQUALIFIED",
+    "wrapperCode0MeansDiagnosticRetainedNotParseQualification": true,
+    "timedOut": false,
+    "outputLimitExceeded": false,
+    "stdinBytes": 5284736,
+    "stdoutBytes": 897,
+    "stderrBytes": 0,
+    "remainingIoWorkers": 0,
+    "exactOwnedHandleCleanupVerified": true,
+    "knownRemainingOwnedProcesses": 0,
+    "runtimeCreationTimestampObserved": false,
+    "childContainmentOrGlobalProcessAbsenceQualified": false,
+    "limitsAreDiagnosticControlsNotLatencyMeasurements": true
+  },
+  "evidenceIdentities": {
+    "privateRootReceiptSha256": "b2372cba0308a99dd7af129700925bfd7a7fb2412da51479da41bd52938b703e",
+    "independentSavedAuditSha256": "71b62b702d410406ad0d88feff0c4d0eafe8bb3548328d3665eeb59f44902db8",
+    "sourcePreparationSha256": "a90d047099a7feea095e80706cda8be691244cd14005510a5875c733b3e495b6",
+    "independentSourceReviewSha256": "fd0d8bc02d7cf65591256ef5db75e9fd923bc60a8f48513044b8c8b48fefe9df",
+    "runtimeSupervisorSha256": "b2c974ecbc86e5d9ed86dd52e6c7dbb0362c988e78fae17c06a6f6ba9b023e35",
+    "independentRuntimeSourceReviewSha256": "2fdea692b14e26bbc62304c0fce97004e0f887440242f99f05411c95f1948ac6",
+    "staticBuildReceiptSha256": "17627f0c4aceaa391a5d9c85f54babf41fa9186813efabd04c16efa19c7a5947"
+  },
+  "scope": {
+    "originalSE0BufferActuallyPassedToDecoder": true,
+    "allShaderEnginesParsed": false,
+    "actualPalRgpCorrespondenceQualified": false,
+    "actualEventMappingQualified": false,
+    "pcAddressesCollectedByThisTrial": false,
+    "pcMappingQualified": false,
+    "tokenConsumptionCompletenessQualified": false,
+    "traceCompletenessQualified": false,
+    "reconstructedInstructionsQualified": false,
+    "measuredGpuOccupancyQualified": false,
+    "dynamicUtilizationQualified": false,
+    "gpuProfilerOrServicesUsedByThisTrial": false,
+    "inferenceBridgeOrGamePerformanceEvidence": false,
+    "historicalCpuSyntheticAndSe1RecordsRewritten": false,
+    "rawCaptureBufferAddressesTokensCodeObjectsWeightsOrLogsPublished": false
+  },
+  "performanceContext": {
+    "qualifiedTargetNetworkMedianMsUnchanged": 47.74616,
+    "nrEnabledByDefault": false,
+    "runtimeCacheReleaseDefaultsChanged": false,
+    "diagnosticProvidesInferenceOrGamePerformanceImprovement": false
+  },
+  "limitations": [
+    "Public API SUCCESS coexists with rejected ISA requests and reported DATA_LOST/WAVE_INCOMPLETE. The result remains a partial, unqualified diagnostic.",
+    "Decoder-reported loss or incomplete waves do not independently prove physical capture truncation or PAL/RGP incompatibility; the cause remains unresolved.",
+    "Record names and element counts are opaque decoder-reported scalars, not validated events, occupancy, reconstructed instructions or dispatch counts.",
+    "Every ISA request was rejected without fabricated instruction text, bytes, size or PC output. No PC addresses were collected.",
+    "Trace callback returns do not enforce stopping, and fixed counters do not bound decoder-internal allocations.",
+    "Exact launched-handle cleanup and final known-identity checks were established; runtime creation-time inventory, child containment and global process absence were not.",
+    "No completeness, dynamic instruction analysis, model-quality, latency, bridge, game FPS, 60 FPS, optimization or release-default claim follows."
+  ]
+}

@@ -10,7 +10,9 @@ completeness and dynamic instruction analysis remain unqualified.
 The [CPU feasibility record](performance/decoder-windows-feasibility-20261004.json)
 retains the historical build/API results. The new
 [original SE1 scalar record](performance/rgp-original-se1-public-parse-rx9070xt-20261004.json)
-contains the separate parse result and tested identities.
+contains the separate parse result and tested identities. The separately dated
+[original SE0 scalar record](performance/rgp-original-se0-public-parse-rx9070xt-20261004.json)
+retains the instruction-timed trial and its reported limitations.
 
 The purpose is to investigate why the preserving FP8 kernels remain expensive.
 The qualified target network result remains **47.74616 ms median**. These CPU
@@ -129,13 +131,35 @@ creation-time inventory, child containment and global process absence were not
 qualified. Raw buffers, addresses, tokens and logs remain private. The historical
 CPU and synthetic records, runtime binaries and release defaults are unchanged.
 
+## Original SE0 exploratory parse
+
+A separate **5,284,736-byte** original SE0 buffer, whose metadata reports
+`instructionTimingEnabled=true`, was passed unchanged to one public-handle
+parse. Create, ISA callback installation, parse and destroy all returned SUCCESS,
+but the callback rejected **783 ISA requests** without invented instructions.
+The decoder reported one `DATA_LOST` and one `WAVE_INCOMPLETE` warning;
+`STITCH_INCOMPLETE` was zero.
+
+The consumer exited **1** and the bounded wrapper retained the result as
+`EXPLORATORY_PARSE_LIMITATION_RETAINED_UNQUALIFIED`. Its successful completion
+means the diagnostic was saved. It establishes no parse qualification. The
+scalar record holds input/output bounds, tested identities and opaque callback
+counts; no raw buffers, addresses or logs are published.
+
+These warnings are decoder output. They do **not** independently verify physical
+capture truncation or PAL/RGP incompatibility. Their cause, actual event identity,
+PC mapping, trace completeness and dynamic analysis remain unresolved. This trial
+provides no inference or game performance result and leaves release defaults
+unchanged.
+
 ## Remaining work
 
 Further real-capture work must qualify the existing hardware header and PAL
 format correspondence across the instruction-timed path, code-object/PC mapping
 and marker behavior.
-The instruction-timed SE0 path remains unqualified; separate trial results require
-independent saved-evidence review before publication.
+The instruction-timed SE0 trial has independent saved-evidence review, but its
+reported loss, incomplete waves and rejected ISA requests remain unqualified.
+PC mapping has not been established.
 Headers must never be fabricated or substituted to make a capture parse.
 Decoder success alone cannot establish trace completeness: lost-data,
 incomplete-wave, incomplete-stitch and unknown-PC results must remain visible.

@@ -60,14 +60,19 @@ using model-generated target-resolution activations and imported weights. Its
 SQTT lengths are below capacity. The application replay passed all seven C32
 fixtures and 14 canonical output checks. Capture completeness, actual event
 identity and dynamic instruction analysis remain unqualified. All 1,260 timings
-from that profiler run are excluded from performance evidence. Whole-file hashing
-streams the capture bytes; only 1,536 metadata bytes are interpreted, and no SQTT
-or code-object payload is decoded or exported.
+from that profiler run are excluded from performance evidence. In that structural
+screen, whole-file hashing streams the capture bytes; only 1,536 metadata bytes
+are interpreted, and no SQTT or code-object payload is decoded or exported.
 
 The [headless decoder investigation](amd-headless-trace-decoder.md) separately
-records a Windows static build, 22 public-API lifecycle checks and 16 known
-synthetic GFX12 parsing assertions. Real-capture decoder compatibility and
-dynamic analysis remain unqualified.
+records a Windows static build, 22 public-API lifecycle checks, 16 known
+synthetic GFX12 parsing assertions and bounded original-buffer parsing trials.
+The instruction-timed [SE0 trial](performance/rgp-original-se0-public-parse-rx9070xt-20261004.json)
+reported 783 rejected ISA requests, `DATA_LOST` and `WAVE_INCOMPLETE`, despite
+the metadata screen showing lengths below capacity. These are decoder reports;
+they do not independently prove physical truncation or format compatibility.
+Real-capture decoder compatibility, completeness and dynamic analysis remain
+unqualified.
 
 ## Schema provenance and CPU tests
 
