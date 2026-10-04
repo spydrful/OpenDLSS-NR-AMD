@@ -1,0 +1,2534 @@
+{
+  "format": "OpenNR-c32-strided-expansion-v9-negative-scalar-v1",
+  "date": "2026-10-03",
+  "status": "CPU_AUDITED_REJECTED_OPERATOR_TIMING",
+  "disposition": "REJECTED_BOTH_OPERATOR_VARIANTS",
+  "scalarOnly": true,
+  "privatePrototype": true,
+  "prototypeInReleasePackage": false,
+  "releaseDefaultsChanged": false,
+  "device": {
+    "name": "AMD Radeon RX 9070 XT",
+    "id": "1002:7550",
+    "driver": "AMD proprietary driver|26.9.1 (LLPC)|8389003"
+  },
+  "scope": {
+    "operation": "C32 expansion only: FLAGS24 K32 N128 Nmatrix128 P0 B1 E4 input/output corrected mixed3 SiLU",
+    "rowsForActualTiming": 414720,
+    "blocks": [
+      1,
+      2,
+      3,
+      4,
+      67,
+      68,
+      69
+    ],
+    "graphSourceGeometry": [
+      1707,
+      960
+    ],
+    "graphSourcePaddedGeometry": [
+      1728,
+      960
+    ],
+    "graphInternalTensorGeometry": [
+      864,
+      480,
+      32
+    ],
+    "capturesAreGameFrames": false,
+    "contractionFused": false,
+    "completeCandidateGraphExecuted": false,
+    "qkvNormalize": "off",
+    "baselineIsAutomaticDefault": false
+  },
+  "baseline": {
+    "route": "explicit Pair/Arena/K16/N16/stage16/Q32/fusions-off/hardware-publication-off/tuning-off/QKV-normalize-off",
+    "aggregateSha256": "917ff3fd9e14f041c4172d047026fa35319eb3e87f3b9deaff3579af637f3436",
+    "pairSpirvSha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+    "reference": "frozen AMD diagnostic outputs, not portable reference or original NVIDIA captures"
+  },
+  "source": {
+    "boundedPreparation": {
+      "path": "build/release/c32-strided-expansion-v9-phase-mask-20261003-a1/cpu-preparation.json",
+      "bytes": 87461,
+      "sha256": "72855895e3e2c71ff24d33752760e24814ad3b8cf5fdaabaa3e35b3f327d0e39",
+      "distributed": false
+    },
+    "actualTimingPreparation": {
+      "path": "build/release/c32-strided-expansion-v9-phase-mask-actual-timing-20261003-a1/cpu-preparation.json",
+      "bytes": 80749,
+      "sha256": "bf04db4a51899fc20ac85d89c91b760157ad032e5d27cc7ae1b5556842c6c42f",
+      "distributed": false
+    },
+    "boundedExecutableSha256": "7b2019e6a896b329a3d490ddcb2a7afdd4522b25098c847d6a7df2dea4d983fe",
+    "actualTimingExecutableSha256": "f58d94e2f9e37798221965dfffc011ca544ed1671237dfa55f94ce18a2a8a89f",
+    "newBoundedSourceFiles": 18,
+    "newWrapperSourceFiles": 10,
+    "boundedFrozenInputEntries": 159,
+    "wrapperFrozenInputEntries": 181,
+    "independentlyRehashedUniqueInputPins": 293,
+    "shaderBody": {
+      "path": "build/release/c32-strided-expansion-v9-phase-mask-20261003-a1/shaders/amd_expand32_strided_mask_body.glsl",
+      "bytes": 4753,
+      "sha256": "d331a013b585c0d6d9faaa1bed166dc6d1f7ed9408e21691534beb55a0ba9650",
+      "distributed": false
+    },
+    "changedFromV8": "one integer subgroupOr phase union replaces eight sequential subgroupAny votes; all matrix operations, mapping, publication helpers and barriers retained",
+    "exactPrefixOnlyShaderDeltaIndependentlyVerified": true,
+    "publication": "two ordered K16 native RTE accumulator half publications; unchanged corrected mixed3 SiLU (three native half publications, two software stages) and frozen Pair E4 publication ancestry",
+    "compiledModules": [
+      {
+        "module": "amd_expand32_strided_mask_stream.spv",
+        "sha256": "4ffad8bd2d340e9c07b5584459f02b3eda3c1b79b380ae65103572a6c5dc1981",
+        "executionModes": [
+          [
+            17,
+            32,
+            1,
+            1
+          ],
+          [
+            4459,
+            16
+          ],
+          [
+            4461,
+            32
+          ],
+          [
+            4462,
+            16
+          ],
+          [
+            4461,
+            16
+          ]
+        ],
+        "groupNonUniformBitwiseOr": 1,
+        "groupNonUniformAny": 0,
+        "controlBarriers": 2
+      },
+      {
+        "module": "amd_expand32_strided_mask_stream_capture.spv",
+        "sha256": "87b79f79a0e139a1794d6a768c47611c81ad9140a86611d1ee09e8abb2e9a6d6",
+        "executionModes": [
+          [
+            17,
+            32,
+            1,
+            1
+          ],
+          [
+            4459,
+            16
+          ],
+          [
+            4461,
+            32
+          ],
+          [
+            4462,
+            16
+          ],
+          [
+            4461,
+            16
+          ]
+        ],
+        "groupNonUniformBitwiseOr": 1,
+        "groupNonUniformAny": 0,
+        "controlBarriers": 2
+      },
+      {
+        "module": "amd_expand32_strided_mask_tile.spv",
+        "sha256": "98fd015c9d4e35d660e39c7c5d99fe4ad7de382e57ada62787bfd27ae5e63145",
+        "executionModes": [
+          [
+            17,
+            32,
+            1,
+            1
+          ],
+          [
+            4459,
+            16
+          ],
+          [
+            4461,
+            32
+          ],
+          [
+            4462,
+            16
+          ],
+          [
+            4461,
+            16
+          ]
+        ],
+        "groupNonUniformBitwiseOr": 1,
+        "groupNonUniformAny": 0,
+        "controlBarriers": 2
+      },
+      {
+        "module": "amd_expand32_strided_mask_tile_capture.spv",
+        "sha256": "85d7eab74c5adc3191b6b9ae1568bb5e9309213de0a4d37b398866f4bdd958ac",
+        "executionModes": [
+          [
+            17,
+            32,
+            1,
+            1
+          ],
+          [
+            4459,
+            16
+          ],
+          [
+            4461,
+            32
+          ],
+          [
+            4462,
+            16
+          ],
+          [
+            4461,
+            16
+          ]
+        ],
+        "groupNonUniformBitwiseOr": 1,
+        "groupNonUniformAny": 0,
+        "controlBarriers": 2
+      }
+    ],
+    "privateSourceDistributed": false,
+    "exactReferenceUnchanged": true,
+    "arbitraryInputPreservingClaim": false
+  },
+  "design": {
+    "threads": 32,
+    "requiredSubgroupSize": 32,
+    "declaredLdsBytes": 1536,
+    "sharedInputBytes": 512,
+    "sharedSeedBytes": 1024,
+    "rowGather": "base +2*slot +8*(logicalRow>>1) +(logicalRow&1)",
+    "stream": "eight N16 tiles per wave/workgroup; dispatch X4, Yceil(rows/64)",
+    "tile": "one N16 tile per wave/workgroup; dispatch X32, Yceil(rows/64)",
+    "phaseMask": "each non-NaN scalar contributes logicalRow>>1; integer subgroupOr unions phases; lower phase bits preserve the prior publication prefix",
+    "includesInfinityAsNonNan": true,
+    "seedScratchLoadCompletionBarrier": true,
+    "sharedMemoryUsedForInputAndSeedOnly": true,
+    "baselineTerminalOverflowAncestryRetained": "software publicationPrefix ancestry; installed-driver-bound scope only"
+  },
+  "cpu": {
+    "bounded": {
+      "count": 1105958,
+      "phasePrefixCount": 973620,
+      "log": {
+        "file": "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-20261003-a1\\cpu-check.log",
+        "bytes": 65,
+        "sha256": "b413f517af97e00c57a1d55e693c791924b05d2ffe887817c1837f7332f894a5"
+      },
+      "negativeCliCount": 9,
+      "negativeCliResults": [
+        {
+          "arguments": [
+            "--run"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "GPU mode requires fresh output",
+          "stderr": "Expansion check ABORT:GPU mode requires fresh output"
+        },
+        {
+          "arguments": [
+            "--cpu-check",
+            "--run"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "choose exactly one expansion mode",
+          "stderr": "Expansion check ABORT:choose exactly one expansion mode"
+        },
+        {
+          "arguments": [
+            "--cpu-check",
+            "--target-rows"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "CPU mode rejects GPU inputs/output",
+          "stderr": "Expansion check ABORT:CPU mode rejects GPU inputs/output"
+        },
+        {
+          "arguments": [
+            "--cpu-check",
+            "--model",
+            "D:\\amd\\models\\imported\\open-nr"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "CPU mode rejects GPU inputs/output",
+          "stderr": "Expansion check ABORT:CPU mode rejects GPU inputs/output"
+        },
+        {
+          "arguments": [
+            "--cpu-check",
+            "--output",
+            "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-20261003-a1\\forbidden-cpu-output"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "CPU mode rejects GPU inputs/output",
+          "stderr": "Expansion check ABORT:CPU mode rejects GPU inputs/output"
+        },
+        {
+          "arguments": [
+            "--run",
+            "--flags",
+            "24"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "unsupported expansion option",
+          "stderr": "Expansion check ABORT:unsupported expansion option --flags"
+        },
+        {
+          "arguments": [
+            "--run",
+            "--arithmetic",
+            "k32"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "unsupported expansion option",
+          "stderr": "Expansion check ABORT:unsupported expansion option --arithmetic"
+        },
+        {
+          "arguments": [
+            "--driver-info",
+            "--model",
+            "D:\\amd\\models\\imported\\open-nr",
+            "--output",
+            "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-20261003-a1\\forbidden-driver-output"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "driver-info rejects model/target",
+          "stderr": "Expansion check ABORT:driver-info rejects model/target"
+        },
+        {
+          "arguments": [
+            "--run",
+            "--output",
+            "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-20261003-a1"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "GPU mode requires fresh output",
+          "stderr": "Expansion check ABORT:GPU mode requires fresh output"
+        }
+      ],
+      "prefixProofScope": "all256phase bitmaps atall32placements; exhaustive pairwise bitmap union closure/induction; every64row tail/slot/delayedfinite/column population;20rawIEEEclassifications",
+      "enumeratesAll256ToPower32WaveInputs": false,
+      "provesFloatArithmetic": false
+    },
+    "wrapper": {
+      "countWithCatalog": 1105983,
+      "countWithoutCatalog": 1105976,
+      "log": {
+        "file": "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-actual-timing-20261003-a1\\cpu-check.log",
+        "bytes": 61,
+        "sha256": "9d21ffa9240f3bdf6ed229dcb92512e51544b0973d99ed0956e04ab8af5965d1"
+      },
+      "strictMetadataMutationCases": 9,
+      "negativeCliCount": 9,
+      "negativeCliResults": [
+        {
+          "arguments": [
+            "--check"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "GPU mode requires model/catalog/fresh output",
+          "stderr": "Expansion actual/timing ABORT:GPU mode requires model/catalog/fresh output"
+        },
+        {
+          "arguments": [
+            "--cpu-check",
+            "--check"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "choose exactly one",
+          "stderr": "Expansion actual/timing ABORT:choose exactly one CPU/check/timing mode"
+        },
+        {
+          "arguments": [
+            "--cpu-check",
+            "--variant",
+            "stream"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "CPU mode rejects GPU/timing inputs",
+          "stderr": "Expansion actual/timing ABORT:CPU mode rejects GPU/timing inputs"
+        },
+        {
+          "arguments": [
+            "--cpu-check",
+            "--strict-report",
+            "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-actual-timing-20261003-a1\\README.md"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "CPU mode rejects GPU/timing inputs",
+          "stderr": "Expansion actual/timing ABORT:CPU mode rejects GPU/timing inputs"
+        },
+        {
+          "arguments": [
+            "--check",
+            "--model",
+            "D:\\amd\\models\\imported\\open-nr",
+            "--catalog",
+            "D:\\amd\\build\\release\\c32-register-v5-actual-input-check-20261003-a1\\capture-target\\catalog.json",
+            "--output",
+            "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-actual-timing-20261003-a1\\forbidden-gpu-output",
+            "--variant",
+            "stream"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "check rejects selectors",
+          "stderr": "Expansion actual/timing ABORT:check rejects selectors; timing requires variant and strict report"
+        },
+        {
+          "arguments": [
+            "--timing",
+            "--model",
+            "D:\\amd\\models\\imported\\open-nr",
+            "--catalog",
+            "D:\\amd\\build\\release\\c32-register-v5-actual-input-check-20261003-a1\\capture-target\\catalog.json",
+            "--output",
+            "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-actual-timing-20261003-a1\\forbidden-gpu-output",
+            "--variant",
+            "stream"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "timing requires variant and strict report",
+          "stderr": "Expansion actual/timing ABORT:check rejects selectors; timing requires variant and strict report"
+        },
+        {
+          "arguments": [
+            "--timing",
+            "--model",
+            "D:\\amd\\models\\imported\\open-nr",
+            "--catalog",
+            "D:\\amd\\build\\release\\c32-register-v5-actual-input-check-20261003-a1\\capture-target\\catalog.json",
+            "--output",
+            "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-actual-timing-20261003-a1\\forbidden-gpu-output",
+            "--variant",
+            "both",
+            "--strict-report",
+            "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-actual-timing-20261003-a1\\README.md"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "timing requires variant and strict report",
+          "stderr": "Expansion actual/timing ABORT:check rejects selectors; timing requires variant and strict report"
+        },
+        {
+          "arguments": [
+            "--timing",
+            "--model",
+            "D:\\amd\\models\\imported\\open-nr",
+            "--catalog",
+            "D:\\amd\\build\\release\\c32-register-v5-actual-input-check-20261003-a1\\capture-target\\catalog.json",
+            "--output",
+            "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-actual-timing-20261003-a1\\forbidden-gpu-output",
+            "--variant",
+            "stream",
+            "--strict-report",
+            "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-actual-timing-20261003-a1\\nonexistent-proof.json"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "cannot read",
+          "stderr": "Expansion actual/timing ABORT:cannot read D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-actual-timing-20261003-a1\\nonexistent-proof.json"
+        },
+        {
+          "arguments": [
+            "--cpu-check",
+            "--arithmetic",
+            "k32"
+          ],
+          "exitCode": 2,
+          "expectedFailure": "unsupported expansion replay/timing option",
+          "stderr": "Expansion actual/timing ABORT:unsupported expansion replay/timing option:--arithmetic"
+        }
+      ]
+    },
+    "sourceBooleanAudit": {
+      "path": "build/release/c32-strided-expansion-v9-prefix-source-independent-cpu-audit-20261003-a1/audit.json",
+      "bytes": 3244,
+      "sha256": "8c3c374f4a180c2c54f0407247c4d8727747be0ca1c7ddba119ecb5d7af76e30",
+      "distributed": false
+    },
+    "sourceBooleanScope": "abstract publication masks and row/tail mapping; not floating-point GPU parity",
+    "fp16AndFp32ModeClosureChecked": true,
+    "completeSpirvValidatorClaim": false
+  },
+  "boundedValidation": {
+    "runs": [
+      {
+        "run": "gpu-small",
+        "manifest": {
+          "file": "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-20261003-a1\\gpu-small\\manifest.json",
+          "bytes": 144206,
+          "sha256": "3c0707af674df83eb87ce75f6a0ae56b68cfdbf72f09dfb066a40d634bf8b943"
+        },
+        "fixtures": 45,
+        "comparisons": 315,
+        "comparedBytes": 5345280,
+        "canaryBytesChecked": 5865984,
+        "rawBuffers": 630,
+        "zeroDifferentBytes": true,
+        "savedHashesEqualV8": true,
+        "actualGraphInputs": false,
+        "validationLayerEnablementRecorded": false
+      },
+      {
+        "run": "gpu-target",
+        "manifest": {
+          "file": "D:\\amd\\build\\release\\c32-strided-expansion-v9-phase-mask-20261003-a1\\gpu-target\\manifest.json",
+          "bytes": 150729,
+          "sha256": "69043b995466c32d8f06e6e6ff55aa2602ac14bbb802bcc9c9c2daf7417c4062"
+        },
+        "fixtures": 47,
+        "comparisons": 329,
+        "comparedBytes": 1020579840,
+        "canaryBytesChecked": 125305344,
+        "rawBuffers": 658,
+        "zeroDifferentBytes": true,
+        "savedHashesEqualV8": true,
+        "actualGraphInputs": false,
+        "validationLayerEnablementRecorded": false
+      }
+    ],
+    "targetRunRepeatsAllSmallFixtures": true,
+    "repeatedFixturesComparedByNameAndFullIdentity": true,
+    "importedWeightFixturesUseSyntheticInputs": true,
+    "enabledValidationLayerClaim": false
+  },
+  "actualValidation": {
+    "fixtures": 7,
+    "comparisons": 49,
+    "comparedBytes": 3583180800,
+    "rawBuffersReopened": 98,
+    "fullAllocationCanaryBytesChecked": 477757440,
+    "zeroDifferentBytes": true,
+    "allSavedOutputHashesMatchFrozenV8": true,
+    "oddBlockFixturesHave16PaddingColumns": true,
+    "rowCountMultiple64": true,
+    "independentlyRepackedModelMatrices": 14,
+    "independentlyRepackedScales": 7,
+    "expansionConsumesW1Only": true,
+    "inheritedFixtureIdentityIncludesW2ScalesAndResidual": true,
+    "captureCatalog": {
+      "path": "build/release/c32-register-v5-actual-input-check-20261003-a1/capture-target/catalog.json",
+      "bytes": 2503,
+      "sha256": "81b2654ca5f013270d480c71cda042b549d567c7e6bfd90fd2cb12c2f219421c",
+      "distributed": false
+    },
+    "captureManifest": {
+      "path": "build/release/c32-register-v5-actual-input-check-20261003-a1/capture-target/boundaries/manifest.json",
+      "bytes": 6895,
+      "sha256": "07778dc62cb7c34d65deec5285d2e7d8dfebaff06a13a7adca45de996db332c3",
+      "distributed": false
+    },
+    "captureRecord": {
+      "path": "build/release/c32-register-v5-actual-input-check-20261003-a1/capture-target/capture-record.json",
+      "bytes": 15302,
+      "sha256": "313e4c0578c843d5a8e61a74a5fc41f13a302eeda2efac46c97afb09cd803537",
+      "distributed": false
+    },
+    "graphModulesRehashed": 32,
+    "graphSourceSnapshotFilesRehashed": 32,
+    "fixturesBoundToCurrentModel": [
+      {
+        "block": 1,
+        "inputSha256": "2e6cd1cb885efcad98e93a81801b3e7a4f1d9141d9e7ba51bd3040c19a00a9d2",
+        "rawExpandSha256": "95760be853b14b7239c9a448311cbf9163bc60516efb4fd75889f510b8e142a3",
+        "fixtureIdentitySha256": "d956396ec319a0789d1d01d6b93146b6b180762246408a71581572b7c607110d",
+        "canonicalE4Sha256": "d45ccdac416398d45916c005ff1048d049d6f22dd4cd548616553f056345e3eb"
+      },
+      {
+        "block": 2,
+        "inputSha256": "b5291ead897fce6ffd167868af1cafbe39be33f5bbb22b6a4039681381901246",
+        "rawExpandSha256": "aed4a0d79509a3d734a1b7fd78d8e69f23c17d874f42217b966a2a5446db0e85",
+        "fixtureIdentitySha256": "ec700988fba3b58dc18f44b18d2e404f91ca5cc0d5551f84b3a631a531744a73",
+        "canonicalE4Sha256": "7fd16a1db7155504525f3c89cf082d3fa2ae1272261493971a4c9ec62c9b27bf"
+      },
+      {
+        "block": 3,
+        "inputSha256": "41069080bde8bf358ffcef33f8e51b777ceee9f035b669ff4cf397c50d690a3f",
+        "rawExpandSha256": "9bf9c9d71a9a4f6da6dcf06279ffd2f5844ccdbce00a830f6cfc6dea4f1f8244",
+        "fixtureIdentitySha256": "9077d2b5f2da8659a1c9bf94c31eebf0053dd0bf255575e96fa358bfa31681ba",
+        "canonicalE4Sha256": "6ff9e479b2837348262e4bf651731d1470d0d97b90ff3bcf0a92fa8dd6b9db96"
+      },
+      {
+        "block": 4,
+        "inputSha256": "70201726935d452e5c5695e741b53d887263095b01704d07f637d56d8ce6ff7c",
+        "rawExpandSha256": "2e3b228af94526b2cc1636e98fbde280f6a921af0024b671bbcb1591a0b0276c",
+        "fixtureIdentitySha256": "b50b5c1ab2b9951e1fccec50affc9f30c6948891b4a31cf3d7ebf9b0f95cb0ad",
+        "canonicalE4Sha256": "17a74a31cec97d33022a84a766ef31c933ff6ab897d63828a03185ff1be8fb5b"
+      },
+      {
+        "block": 67,
+        "inputSha256": "f108ae37424ab9671154ad646f9f072c8857d0fcb4fc36b502528b54c89232a8",
+        "rawExpandSha256": "c2f7e09ed445d0b3212fcd830de798391a310e957a9752dfd08a010c4560e4ee",
+        "fixtureIdentitySha256": "cc0be6def2c71fc17d402960e0c5707758257a043fba41116706acd1f5596da8",
+        "canonicalE4Sha256": "742fe240b344eae37d813d86218505791061b4a47769c1aa7fc9c2f5b0bbe18e"
+      },
+      {
+        "block": 68,
+        "inputSha256": "be12e288affb9d10cb336d6d9f80ca6c50ba4c959947fb2334730633e2105d95",
+        "rawExpandSha256": "cac9f9ca360abac6889d3bebb3f5f4672da0d3cc1f459b536f835c65ec6cd50d",
+        "fixtureIdentitySha256": "bce8b7951118bb6c9b3fea3abf0f6e8d7bfd9c6bb19ee540e58e090e3dfe745f",
+        "canonicalE4Sha256": "a210697f44ffc07d277ece896d51028d5f72189c6e5bc370c289e114735d66e2"
+      },
+      {
+        "block": 69,
+        "inputSha256": "e1bfb7007541e775faf4ab69348cc986a28f67752f4b31b7f7b5539fb1bd691b",
+        "rawExpandSha256": "286c318e2c0bc755235eee487908d65d8fc6f185b32263d4541d9ef8090624f7",
+        "fixtureIdentitySha256": "3c4bd5d2e305497334e935b5bedff7cbb03460486ef646ba4d3a304354f620d1",
+        "canonicalE4Sha256": "8dc6a8b18a3d07c7d0bf598f68dc852939698e4ef9a3401171ead2b70bf0d153"
+      }
+    ],
+    "activatedF16Trace": "separate F40 route; does not reveal original F24 pre-E4 halves",
+    "canonicalTimingOutput": "padding columns removed from strict PairF24 allocation; all28 pre/post outputs match those exact packed E4 hashes",
+    "enabledValidationLayerClaim": false
+  },
+  "timing": {
+    "variants": [
+      {
+        "variant": "stream",
+        "protocol": {
+          "warmupsPerRoute": 5,
+          "interleavedPairs": 3,
+          "measuredFramesPerRoutePerPair": 30,
+          "routeOrder": [
+            "baseline-candidate",
+            "candidate-baseline",
+            "baseline-candidate"
+          ],
+          "frameInputsFixed": true,
+          "inputsWeightsSharedAcrossRoutes": true,
+          "preallocatedBuffers": true,
+          "persistentCommandBuffers": true,
+          "persistentDescriptorPools": true,
+          "reusableVkFence": true,
+          "queueWaitIdleDuringTiming": false,
+          "pipelineCaptureStatistics": false,
+          "imageReadbackDuringTiming": false,
+          "imageUploadsDuringTiming": false,
+          "timestampStage": "ALL_COMMANDS",
+          "baselineDispatchCount": 1,
+          "candidateDispatchCount": 1,
+          "timestampsPerRoute": 2,
+          "spanIncludesComputeBarriers": true,
+          "timingDomain": "GPU operator spans; excludes uploads, CPU submission/wait, readback and bridge",
+          "percentileMethod": "linear interpolation on n-1 index",
+          "variation": "population stddev/mean*100"
+        },
+        "operators": [
+          {
+            "block": 1,
+            "baseline": {
+              "medianMs": 0.30568,
+              "p95Ms": 0.36380599999999996,
+              "p99Ms": 0.37580959999999997,
+              "minMs": 0.29819999999999997,
+              "maxMs": 0.40728,
+              "meanMs": 0.32135555555555556,
+              "stddevMs": 0.026119672241907844,
+              "variationCvPercent": 8.127966605946014
+            },
+            "candidate": {
+              "medianMs": 0.54916,
+              "p95Ms": 0.6530339999999999,
+              "p99Ms": 0.6820024,
+              "minMs": 0.5311199999999999,
+              "maxMs": 0.71212,
+              "meanMs": 0.5781426666666666,
+              "stddevMs": 0.04579581156976403,
+              "variationCvPercent": 7.921195616612055
+            },
+            "medianRegressionPercent": 79.6519235802146,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.35751999999999995,
+                  "p95Ms": 0.36918399999999996,
+                  "p99Ms": 0.3970256,
+                  "minMs": 0.31068,
+                  "maxMs": 0.40728,
+                  "meanMs": 0.3546386666666666,
+                  "stddevMs": 0.01673950850201071,
+                  "variationCvPercent": 4.72015887589172
+                },
+                "candidate": {
+                  "medianMs": 0.63818,
+                  "p95Ms": 0.656936,
+                  "p99Ms": 0.696576,
+                  "minMs": 0.5601999999999999,
+                  "maxMs": 0.71212,
+                  "meanMs": 0.633064,
+                  "stddevMs": 0.028846959123392305,
+                  "variationCvPercent": 4.556720824970668
+                },
+                "medianRegressionPercent": 78.501901991497
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.30488,
+                  "p95Ms": 0.31394599999999995,
+                  "p99Ms": 0.31825319999999996,
+                  "minMs": 0.29928,
+                  "maxMs": 0.31851999999999997,
+                  "meanMs": 0.30567466666666665,
+                  "stddevMs": 0.003837467683541088,
+                  "variationCvPercent": 1.2554091333076631
+                },
+                "candidate": {
+                  "medianMs": 0.5485,
+                  "p95Ms": 0.5935979999999997,
+                  "p99Ms": 0.6630608,
+                  "minMs": 0.5311199999999999,
+                  "maxMs": 0.67828,
+                  "meanMs": 0.5548040000000001,
+                  "stddevMs": 0.02717977159580265,
+                  "variationCvPercent": 4.8989862358242995
+                },
+                "medianRegressionPercent": 79.906848596169
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.30174,
+                  "p95Ms": 0.306544,
+                  "p99Ms": 0.3395904,
+                  "minMs": 0.29819999999999997,
+                  "maxMs": 0.353,
+                  "meanMs": 0.3037533333333334,
+                  "stddevMs": 0.009395772571865616,
+                  "variationCvPercent": 3.0932245150228086
+                },
+                "candidate": {
+                  "medianMs": 0.54394,
+                  "p95Ms": 0.54964,
+                  "p99Ms": 0.5951752,
+                  "minMs": 0.5404,
+                  "maxMs": 0.61348,
+                  "meanMs": 0.5465599999999999,
+                  "stddevMs": 0.012742487459937597,
+                  "variationCvPercent": 2.3313977349124704
+                },
+                "medianRegressionPercent": 80.2677802081262
+              }
+            ]
+          },
+          {
+            "block": 2,
+            "baseline": {
+              "medianMs": 0.31179999999999997,
+              "p95Ms": 0.36302999999999996,
+              "p99Ms": 0.3783119999999999,
+              "minMs": 0.29947999999999997,
+              "maxMs": 0.43456,
+              "meanMs": 0.3296382222222222,
+              "stddevMs": 0.02783071806386995,
+              "variationCvPercent": 8.442806746211657
+            },
+            "candidate": {
+              "medianMs": 0.59716,
+              "p95Ms": 0.634234,
+              "p99Ms": 0.7387116,
+              "minMs": 0.52316,
+              "maxMs": 0.74188,
+              "meanMs": 0.5788,
+              "stddevMs": 0.0523924869932067,
+              "variationCvPercent": 9.05191551368464
+            },
+            "medianRegressionPercent": 91.52020525978193,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.35658,
+                  "p95Ms": 0.36883999999999995,
+                  "p99Ms": 0.41623200000000005,
+                  "minMs": 0.34712,
+                  "maxMs": 0.43456,
+                  "meanMs": 0.35911333333333323,
+                  "stddevMs": 0.015092059133494307,
+                  "variationCvPercent": 4.202589470407014
+                },
+                "candidate": {
+                  "medianMs": 0.61784,
+                  "p95Ms": 0.6920979999999997,
+                  "p99Ms": 0.7408011999999999,
+                  "minMs": 0.6081599999999999,
+                  "maxMs": 0.74188,
+                  "meanMs": 0.6265853333333333,
+                  "stddevMs": 0.031023711333251033,
+                  "variationCvPercent": 4.951234841104542
+                },
+                "medianRegressionPercent": 73.26827079477255
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.31179999999999997,
+                  "p95Ms": 0.354126,
+                  "p99Ms": 0.355354,
+                  "minMs": 0.30096,
+                  "maxMs": 0.35575999999999997,
+                  "meanMs": 0.326536,
+                  "stddevMs": 0.022754796358863183,
+                  "variationCvPercent": 6.968541403968685
+                },
+                "candidate": {
+                  "medianMs": 0.57546,
+                  "p95Ms": 0.6177079999999999,
+                  "p99Ms": 0.7034156,
+                  "minMs": 0.52316,
+                  "maxMs": 0.73832,
+                  "meanMs": 0.5751893333333332,
+                  "stddevMs": 0.04910648775422201,
+                  "variationCvPercent": 8.53744756872323
+                },
+                "medianRegressionPercent": 84.56061577934574
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.30286,
+                  "p95Ms": 0.30645399999999995,
+                  "p99Ms": 0.30729959999999995,
+                  "minMs": 0.29947999999999997,
+                  "maxMs": 0.30751999999999996,
+                  "meanMs": 0.3032653333333332,
+                  "stddevMs": 0.002039698888452788,
+                  "variationCvPercent": 0.6725789809318096
+                },
+                "candidate": {
+                  "medianMs": 0.52796,
+                  "p95Ms": 0.5687639999999998,
+                  "p99Ms": 0.634216,
+                  "minMs": 0.52404,
+                  "maxMs": 0.64976,
+                  "meanMs": 0.5346253333333333,
+                  "stddevMs": 0.02476134295406631,
+                  "variationCvPercent": 4.631531917816523
+                },
+                "medianRegressionPercent": 74.3247705210328
+              }
+            ]
+          },
+          {
+            "block": 3,
+            "baseline": {
+              "medianMs": 0.31623999999999997,
+              "p95Ms": 0.37807999999999997,
+              "p99Ms": 0.4659924,
+              "minMs": 0.30784,
+              "maxMs": 0.47208,
+              "meanMs": 0.33311111111111114,
+              "stddevMs": 0.03173081882350149,
+              "variationCvPercent": 9.525596044413389
+            },
+            "candidate": {
+              "medianMs": 0.54906,
+              "p95Ms": 0.6509959999999999,
+              "p99Ms": 0.7306096,
+              "minMs": 0.5354,
+              "maxMs": 0.8226,
+              "meanMs": 0.57816,
+              "stddevMs": 0.05183779865010559,
+              "variationCvPercent": 8.965995338678843
+            },
+            "medianRegressionPercent": 73.62130027826969,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.36412,
+                  "p95Ms": 0.38129399999999997,
+                  "p99Ms": 0.44140200000000007,
+                  "minMs": 0.31332,
+                  "maxMs": 0.46524,
+                  "meanMs": 0.36335066666666666,
+                  "stddevMs": 0.025381863726334643,
+                  "variationCvPercent": 6.985500799870458
+                },
+                "candidate": {
+                  "medianMs": 0.63244,
+                  "p95Ms": 0.6919699999999999,
+                  "p99Ms": 0.7926256,
+                  "minMs": 0.54508,
+                  "maxMs": 0.8226,
+                  "meanMs": 0.6317133333333333,
+                  "stddevMs": 0.04957231601968538,
+                  "variationCvPercent": 7.8472803095843116
+                },
+                "medianRegressionPercent": 73.6899923102274
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.31667999999999996,
+                  "p95Ms": 0.31978199999999996,
+                  "p99Ms": 0.3686764,
+                  "minMs": 0.31072,
+                  "maxMs": 0.38864,
+                  "meanMs": 0.3187213333333333,
+                  "stddevMs": 0.013183903249375309,
+                  "variationCvPercent": 4.13649852411573
+                },
+                "candidate": {
+                  "medianMs": 0.5492,
+                  "p95Ms": 0.6043039999999997,
+                  "p99Ms": 0.6791280000000001,
+                  "minMs": 0.54148,
+                  "maxMs": 0.69328,
+                  "meanMs": 0.5565933333333334,
+                  "stddevMs": 0.030874567887214585,
+                  "variationCvPercent": 5.547060311037606
+                },
+                "medianRegressionPercent": 73.42427687255277
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.3117,
+                  "p95Ms": 0.31556,
+                  "p99Ms": 0.42668920000000016,
+                  "minMs": 0.30784,
+                  "maxMs": 0.47208,
+                  "meanMs": 0.3172613333333334,
+                  "stddevMs": 0.028805700793805077,
+                  "variationCvPercent": 9.07948677235751
+                },
+                "candidate": {
+                  "medianMs": 0.54332,
+                  "p95Ms": 0.5491199999999999,
+                  "p99Ms": 0.6117328000000001,
+                  "minMs": 0.5354,
+                  "maxMs": 0.63716,
+                  "meanMs": 0.5461733333333334,
+                  "stddevMs": 0.0171636587656077,
+                  "variationCvPercent": 3.1425296179981386
+                },
+                "medianRegressionPercent": 74.3086300930382
+              }
+            ]
+          },
+          {
+            "block": 4,
+            "baseline": {
+              "medianMs": 0.36529999999999996,
+              "p95Ms": 0.4369559999999999,
+              "p99Ms": 0.4978912,
+              "minMs": 0.32727999999999996,
+              "maxMs": 0.51028,
+              "meanMs": 0.37015733333333334,
+              "stddevMs": 0.030691930347315148,
+              "variationCvPercent": 8.29159051664026
+            },
+            "candidate": {
+              "medianMs": 0.6301599999999999,
+              "p95Ms": 0.72569,
+              "p99Ms": 0.8154444,
+              "minMs": 0.5678,
+              "maxMs": 0.81904,
+              "meanMs": 0.6349164444444444,
+              "stddevMs": 0.042400288738825856,
+              "variationCvPercent": 6.6780895517561145
+            },
+            "medianRegressionPercent": 72.5047905830824,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.36491999999999997,
+                  "p95Ms": 0.4702459999999999,
+                  "p99Ms": 0.494388,
+                  "minMs": 0.36075999999999997,
+                  "maxMs": 0.49635999999999997,
+                  "meanMs": 0.37624,
+                  "stddevMs": 0.03457369481749576,
+                  "variationCvPercent": 9.189266111390538
+                },
+                "candidate": {
+                  "medianMs": 0.6279399999999999,
+                  "p95Ms": 0.7865519999999998,
+                  "p99Ms": 0.8145591999999999,
+                  "minMs": 0.6102,
+                  "maxMs": 0.815,
+                  "meanMs": 0.6440813333333334,
+                  "stddevMs": 0.05102719639129271,
+                  "variationCvPercent": 7.922477139216275
+                },
+                "medianRegressionPercent": 72.07607146771895
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.36848,
+                  "p95Ms": 0.40389799999999987,
+                  "p99Ms": 0.48558360000000006,
+                  "minMs": 0.36132,
+                  "maxMs": 0.51028,
+                  "meanMs": 0.3749933333333333,
+                  "stddevMs": 0.027419778911500277,
+                  "variationCvPercent": 7.312071035440705
+                },
+                "candidate": {
+                  "medianMs": 0.6346,
+                  "p95Ms": 0.6939919999999997,
+                  "p99Ms": 0.7935084000000001,
+                  "minMs": 0.62044,
+                  "maxMs": 0.81904,
+                  "meanMs": 0.6436933333333333,
+                  "stddevMs": 0.03740462193663,
+                  "variationCvPercent": 5.810938221611223
+                },
+                "medianRegressionPercent": 72.2210160660009
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.36088,
+                  "p95Ms": 0.37025399999999997,
+                  "p99Ms": 0.4497960000000001,
+                  "minMs": 0.32727999999999996,
+                  "maxMs": 0.48216,
+                  "meanMs": 0.3592386666666666,
+                  "stddevMs": 0.02644231655677862,
+                  "variationCvPercent": 7.360654353311622
+                },
+                "candidate": {
+                  "medianMs": 0.6275,
+                  "p95Ms": 0.6383719999999999,
+                  "p99Ms": 0.6957912,
+                  "minMs": 0.5678,
+                  "maxMs": 0.7192,
+                  "meanMs": 0.6169746666666666,
+                  "stddevMs": 0.030125347879964622,
+                  "variationCvPercent": 4.882752811022705
+                },
+                "medianRegressionPercent": 73.88051429838173
+              }
+            ]
+          },
+          {
+            "block": 67,
+            "baseline": {
+              "medianMs": 0.37686,
+              "p95Ms": 0.395512,
+              "p99Ms": 0.48617439999999995,
+              "minMs": 0.3218,
+              "maxMs": 0.52804,
+              "meanMs": 0.36022088888888887,
+              "stddevMs": 0.03548439518199653,
+              "variationCvPercent": 9.85073222473275
+            },
+            "candidate": {
+              "medianMs": 0.6380999999999999,
+              "p95Ms": 0.6783399999999998,
+              "p99Ms": 0.7783831999999999,
+              "minMs": 0.54436,
+              "maxMs": 0.8131999999999999,
+              "meanMs": 0.6108986666666667,
+              "stddevMs": 0.056384973317365326,
+              "variationCvPercent": 9.229840625619087
+            },
+            "medianRegressionPercent": 69.32017194714216,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.38204,
+                  "p95Ms": 0.39315399999999995,
+                  "p99Ms": 0.39574239999999994,
+                  "minMs": 0.37684,
+                  "maxMs": 0.39615999999999996,
+                  "meanMs": 0.3828306666666666,
+                  "stddevMs": 0.004987586546171957,
+                  "variationCvPercent": 1.3028179245929334
+                },
+                "candidate": {
+                  "medianMs": 0.64612,
+                  "p95Ms": 0.7033759999999998,
+                  "p99Ms": 0.7918328,
+                  "minMs": 0.63944,
+                  "maxMs": 0.8131999999999999,
+                  "meanMs": 0.6545506666666665,
+                  "stddevMs": 0.03430187506374671,
+                  "variationCvPercent": 5.240522515763494
+                },
+                "medianRegressionPercent": 69.12365197361534
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.37686,
+                  "p95Ms": 0.44294799999999973,
+                  "p99Ms": 0.5143984,
+                  "minMs": 0.3218,
+                  "maxMs": 0.52804,
+                  "meanMs": 0.36923999999999996,
+                  "stddevMs": 0.04441367597185953,
+                  "variationCvPercent": 12.028403198965316
+                },
+                "candidate": {
+                  "medianMs": 0.63628,
+                  "p95Ms": 0.653918,
+                  "p99Ms": 0.7400108000000001,
+                  "minMs": 0.54436,
+                  "maxMs": 0.77408,
+                  "meanMs": 0.6131186666666667,
+                  "stddevMs": 0.05171913428853537,
+                  "variationCvPercent": 8.435419944024218
+                },
+                "medianRegressionPercent": 68.83723398609564
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.32576,
+                  "p95Ms": 0.33183799999999997,
+                  "p99Ms": 0.38178680000000004,
+                  "minMs": 0.32267999999999997,
+                  "maxMs": 0.40124,
+                  "meanMs": 0.32859200000000005,
+                  "stddevMs": 0.01367637534826632,
+                  "variationCvPercent": 4.162114521432755
+                },
+                "candidate": {
+                  "medianMs": 0.55206,
+                  "p95Ms": 0.6636519999999998,
+                  "p99Ms": 0.7146752,
+                  "minMs": 0.54508,
+                  "maxMs": 0.72312,
+                  "meanMs": 0.5650266666666667,
+                  "stddevMs": 0.04088572214790336,
+                  "variationCvPercent": 7.236069474225999
+                },
+                "medianRegressionPercent": 69.46832023575638
+              }
+            ]
+          },
+          {
+            "block": 68,
+            "baseline": {
+              "medianMs": 0.37605999999999995,
+              "p95Ms": 0.38660799999999995,
+              "p99Ms": 0.4026219999999999,
+              "minMs": 0.3222,
+              "maxMs": 0.47043999999999997,
+              "meanMs": 0.3575968888888889,
+              "stddevMs": 0.029181700340546162,
+              "variationCvPercent": 8.160501740162898
+            },
+            "candidate": {
+              "medianMs": 0.63544,
+              "p95Ms": 0.6638939999999999,
+              "p99Ms": 0.7685435999999999,
+              "minMs": 0.53288,
+              "maxMs": 0.771,
+              "meanMs": 0.6087022222222223,
+              "stddevMs": 0.05255537646199224,
+              "variationCvPercent": 8.634004369184897
+            },
+            "medianRegressionPercent": 68.97303621762487,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.38058,
+                  "p95Ms": 0.38848399999999994,
+                  "p99Ms": 0.39135159999999997,
+                  "minMs": 0.37567999999999996,
+                  "maxMs": 0.39192,
+                  "meanMs": 0.38134133333333337,
+                  "stddevMs": 0.00399880960064645,
+                  "variationCvPercent": 1.0486168823328312
+                },
+                "candidate": {
+                  "medianMs": 0.6420399999999999,
+                  "p95Ms": 0.7000839999999997,
+                  "p99Ms": 0.7610936,
+                  "minMs": 0.63284,
+                  "maxMs": 0.771,
+                  "meanMs": 0.6493,
+                  "stddevMs": 0.028820873454263436,
+                  "variationCvPercent": 4.438760735293923
+                },
+                "medianRegressionPercent": 68.70040464554101
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.37746,
+                  "p95Ms": 0.39056799999999997,
+                  "p99Ms": 0.448342,
+                  "minMs": 0.3222,
+                  "maxMs": 0.47043999999999997,
+                  "meanMs": 0.36420399999999997,
+                  "stddevMs": 0.031631407767175546,
+                  "variationCvPercent": 8.685079726520177
+                },
+                "candidate": {
+                  "medianMs": 0.6367799999999999,
+                  "p95Ms": 0.6515259999999999,
+                  "p99Ms": 0.7349828,
+                  "minMs": 0.54836,
+                  "maxMs": 0.7682399999999999,
+                  "meanMs": 0.6182666666666666,
+                  "stddevMs": 0.0471816973930452,
+                  "variationCvPercent": 7.631285970408433
+                },
+                "medianRegressionPercent": 68.70131934509614
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.32639999999999997,
+                  "p95Ms": 0.333924,
+                  "p99Ms": 0.337342,
+                  "minMs": 0.32424,
+                  "maxMs": 0.3374,
+                  "meanMs": 0.32724533333333333,
+                  "stddevMs": 0.0030836641984640445,
+                  "variationCvPercent": 0.9423096021121904
+                },
+                "candidate": {
+                  "medianMs": 0.55094,
+                  "p95Ms": 0.6195059999999997,
+                  "p99Ms": 0.6748172,
+                  "minMs": 0.53288,
+                  "maxMs": 0.67636,
+                  "meanMs": 0.55854,
+                  "stddevMs": 0.03120161491547085,
+                  "variationCvPercent": 5.586281182273579
+                },
+                "medianRegressionPercent": 68.79289215686275
+              }
+            ]
+          },
+          {
+            "block": 69,
+            "baseline": {
+              "medianMs": 0.37972,
+              "p95Ms": 0.41836199999999985,
+              "p99Ms": 0.5580312,
+              "minMs": 0.31995999999999997,
+              "maxMs": 0.56508,
+              "meanMs": 0.37120622222222216,
+              "stddevMs": 0.04351291482812323,
+              "variationCvPercent": 11.72203272015044
+            },
+            "candidate": {
+              "medianMs": 0.6393,
+              "p95Ms": 0.6646799999999999,
+              "p99Ms": 0.7710768,
+              "minMs": 0.5371199999999999,
+              "maxMs": 0.77364,
+              "meanMs": 0.619568,
+              "stddevMs": 0.05097803664760388,
+              "variationCvPercent": 8.227997031416065
+            },
+            "medianRegressionPercent": 68.36089750342357,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.38156,
+                  "p95Ms": 0.45756199999999964,
+                  "p99Ms": 0.5444116,
+                  "minMs": 0.37648,
+                  "maxMs": 0.55716,
+                  "meanMs": 0.39245066666666667,
+                  "stddevMs": 0.0387413493942698,
+                  "variationCvPercent": 9.871648256664905
+                },
+                "candidate": {
+                  "medianMs": 0.64252,
+                  "p95Ms": 0.6706419999999998,
+                  "p99Ms": 0.7371672,
+                  "minMs": 0.63412,
+                  "maxMs": 0.7622,
+                  "meanMs": 0.6490159999999999,
+                  "stddevMs": 0.02273424811453709,
+                  "variationCvPercent": 3.5028794535939163
+                },
+                "medianRegressionPercent": 68.39291330328126
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.38071999999999995,
+                  "p95Ms": 0.45401399999999986,
+                  "p99Ms": 0.5369268,
+                  "minMs": 0.36216,
+                  "maxMs": 0.56508,
+                  "meanMs": 0.39149066666666665,
+                  "stddevMs": 0.037360562355986504,
+                  "variationCvPercent": 9.543155313022321
+                },
+                "candidate": {
+                  "medianMs": 0.64138,
+                  "p95Ms": 0.7174439999999996,
+                  "p99Ms": 0.7728048,
+                  "minMs": 0.62168,
+                  "maxMs": 0.77364,
+                  "meanMs": 0.649448,
+                  "stddevMs": 0.03319036711657968,
+                  "variationCvPercent": 5.1105503622429636
+                },
+                "medianRegressionPercent": 68.46501365833159
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.32604,
+                  "p95Ms": 0.35103599999999996,
+                  "p99Ms": 0.3838712,
+                  "minMs": 0.31995999999999997,
+                  "maxMs": 0.39568,
+                  "meanMs": 0.3296773333333334,
+                  "stddevMs": 0.013999420686426834,
+                  "variationCvPercent": 4.246400729125093
+                },
+                "candidate": {
+                  "medianMs": 0.54916,
+                  "p95Ms": 0.634326,
+                  "p99Ms": 0.6572448,
+                  "minMs": 0.5371199999999999,
+                  "maxMs": 0.66504,
+                  "meanMs": 0.5602400000000001,
+                  "stddevMs": 0.02996703967139007,
+                  "variationCvPercent": 5.3489646707464775
+                },
+                "medianRegressionPercent": 68.4333210649
+              }
+            ]
+          }
+        ],
+        "pooledRegressionRangePercent": [
+          68.36089750342357,
+          91.52020525978193
+        ],
+        "pairedRegressionRangePercent": [
+          68.39291330328126,
+          84.56061577934574
+        ],
+        "sumBaselineIsolatedMediansMs": 2.43166,
+        "sumCandidateIsolatedMediansMs": 4.238379999999999,
+        "timingGate": "REJECT_ALL_SEVEN",
+        "fullInferenceReductionProven": false,
+        "publicTimingReport": {
+          "path": "docs/performance/c32-strided-expansion-v9-measurements/stream-ordinary-target-interleaved.json",
+          "bytes": 48894,
+          "sha256": "1261b988655fa817234727ef13d0f0b825a34f3eab528824948d3e3c14f5ad99",
+          "distributed": true
+        },
+        "privateTimingReport": {
+          "path": "build/release/c32-strided-expansion-v9-phase-mask-actual-timing-20261003-a1/gpu-timing-stream/interleaved.json",
+          "bytes": 48894,
+          "sha256": "1261b988655fa817234727ef13d0f0b825a34f3eab528824948d3e3c14f5ad99",
+          "distributed": false
+        },
+        "operatorMedianGateMinimumImprovementPercent": 5.0,
+        "operatorsPassingGate": 0,
+        "networkLatencyMeasurement": false,
+        "allPairStatisticsRetained": true
+      },
+      {
+        "variant": "tile",
+        "protocol": {
+          "warmupsPerRoute": 5,
+          "interleavedPairs": 3,
+          "measuredFramesPerRoutePerPair": 30,
+          "routeOrder": [
+            "baseline-candidate",
+            "candidate-baseline",
+            "baseline-candidate"
+          ],
+          "frameInputsFixed": true,
+          "inputsWeightsSharedAcrossRoutes": true,
+          "preallocatedBuffers": true,
+          "persistentCommandBuffers": true,
+          "persistentDescriptorPools": true,
+          "reusableVkFence": true,
+          "queueWaitIdleDuringTiming": false,
+          "pipelineCaptureStatistics": false,
+          "imageReadbackDuringTiming": false,
+          "imageUploadsDuringTiming": false,
+          "timestampStage": "ALL_COMMANDS",
+          "baselineDispatchCount": 1,
+          "candidateDispatchCount": 1,
+          "timestampsPerRoute": 2,
+          "spanIncludesComputeBarriers": true,
+          "timingDomain": "GPU operator spans; excludes uploads, CPU submission/wait, readback and bridge",
+          "percentileMethod": "linear interpolation on n-1 index",
+          "variation": "population stddev/mean*100"
+        },
+        "operators": [
+          {
+            "block": 1,
+            "baseline": {
+              "medianMs": 0.30367999999999995,
+              "p95Ms": 0.352136,
+              "p99Ms": 0.37621799999999994,
+              "minMs": 0.29803999999999997,
+              "maxMs": 0.42588,
+              "meanMs": 0.3138555555555556,
+              "stddevMs": 0.021808817539452605,
+              "variationCvPercent": 6.9486797838734535
+            },
+            "candidate": {
+              "medianMs": 0.57282,
+              "p95Ms": 0.6742959999999999,
+              "p99Ms": 0.7025984,
+              "minMs": 0.56452,
+              "maxMs": 0.7394799999999999,
+              "meanMs": 0.5928066666666665,
+              "stddevMs": 0.04053444833992714,
+              "variationCvPercent": 6.837718031723747
+            },
+            "medianRegressionPercent": 88.62618545837726,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.3317,
+                  "p95Ms": 0.36031599999999997,
+                  "p99Ms": 0.40696040000000006,
+                  "minMs": 0.30012,
+                  "maxMs": 0.42588,
+                  "meanMs": 0.33193733333333336,
+                  "stddevMs": 0.027501605642014593,
+                  "variationCvPercent": 8.285180026555592
+                },
+                "candidate": {
+                  "medianMs": 0.62656,
+                  "p95Ms": 0.6742959999999999,
+                  "p99Ms": 0.7215579999999999,
+                  "minMs": 0.56452,
+                  "maxMs": 0.7394799999999999,
+                  "meanMs": 0.6224719999999999,
+                  "stddevMs": 0.045993903827934994,
+                  "variationCvPercent": 7.388911280818254
+                },
+                "medianRegressionPercent": 88.89357853482062
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.30252,
+                  "p95Ms": 0.31422999999999995,
+                  "p99Ms": 0.3551624,
+                  "minMs": 0.29803999999999997,
+                  "maxMs": 0.37007999999999996,
+                  "meanMs": 0.30545066666666665,
+                  "stddevMs": 0.012628644406885303,
+                  "variationCvPercent": 4.134430133906611
+                },
+                "candidate": {
+                  "medianMs": 0.5711599999999999,
+                  "p95Ms": 0.579576,
+                  "p99Ms": 0.6607176000000001,
+                  "minMs": 0.5646399999999999,
+                  "maxMs": 0.69336,
+                  "meanMs": 0.5751066666666668,
+                  "stddevMs": 0.022239494798418625,
+                  "variationCvPercent": 3.867020865419508
+                },
+                "medianRegressionPercent": 88.80074044691256
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.30333999999999994,
+                  "p95Ms": 0.31341399999999997,
+                  "p99Ms": 0.3190424,
+                  "minMs": 0.29812,
+                  "maxMs": 0.32004,
+                  "meanMs": 0.30417866666666654,
+                  "stddevMs": 0.004451693111115764,
+                  "variationCvPercent": 1.4635125993218128
+                },
+                "candidate": {
+                  "medianMs": 0.57224,
+                  "p95Ms": 0.6435559999999997,
+                  "p99Ms": 0.6977848,
+                  "minMs": 0.567,
+                  "maxMs": 0.69804,
+                  "meanMs": 0.5808413333333332,
+                  "stddevMs": 0.03134643496298884,
+                  "variationCvPercent": 5.396729393050916
+                },
+                "medianRegressionPercent": 88.64640337575001
+              }
+            ]
+          },
+          {
+            "block": 2,
+            "baseline": {
+              "medianMs": 0.34897999999999996,
+              "p95Ms": 0.36977399999999994,
+              "p99Ms": 0.47067879999999995,
+              "minMs": 0.29796,
+              "maxMs": 0.47519999999999996,
+              "meanMs": 0.3446186666666667,
+              "stddevMs": 0.030504094996500964,
+              "variationCvPercent": 8.851550408326004
+            },
+            "candidate": {
+              "medianMs": 0.6390199999999999,
+              "p95Ms": 0.657818,
+              "p99Ms": 0.7199856,
+              "minMs": 0.54392,
+              "maxMs": 0.75644,
+              "meanMs": 0.6256911111111111,
+              "stddevMs": 0.04103765989766647,
+              "variationCvPercent": 6.55877303815156
+            },
+            "medianRegressionPercent": 83.11077998739184,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.35087999999999997,
+                  "p95Ms": 0.45166999999999985,
+                  "p99Ms": 0.47372679999999995,
+                  "minMs": 0.34436,
+                  "maxMs": 0.47519999999999996,
+                  "meanMs": 0.36124666666666655,
+                  "stddevMs": 0.03304567035012134,
+                  "variationCvPercent": 9.147674815948848
+                },
+                "candidate": {
+                  "medianMs": 0.64206,
+                  "p95Ms": 0.651148,
+                  "p99Ms": 0.6528484,
+                  "minMs": 0.63356,
+                  "maxMs": 0.65344,
+                  "meanMs": 0.642492,
+                  "stddevMs": 0.005072931039678482,
+                  "variationCvPercent": 0.7895710825470952
+                },
+                "medianRegressionPercent": 82.98563611491109
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.35038,
+                  "p95Ms": 0.358278,
+                  "p99Ms": 0.41308320000000004,
+                  "minMs": 0.34552,
+                  "maxMs": 0.43451999999999996,
+                  "meanMs": 0.3530426666666667,
+                  "stddevMs": 0.015430718914626827,
+                  "variationCvPercent": 4.370780183687002
+                },
+                "candidate": {
+                  "medianMs": 0.6428,
+                  "p95Ms": 0.710926,
+                  "p99Ms": 0.7445616,
+                  "minMs": 0.6327999999999999,
+                  "maxMs": 0.75644,
+                  "meanMs": 0.6502466666666665,
+                  "stddevMs": 0.02651425595578517,
+                  "variationCvPercent": 4.0775689157630195
+                },
+                "medianRegressionPercent": 83.4579599292197
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.30474,
+                  "p95Ms": 0.35120399999999996,
+                  "p99Ms": 0.37035480000000004,
+                  "minMs": 0.29796,
+                  "maxMs": 0.37728,
+                  "meanMs": 0.31956666666666667,
+                  "stddevMs": 0.02205264509204181,
+                  "variationCvPercent": 6.900796419748142
+                },
+                "candidate": {
+                  "medianMs": 0.55726,
+                  "p95Ms": 0.6511039999999999,
+                  "p99Ms": 0.6728736,
+                  "minMs": 0.54392,
+                  "maxMs": 0.6775599999999999,
+                  "meanMs": 0.5843346666666666,
+                  "stddevMs": 0.04156834755222081,
+                  "variationCvPercent": 7.1137911069605355
+                },
+                "medianRegressionPercent": 82.8640808558115
+              }
+            ]
+          },
+          {
+            "block": 3,
+            "baseline": {
+              "medianMs": 0.31508,
+              "p95Ms": 0.368712,
+              "p99Ms": 0.41657079999999996,
+              "minMs": 0.30732,
+              "maxMs": 0.49692,
+              "meanMs": 0.3365586666666666,
+              "stddevMs": 0.03115432294597689,
+              "variationCvPercent": 9.256728776154992
+            },
+            "candidate": {
+              "medianMs": 0.57526,
+              "p95Ms": 0.67589,
+              "p99Ms": 0.7241424,
+              "minMs": 0.56204,
+              "maxMs": 0.76316,
+              "meanMs": 0.6158426666666668,
+              "stddevMs": 0.050780532682865344,
+              "variationCvPercent": 8.245699012334102
+            },
+            "medianRegressionPercent": 82.5758537514282,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.36336,
+                  "p95Ms": 0.37312399999999996,
+                  "p99Ms": 0.46134280000000005,
+                  "minMs": 0.3596,
+                  "maxMs": 0.49692,
+                  "meanMs": 0.3687186666666667,
+                  "stddevMs": 0.024038223968412382,
+                  "variationCvPercent": 6.519394362570663
+                },
+                "candidate": {
+                  "medianMs": 0.6665599999999999,
+                  "p95Ms": 0.7033719999999999,
+                  "p99Ms": 0.7504464,
+                  "minMs": 0.65948,
+                  "maxMs": 0.76316,
+                  "meanMs": 0.6719000000000002,
+                  "stddevMs": 0.020093752926386512,
+                  "variationCvPercent": 2.9905868323242304
+                },
+                "medianRegressionPercent": 83.44341699691763
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.31277999999999995,
+                  "p95Ms": 0.36200799999999994,
+                  "p99Ms": 0.36358519999999994,
+                  "minMs": 0.30788,
+                  "maxMs": 0.36419999999999997,
+                  "meanMs": 0.32538933333333336,
+                  "stddevMs": 0.021078281861248133,
+                  "variationCvPercent": 6.477865037959081
+                },
+                "candidate": {
+                  "medianMs": 0.5707599999999999,
+                  "p95Ms": 0.663806,
+                  "p99Ms": 0.6644376,
+                  "minMs": 0.56204,
+                  "maxMs": 0.6646,
+                  "meanMs": 0.6020413333333333,
+                  "stddevMs": 0.04238931875943384,
+                  "variationCvPercent": 7.040931645795167
+                },
+                "medianRegressionPercent": 82.47969819042139
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.31238,
+                  "p95Ms": 0.31574399999999997,
+                  "p99Ms": 0.3803428000000001,
+                  "minMs": 0.30732,
+                  "maxMs": 0.40664,
+                  "meanMs": 0.31556799999999996,
+                  "stddevMs": 0.01702990436457782,
+                  "variationCvPercent": 5.396587855732465
+                },
+                "candidate": {
+                  "medianMs": 0.56996,
+                  "p95Ms": 0.575274,
+                  "p99Ms": 0.6513984,
+                  "minMs": 0.5646399999999999,
+                  "maxMs": 0.6824399999999999,
+                  "meanMs": 0.5735866666666666,
+                  "stddevMs": 0.020418209737606493,
+                  "variationCvPercent": 3.559742742324292
+                },
+                "medianRegressionPercent": 82.45726358921827
+              }
+            ]
+          },
+          {
+            "block": 4,
+            "baseline": {
+              "medianMs": 0.36105999999999994,
+              "p95Ms": 0.373128,
+              "p99Ms": 0.4500083999999999,
+              "minMs": 0.35436,
+              "maxMs": 0.5394,
+              "meanMs": 0.36515688888888886,
+              "stddevMs": 0.021152244096572535,
+              "variationCvPercent": 5.792645501207786
+            },
+            "candidate": {
+              "medianMs": 0.6566799999999999,
+              "p95Ms": 0.7705599999999999,
+              "p99Ms": 0.782028,
+              "minMs": 0.6466799999999999,
+              "maxMs": 0.78808,
+              "meanMs": 0.6666368888888888,
+              "stddevMs": 0.032067806620224265,
+              "variationCvPercent": 4.81038585693525
+            },
+            "medianRegressionPercent": 81.8755885448402,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.36062,
+                  "p95Ms": 0.370484,
+                  "p99Ms": 0.37477079999999996,
+                  "minMs": 0.35608,
+                  "maxMs": 0.37636,
+                  "meanMs": 0.36220266666666656,
+                  "stddevMs": 0.004623729326949068,
+                  "variationCvPercent": 1.2765586099906505
+                },
+                "candidate": {
+                  "medianMs": 0.6567,
+                  "p95Ms": 0.7487259999999998,
+                  "p99Ms": 0.7783555999999999,
+                  "minMs": 0.64848,
+                  "maxMs": 0.77904,
+                  "meanMs": 0.6668439999999999,
+                  "stddevMs": 0.03184860243924894,
+                  "variationCvPercent": 4.7760199445820835
+                },
+                "medianRegressionPercent": 82.10304475625311
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.36073999999999995,
+                  "p95Ms": 0.3929579999999999,
+                  "p99Ms": 0.5013636000000001,
+                  "minMs": 0.3548,
+                  "maxMs": 0.5394,
+                  "meanMs": 0.36896000000000007,
+                  "stddevMs": 0.03298915700650745,
+                  "variationCvPercent": 8.941120177392522
+                },
+                "candidate": {
+                  "medianMs": 0.65578,
+                  "p95Ms": 0.7337239999999997,
+                  "p99Ms": 0.786108,
+                  "minMs": 0.6466799999999999,
+                  "maxMs": 0.78808,
+                  "meanMs": 0.6651053333333332,
+                  "stddevMs": 0.032597013332853406,
+                  "variationCvPercent": 4.9010302126861225
+                },
+                "medianRegressionPercent": 81.78743693518881
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.36147999999999997,
+                  "p95Ms": 0.37069399999999997,
+                  "p99Ms": 0.4194604,
+                  "minMs": 0.35436,
+                  "maxMs": 0.43895999999999996,
+                  "meanMs": 0.3643080000000001,
+                  "stddevMs": 0.014445665186022642,
+                  "variationCvPercent": 3.9652341387020433
+                },
+                "candidate": {
+                  "medianMs": 0.6585,
+                  "p95Ms": 0.750894,
+                  "p99Ms": 0.7746104,
+                  "minMs": 0.6479199999999999,
+                  "maxMs": 0.77932,
+                  "meanMs": 0.6679613333333333,
+                  "stddevMs": 0.03168582014438355,
+                  "variationCvPercent": 4.743660832321165
+                },
+                "medianRegressionPercent": 82.16775478588028
+              }
+            ]
+          },
+          {
+            "block": 67,
+            "baseline": {
+              "medianMs": 0.37482,
+              "p95Ms": 0.38543,
+              "p99Ms": 0.4777419999999999,
+              "minMs": 0.31928,
+              "maxMs": 0.55624,
+              "meanMs": 0.36855688888888893,
+              "stddevMs": 0.03181750697840715,
+              "variationCvPercent": 8.63299749309512
+            },
+            "candidate": {
+              "medianMs": 0.66618,
+              "p95Ms": 0.7269139999999997,
+              "p99Ms": 0.8049727999999999,
+              "minMs": 0.5658,
+              "maxMs": 0.84456,
+              "meanMs": 0.6551142222222222,
+              "stddevMs": 0.0513950270179211,
+              "variationCvPercent": 7.845200924440826
+            },
+            "medianRegressionPercent": 77.73331198975508,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.37592000000000003,
+                  "p95Ms": 0.38487,
+                  "p99Ms": 0.44405120000000003,
+                  "minMs": 0.3724,
+                  "maxMs": 0.46803999999999996,
+                  "meanMs": 0.37935733333333327,
+                  "stddevMs": 0.016755741490273975,
+                  "variationCvPercent": 4.416875599331319
+                },
+                "candidate": {
+                  "medianMs": 0.6669799999999999,
+                  "p95Ms": 0.7269139999999997,
+                  "p99Ms": 0.7610119999999999,
+                  "minMs": 0.6586,
+                  "maxMs": 0.7613599999999999,
+                  "meanMs": 0.674436,
+                  "stddevMs": 0.02370505060108499,
+                  "variationCvPercent": 3.5147961557634804
+                },
+                "medianRegressionPercent": 77.4260480953394
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.37824,
+                  "p95Ms": 0.4098419999999999,
+                  "p99Ms": 0.5193752,
+                  "minMs": 0.37104,
+                  "maxMs": 0.55624,
+                  "meanMs": 0.3853133333333333,
+                  "stddevMs": 0.033291520575399115,
+                  "variationCvPercent": 8.640116418343284
+                },
+                "candidate": {
+                  "medianMs": 0.67172,
+                  "p95Ms": 0.798334,
+                  "p99Ms": 0.8316608,
+                  "minMs": 0.66116,
+                  "maxMs": 0.84456,
+                  "meanMs": 0.6848106666666666,
+                  "stddevMs": 0.04387732952473547,
+                  "variationCvPercent": 6.407220515169469
+                },
+                "medianRegressionPercent": 77.59094754653128
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.32696,
+                  "p95Ms": 0.381084,
+                  "p99Ms": 0.38202879999999995,
+                  "minMs": 0.31928,
+                  "maxMs": 0.38239999999999996,
+                  "meanMs": 0.34099999999999997,
+                  "stddevMs": 0.022162375323958393,
+                  "variationCvPercent": 6.499230300281055
+                },
+                "candidate": {
+                  "medianMs": 0.57926,
+                  "p95Ms": 0.679218,
+                  "p99Ms": 0.6827424,
+                  "minMs": 0.5658,
+                  "maxMs": 0.68316,
+                  "meanMs": 0.6060959999999999,
+                  "stddevMs": 0.04218057511857008,
+                  "variationCvPercent": 6.959388466277635
+                },
+                "medianRegressionPercent": 77.16540249571815
+              }
+            ]
+          },
+          {
+            "block": 68,
+            "baseline": {
+              "medianMs": 0.3736,
+              "p95Ms": 0.3984279999999999,
+              "p99Ms": 0.4319724,
+              "minMs": 0.32183999999999996,
+              "maxMs": 0.43628,
+              "meanMs": 0.3641706666666666,
+              "stddevMs": 0.026015285626381703,
+              "variationCvPercent": 7.143707060347633
+            },
+            "candidate": {
+              "medianMs": 0.66172,
+              "p95Ms": 0.679504,
+              "p99Ms": 0.7928415999999999,
+              "minMs": 0.56924,
+              "maxMs": 0.80224,
+              "meanMs": 0.6425093333333333,
+              "stddevMs": 0.04864942956842693,
+              "variationCvPercent": 7.571785660456336
+            },
+            "medianRegressionPercent": 77.11991434689507,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.37636,
+                  "p95Ms": 0.386804,
+                  "p99Ms": 0.4187148,
+                  "minMs": 0.37184,
+                  "maxMs": 0.43144,
+                  "meanMs": 0.3791773333333333,
+                  "stddevMs": 0.010612448958128793,
+                  "variationCvPercent": 2.798808901585747
+                },
+                "candidate": {
+                  "medianMs": 0.6663999999999999,
+                  "p95Ms": 0.7402059999999997,
+                  "p99Ms": 0.7910187999999999,
+                  "minMs": 0.65816,
+                  "maxMs": 0.7916799999999999,
+                  "meanMs": 0.674896,
+                  "stddevMs": 0.03133610075722037,
+                  "variationCvPercent": 4.643100678803899
+                },
+                "medianRegressionPercent": 77.06451270060579
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.37526,
+                  "p95Ms": 0.38316,
+                  "p99Ms": 0.4142772,
+                  "minMs": 0.35316,
+                  "maxMs": 0.42684,
+                  "meanMs": 0.3748466666666667,
+                  "stddevMs": 0.012124364817268668,
+                  "variationCvPercent": 3.234486496861472
+                },
+                "candidate": {
+                  "medianMs": 0.6631,
+                  "p95Ms": 0.67652,
+                  "p99Ms": 0.7657812,
+                  "minMs": 0.6291599999999999,
+                  "maxMs": 0.80224,
+                  "meanMs": 0.6656546666666667,
+                  "stddevMs": 0.02776736402485639,
+                  "variationCvPercent": 4.171436844858954
+                },
+                "medianRegressionPercent": 76.7041517880936
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.32928,
+                  "p95Ms": 0.41053199999999995,
+                  "p99Ms": 0.4295752,
+                  "minMs": 0.32183999999999996,
+                  "maxMs": 0.43628,
+                  "meanMs": 0.338488,
+                  "stddevMs": 0.027784610416559746,
+                  "variationCvPercent": 8.208447689891443
+                },
+                "candidate": {
+                  "medianMs": 0.57714,
+                  "p95Ms": 0.6110999999999999,
+                  "p99Ms": 0.6843196,
+                  "minMs": 0.56924,
+                  "maxMs": 0.7118,
+                  "meanMs": 0.5869773333333334,
+                  "stddevMs": 0.026056047657992097,
+                  "variationCvPercent": 4.439021096440765
+                },
+                "medianRegressionPercent": 75.27332361516034
+              }
+            ]
+          },
+          {
+            "block": 69,
+            "baseline": {
+              "medianMs": 0.37283999999999995,
+              "p95Ms": 0.38922999999999996,
+              "p99Ms": 0.4141472,
+              "minMs": 0.32008,
+              "maxMs": 0.42796,
+              "meanMs": 0.3597337777777777,
+              "stddevMs": 0.027314559511073044,
+              "variationCvPercent": 7.592992706941845
+            },
+            "candidate": {
+              "medianMs": 0.65806,
+              "p95Ms": 0.67968,
+              "p99Ms": 0.7904743999999999,
+              "minMs": 0.56228,
+              "maxMs": 0.80208,
+              "meanMs": 0.6362235555555555,
+              "stddevMs": 0.05445085332075178,
+              "variationCvPercent": 8.558446609730577
+            },
+            "medianRegressionPercent": 76.49930264993029,
+            "passesFivePercentOperatorGate": false,
+            "pairs": [
+              {
+                "pair": 1,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.37694,
+                  "p95Ms": 0.39438399999999996,
+                  "p99Ms": 0.418912,
+                  "minMs": 0.37063999999999997,
+                  "maxMs": 0.42796,
+                  "meanMs": 0.3798,
+                  "stddevMs": 0.01063202207171023,
+                  "variationCvPercent": 2.799373899871045
+                },
+                "candidate": {
+                  "medianMs": 0.6646799999999999,
+                  "p95Ms": 0.7409619999999997,
+                  "p99Ms": 0.7982984,
+                  "minMs": 0.65488,
+                  "maxMs": 0.80208,
+                  "meanMs": 0.6737280000000001,
+                  "stddevMs": 0.03324845684639615,
+                  "variationCvPercent": 4.934997038329437
+                },
+                "medianRegressionPercent": 76.33575635379634
+              },
+              {
+                "pair": 2,
+                "order": "candidate-baseline",
+                "baseline": {
+                  "medianMs": 0.374,
+                  "p95Ms": 0.38249799999999995,
+                  "p99Ms": 0.4041692,
+                  "minMs": 0.3314,
+                  "maxMs": 0.41244,
+                  "meanMs": 0.37306,
+                  "stddevMs": 0.013352923275447967,
+                  "variationCvPercent": 3.5792964336696422
+                },
+                "candidate": {
+                  "medianMs": 0.66106,
+                  "p95Ms": 0.7208299999999996,
+                  "p99Ms": 0.7776368,
+                  "minMs": 0.59372,
+                  "maxMs": 0.78404,
+                  "meanMs": 0.6636960000000001,
+                  "stddevMs": 0.03374024161146449,
+                  "variationCvPercent": 5.083689160619392
+                },
+                "medianRegressionPercent": 76.75401069518716
+              },
+              {
+                "pair": 3,
+                "order": "baseline-candidate",
+                "baseline": {
+                  "medianMs": 0.32342,
+                  "p95Ms": 0.32811999999999997,
+                  "p99Ms": 0.3870124000000001,
+                  "minMs": 0.32008,
+                  "maxMs": 0.41092,
+                  "meanMs": 0.32634133333333337,
+                  "stddevMs": 0.015862478102602873,
+                  "variationCvPercent": 4.8607015055615195
+                },
+                "candidate": {
+                  "medianMs": 0.56826,
+                  "p95Ms": 0.576216,
+                  "p99Ms": 0.6335292000000001,
+                  "minMs": 0.56228,
+                  "maxMs": 0.65688,
+                  "meanMs": 0.5712466666666667,
+                  "stddevMs": 0.01635566717957079,
+                  "variationCvPercent": 2.863153193524827
+                },
+                "medianRegressionPercent": 75.70341970193557
+              }
+            ]
+          }
+        ],
+        "pooledRegressionRangePercent": [
+          76.49930264993029,
+          88.62618545837726
+        ],
+        "pairedRegressionRangePercent": [
+          75.27332361516034,
+          88.89357853482062
+        ],
+        "sumBaselineIsolatedMediansMs": 2.4500599999999997,
+        "sumCandidateIsolatedMediansMs": 4.42974,
+        "timingGate": "REJECT_ALL_SEVEN",
+        "fullInferenceReductionProven": false,
+        "publicTimingReport": {
+          "path": "docs/performance/c32-strided-expansion-v9-measurements/tile-ordinary-target-interleaved.json",
+          "bytes": 48743,
+          "sha256": "cbb70b1c4e7a9921f930b9f0e687c266d36d052bb6dca304c4ab79d9ef54b08e",
+          "distributed": true
+        },
+        "privateTimingReport": {
+          "path": "build/release/c32-strided-expansion-v9-phase-mask-actual-timing-20261003-a1/gpu-timing-tile/interleaved.json",
+          "bytes": 48743,
+          "sha256": "cbb70b1c4e7a9921f930b9f0e687c266d36d052bb6dca304c4ab79d9ef54b08e",
+          "distributed": false
+        },
+        "operatorMedianGateMinimumImprovementPercent": 5.0,
+        "operatorsPassingGate": 0,
+        "networkLatencyMeasurement": false,
+        "allPairStatisticsRetained": true
+      }
+    ],
+    "samplesRecomputed": 2520,
+    "statisticsFieldsRecomputed": 896,
+    "prePostCanonicalChecks": 28,
+    "everyPooledAndPairedOperatorSlower": true,
+    "layerEnabled": false,
+    "readbackDuringTiming": false,
+    "balancedRouteOrdering": false,
+    "thermalOrClockCauseAssigned": false,
+    "isolatedMedianSumsAreNotNetworkLatency": true,
+    "networkOnlyTimingMeasured": false,
+    "bridgeTimingMeasured": false,
+    "gameFpsMeasured": false
+  },
+  "installedDriver": [
+    {
+      "module": "amd_expand32_strided_mask_stream",
+      "moduleSha256": "4ffad8bd2d340e9c07b5584459f02b3eda3c1b79b380ae65103572a6c5dc1981",
+      "resources": {
+        "numUsedVgprs": 48,
+        "numUsedSgprs": 34,
+        "ldsSizePerLocalWorkGroup": 1536,
+        "ldsUsageSizeInBytes": 1536,
+        "scratchMemUsageInBytes": 0
+      },
+      "subgroupSizeReported": 32,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "halfDowncasts": 40,
+        "halfUpcasts": 40,
+        "fp8Downconversion": 0,
+        "modeSetters": 0,
+        "bpermute": 0,
+        "halfConversionInstructionsTotal": 80
+      },
+      "pipelineCaptureInstrumented": true,
+      "ordinaryTiming": false,
+      "offlineEquivalentClaim": false,
+      "report": {
+        "path": "build/release/c32-strided-expansion-v9-phase-mask-20261003-a1/driver-info/amd_expand32_strided_mask_stream.txt",
+        "bytes": 148434,
+        "sha256": "7984d1dc29735f4f188d6f0f26ffcaa3c65b7d4bc6b8ac625a684fd32d99051c",
+        "distributed": false
+      }
+    },
+    {
+      "module": "amd_expand32_strided_mask_stream_capture",
+      "moduleSha256": "87b79f79a0e139a1794d6a768c47611c81ad9140a86611d1ee09e8abb2e9a6d6",
+      "resources": {
+        "numUsedVgprs": 51,
+        "numUsedSgprs": 40,
+        "ldsSizePerLocalWorkGroup": 1536,
+        "ldsUsageSizeInBytes": 1536,
+        "scratchMemUsageInBytes": 0
+      },
+      "subgroupSizeReported": 32,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "halfDowncasts": 40,
+        "halfUpcasts": 40,
+        "fp8Downconversion": 0,
+        "modeSetters": 0,
+        "bpermute": 0,
+        "halfConversionInstructionsTotal": 80
+      },
+      "pipelineCaptureInstrumented": true,
+      "ordinaryTiming": false,
+      "offlineEquivalentClaim": false,
+      "report": {
+        "path": "build/release/c32-strided-expansion-v9-phase-mask-20261003-a1/driver-info/amd_expand32_strided_mask_stream_capture.txt",
+        "bytes": 150160,
+        "sha256": "52e5fca274eeb487e98df8c9b82b245e776e78d28ed3202112df403316729054",
+        "distributed": false
+      }
+    },
+    {
+      "module": "amd_expand32_strided_mask_tile",
+      "moduleSha256": "98fd015c9d4e35d660e39c7c5d99fe4ad7de382e57ada62787bfd27ae5e63145",
+      "resources": {
+        "numUsedVgprs": 48,
+        "numUsedSgprs": 36,
+        "ldsSizePerLocalWorkGroup": 1536,
+        "ldsUsageSizeInBytes": 1536,
+        "scratchMemUsageInBytes": 0
+      },
+      "subgroupSizeReported": 32,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "halfDowncasts": 40,
+        "halfUpcasts": 40,
+        "fp8Downconversion": 0,
+        "modeSetters": 0,
+        "bpermute": 0,
+        "halfConversionInstructionsTotal": 80
+      },
+      "pipelineCaptureInstrumented": true,
+      "ordinaryTiming": false,
+      "offlineEquivalentClaim": false,
+      "report": {
+        "path": "build/release/c32-strided-expansion-v9-phase-mask-20261003-a1/driver-info/amd_expand32_strided_mask_tile.txt",
+        "bytes": 149115,
+        "sha256": "e64f3b7c89f354057a85ffadced35acbf88c3a76f5bcffdd6dff4bc84deb58d5",
+        "distributed": false
+      }
+    },
+    {
+      "module": "amd_expand32_strided_mask_tile_capture",
+      "moduleSha256": "85d7eab74c5adc3191b6b9ae1568bb5e9309213de0a4d37b398866f4bdd958ac",
+      "resources": {
+        "numUsedVgprs": 51,
+        "numUsedSgprs": 41,
+        "ldsSizePerLocalWorkGroup": 1536,
+        "ldsUsageSizeInBytes": 1536,
+        "scratchMemUsageInBytes": 0
+      },
+      "subgroupSizeReported": 32,
+      "staticInstructionCounts": {
+        "fp8Wmma": 2,
+        "halfDowncasts": 40,
+        "halfUpcasts": 40,
+        "fp8Downconversion": 0,
+        "modeSetters": 0,
+        "bpermute": 0,
+        "halfConversionInstructionsTotal": 80
+      },
+      "pipelineCaptureInstrumented": true,
+      "ordinaryTiming": false,
+      "offlineEquivalentClaim": false,
+      "report": {
+        "path": "build/release/c32-strided-expansion-v9-phase-mask-20261003-a1/driver-info/amd_expand32_strided_mask_tile_capture.txt",
+        "bytes": 150733,
+        "sha256": "52f0201842c0b41ac4e83f2c8cec4f709c7d454c8fdc3ae3dfcd21cc8a56845c",
+        "distributed": false
+      }
+    }
+  ],
+  "offlineWave32": [
+    {
+      "module": "amd_expand32_strided_mask_stream",
+      "resources": {
+        "sgprs": 34,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprSpills": 0,
+        "vgprs": 46,
+        "staticScratchInstructionCount": 0,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "ldsBytes": 1536,
+        "wavefrontSize": 32
+      },
+      "analysis": {
+        "path": "build/release/c32-strided-expansion-v9-phase-mask-20261003-a1/offline-amd_expand32_strided_mask_stream/analysis.json",
+        "bytes": 6532,
+        "sha256": "4f3fc9f1eab56f1b12afe00a1daca62c775c51f2e8e1044ed4529f1a91b815e7",
+        "distributed": false
+      },
+      "staticFp8WmmaInstructions": 2,
+      "staticFp8DownconversionInstructions": 0,
+      "staticModeSetterInstructions": 0,
+      "forceWave32Offline": true,
+      "installedDriverEquivalentClaim": false
+    },
+    {
+      "module": "amd_expand32_strided_mask_stream_capture",
+      "resources": {
+        "sgprs": 40,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprSpills": 0,
+        "vgprs": 49,
+        "staticScratchInstructionCount": 0,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "ldsBytes": 1536,
+        "wavefrontSize": 32
+      },
+      "analysis": {
+        "path": "build/release/c32-strided-expansion-v9-phase-mask-20261003-a1/offline-amd_expand32_strided_mask_stream_capture/analysis.json",
+        "bytes": 6588,
+        "sha256": "5ade19b4733d11940b7cf471c436aecd4aef8625fb38c54642bcf5c07872e9ca",
+        "distributed": false
+      },
+      "staticFp8WmmaInstructions": 2,
+      "staticFp8DownconversionInstructions": 0,
+      "staticModeSetterInstructions": 0,
+      "forceWave32Offline": true,
+      "installedDriverEquivalentClaim": false
+    },
+    {
+      "module": "amd_expand32_strided_mask_tile",
+      "resources": {
+        "sgprs": 36,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprSpills": 0,
+        "vgprs": 46,
+        "staticScratchInstructionCount": 0,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "ldsBytes": 1536,
+        "wavefrontSize": 32
+      },
+      "analysis": {
+        "path": "build/release/c32-strided-expansion-v9-phase-mask-20261003-a1/offline-amd_expand32_strided_mask_tile/analysis.json",
+        "bytes": 6518,
+        "sha256": "5288afa48415c61bd8946e33888d8f21aa8ac55a7f1d6b94561c677b34d45a62",
+        "distributed": false
+      },
+      "staticFp8WmmaInstructions": 2,
+      "staticFp8DownconversionInstructions": 0,
+      "staticModeSetterInstructions": 0,
+      "forceWave32Offline": true,
+      "installedDriverEquivalentClaim": false
+    },
+    {
+      "module": "amd_expand32_strided_mask_tile_capture",
+      "resources": {
+        "sgprs": 41,
+        "threadgroupDimensions": [
+          32,
+          1,
+          1
+        ],
+        "sgprSpills": 0,
+        "vgprs": 49,
+        "staticScratchInstructionCount": 0,
+        "scratchBytes": 0,
+        "vgprSpills": 0,
+        "ldsBytes": 1536,
+        "wavefrontSize": 32
+      },
+      "analysis": {
+        "path": "build/release/c32-strided-expansion-v9-phase-mask-20261003-a1/offline-amd_expand32_strided_mask_tile_capture/analysis.json",
+        "bytes": 6574,
+        "sha256": "56cb83ae1749be46ec924e7375a0408a6a844f84fdd500e954c65fce1b490001",
+        "distributed": false
+      },
+      "staticFp8WmmaInstructions": 2,
+      "staticFp8DownconversionInstructions": 0,
+      "staticModeSetterInstructions": 0,
+      "forceWave32Offline": true,
+      "installedDriverEquivalentClaim": false
+    }
+  ],
+  "staticConversionCountClarification": {
+    "v9PerModuleF32ToF16": 40,
+    "v9PerModuleF16ToF32": 40,
+    "v9PerModuleTotal": 80,
+    "countUnit": "static conversion instructions, not elements or runtime delivery",
+    "historicalV8Erratum": "published40 hardwareHalfCasts counted F32-to-F16 narrowing only; it was not the total of narrowing and widening instructions",
+    "historicalV8Record": {
+      "path": "docs/performance/c32-strided-expansion-v8-rx9070xt-20261003.json",
+      "bytes": 77036,
+      "sha256": "0d6e526e6084b99160bbe16f16b14eeb5634d2d02a64a28b581fdc638f379d15",
+      "distributed": true
+    },
+    "historicalV8InstalledReports": [
+      {
+        "module": "amd_expand32_strided_stream",
+        "moduleSha256": "c229a5ac1cc6dfcb8903953ec4f49a1acd4e1ac04bc6e3e315f06f6c0ea56f47",
+        "report": {
+          "path": "build/release/c32-strided-expansion-v8-20261003-a1/driver-info/amd_expand32_strided_stream.txt",
+          "bytes": 151527,
+          "sha256": "b17cf510faaf43ff0a5798db08181ba7b8325bfa89bc4c7451072c24d917f2f8",
+          "distributed": false
+        },
+        "historicalField": "hardwareHalfCasts",
+        "historicalCount": 40,
+        "clarifiedScope": "F32-to-F16 narrowing instructions only",
+        "independentRecountF32ToF16": 40,
+        "independentRecountF16ToF32": 40,
+        "independentRecountTotalConversions": 80
+      },
+      {
+        "module": "amd_expand32_strided_stream_capture",
+        "moduleSha256": "01a355a2cb95240cabe94e047e1a933a15dd4d6a774dd8c4974ad19c1ad16f4c",
+        "report": {
+          "path": "build/release/c32-strided-expansion-v8-20261003-a1/driver-info/amd_expand32_strided_stream_capture.txt",
+          "bytes": 152902,
+          "sha256": "63e67b7a6d8856afacc7333ac2d2cf2bdbc2e9e5514bef6beda39f897732fd40",
+          "distributed": false
+        },
+        "historicalField": "hardwareHalfCasts",
+        "historicalCount": 40,
+        "clarifiedScope": "F32-to-F16 narrowing instructions only",
+        "independentRecountF32ToF16": 40,
+        "independentRecountF16ToF32": 40,
+        "independentRecountTotalConversions": 80
+      },
+      {
+        "module": "amd_expand32_strided_tile",
+        "moduleSha256": "4cfb004efbafcd3a127e7e5b9a3f045fa91d09acd93a936c012e79bcb3a6d1a6",
+        "report": {
+          "path": "build/release/c32-strided-expansion-v8-20261003-a1/driver-info/amd_expand32_strided_tile.txt",
+          "bytes": 151932,
+          "sha256": "147ad0facfa62d257010ef343d8da0d7d3520b1e2e27246ea549b39aaa47d434",
+          "distributed": false
+        },
+        "historicalField": "hardwareHalfCasts",
+        "historicalCount": 40,
+        "clarifiedScope": "F32-to-F16 narrowing instructions only",
+        "independentRecountF32ToF16": 40,
+        "independentRecountF16ToF32": 40,
+        "independentRecountTotalConversions": 80
+      },
+      {
+        "module": "amd_expand32_strided_tile_capture",
+        "moduleSha256": "a6dd293968c6ac185352b00984b7f8560f161e21249ca906a8e91dbf0cb39306",
+        "report": {
+          "path": "build/release/c32-strided-expansion-v8-20261003-a1/driver-info/amd_expand32_strided_tile_capture.txt",
+          "bytes": 153787,
+          "sha256": "9fe82fbf60f2dd07fae26c2f57bfab0ca88d02f0d4a2c2c74719f9a34a3d80b1",
+          "distributed": false
+        },
+        "historicalField": "hardwareHalfCasts",
+        "historicalCount": 40,
+        "clarifiedScope": "F32-to-F16 narrowing instructions only",
+        "independentRecountF32ToF16": 40,
+        "independentRecountF16ToF32": 40,
+        "independentRecountTotalConversions": 80
+      }
+    ],
+    "historicalFilesModified": false
+  },
+  "independentAudit": {
+    "path": "build/release/c32-strided-expansion-v9-saved-timing-independent-cpu-audit-0295e60d7f0446e397ce531f63c043a9/audit.json",
+    "bytes": 475685,
+    "sha256": "afecab51670a8755fda11cbdf7dd70acccce978b726bc87dfbb9788d3a5fa145",
+    "distributed": false
+  },
+  "qualifications": {
+    "boundedByteAgreementOnRecordedDriver": true,
+    "arbitraryInputEquivalence": false,
+    "portableNumericsParity": false,
+    "originalNvidiaParity": false,
+    "completeModelQualification": false,
+    "broadTemporalQuality": false,
+    "hdrGameValidation": false,
+    "operatorPerformanceAccepted": false,
+    "completeInferencePerformanceAccepted": false,
+    "eightMsNrPlusBridge": false,
+    "sixtyRealFps": false,
+    "promotion": false
+  },
+  "limitations": [
+    "Known installed device/driver, selected fixture corpus and saved fixed generated-model inputs only.",
+    "Production/capture E4 agreement and separate F40 half traces do not reveal original F24 pre-E4 halves.",
+    "Timing explicitly records validation layers disabled; bounded and actual manifests omit enabled-layer status.",
+    "Per-route GPU spans include compute barriers and exclude uploads, readback, CPU submission/wait and bridge.",
+    "B/C,C/B,B/C ordering is unbalanced; all samples and all21 pairs per variant retained.",
+    "Driver pipeline captures and offline RGA are separate observations. Static ISA counts do not establish dynamic throughput or explain regressions.",
+    "No full candidate graph, evolved history, game benchmark or timing was run after operator rejection."
+  ],
+  "privacy": {
+    "rawTensorsOrImagesPublished": false,
+    "gameCaptureBytesPublished": false,
+    "nvidiaDllPublished": false,
+    "extractedWeightsPublished": false,
+    "shaderBinariesOrIsaPublished": false,
+    "onlyScalarTimingJsonCopied": true
+  },
+  "review": {
+    "firstIndependentSavedSourceResourceTimingAuditComplete": true,
+    "secondIndependentPublicReviewPending": false,
+    "secondIndependentPublicReview": {
+      "path": "build/release/c32-strided-expansion-v9-public-second-cpu-audit-20261003-a1/audit.json",
+      "bytes": 4729,
+      "sha256": "d5fe105d5c6002280380c582ce2c804bca861cc2eff1414ba1390ef89c2cc0a9",
+      "distributed": false
+    },
+    "reviewedDraftSha256": "f621fa689a3364f38b7ac203e7a558b664046f69ea2ac1cc7a8497a75972bd7c",
+    "measurementValuesAndTimingCopiesUnchanged": true
+  }
+}
