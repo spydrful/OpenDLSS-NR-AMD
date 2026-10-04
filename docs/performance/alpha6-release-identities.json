@@ -1,0 +1,573 @@
+{
+  "format": "OpenNR-alpha6-release-identities-v1",
+  "verified_utc": "2026-10-04T01:18:51.422455+00:00",
+  "source_commit": "8da4db5d24a904d0a5216a7c4a71ed18e61d2da6",
+  "release_tag": "v0.1.0-alpha.6",
+  "release_id": 402765561,
+  "release_url": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.6",
+  "published_at": "2026-10-04T01:11:32Z",
+  "draft": false,
+  "prerelease": true,
+  "live_github_api_published_confirmation": true,
+  "remote_tag_binding": {
+    "ref": "refs/tags/v0.1.0-alpha.6",
+    "object_chain": [
+      {
+        "type": "commit",
+        "sha": "8da4db5d24a904d0a5216a7c4a71ed18e61d2da6"
+      }
+    ],
+    "resolved_commit": "8da4db5d24a904d0a5216a7c4a71ed18e61d2da6",
+    "verified_with_live_github_api": true
+  },
+  "assets": [
+    {
+      "id": 608870180,
+      "name": "OpenNR-AMD-v0.1.0-alpha.6-rx9070xt.zip",
+      "url": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/download/v0.1.0-alpha.6/OpenNR-AMD-v0.1.0-alpha.6-rx9070xt.zip",
+      "size": 312908969,
+      "digest": "sha256:eeca8545bb4e8c9c8e00b45d11b3b2aaaf5a929b13896f75ee1dfddd7b21e6c5",
+      "state": "uploaded"
+    },
+    {
+      "id": 608870935,
+      "name": "OpenNR-AMD-v0.1.0-alpha.6-rx9070xt.zip.sha256",
+      "url": "https://github.com/spydrful/OpenDLSS-NR-AMD/releases/download/v0.1.0-alpha.6/OpenNR-AMD-v0.1.0-alpha.6-rx9070xt.zip.sha256",
+      "size": 105,
+      "digest": "sha256:6e5ea2f4e9ad1dc5c5e04666f0e6bbe0f290eeeb5dd3f30301189aeab28e0ec0",
+      "state": "uploaded"
+    }
+  ],
+  "local_publication_journal": {
+    "path": "build/release/github-alpha6.json",
+    "sha256": "bdd04be253589f252f884c0d655524e5a7703f64afb4367dd0672a5d7c04df60",
+    "bytes": 752
+  },
+  "publication_receipt": {
+    "path": "build/release/alpha6-publish.json",
+    "sha256": "a84da27f987028ca8fd980adf380ca9d4bb23f76daed26c4459c4b343cbe675f",
+    "bytes": 832
+  },
+  "verification_receipt": {
+    "path": "build/release/alpha6-api-verification.json",
+    "sha256": "a84da27f987028ca8fd980adf380ca9d4bb23f76daed26c4459c4b343cbe675f",
+    "bytes": 832
+  },
+  "package_manifest": {
+    "path": "dist/OpenNR-AMD-v0.1.0-alpha.6-rx9070xt/package-manifest.json",
+    "sha256": "3b81967e32ffda21203c80a4a401e142b3e8daf7e735f230f491bf6d1d78a93f",
+    "bytes": 19449
+  },
+  "archive_audit": {
+    "proof": {
+      "path": "build/release/alpha6-archive-audit.json",
+      "sha256": "a8865d335005c5cdf794ba171fcccb010e4c3ce0e3279450280a37b4544457ce",
+      "bytes": 900
+    },
+    "file_count": 10879,
+    "zip_bytes": 312908969,
+    "zip_sha256": "eeca8545bb4e8c9c8e00b45d11b3b2aaaf5a929b13896f75ee1dfddd7b21e6c5",
+    "all_embedded_file_hashes_matched": true
+  },
+  "independent_package_source_audit": {
+    "proof": {
+      "path": "build/release/alpha6-independent-package-audit-f7fa9592f99b4777b9477091ab8c8498/verification.json",
+      "sha256": "ccd55ae203f5706d19415513ae4400def8e9fb452f55254a7839f7ecc0da6deb",
+      "bytes": 6556
+    },
+    "status": "PASS",
+    "tracked_corresponding_source_files": 559,
+    "hashed_manifest_refs": 67,
+    "license_notices_checked": 14,
+    "source_archives": 5,
+    "diagnostic_capture_spv_or_executables_shipped": false
+  },
+  "source_publication_binding": {
+    "scope": "Historical precommit source-only audit remains unchanged; actual later remote-tag/publication binding is recorded separately above.",
+    "supplement": {
+      "path": "build/release/alpha6-source-publication-binding-private/scalar-supplement.json",
+      "sha256": "23b61134435031eb050f0b352ce959314f5fa34889e8bbfd671de92f078a9293",
+      "bytes": 7057
+    },
+    "historical_source_only_result": {
+      "format": "OpenNR-alpha6-committed-source-publication-binding-private-v1",
+      "passed": true,
+      "sourcePublicationCommit": "8da4db5d24a904d0a5216a7c4a71ed18e61d2da6",
+      "sourcePublicationTree": "b7df97f31f6f1712004929641840e9a69c332eb5",
+      "sourceParent": "a692d221b3ee43f29633f741599d1a2dfbacc14b",
+      "tag": {
+        "name": "v0.1.0-alpha.6",
+        "existsAtAudit": false,
+        "commit": null,
+        "bindingClaimed": false
+      },
+      "rootCommitBoundProductionInputs": 106,
+      "rootCommitBoundPublicDiagnosticInputs": 89,
+      "externalDependencyPublicDiagnosticInputs": 2,
+      "externalDependencyBindings": [
+        {
+          "source": "tools/volk/volk.c",
+          "dependency": "volk",
+          "dependencyGitCommit": "776893306c5d3b22b6185b5d4a258b81d94572bf",
+          "dependencyGitTree": "c534aee6edf5bec69244703c4d8d1b1fbc1a3f77",
+          "dependencyTag": "vulkan-sdk-1.4.357.0",
+          "includedInRootCommit": false,
+          "fetchScriptRootCommitSha256": "6f10132982a86d1041a82d6d571fdc848af9cf22bd8123cb57192bacf89771ff",
+          "recordedWindowsSha256": "76b87f37b68bb80e27a528dcbb71b519efe11cda5a94a96d38c8b03e41327d08",
+          "dependencyGitBlobSha256": "e3401bab5e1d69b4e09fb95143490cda40740a3d3906c4e99f388071c7809602",
+          "dependencyGitBlobId": "80e849de8bf45873468102493bfc0b30f4b60738"
+        },
+        {
+          "source": "tools/volk/volk.h",
+          "dependency": "volk",
+          "dependencyGitCommit": "776893306c5d3b22b6185b5d4a258b81d94572bf",
+          "dependencyGitTree": "c534aee6edf5bec69244703c4d8d1b1fbc1a3f77",
+          "dependencyTag": "vulkan-sdk-1.4.357.0",
+          "includedInRootCommit": false,
+          "fetchScriptRootCommitSha256": "6f10132982a86d1041a82d6d571fdc848af9cf22bd8123cb57192bacf89771ff",
+          "recordedWindowsSha256": "7014e2de839bf6d26e3ef89f9ef5a7b0ce3fe412c2a429aff52ff4355a33105d",
+          "dependencyGitBlobSha256": "036348b6f0dd7310c5e3bc04417be9ee56271c9997bd5eca49946ed52eca0e76",
+          "dependencyGitBlobId": "fcc4a66324aea23a237ccb4962a76586389bce8e"
+        }
+      ],
+      "exactSourceComparisonCount": 189,
+      "lineEndingOnlyComparisonCount": 8,
+      "lineEndingExceptions": [
+        {
+          "source": "game/compat/LmxxfNrApi.h",
+          "scope": "productionFinalV3",
+          "recordedWindowsSha256": "2bce53fa8d320a24ce310c1786a093e368bdf477bc16464cf990600a6bc2fedc",
+          "recordedWindowsBytes": 7635,
+          "gitBlobSha256": "864af6b72303c1ceb126b4e80e231ed1f64e05c61ec40aaf2cb2c1f5d52a99b1",
+          "gitBlobBytes": 7480,
+          "recordedCrlfCount": 155,
+          "relation": "exact byte equality after replacing CRLF with LF; no other changes"
+        },
+        {
+          "source": "game/compat/MochizukiNrControls.h",
+          "scope": "productionFinalV3",
+          "recordedWindowsSha256": "835c4cf8b3776b547ac7d2daa2ce462236e9a8f6ad30f63bc710257ccd3b9a3e",
+          "recordedWindowsBytes": 8843,
+          "gitBlobSha256": "9aee0a304ec1283f96460fecea037f5224b3cc890a6c18f2312913545f3f011a",
+          "gitBlobBytes": 8708,
+          "recordedCrlfCount": 135,
+          "relation": "exact byte equality after replacing CRLF with LF; no other changes"
+        },
+        {
+          "source": "game/shaders/game_preprocess.comp",
+          "scope": "productionFinalV3",
+          "recordedWindowsSha256": "70f9ee88688fc5f70b02a966ff88f3a5cba9a8d84bf3042fbba76e05231d8431",
+          "recordedWindowsBytes": 2450,
+          "gitBlobSha256": "6c3a2932bbeb986f9bfb81c38e4e3e97ef396be43221c74b32c4b6de5d676ba7",
+          "gitBlobBytes": 2449,
+          "recordedCrlfCount": 1,
+          "relation": "exact byte equality after replacing CRLF with LF; no other changes"
+        },
+        {
+          "source": "game/shaders/game_composite.comp",
+          "scope": "productionFinalV3",
+          "recordedWindowsSha256": "a6f5c010dc37cb01775d6c2c99918eecfe301d3b02730800277fc13c96384337",
+          "recordedWindowsBytes": 7883,
+          "gitBlobSha256": "fa52b93b57799c3121c791df3e2b969de70efce8fd2e873e334c68534c77c7b4",
+          "gitBlobBytes": 7882,
+          "recordedCrlfCount": 1,
+          "relation": "exact byte equality after replacing CRLF with LF; no other changes"
+        },
+        {
+          "source": "shaders/amd_global_matrix_optimized.comp",
+          "scope": "productionFinalV3",
+          "recordedWindowsSha256": "83dbd0ceac8411eb39c05b7299fd32efbf70063c1e2f378be83ebd696c454486",
+          "recordedWindowsBytes": 5165,
+          "gitBlobSha256": "b56335f5ef719099f63b56f7791e9f2ea7f6d5a563012d247e933dcf48c5ef15",
+          "gitBlobBytes": 5162,
+          "recordedCrlfCount": 3,
+          "relation": "exact byte equality after replacing CRLF with LF; no other changes"
+        },
+        {
+          "source": "shaders/amd_global_matrix_optimized.comp",
+          "scope": "publicDiagnosticV3",
+          "recordedWindowsSha256": "83dbd0ceac8411eb39c05b7299fd32efbf70063c1e2f378be83ebd696c454486",
+          "recordedWindowsBytes": 5165,
+          "gitBlobSha256": "b56335f5ef719099f63b56f7791e9f2ea7f6d5a563012d247e933dcf48c5ef15",
+          "gitBlobBytes": 5162,
+          "recordedCrlfCount": 3,
+          "relation": "exact byte equality after replacing CRLF with LF; no other changes"
+        },
+        {
+          "source": "tools/volk/volk.c",
+          "scope": "publicDiagnosticV3",
+          "recordedWindowsSha256": "76b87f37b68bb80e27a528dcbb71b519efe11cda5a94a96d38c8b03e41327d08",
+          "recordedWindowsBytes": 352002,
+          "gitBlobSha256": "e3401bab5e1d69b4e09fb95143490cda40740a3d3906c4e99f388071c7809602",
+          "gitBlobBytes": 347727,
+          "recordedCrlfCount": 4275,
+          "relation": "exact byte equality after replacing CRLF with LF; no other changes"
+        },
+        {
+          "source": "tools/volk/volk.h",
+          "scope": "publicDiagnosticV3",
+          "recordedWindowsSha256": "7014e2de839bf6d26e3ef89f9ef5a7b0ce3fe412c2a429aff52ff4355a33105d",
+          "recordedWindowsBytes": 197808,
+          "gitBlobSha256": "036348b6f0dd7310c5e3bc04417be9ee56271c9997bd5eca49946ed52eca0e76",
+          "gitBlobBytes": 194323,
+          "recordedCrlfCount": 3485,
+          "relation": "exact byte equality after replacing CRLF with LF; no other changes"
+        }
+      ],
+      "boundProductionModuleCount": 32,
+      "boundPublicDiagnosticModuleCount": 4,
+      "boundPublicDiagnosticExecutableCount": 3,
+      "publishedMeasurementFilesRehashedAndGitByteExact": 15,
+      "precommitSourceScopesPreserved": true,
+      "productionBinaryIdentityUnchanged": true,
+      "sdkAndCompilerIdentityIndependentlyFrozenByThisAudit": false,
+      "freshCorrespondingSourceRebuildPerformedByThisAudit": false,
+      "packagePayloadAuditedByThisRecord": false,
+      "publishedAssetClaimed": false,
+      "scope": "Binds recorded precommit Windows host source bytes to committed Git blobs, permitting only explicitly enumerated CRLF\u2192LF differences. Two ignored volk dependency inputs bind to their separate pinned dependency Git commit. This source-only CPU proof does not establish a fresh rebuild, release tag before existence, upload identity or game qualification.",
+      "independentAudit": {
+        "path": "build/release/alpha6-source-publication-binding-private/record.json",
+        "sha256": "b065a2ba29ad280ca8e31484c12b59d850669caced4c50796a2b5d627208874e",
+        "bytes": 154881
+      }
+    }
+  },
+  "network_evidence": {
+    "path": "docs/performance/qkv-normalize-rx9070xt-20261003.json",
+    "sha256": "8a1f5084bb910cdc3554cded9a362d44593184737bcd2a5d7d7df4e45977511f",
+    "bytes": 180544
+  },
+  "source_package_build": {
+    "passed": true,
+    "log": {
+      "path": "build/release/alpha6-source-package-build.log",
+      "sha256": "a4298fa5ab6c4399c56f4cdee4f4e05061a5be6884da148ae37318767cd5a1c2",
+      "bytes": 786
+    },
+    "products": [
+      {
+        "path": "build/source-package-test-124ff20c9fc249f5873e3aebe8860376/build/dlss5vk.exe",
+        "sha256": "09e52eea1bc6e5f5f4c27eb5799d738673580e9008229c84afbd8da42a6b62ab",
+        "bytes": 1159168
+      },
+      {
+        "path": "build/source-package-test-124ff20c9fc249f5873e3aebe8860376/build/game/OpenNrRuntime.dll",
+        "sha256": "80c3fbced1382552a866388c19f57689b99f3ae3675277e01bd91a4d3f2e5297",
+        "bytes": 583168
+      },
+      {
+        "path": "build/source-package-test-124ff20c9fc249f5873e3aebe8860376/build/importer/model_importer.exe",
+        "sha256": "14b29a5299914797db144403ad47ff14e352b301be9c93c6525521f7b7417db2",
+        "bytes": 359936
+      },
+      {
+        "path": "build/source-package-test-124ff20c9fc249f5873e3aebe8860376/build/optiscaler/OptiScaler.dll",
+        "sha256": "05af05a7dc9cc0ec69d9c207a8b32d1fd4dc0fa0b87f11866db30520d87ba16f",
+        "bytes": 27041280
+      }
+    ],
+    "independent_shader_rebuild_audit": {
+      "path": "build/release/alpha6-independent-rebuilt-shader-audit-012d5d0e91854dc2b277a1381780b5ec/verification.json",
+      "sha256": "3dd84a6c3e9ef5c5a79b99dd41b419200a158de393297a0974b5faf4060842fc",
+      "bytes": 17039
+    },
+    "native_modules": 32,
+    "game_modules": 2,
+    "strict_three_way_shader_comparisons": 34,
+    "shader_bytes_per_copy": 739648,
+    "fresh_shader_rebuilds": [
+      {
+        "family": "native",
+        "name": "amd_block32.spv",
+        "bytes": 48572,
+        "sha256": "e9638615189dfd1dd5cc9620fed839dcb1d0de9daf031e92cd8ac580ed13af5e",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_expert_ffn.spv",
+        "bytes": 23500,
+        "sha256": "e0e8e15e636cafd2b32d1f3a6237a4134bd46658757ad7886863a111927dbac1",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_ffn32.spv",
+        "bytes": 18352,
+        "sha256": "1b4aa577e62bf3ff67b61b6da972b95d91058d7259488d82e1a75dfcf4e14ccc",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_gemm.spv",
+        "bytes": 17116,
+        "sha256": "848a6b21bcf5470ad083d64680cba6dc25c11a6b6b3a286982698eea088c3305",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_gemm_direct.spv",
+        "bytes": 19160,
+        "sha256": "f7cb8e5e596fa92792de7b1acc1013d765b1c0cf181d82b08d0e8dc16ed685d9",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_gemm_direct_rte.spv",
+        "bytes": 19596,
+        "sha256": "f2fe7abcb5a4d714dcd466a9ba96834d54b9160ccb3d20a75e8aeab84f3a8677",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_gemm_direct_rte_epilogue.spv",
+        "bytes": 20280,
+        "sha256": "82bdcb6cc9b295578081467c03bfdf017b1f06aab0955326d791c5ef8a685f0f",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_gemm_direct_rte_init.spv",
+        "bytes": 20260,
+        "sha256": "bf90bffb6b28731566b8c70cf4a75fb091bb60e7ba56cc6503c35a7a89d85c3c",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_gemm_direct_rte_pair.spv",
+        "bytes": 28240,
+        "sha256": "74ebd099535caf03e2875ee8d8345d0c1bc311e6133fcde15190b79301e86c1e",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_gemm_optimized.spv",
+        "bytes": 21060,
+        "sha256": "8673dfb3bb0f30d987c44e4d77df3850bcf44818c5b095e0065a1378e6d6fc23",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_gemm_packed.spv",
+        "bytes": 21476,
+        "sha256": "583da6f979a7bb20ca61b71e3a80b0597167ac41adde9ab8afca6dd59a36d31c",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_global.spv",
+        "bytes": 16216,
+        "sha256": "733d41fa9b48317e863dfa35a039418f4e950155cff67ecfb6e30a002289901d",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_global_matrix.spv",
+        "bytes": 22944,
+        "sha256": "22bee10dab1ad2cde932e787fb84dc6c1becbc9971ea0ef5722891cc37a14ad7",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_global_matrix_optimized.spv",
+        "bytes": 23848,
+        "sha256": "f5d52ffd0e14da7136bb17b71ee37ced4a029efd8a6d4aa0e68d896b0fcb7626",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_global_normalize.spv",
+        "bytes": 7984,
+        "sha256": "caeb9fbaf68519e06219ee7455a2521f28f5bf9fda6b17bc8e5631763541a8aa",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_qkv32.spv",
+        "bytes": 31512,
+        "sha256": "2dbdfd7e725e2cfd09e8c09e0aa60ce09a487272bc93d47bd328818d5824224b",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_qkv32_normalize_wave6.spv",
+        "bytes": 11996,
+        "sha256": "9b1c585054bbbe3c9c2021d393699eae16e9ffcf889db6311d070d0049be5cc5",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_window.spv",
+        "bytes": 22568,
+        "sha256": "76307130e55cb4281ab14c671e1afea404e9df2f83f1c3ade391a7111e0ebf78",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_window_arena_rte.spv",
+        "bytes": 26620,
+        "sha256": "93af10965760ea7b9308f8a3cad63260d035b6dd22d1babbf9223a0195f6b8de",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_window_normalize.spv",
+        "bytes": 7408,
+        "sha256": "c5c8161b72282e283b5ab108f732a328731da39fb5d02c2500a9230b754fe008",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_window_optimized.spv",
+        "bytes": 24108,
+        "sha256": "02bd200ba23be279bc1b3f6a4fc998d9648f576c7c940db09db21cfeb9ff7f75",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_window_register.spv",
+        "bytes": 25276,
+        "sha256": "73081387738a6697a27d9559ea4cc76157f39761e85dc841f634499e08338462",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_window_register_rte.spv",
+        "bytes": 24572,
+        "sha256": "9ff6958330657dbf8fe6dbc86d1dd520fb3b0c80e9afbdf39cf78a3995314569",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "amd_window_small.spv",
+        "bytes": 25628,
+        "sha256": "8406622ac4c6162646d3cc3185eaa0a60bbb03443efeca614fa9f644a80faab2",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "global_normalize.spv",
+        "bytes": 12872,
+        "sha256": "a8d7ca16a8020fb8f033c11119540869e2daf680b102d7c1d08771f87aaaa8cd",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "ops.spv",
+        "bytes": 19376,
+        "sha256": "6fc879c4d5563225548dd40f2050d81dbbda8e61bf0e77408e743bfba712c7f2",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "portable_f16.spv",
+        "bytes": 16044,
+        "sha256": "843388324a4c1211dca82b2711cc22b4db144e3404b79ab4bb74170ac04fba6b",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "portable_gemm.spv",
+        "bytes": 25088,
+        "sha256": "c64d7598632790ca581211581994a60ff24b04e3d904cfae0eadf930ea8f7d85",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "portable_global.spv",
+        "bytes": 23688,
+        "sha256": "b76b366a52de8de92a27a92072ae4e1c3902fee84f9ca649c0ac9f97c3bbb06f",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "portable_window.spv",
+        "bytes": 28356,
+        "sha256": "4953c2c4f53921b92da407df604cefb44789d00de08ec60d3d0fa736de1ac675",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "preprocess.spv",
+        "bytes": 12804,
+        "sha256": "3674eed6b58a4c6a3fa868a1628b704b93ebd693d5c81981eddf3f66ee65adba",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "native",
+        "name": "window_normalize.spv",
+        "bytes": 12376,
+        "sha256": "c9218555db0fb623a049b984ec04e82313efeecd89745c020152e82dac18b6ac",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "game",
+        "name": "game_composite.spv",
+        "bytes": 38764,
+        "sha256": "7af79e07a1e56f0916f93038a6068fb5d7bc3ccd2fc28d5e7f7808762c0bb61d",
+        "strict_three_way_bytes_equal": true
+      },
+      {
+        "family": "game",
+        "name": "game_preprocess.spv",
+        "bytes": 21988,
+        "sha256": "ef4acf9c54e25c84bb8898e6a1682d35cedfc3c22cd08d1f35019e915b6f7775",
+        "strict_three_way_bytes_equal": true
+      }
+    ],
+    "runtime_exe_importer_or_host_binary_byte_reproduction_claimed": false,
+    "gpu_or_game_validation_performed_by_source_rebuild": false
+  },
+  "artifact_sha256": {
+    "tools/dlss5vk.exe": "65f6440fb6a48c4e8acf90c7be75cd042bf7903d7a3c464abe7c1d51bcfb54da",
+    "payload/OpenNrRuntime.dll": "ca10713a5391e76189a8b406dc3e80bc21b13345b95165b05ccb44b6e408c76e",
+    "payload/OptiScaler.dll": "3c43bb1d4a5843b68b0537b8703c4a0c12bf4e47f17c53e225df57cad276dee7",
+    "tools/model_importer.exe": "47da058765749581e18d388aed0ad0cf5f1a4468a796a9dca6396407c8400c0b",
+    "payload/open-nr/shaders/amd-tuning.json": "4037216e4127c19281ddc0f986afc2118af49f125d2e3886648b6c7804deaefe"
+  },
+  "nr_enabled_by_default": false,
+  "arithmetic_default": "k16",
+  "qkv_normalize_default": "off",
+  "qkv_normalize_c32_explicit_opt_in": true,
+  "qualified_auto_cache_changed": false,
+  "c_lifecycle_abi_version": 1,
+  "older_alpha1_to_alpha5_unchanged": true,
+  "older_release_before": {
+    "path": "build/release/older-releases-alpha6-before.json",
+    "sha256": "91ac8b43ffb9d8a2689b9585cf0b4480d10a8137db705c9a8898c0714e8afeb6",
+    "bytes": 3538
+  },
+  "older_release_after": {
+    "path": "build/release/older-releases-alpha6-after.json",
+    "sha256": "91ac8b43ffb9d8a2689b9585cf0b4480d10a8137db705c9a8898c0714e8afeb6",
+    "bytes": 3538
+  },
+  "earlier_releases_independently_rechecked_with_live_api": true,
+  "nvidia_dlls_or_weights_or_game_captures_included": false,
+  "release_notes_source": {
+    "path": "docs/releases/v0.1.0-alpha.6.md",
+    "git_commit": "8da4db5d24a904d0a5216a7c4a71ed18e61d2da6",
+    "git_blob_sha256": "4ac6d84261046362e62aaf9013ee7d898638907e10777ab0296365b5a048e1e4",
+    "git_blob_bytes": 6338
+  },
+  "notes_binding": {
+    "raw_published_notes_file": {
+      "path": "build/release/alpha6-github-notes.md",
+      "sha256": "e3e4b7cb3b2d10db86f0a267a043df39ec9fa147643b0074df3b4b25ec99b27d",
+      "bytes": 6594
+    },
+    "http_utf8_body_sha256": "e3e4b7cb3b2d10db86f0a267a043df39ec9fa147643b0074df3b4b25ec99b27d",
+    "http_utf8_body_bytes": 6594,
+    "raw_crlf_count": 0,
+    "exact_lf_normalization_verified_against_live_api_body": true,
+    "relative_links_converted_to_absolute_tag_bound_urls": true
+  },
+  "limitations": [
+    "The 47.74616 ms target-resolution network-only median does not meet the 8 ms NR plus bridge or 16.67 ms complete-frame targets; this record adds no game FPS, bridge or VRAM measurement.",
+    "Model/checkpoint and recorded SDR replay evidence retains its stated decomposed/fused, fresh/copied-anchor and same-AMD-baseline scopes; no new game sequence or broad visual review is claimed.",
+    "Existing absolute-reference HDR-highlight failures remain unresolved; original NVIDIA parity, other drivers and RX7000 support remain unclaimed.",
+    "Static-library byte reproducibility and independently frozen Windows SDK identity remain unestablished.",
+    "The diagnostic C32 workflow is distributed as source, without its private capture buffers, diagnostic executables or capture SPV.",
+    "This later publication record preserves the frozen 8da4 source/package/tag and existing measurement JSON bytes; it does not replace release assets."
+  ]
+}

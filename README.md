@@ -22,6 +22,10 @@ See the [alpha 6 release notes](docs/releases/v0.1.0-alpha.6.md),
 [installation and optional-selection guide](docs/INSTALL.md),
 [QKV normalization delivery record](docs/amd-qkv-normalize-delivery.md)
 and [measured evidence](docs/performance/qkv-normalize-rx9070xt-20261003.json).
+The [verified alpha 6 publication record](docs/performance/alpha6-release-identities.json)
+binds the frozen source tag, GitHub asset hashes and clean corresponding-source
+rebuild. All 32 native and two game shader modules match the tested package
+byte for byte. This later receipt preserves the release assets and earlier evidence.
 The published [alpha 5 download](https://github.com/spydrful/OpenDLSS-NR-AMD/releases/tag/v0.1.0-alpha.5)
 and [its installation guide](https://github.com/spydrful/OpenDLSS-NR-AMD/blob/v0.1.0-alpha.5/docs/INSTALL.md)
 remain unchanged.
