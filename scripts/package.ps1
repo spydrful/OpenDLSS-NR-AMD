@@ -144,9 +144,24 @@ foreach ($taskNotice in @('LICENSE', 'NOTICE', 'tools\MODEL_IMPORTER_NOTICE.txt'
   Copy-Item -LiteralPath (Join-Path $taskRoot $taskNotice) -Destination $taskStage
 }
 if (Test-Path -LiteralPath $taskInstallGuide -PathType Leaf) { Copy-Item -LiteralPath $taskInstallGuide -Destination (Join-Path $taskStage 'INSTALL.md') }
-foreach ($taskGuide in @('amd-performance-implementation.md', 'amd-performance-research.md', 'amd-gemm-delivery.md', 'amd-rte-delivery.md', 'amd-performance-experiments.md', 'amd-pair-arena-delivery.md', 'amd-context-visibility.md', 'amd-fusion-screen.md', 'amd-qkv-normalize-delivery.md')) {
+foreach ($taskGuide in @('ADVANCED.md', 'amd-performance-implementation.md', 'amd-performance-research.md', 'amd-gemm-delivery.md', 'amd-rte-delivery.md', 'amd-performance-experiments.md', 'amd-pair-arena-delivery.md', 'amd-context-visibility.md', 'amd-fusion-screen.md', 'amd-qkv-normalize-delivery.md')) {
   $taskGuideSource = Join-Path $taskRoot ('docs\' + $taskGuide)
-  if (Test-Path -LiteralPath $taskGuideSource -PathType Leaf) { Copy-Item -LiteralPath $taskGuideSource -Destination $taskStage }
+  if (Test-Path -LiteralPath $taskGuideSource -PathType Leaf) {
+    Copy-Item -LiteralPath $taskGuideSource -Destination $taskStage
+    if ($taskGuide -eq 'ADVANCED.md') {
+      # INSTALL.md is frozen byte-for-byte at package root. Its advanced guide
+      # keeps local evidence/source links in the corresponding-source layout,
+      # rather than resolving docs-relative paths against the package root.
+      $taskGuideTarget = Join-Path $taskStage $taskGuide
+      $taskGuideText = [IO.File]::ReadAllText($taskGuideTarget)
+      $taskGuideText = [regex]::Replace($taskGuideText, '(?<=\]\()(?!(?:[a-zA-Z][a-zA-Z0-9+.-]*:|#))[^)]+(?=\))', {
+        param($taskMatch)
+        if ($taskMatch.Value -eq 'INSTALL.md') { return 'INSTALL.md' }
+        return 'source/OpenDLSS-NR-AMD/docs/' + $taskMatch.Value
+      })
+      [IO.File]::WriteAllText($taskGuideTarget, $taskGuideText)
+    }
+  }
 }
 if ($ReleaseTag) {
   $taskReleaseNotes = Join-Path $taskRoot ('docs\releases\' + $ReleaseTag + '.md')
@@ -197,7 +212,7 @@ function Copy-NrSources([string]$SourceRoot, [string]$Prefix) {
     }
   }
 }
-foreach ($taskDirectory in @('src', 'shaders', 'game', 'integrations', 'scripts', 'tests', 'docs', 'tools')) {
+foreach ($taskDirectory in @('src', 'shaders', 'game', 'integrations', 'scripts', 'tests', 'docs', 'tools', '.github')) {
   $taskSource = Join-Path $taskRoot $taskDirectory
   if (Test-Path -LiteralPath $taskSource -PathType Container) { Copy-NrSources $taskSource ('OpenDLSS-NR-AMD\' + $taskDirectory) }
 }
@@ -222,6 +237,74 @@ if (Test-Path -LiteralPath $taskHostDistributionNotices -PathType Container) {
   Copy-NrSources $taskHostDistributionNotices 'OpenDLSS-NR-AMD\third_party\optiscaler-host\dist\streamline'
 }
 $taskReadme = @'
+OpenNR AMD - start here
+
+This is an experimental Windows package for Radeon RX 9070 XT and Cyberpunk
+2077. Neural rendering (NR) starts disabled. Performance and broad game-quality
+targets are still unmet; read the limits before enabling it.
+
+What to read
+  INSTALL.md       Requirements, installation, model import, use and removal.
+  RELEASE-NOTES.md This version's changes and measurements, when included.
+  ADVANCED.md      Optional processing paths, diagnostics and capture recipes,
+                   when included. Keep packaged defaults for a first test.
+
+You need Windows 11, RX 9070 XT, PowerShell 7, the Microsoft Visual C++ v14 x64
+runtime, and your own supported local nvngx_dlssnr.dll (pinned 310.8.0 or
+310.8.SF.0). Cyberpunk 2077 2.31 and Adrenalin 26.9.1 are the tested versions.
+NVIDIA DLLs, model weights and game captures are not included. The importer
+reads your local model DLL without executing it. INSTALL.md lists accepted
+hashes and the tested game settings.
+
+First use
+  1. Open PowerShell 7 in this package's root, containing package-manifest.json,
+     payload, scripts and tools. Close the game.
+  2. Set $game to the folder containing Cyberpunk2077.exe, normally bin\x64.
+  3. Preview and run the installer. Import your model into a new directory.
+     If a verified model remains from an earlier install, reuse it instead.
+
+  $game = 'C:\Program Files (x86)\GOG Galaxy\Games\Cyberpunk 2077\bin\x64'
+  ./scripts/install.ps1 -PackageDirectory . -GameDirectory $game -WhatIf
+  ./scripts/install.ps1 -PackageDirectory . -GameDirectory $game
+  ./scripts/import_model.ps1 -NvidiaDll 'D:\local\nvngx_dlssnr.dll' -Destination "$game\open-nr\model"
+
+Replace both example paths with your own. Read INSTALL.md if you need write
+permission to the game folder or the import is rejected.
+
+  4. Launch with FSR Quality, ray tracing and frame generation off, and driver
+     AFMF off. Press Insert -> Neural -> Enable NR when ready to test.
+
+Turn Enable NR off to stop inference; zero effect strengths still run it.
+Selecting an optional kernel does not enable NR. Restart the game after
+changing process selections; closing that PowerShell window restores the
+ordinary launch environment.
+
+Upgrade, remove or return to an earlier version
+  Close the game. Use the current installation's retained package to remove
+  OpenNR before installing a different package:
+
+  ./scripts/uninstall.ps1 -GameDirectory $game -WhatIf
+  ./scripts/uninstall.ps1 -GameDirectory $game
+
+Keep the extracted package for future removal. Leave .open-nr-install.json and
+.open-nr-backup-* in the game folder. Removal verifies managed hashes and restores
+backed-up originals.
+Changed installed files can block removal; preserve edits and follow INSTALL.md
+before retrying. Imported models remain. To go back, remove this installation
+and install the earlier package using that version's guide and defaults.
+
+Limits
+  Network-only timing does not measure game FPS. Current game performance,
+  bridge time and VRAM remain unmeasured; the 8 ms NR-plus-bridge and 60 rendered
+  FPS targets remain unmet. Broad temporal/image quality and ten minutes of
+  active gameplay remain pending. Some HDR/highlight reference-quality checks
+  still fail. Other GPUs/games/platforms, ray tracing, original NVIDIA parity
+  and HDR display validation are unclaimed.
+
+Technical development context and attribution
+  The following recorded evidence retains its original build and scope. For a
+  versioned package, use RELEASE-NOTES.md for that release's specific results.
+
 OpenNR-AMD development validation package
 
 This build has unmet performance and matched-image quality release gates.
@@ -243,7 +326,7 @@ remain pending.
 Start with INSTALL.md for prerequisites, installation, local model import,
 enabling NR and reversible removal. The generated default OptiScaler.ini has
 NR disabled (Enabled=false), with K16 publication arithmetic and the retained
-qualified auto cache. Pair/Arena is explicit opt-in; INSTALL.md describes
+qualified auto cache. Pair/Arena is explicit opt-in; ADVANCED.md describes
 process-only selection and reversal. Installing this package does not select
 Pair/Arena automatically. To enable NR after importing the model, open Insert
 -> Neural -> Enable NR. Setting effect strengths to zero still runs inference.
@@ -280,11 +363,11 @@ network measurements separately from per-dispatch profile runs. Profile
 instrumentation and captures do not qualify ordinary game performance.
 tools/qualify_amd_model.py verifies real model artifacts. Bounded capture.flag
 requests (1 through 120 submissions; empty means one) and sequence replay are
-documented in INSTALL.md; captures remain local and are not included here.
+documented in ADVANCED.md; captures remain local and are not included here.
 scripts/analyze_amd_shaders.ps1 optionally fetches the pinned portable RGA tool
 using scripts/rga_tool_manifest.json. Its CPU-only wave32 resource/ISA reports
 are offline compiler evidence, not installed-driver evidence. RGA binaries are
-not included. See INSTALL.md for explicit package-root diagnostic paths.
+not included. See ADVANCED.md for explicit package-root diagnostic paths.
 
 The OptiScaler host and its derived integration code are GPL-3.0-or-later. Their
 corresponding source and build scripts are included under source/.

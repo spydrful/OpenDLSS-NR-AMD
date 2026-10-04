@@ -67,6 +67,16 @@ try {
   Assert-Nr (@($taskManifest.releaseGates.PSObject.Properties | Where-Object { $_.Value.status -ne 'unmet' }).Count -eq 0 -and @($taskManifest.releaseGates.PSObject.Properties).Count -eq 4) 'unmet numerical/game release gates missing'
   Assert-Nr ($taskManifest.releaseGates.gameTemporalHdr.displayScope -eq 'initial SDR' -and $taskManifest.releaseGates.gameTemporalHdr.hdrDisplayValidation -like 'deferred*') 'HDR display deferral is missing from the initial game gate'
   Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'amd-numerics.md')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'rx9070xt-validation.md'))) 'linked package-root validation documents are missing'
+  $taskAdvancedPath = Join-Path $taskOutput 'ADVANCED.md'
+  Assert-Nr (Test-Path -LiteralPath $taskAdvancedPath -PathType Leaf) 'package-root advanced guide is missing'
+  foreach ($taskLink in [regex]::Matches([IO.File]::ReadAllText($taskAdvancedPath), '\[[^\]]+\]\(([^)]+)\)')) {
+    $taskLinkTarget = $taskLink.Groups[1].Value
+    if ($taskLinkTarget.StartsWith('#') -or $taskLinkTarget -match '^[a-zA-Z][a-zA-Z0-9+.-]*:') { continue }
+    $taskLinkFile = ($taskLinkTarget -split '#', 2)[0]
+    $taskResolvedLink = [IO.Path]::GetFullPath((Join-Path $taskOutput $taskLinkFile))
+    Assert-Nr ($taskResolvedLink.StartsWith($taskOutput + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -and (Test-Path -LiteralPath $taskResolvedLink -PathType Leaf)) "packaged advanced guide has an unresolved local link: $taskLinkTarget"
+  }
+  Assert-Nr (Test-Path -LiteralPath (Join-Path $taskOutput 'source\OpenDLSS-NR-AMD\.github\RELEASE_TEMPLATE.md') -PathType Leaf) 'release-writing template is missing from corresponding source'
   Assert-Nr ((Test-Path -LiteralPath (Join-Path $taskOutput 'FreeType-FTL.TXT')) -and (Test-Path -LiteralPath (Join-Path $taskOutput 'FreeType-LICENSE.TXT'))) 'FreeType binary notices are missing'
   Assert-Nr (Test-Path -LiteralPath (Join-Path $taskOutput 'payload\open-nr\shaders\bridge.hlsl')) 'bridge HLSL missing'
   Assert-Nr (Test-Path -LiteralPath (Join-Path $taskOutput 'payload\open-nr\shaders\game_preprocess.spv')) 'game shader missing'

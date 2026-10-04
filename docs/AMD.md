@@ -57,7 +57,9 @@ inference or game performance.
 The retained **68-record qualified auto cache**, NR-off default and version 1 C
 lifecycle ABI stay unchanged. QKV normalization is an additional explicit
 selection. The [installation guide](INSTALL.md#optional-pairarena-selection)
-shows process-only opt-in and removal. **Alpha 6 publication is pending.**
+shows process-only opt-in and removal. The
+[verified alpha 6 publication receipt](performance/alpha6-release-identities.json)
+records the published assets, source tag and corresponding-source rebuild.
 
 **Alpha 6 game FPS, in-game bridge time and game VRAM have not been measured.**
 Complete Cyberpunk benchmarks, ten minutes of active gameplay and broad motion,
